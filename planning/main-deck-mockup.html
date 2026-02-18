@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Skeuomorphic Shelf UI</title>
+
+<style>
+:root {
+  --wood: #6b4a2b;
+  --wood-dark: #4e341e;
+  --rail: #3a2616;
+  --rail-dark: #24160c;
+  --brass: #caa24a;
+}
+
+/* Page */
+body {
+  margin: 0;
+  background: radial-gradient(#1a1f2b, #0f121a);
+  font-family: system-ui, sans-serif;
+  color: #e6e6e6;
+}
+
+/* Shelf */
+.shelf {
+  padding: 40px 60px 50px;
+  background:
+    linear-gradient(to bottom,
+      rgba(0,0,0,0.2),
+      rgba(0,0,0,0.55)),
+    repeating-linear-gradient(
+      90deg,
+      var(--wood),
+      var(--wood) 60px,
+      var(--wood-dark) 120px
+    );
+  box-shadow:
+    inset 0 -14px 24px rgba(0,0,0,0.65),
+    inset 0 6px 10px rgba(255,255,255,0.08);
+}
+
+/* Slots (card + counter alignment unit) */
+.slot-row {
+  display: flex;
+  gap: 24px;
+  perspective: 1200px;
+}
+
+/* Card */
+.card {
+  width: 120px;
+  height: 168px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #25304a, #151b2a);
+  box-shadow:
+    0 6px 10px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(255,255,255,0.08);
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+/* Card border */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,215,120,0.6);
+}
+
+/* Card hover */
+.card:hover {
+  box-shadow:
+    0 20px 30px rgba(0,0,0,0.75),
+    inset 0 0 0 1px rgba(255,255,255,0.15);
+}
+
+/* Shadow under card */
+.card::after {
+  content: "";
+  position: absolute;
+  bottom: -14px;
+  left: 10%;
+  width: 80%;
+  height: 16px;
+  background: radial-gradient(rgba(0,0,0,0.55), transparent);
+  filter: blur(6px);
+}
+
+/* ===== RAIL ===== */
+.rail {
+  margin-top: 22px;
+  padding: 12px 0 16px;
+  background: linear-gradient(to bottom, var(--rail), var(--rail-dark));
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 6px 10px rgba(0,0,0,0.7);
+}
+
+/* Counter strip */
+.counter-row {
+  display: flex;
+  gap: 24px;
+}
+
+/* Counter */
+.counter {
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Text on rail (not a button) */
+.count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d6c28a;
+  text-shadow:
+    0 1px 1px rgba(0,0,0,0.8);
+}
+
+/* Buttons only */
+.counter button {
+  width: 26px;
+  height: 22px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  background: linear-gradient(#eee, #cfcfcf);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 1px 2px rgba(0,0,0,0.6);
+}
+
+.counter button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+}
+</style>
+</head>
+
+<body>
+
+<div class="shelf">
+  <div class="slot-row">
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+    <div class="card"></div>
+  </div>
+
+  <div class="rail">
+    <div class="counter-row">
+      <div class="counter"><button>−</button><div class="count">0 / 3</div><button>+</button></div>
+      <div class="counter"><button>−</button><div class="count">0 / 3</div><button>+</button></div>
+      <div class="counter"><button>−</button><div class="count">0 / 3</div><button>+</button></div>
+      <div class="counter"><button>−</button><div class="count">0 / 3</div><button>+</button></div>
+      <div class="counter"><button>−</button><div class="count">0 / 3</div><button>+</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Card tilt */
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("mousemove", e => {
+    const r = card.getBoundingClientRect();
+    const rx = -((e.clientY - r.top) / r.height - 0.5) * 14;
+    const ry = ((e.clientX - r.left) / r.width - 0.5) * 14;
+    card.style.transform = `translateY(-10px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  card.addEventListener("mouseleave", () => {
+    card.style.transform = "translateY(0)";
+  });
+});
+
+/* Counter logic */
+const MAX = 3;
+document.querySelectorAll(".counter").forEach(counter => {
+  let count = 0;
+  const text = counter.querySelector(".count");
+  counter.children[0].onclick = () => {
+    if (count > 0) count--;
+    text.textContent = `${count} / ${MAX}`;
+  };
+  counter.children[2].onclick = () => {
+    if (count < MAX) count++;
+    text.textContent = `${count} / ${MAX}`;
+  };
+});
+</script>
+
+</body>
+</html>

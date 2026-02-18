@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riftbound Deck Platform v2</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="desk-backdrop"></div>
+  <div class="desk-vignette"></div>
+  <div class="desk-dust"></div>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <p class="eyebrow">Riftbound Deck Platform</p>
+        <h1>Riftdesk</h1>
+        <p class="subtitle">Collection-aware deck building.</p>
+      </div>
+      <div class="workspace-tabs topbar-tabs" role="tablist" aria-label="Workspace">
+        <button
+          type="button"
+          id="workspace-tab-collection"
+          class="workspace-tab-btn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="collection-panel"
+          data-workspace-tab="collection"
+        >
+          Collection Browser
+        </button>
+        <button
+          type="button"
+          id="workspace-tab-deck"
+          class="workspace-tab-btn is-active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="deck-panel"
+          data-workspace-tab="deck"
+        >
+          Deck Worktable
+        </button>
+      </div>
+      <div id="deck-legality-wrap" class="status-wrap">
+        <span id="deck-legality-led" class="status-led" aria-hidden="true"></span>
+        <span id="app-status" class="status">Ready</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="workspace-zone" id="workspace-panel">
+        <section class="module zone collection-zone workspace-pane" id="collection-panel" role="tabpanel" aria-labelledby="workspace-tab-collection" hidden>
+          <div class="module-head">
+            <div>
+              <h2>Collection Browser</h2>
+              <p class="muted">Search, import, and track owned copies with card-image tiles.</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="row inputs-inline collection-toolbar">
+            <button id="collection-import-btn">Import CSV</button>
+            <input id="collection-csv-file" type="file" accept=".csv,text/csv" hidden />
+            <input id="collection-search-input" placeholder="Search cards" aria-label="Collection card search" />
+            <button id="collection-filter-toggle-btn" type="button" class="card-action-btn secondary">Filters</button>
+            <button id="collection-edit-toggle-btn" type="button" class="card-action-btn secondary">Edit</button>
+          </div>
+          <div id="collection-filter-panel" class="collection-filter-panel" hidden>
+            <div class="row inputs-inline">
+              <select id="collection-filter-set" aria-label="Filter by set"></select>
+              <select id="collection-filter-rarity" aria-label="Filter by rarity"></select>
+              <select id="collection-filter-domain" aria-label="Filter by color/domain"></select>
+              <select id="collection-filter-role" aria-label="Filter by role/type"></select>
+              <button id="collection-filter-clear-btn" type="button" class="card-action-btn secondary">Clear Filters</button>
+            </div>
+          </div>
+          <p id="collection-summary" class="muted"></p>
+          <div id="collection-list" class="tile-grid"></div>
+        </section>
+
+        <section class="module zone worktable-zone workspace-pane is-active" id="deck-panel" role="tabpanel" aria-labelledby="workspace-tab-deck">
+          <div class="module-head">
+            <div>
+              <h2>Deck Worktable</h2>
+              <p class="muted">Build with card slots, steppers, and always-on legality checks.</p>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="deck-worktable">
+          <div class="worktable-row worktable-name-row">
+            <label class="deck-name-field">Deck Name
+              <input id="deck-name" placeholder="My Deck" />
+            </label>
+          </div>
+
+          <div class="worktable-row worktable-top">
+            <section class="slot-block">
+              <h3>Legend</h3>
+              <button id="legend-slot-btn" type="button" class="slot-card">
+                <div class="slot-card-art-wrap">
+                  <img id="legend-slot-img" class="slot-card-art is-fallback" alt="" />
+                </div>
+                <div id="legend-slot-name" class="slot-card-name">Choose Legend</div>
+              </button>
+            </section>
+
+            <section class="slot-block">
+              <h3>Chosen Champion</h3>
+              <button id="champion-slot-btn" type="button" class="slot-card">
+                <div class="slot-card-art-wrap">
+                  <img id="champion-slot-img" class="slot-card-art is-fallback" alt="" />
+                </div>
+                <div id="champion-slot-name" class="slot-card-name">Choose Champion</div>
+              </button>
+              <div class="qty-stepper champion-stepper">
+                <button type="button" id="champion-qty-dec" class="step-btn">-</button>
+                <span id="champion-qty-value" class="step-value">0</span>
+                <button type="button" id="champion-qty-inc" class="step-btn">+</button>
+              </div>
+            </section>
+
+            <section class="slot-block rune-block">
+              <h3>Runes <span id="rune-total-badge" class="counter-pill">0 / 12</span></h3>
+              <div id="rune-stepper-list" class="rune-stepper-list"></div>
+            </section>
+          </div>
+
+          <div class="worktable-row battlefields-row section-expandable" data-worktable-section="battlefields">
+            <div class="worktable-row-head">
+              <h3>Battlefields</h3>
+              <button type="button" class="section-expand-btn" data-section-expand="battlefields" aria-pressed="false">Expand</button>
+            </div>
+            <div id="battlefield-slots" class="battlefield-slots"></div>
+          </div>
+
+          <div class="worktable-row main-row section-expandable" data-worktable-section="main-deck">
+            <div class="worktable-row-head">
+              <h3>Main Deck <span id="main-total-badge" class="counter-pill">0 / 40</span></h3>
+              <button type="button" class="section-expand-btn" data-section-expand="main-deck" aria-pressed="false">Expand</button>
+            </div>
+            <div class="main-shelf-block">
+              <div id="main-deck-list" class="tile-grid compact main-shelf-grid main-deck-shelf"></div>
+            </div>
+          </div>
+          
+          <div class="worktable-row main-row section-expandable" data-worktable-section="library">
+            <div class="worktable-row-head">
+              <h3>Library <span id="library-total-badge" class="counter-pill">0 cards</span></h3>
+              <button type="button" class="section-expand-btn" data-section-expand="library" aria-pressed="false">Expand</button>
+            </div>
+            <div class="main-row-head">
+              <div class="row inputs-inline">
+                <input id="main-card-search" placeholder="Filter cards in library" />
+                <button id="main-card-search-btn" type="button">Clear</button>
+              </div>
+            </div>
+            <div id="main-search-results" class="tile-grid compact main-shelf-grid main-catalog-grid"></div>
+          </div>
+          </div>
+
+
+          <div class="row">
+            <button id="deck-validate-btn">Validate</button>
+            <button id="deck-analyze-btn">Analyze vs Collection</button>
+            <button id="deck-save-btn">Save Deck</button>
+            <button id="deck-export-btn">Export JSON</button>
+          </div>
+          <div class="row stackable">
+            <textarea id="deck-import-text" rows="3" placeholder="Paste deck JSON to import"></textarea>
+            <button id="deck-import-btn">Import JSON</button>
+          </div>
+        </section>
+      </section>
+
+      <aside class="module zone inspector-zone" id="inspector-panel">
+        <div class="module-head">
+          <div>
+            <h2>Inspector</h2>
+            <p class="muted">Deck search, validation insights, and saved deck management.</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <section class="inspector-block deck-search-block">
+          <h2>Deck Search</h2>
+          <div class="row inputs-inline">
+            <input id="meta-search" placeholder="Search decks by name, source, legend" />
+            <select id="meta-sort-by" aria-label="Deck search sort">
+              <option value="recommendation">Recommendation</option>
+              <option value="buildability">Buildability</option>
+              <option value="meta">Meta</option>
+              <option value="price">Price</option>
+            </select>
+            <button id="meta-load-btn">Search</button>
+          </div>
+          <div id="meta-list" class="tile-grid compact"></div>
+        </section>
+
+        <section class="inspector-block">
+          <h2>Validation and Analysis</h2>
+          <div class="validation-layout">
+            <div class="validation-layout-block">
+              <h3 class="inspector-subtitle">Rule Validation</h3>
+              <div id="deck-validation" class="result validation-result"></div>
+            </div>
+            <div class="validation-layout-block">
+              <h3 class="inspector-subtitle">Collection Analysis</h3>
+              <div id="deck-analysis" class="result analysis-result"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="inspector-block">
+          <h2>Deck Library</h2>
+          <div class="library-split">
+            <div class="library-pane">
+              <h3 class="inspector-subtitle">Built Decks (Reserve Cards)</h3>
+              <div class="row">
+                <select id="library-built-select"></select>
+                <button id="library-built-load-btn">Load</button>
+                <button id="library-built-update-btn">Update</button>
+                <button id="library-built-delete-btn" class="danger">Delete</button>
+                <button id="library-built-move-btn" class="card-action-btn secondary">Move to Saved</button>
+              </div>
+              <div id="library-built-gallery" class="tile-grid compact"></div>
+            </div>
+            <div class="library-pane">
+              <h3 class="inspector-subtitle">Saved Decks</h3>
+              <div class="row">
+                <select id="library-saved-select"></select>
+                <button id="library-saved-load-btn">Load</button>
+                <button id="library-saved-update-btn">Update</button>
+                <button id="library-saved-delete-btn" class="danger">Delete</button>
+                <button id="library-saved-move-btn" class="card-action-btn secondary">Move to Built</button>
+              </div>
+              <div id="library-saved-gallery" class="tile-grid compact"></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div id="card-preview" class="card-preview" hidden>
+    <div class="card-preview-art-wrap">
+      <img id="card-preview-image" class="card-preview-image" alt="" />
+      <div id="card-preview-fallback" class="card-preview-fallback" hidden></div>
+    </div>
+    <div class="card-preview-body">
+      <div id="card-preview-title" class="card-preview-title">Card Title</div>
+      <div id="card-preview-meta" class="card-preview-meta">Type | Domains</div>
+      <div id="card-preview-stats" class="card-preview-stats"></div>
+    </div>
+  </div>
+
+  <div id="main-card-modal" class="picker-modal main-card-modal" hidden>
+    <div class="main-card-dialog">
+      <div class="main-card-dialog-head">
+        <h3 id="main-card-modal-title">Card Title</h3>
+        <button id="main-card-modal-close" type="button" class="danger">Close</button>
+      </div>
+      <div class="main-card-dialog-body">
+        <div class="main-card-dialog-art-wrap">
+          <img id="main-card-modal-image" class="main-card-dialog-image" alt="" />
+          <div id="main-card-modal-fallback" class="main-card-dialog-fallback" hidden></div>
+        </div>
+        <div class="main-card-dialog-copy">
+          <div id="main-card-modal-detail" class="main-card-dialog-detail">Set | Rarity</div>
+          <div id="main-card-modal-meta" class="main-card-dialog-meta">Type | Domains</div>
+          <div id="main-card-modal-stats" class="main-card-dialog-stats"></div>
+          <div id="main-card-modal-tags" class="main-card-dialog-tags">Tags: -</div>
+          <div class="main-card-dialog-section-label">Effect</div>
+          <div id="main-card-modal-effect" class="main-card-dialog-effect">No effect text available.</div>
+          <div id="main-card-modal-flavor" class="main-card-dialog-flavor" hidden></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="replacement-modal" class="picker-modal replacement-modal" hidden>
+    <div class="replacement-dialog">
+      <div class="replacement-head">
+        <h3 id="replacement-title">Replace Missing Card</h3>
+        <button id="replacement-close-btn" type="button" class="danger">Close</button>
+      </div>
+      <div class="replacement-body">
+        <section class="replacement-suggestions-pane">
+          <div class="replacement-pane-title">Collection Replacements</div>
+          <div id="replacement-summary" class="replacement-summary"></div>
+          <div id="replacement-options" class="replacement-alcove"></div>
+        </section>
+        <section class="replacement-target-pane">
+          <div class="replacement-pane-title">Missing Card</div>
+          <div class="replacement-target-art-wrap">
+            <img id="replacement-target-image" class="replacement-target-image" alt="" />
+          </div>
+          <div id="replacement-target-name" class="replacement-target-name">Card</div>
+          <div id="replacement-target-meta" class="replacement-target-meta"></div>
+          <div id="replacement-target-state" class="replacement-target-state"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="card-picker-modal" class="picker-modal" hidden>
+    <div class="picker-dialog">
+      <div class="picker-head">
+        <h3 id="picker-title">Choose Card</h3>
+        <button id="picker-close-btn" type="button" class="danger">Close</button>
+      </div>
+      <div class="row inputs-inline">
+        <input id="picker-search-input" placeholder="Search cards" autocomplete="off" />
+      </div>
+      <div id="picker-grid" class="tile-grid"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

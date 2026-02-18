@@ -1,0 +1,137 @@
+{
+  "format": "constructed",
+  "description": "Constructed deck profile sourced from official Riftbound Core + Tournament rules.",
+  "source_of_truth": [
+    {
+      "file": "rules/Riftbound Core Rules v1.2.txt",
+      "sections": [
+        "101",
+        "103.1",
+        "103.2",
+        "103.3",
+        "103.4"
+      ]
+    },
+    {
+      "file": "rules/Riftbound tournament rules.txt",
+      "sections": [
+        "402.1",
+        "403",
+        "601.1"
+      ]
+    }
+  ],
+  "constraints": {
+    "legend_required": true,
+    "legend_card_type": "Legend",
+    "chosen_champion_required": true,
+    "champion_super_type": "Champion",
+    "main_deck_size_exact": 40,
+    "rune_count_exact": 12,
+    "battlefield_count_exact": 3,
+    "battlefield_unique_required": true,
+    "main_copy_limit": 3,
+    "combined_main_sideboard_copy_limit": 3,
+    "sideboard_max": 8,
+    "signature_max_total": 3,
+    "domain_identity_enforced": true,
+    "rune_card_type": "Rune",
+    "battlefield_card_type": "Battlefield",
+    "allowed_main_card_types": [
+      "Unit",
+      "Gear",
+      "Spell"
+    ],
+    "allowed_sideboard_card_types": [
+      "Unit",
+      "Gear",
+      "Spell"
+    ]
+  },
+  "rule_refs": {
+    "legend_required": [
+      "CR 103.1",
+      "TR 402.1"
+    ],
+    "legend_type": [
+      "CR 103.1",
+      "TR 402.1"
+    ],
+    "chosen_champion_required": [
+      "CR 103.2.a",
+      "TR 402.1"
+    ],
+    "chosen_champion_type": [
+      "CR 103.2.a.2"
+    ],
+    "chosen_champion_tag_match": [
+      "CR 103.2.a.2",
+      "TR 601.1.c.4"
+    ],
+    "main_deck_size": [
+      "TR 402.1",
+      "TR 601.1.b"
+    ],
+    "rune_count": [
+      "CR 103.3",
+      "TR 402.1"
+    ],
+    "battlefield_count": [
+      "CR 103.4",
+      "TR 402.1"
+    ],
+    "battlefield_unique": [
+      "CR 103.4.c",
+      "TR 402.1"
+    ],
+    "sideboard_max": [
+      "TR 601.1.c.1"
+    ],
+    "chosen_champion_in_main": [
+      "TR 402.1"
+    ],
+    "main_copy_limit": [
+      "CR 103.2.b",
+      "TR 601.1.c.3"
+    ],
+    "combined_copy_limit": [
+      "TR 403.3",
+      "TR 601.1.c.3"
+    ],
+    "main_card_types": [
+      "CR 103.2.a"
+    ],
+    "sideboard_card_types": [
+      "TR 601.1.c.2"
+    ],
+    "rune_card_type": [
+      "CR 103.3"
+    ],
+    "battlefield_type": [
+      "CR 103.4",
+      "TR 402.1"
+    ],
+    "domain_identity_main": [
+      "CR 103.1.b.1",
+      "CR 103.1.b.3",
+      "CR 103.1.b.4"
+    ],
+    "domain_identity_sideboard": [
+      "CR 103.1.b.1",
+      "TR 601.1.c.2"
+    ],
+    "domain_identity_runes": [
+      "CR 103.3.a.1"
+    ],
+    "domain_identity_battlefields": [
+      "CR 103.4.b"
+    ],
+    "signature_limit": [
+      "CR 103.2.d.1"
+    ],
+    "signature_tag_match": [
+      "CR 103.2.d.2"
+    ]
+  }
+}
+

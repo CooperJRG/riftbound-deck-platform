@@ -1,0 +1,470 @@
+{
+  "generatedAtUtc": "2026-02-17T02:11:24+00:00",
+  "projectRoot": "C:/Users/coope/Documents/Riftbound Test/riftbound-deck-platform-v2",
+  "assetCount": 29,
+  "warningsCount": 12,
+  "warnings": [
+    "desk-bg-16x10: source 1536x1024 -> target 1920x1200",
+    "desk-bg-16x9: source 1536x1024 -> target 3840x2160",
+    "walnut-tile: source 1024x1024 -> target 2048x2048",
+    "leather-tile: source 1024x1024 -> target 2048x2048",
+    "aluminum-tile: source 1024x1024 -> target 2048x2048",
+    "paper-tile: source 1024x1024 -> target 2048x2048",
+    "gloss-strip: source 1536x1024 -> target 2048x512",
+    "inner-vignette: source 1536x1024 -> target 2048x2048",
+    "micro-dust: source 1536x1024 -> target 2048x2048",
+    "divider-strip: source 1536x1024 -> target 2048x128",
+    "button-amber: source 1536x1024 -> target 1024x256",
+    "button-slate: source 1536x1024 -> target 1024x256"
+  ],
+  "assets": [
+    {
+      "name": "desk-bg-16x10",
+      "status": "ok",
+      "source": "images/bg_desk_main_1920x1200.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        1920,
+        1200
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/backgrounds/bg_desk_main_1920x1200.png",
+      "resized": true
+    },
+    {
+      "name": "desk-bg-16x9",
+      "status": "ok",
+      "source": "images/bg_desk_main_3840x2160.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        3840,
+        2160
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/backgrounds/bg_desk_main_3840x2160.png",
+      "resized": true
+    },
+    {
+      "name": "walnut-tile",
+      "status": "ok",
+      "source": "images/tx_walnut_seamless_2048.png",
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "resize",
+      "output": "web/assets/skeuo/textures/tx_walnut_seamless_2048.png",
+      "resized": true
+    },
+    {
+      "name": "leather-tile",
+      "status": "ok",
+      "source": "images/tx_leather_dark_seamless_2048.png",
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "resize",
+      "output": "web/assets/skeuo/textures/tx_leather_dark_seamless_2048.png",
+      "resized": true
+    },
+    {
+      "name": "aluminum-tile",
+      "status": "ok",
+      "source": "images/tx_aluminum_brushed_seamless_2048.png",
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "resize",
+      "output": "web/assets/skeuo/textures/tx_aluminum_brushed_seamless_2048.png",
+      "resized": true
+    },
+    {
+      "name": "paper-tile",
+      "status": "ok",
+      "source": "images/tx_paper_warm_seamless_2048.png",
+      "sourceSize": [
+        1024,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "resize",
+      "output": "web/assets/skeuo/textures/tx_paper_warm_seamless_2048.png",
+      "resized": true
+    },
+    {
+      "name": "gloss-strip",
+      "status": "ok",
+      "source": "images/ov_gloss_strip_2048x512.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        512
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/overlays/ov_gloss_strip_2048x512.png",
+      "resized": true
+    },
+    {
+      "name": "inner-vignette",
+      "status": "ok",
+      "source": "images/ov_inner_vignette_2048x2048.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/overlays/ov_inner_vignette_2048x2048.png",
+      "resized": true
+    },
+    {
+      "name": "micro-dust",
+      "status": "ok",
+      "source": "images/ov_micro_dust_2048x2048.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        2048
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/overlays/ov_micro_dust_2048x2048.png",
+      "resized": true
+    },
+    {
+      "name": "divider-strip",
+      "status": "ok",
+      "source": "images/ui_divider_emboss_2048x128.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        2048,
+        128
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/overlays/ui_divider_emboss_2048x128.png",
+      "resized": true
+    },
+    {
+      "name": "button-amber",
+      "status": "ok",
+      "source": "images/tx_button_amber_1024x256.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        1024,
+        256
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/buttons/tx_button_amber_1024x256.png",
+      "resized": true
+    },
+    {
+      "name": "button-slate",
+      "status": "ok",
+      "source": "images/tx_button_slate_1024x256.png",
+      "sourceSize": [
+        1536,
+        1024
+      ],
+      "targetSize": [
+        1024,
+        256
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/buttons/tx_button_slate_1024x256.png",
+      "resized": true
+    },
+    {
+      "name": "card-back-clean",
+      "status": "ok",
+      "source": "images/processed/card_backs/card_back_clean_tight_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "mode": "cover",
+      "output": "web/assets/skeuo/card-backs/card_back_clean_768x1024.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-01",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_01_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_01.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-02",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_02_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_02.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-03",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_03_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_03.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-04",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_04_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_04.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-05",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_05_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_05.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-06",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_06_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_06.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-07",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_07_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_07.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-08",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_08_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_08.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-09",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_09_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_09.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-10",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_10_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_10.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-11",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_11_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_11.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-12",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_12_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_12.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-13",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_13_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_13.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-14",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_14_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_14.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-15",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_15_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_15.png",
+      "resized": false
+    },
+    {
+      "name": "card-back-variant-16",
+      "status": "ok",
+      "source": "images/processed/card_backs/variants_768x1024/card_back_variant_16_768x1024.png",
+      "sourceSize": [
+        768,
+        1024
+      ],
+      "targetSize": [
+        768,
+        1024
+      ],
+      "output": "web/assets/skeuo/card-backs/variants/card_back_variant_16.png",
+      "resized": false
+    }
+  ]
+}
