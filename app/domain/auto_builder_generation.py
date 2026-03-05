@@ -37,13 +37,13 @@ from app.domain.validator import validate_deck
 _MAIN_CARD_TYPES = {"Unit", "Gear", "Spell"}
 _CANDIDATE_SHELL_LIMIT = 12
 _CANDIDATE_ARCHETYPES_PER_SHELL = 2
-_PURE_GENERATE_LIMIT = 8
-_SEED_ADAPT_LIMIT = 24
+_PURE_GENERATE_LIMIT = 6
+_SEED_ADAPT_LIMIT = 16
 _MIN_RESULTS_TARGET = 12
 _MAX_VARIANTS_PER_SHELL = 2
-_PURE_BEAM_WIDTH = 16
-_PURE_EXPANSION_LIMIT = 8
-_PURE_POOL_LIMIT = 64
+_PURE_BEAM_WIDTH = 12
+_PURE_EXPANSION_LIMIT = 6
+_PURE_POOL_LIMIT = 48
 _SUPPORT_ONLY_ISSUE_CODES = {
     "RUNE_DECK_SIZE",
     "RUNE_UNKNOWN_CARD",
@@ -540,13 +540,14 @@ def _score_candidate_key(*, model, generator_state: dict[str, Any], plan: Genera
     return scores[0][0] if scores else -1e9
 
 
-def _score_candidate_keys(*, model, generator_state: dict[str, Any], plan: GenerationPlan, partial_main: dict[str, int], candidate_keys: list[str], bundle: dict[str, Any], cards, embeddings: dict[str, np.ndarray], static_features, cluster_by_card: dict[str, int], collection_by_key: dict[str, int]) -> list[tuple[float, str]]:
+def _score_candidate_keys(*, model, generator_state: dict[str, Any], plan: GenerationPlan, partial_main: dict[str, int], candidate_keys: list[str], bundle: dict[str, Any], cards, embeddings: dict[str, np.ndarray], static_features, cluster_by_card: dict[str, int], collection_by_key: dict[str, int], runtime_cache: dict[str, Any] | None = None) -> list[tuple[float, str]]:
     if not candidate_keys:
         return []
     total_main_slots = max(1, int(generator_state.get("mainDeckSize") or 40))
     win_vector_size, cluster_vector_size = _generator_feature_sizes(generator_state)
     text_emb_dim = max(0, int(generator_state.get("textEmbDim") or 0))
-    runtime_cache = _bundle_runtime(bundle, cards)
+    if runtime_cache is None:
+        runtime_cache = _bundle_runtime(bundle, cards)
     text_embeddings = runtime_cache.get("textEmbeddings") if text_emb_dim > 0 else None
     state_vec = _state_feature_vector(
         partial_main,
@@ -833,6 +834,12 @@ def _load_generator_model(generator_state: dict[str, Any]) -> _MoECandidateScore
     return _generator_runtime(generator_state)["model"]
 
 
+def prewarm_auto_builder_runtime(*, bundle: dict[str, Any], generator_state: dict[str, Any], cards) -> None:
+    """Prime bundle and generator caches so first recommend() avoids one-time build cost."""
+    _bundle_runtime(bundle, cards)
+    _generator_runtime(generator_state)
+
+
 def _generator_runtime(generator_state: dict[str, Any], *, model: _MoECandidateScorer | None = None) -> dict[str, Any]:
     requested_device = _resolve_torch_device(None).type
     cached = generator_state.get("_runtime")
@@ -897,6 +904,7 @@ def _complete_main_greedily(*, plan: GenerationPlan, main_by_key: dict[str, int]
                 static_features=static_features,
                 cluster_by_card=cluster_by_card,
                 collection_by_key=collection_by_key,
+                runtime_cache=runtime_cache,
             )
         )
         scored.sort(key=lambda row: (-row[0], row[1]))
@@ -959,6 +967,7 @@ def generate_pure_candidate(*, plan: GenerationPlan, bundle: dict[str, Any], car
                 static_features=static_features,
                 cluster_by_card=cluster_by_card,
                 collection_by_key=collection_by_key,
+                runtime_cache=runtime_cache,
             )
             scored.sort(key=lambda row: (-row[0], row[1]))
             for candidate_score_value, candidate_key in scored[:_PURE_EXPANSION_LIMIT]:

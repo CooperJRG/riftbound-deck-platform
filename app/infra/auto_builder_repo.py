@@ -6,6 +6,7 @@ import logging
 import platform
 import pickle
 from pathlib import Path
+import threading
 from typing import Any
 import warnings
 
@@ -15,7 +16,7 @@ import torch
 
 from app.domain.analysis import analyze_collection_completion
 from app.domain.auto_builder_features import build_card_static_features, deck_main_from_payload, deck_signature_from_main
-from app.domain.auto_builder_generation import adapt_seed_candidate, build_candidate_payload, build_generation_plans, generate_pure_candidate, generation_defaults, prototype_candidate, rank_replacements_for_missing_card
+from app.domain.auto_builder_generation import adapt_seed_candidate, build_candidate_payload, build_generation_plans, generate_pure_candidate, generation_defaults, prewarm_auto_builder_runtime, prototype_candidate, rank_replacements_for_missing_card
 from app.domain.auto_builder_scoring import resolved_ranking_mode
 from app.domain.auto_builder_training import _resolve_torch_device
 from app.domain.auto_builder_types import LoadedAutoBuilderBundle
@@ -52,7 +53,9 @@ class AutoBuilderRepository:
         self._runtime_warnings: list[str] = []
         self._profiles_by_ref: dict[tuple[str, str], dict[str, Any]] = {}
         self._profiles_by_signature: dict[str, dict[str, Any]] = {}
-        self.refresh(force=True)
+        # Load bundle in background so app startup is fast; first recommend may wait for load.
+        t = threading.Thread(target=self.refresh, kwargs={"force": True}, name="auto-builder-load", daemon=True)
+        t.start()
 
     def refresh(self, *, force: bool = False) -> None:
         if not self._enabled:
@@ -129,6 +132,10 @@ class AutoBuilderRepository:
             self._runtime_warnings = runtime_warnings[:6]
             self._profiles_by_ref = profiles_by_ref
             self._profiles_by_signature = profiles_by_signature
+            try:
+                prewarm_auto_builder_runtime(bundle=loaded.bundle, generator_state=loaded.generator_state, cards=self._cards)
+            except Exception as prewarm_exc:
+                logger.warning("Auto Builder prewarm skipped: %s", prewarm_exc)
             for message in self._runtime_warnings:
                 logger.warning("Auto Builder compatibility warning: %s", message)
         except Exception as exc:
