@@ -1,0 +1,2353 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: Riftbound Deck Platform
+        - heading "Riftdesk" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Collection-aware deck building.
+      - tablist "Workspace" [ref=e8]:
+        - tab "Collection Browser" [ref=e9] [cursor=pointer]
+        - tab "Manual Mode" [selected] [ref=e10] [cursor=pointer]
+        - tab "Auto Builder" [ref=e11] [cursor=pointer]
+      - generic [ref=e14]: Legal
+    - main [ref=e15]:
+      - tabpanel "Manual Mode" [ref=e17]:
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - heading "Manual Mode" [level=2] [ref=e20]
+            - paragraph [ref=e21]: Direct deck editing with legality checks, collection analysis, and ML replacement support.
+          - generic "Deck actions" [ref=e22]:
+            - button "Save Deck" [ref=e23] [cursor=pointer]
+            - button "Export JSON" [ref=e24] [cursor=pointer]
+            - button "Import JSON" [ref=e25] [cursor=pointer]
+            - button "Clear Deck" [ref=e26] [cursor=pointer]
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - text: Deck Name
+              - textbox "Deck Name" [ref=e31]:
+                - /placeholder: My Deck
+                - text: Purple Ezreal Tempo
+            - generic [ref=e32]:
+              - text: Format
+              - combobox "Deck format" [ref=e33]:
+                - option "constructed - Constructed deck profile sourced from official Riftbound Core + Tournament rules." [selected]
+                - option "skirmish - Lower-commitment constructed variant for local testing and pickup events."
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - heading "Legend" [level=3] [ref=e36]
+              - button "Ezreal - Prodigal Explorer artwork Ezreal - Prodigal Explorer" [ref=e5248] [cursor=pointer]:
+                - img "Ezreal - Prodigal Explorer artwork" [ref=e5249]
+                - generic [ref=e40]: Ezreal - Prodigal Explorer
+            - generic [ref=e41]:
+              - heading "Chosen Champion" [level=3] [ref=e42]
+              - button "Ezreal - Prodigy artwork Ezreal - Prodigy" [ref=e5250] [cursor=pointer]:
+                - img "Ezreal - Prodigy artwork" [ref=e5251]
+                - generic [ref=e46]: Ezreal - Prodigy
+              - generic [ref=e47]:
+                - button "-" [ref=e48] [cursor=pointer]
+                - generic [ref=e49]: "2"
+                - button "+" [ref=e50] [cursor=pointer]
+            - generic [ref=e51]:
+              - heading "Runes 12 / 12" [level=3] [ref=e5252]:
+                - text: Runes
+                - generic [ref=e53]: 12 / 12
+              - generic [ref=e54]:
+                - article [ref=e5253]:
+                  - img "Chaos Rune artwork" [ref=e5255]
+                  - generic [ref=e5256]:
+                    - generic [ref=e5257]: Chaos
+                    - generic [ref=e5259]: Chaos Rune
+                  - generic [ref=e5260]:
+                    - button "-" [ref=e5261] [cursor=pointer]
+                    - generic [ref=e5262]: "7"
+                    - button "+" [ref=e5263] [cursor=pointer]
+                - article [ref=e5264]:
+                  - img "Mind Rune artwork" [ref=e5266]
+                  - generic [ref=e5267]:
+                    - generic [ref=e5268]: Mind
+                    - generic [ref=e5270]: Mind Rune
+                  - generic [ref=e5271]:
+                    - button "-" [ref=e5272] [cursor=pointer]
+                    - generic [ref=e5273]: "5"
+                    - button "+" [ref=e5274] [cursor=pointer]
+          - generic [ref=e61]:
+            - heading "Battlefields" [level=3] [ref=e63]
+            - generic [ref=e64]:
+              - button "Targon's Peak artwork Targon's Peak" [ref=e5275] [cursor=pointer]:
+                - img "Targon's Peak artwork" [ref=e5277]
+                - generic [ref=e5278]: Targon's Peak
+              - button "Aspirant's Climb artwork Aspirant's Climb" [ref=e5279] [cursor=pointer]:
+                - img "Aspirant's Climb artwork" [ref=e5281]
+                - generic [ref=e5282]: Aspirant's Climb
+              - button "Ravenbloom Conservatory artwork Ravenbloom Conservatory" [ref=e5283] [cursor=pointer]:
+                - img "Ravenbloom Conservatory artwork" [ref=e5285]
+                - generic [ref=e5286]: Ravenbloom Conservatory
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - heading "Main Deck 40 / 40" [level=3] [ref=e5287]:
+                - text: Main Deck
+                - generic [ref=e80]: 40 / 40
+              - generic [ref=e81]:
+                - button "Analyze vs Collection" [ref=e82] [cursor=pointer]
+                - button "Auto Complete Deck" [ref=e83] [cursor=pointer]
+                - button "Best Replacement Plan" [ref=e84] [cursor=pointer]
+            - generic [ref=e5288]:
+              - generic [ref=e5289]:
+                - generic [ref=e5290]:
+                  - article [ref=e5291] [cursor=pointer]:
+                    - img "Stupefy artwork" [ref=e5293]
+                  - article [ref=e5294] [cursor=pointer]:
+                    - img "Ravenbloom Student artwork" [ref=e5296]
+                  - article [ref=e5297] [cursor=pointer]:
+                    - img "Singularity artwork" [ref=e5299]
+                  - article [ref=e5300] [cursor=pointer]:
+                    - img "Fight or Flight artwork" [ref=e5302]
+                - generic [ref=e5303]:
+                  - generic [ref=e5305]:
+                    - button "-" [ref=e5306] [cursor=pointer]
+                    - generic [ref=e5307]: 3/3
+                    - button "+" [disabled] [ref=e5308]
+                  - generic [ref=e5310]:
+                    - button "-" [ref=e5311] [cursor=pointer]
+                    - generic [ref=e5312]: 2/3
+                    - button "+" [ref=e5313] [cursor=pointer]
+                  - generic [ref=e5315]:
+                    - button "-" [ref=e5316] [cursor=pointer]
+                    - generic [ref=e5317]: 2/3
+                    - button "+" [ref=e5318] [cursor=pointer]
+                  - generic [ref=e5320]:
+                    - button "-" [ref=e5321] [cursor=pointer]
+                    - generic [ref=e5322]: 2/3
+                    - button "+" [ref=e5323] [cursor=pointer]
+              - generic [ref=e5324]:
+                - generic [ref=e5325]:
+                  - article [ref=e5326] [cursor=pointer]:
+                    - img "Gust artwork" [ref=e5328]
+                  - article [ref=e5329] [cursor=pointer]:
+                    - img "Rebuke artwork" [ref=e5331]
+                  - article [ref=e5332] [cursor=pointer]:
+                    - img "Rhasa the Sunderer artwork" [ref=e5334]
+                  - article [ref=e5335] [cursor=pointer]:
+                    - img "Frigid Touch artwork" [ref=e5337]
+                - generic [ref=e5338]:
+                  - generic [ref=e5340]:
+                    - button "-" [ref=e5341] [cursor=pointer]
+                    - generic [ref=e5342]: 2/3
+                    - button "+" [ref=e5343] [cursor=pointer]
+                  - generic [ref=e5345]:
+                    - button "-" [ref=e5346] [cursor=pointer]
+                    - generic [ref=e5347]: 2/3
+                    - button "+" [ref=e5348] [cursor=pointer]
+                  - generic [ref=e5350]:
+                    - button "-" [ref=e5351] [cursor=pointer]
+                    - generic [ref=e5352]: 0/3
+                    - button "+" [disabled] [ref=e5353]
+                  - generic [ref=e5355]:
+                    - button "-" [ref=e5356] [cursor=pointer]
+                    - generic [ref=e5357]: 3/3
+                    - button "+" [disabled] [ref=e5358]
+              - generic [ref=e5359]:
+                - generic [ref=e5360]:
+                  - article [ref=e5361] [cursor=pointer]:
+                    - img "Plundering Poro artwork" [ref=e5363]
+                  - article [ref=e5364] [cursor=pointer]:
+                    - img "Wages of Pain artwork" [ref=e5366]
+                  - article [ref=e5367] [cursor=pointer]:
+                    - img "Card Sharp artwork" [ref=e5369]
+                  - article [ref=e5370] [cursor=pointer]:
+                    - img "Called Shot artwork" [ref=e5372]
+                - generic [ref=e5373]:
+                  - generic [ref=e5375]:
+                    - button "-" [ref=e5376] [cursor=pointer]
+                    - generic [ref=e5377]: 3/3
+                    - button "+" [disabled] [ref=e5378]
+                  - generic [ref=e5380]:
+                    - button "-" [ref=e5381] [cursor=pointer]
+                    - generic [ref=e5382]: 2/3
+                    - button "+" [ref=e5383] [cursor=pointer]
+                  - generic [ref=e5385]:
+                    - button "-" [ref=e5386] [cursor=pointer]
+                    - generic [ref=e5387]: 3/3
+                    - button "+" [disabled] [ref=e5388]
+                  - generic [ref=e5390]:
+                    - button "-" [ref=e5391] [cursor=pointer]
+                    - generic [ref=e5392]: 3/3
+                    - button "+" [disabled] [ref=e5393]
+              - generic [ref=e5394]:
+                - generic [ref=e5395]:
+                  - article [ref=e5396] [cursor=pointer]:
+                    - img "Treasure Hunter artwork" [ref=e5398]
+                  - article [ref=e5399] [cursor=pointer]:
+                    - img "Beast Below artwork" [ref=e5401]
+                  - article [ref=e5402] [cursor=pointer]:
+                    - img "Switcheroo artwork" [ref=e5404]
+                  - article [ref=e5405] [cursor=pointer]:
+                    - img "Ezreal - Prodigy artwork" [ref=e5407]
+                - generic [ref=e5408]:
+                  - generic [ref=e5410]:
+                    - button "-" [ref=e5411] [cursor=pointer]
+                    - generic [ref=e5412]: 3/3
+                    - button "+" [disabled] [ref=e5413]
+                  - generic [ref=e5415]:
+                    - button "-" [ref=e5416] [cursor=pointer]
+                    - generic [ref=e5417]: 2/3
+                    - button "+" [ref=e5418] [cursor=pointer]
+                  - generic [ref=e5420]:
+                    - button "-" [ref=e5421] [cursor=pointer]
+                    - generic [ref=e5422]: 1/3
+                    - button "+" [ref=e5423] [cursor=pointer]
+                  - generic [ref=e5425]:
+                    - button "-" [ref=e5426] [cursor=pointer]
+                    - generic [ref=e5427]: 0/3
+                    - button "+" [ref=e5428] [cursor=pointer]
+              - generic [ref=e5429]:
+                - article [ref=e5431] [cursor=pointer]:
+                  - img "Seal of Discord artwork" [ref=e5433]
+                - generic [ref=e5436]:
+                  - button "-" [ref=e5437] [cursor=pointer]
+                  - generic [ref=e5438]: 0/3
+                  - button "+" [ref=e5439] [cursor=pointer]
+          - generic [ref=e88]:
+            - heading "Library 144 cards" [level=3] [ref=e5440]:
+              - text: Library
+              - generic [ref=e91]: 144 cards
+            - generic [ref=e93]:
+              - textbox "Filter cards in library" [ref=e94]
+              - button "Clear" [ref=e95] [cursor=pointer]
+            - generic [ref=e96]:
+              - article [ref=e5441]:
+                - img "Consult the Past artwork" [ref=e5443]
+                - generic [ref=e5444]:
+                  - generic "Consult the Past" [ref=e5445]
+                  - generic [ref=e5446]: Spell | Mind
+                  - button "Add" [ref=e5448] [cursor=pointer]
+              - article [ref=e5449]:
+                - img "Eager Apprentice artwork" [ref=e5451]
+                - generic [ref=e5452]:
+                  - generic "Eager Apprentice" [ref=e5453]
+                  - generic [ref=e5454]: Unit | Mind
+                  - button "Add" [ref=e5456] [cursor=pointer]
+              - article [ref=e5457]:
+                - img "Falling Comet artwork" [ref=e5459]
+                - generic [ref=e5460]:
+                  - generic "Falling Comet" [ref=e5461]
+                  - generic [ref=e5462]: Spell | Mind
+                  - button "Add" [ref=e5464] [cursor=pointer]
+              - article [ref=e5465]:
+                - img "Jeweled Colossus artwork" [ref=e5467]
+                - generic [ref=e5468]:
+                  - generic "Jeweled Colossus" [ref=e5469]
+                  - generic [ref=e5470]: Unit | Mind
+                  - button "Add" [ref=e5472] [cursor=pointer]
+              - article [ref=e5473]:
+                - img "Lecturing Yordle artwork" [ref=e5475]
+                - generic [ref=e5476]:
+                  - generic "Lecturing Yordle" [ref=e5477]
+                  - generic [ref=e5478]: Unit | Mind
+                  - button "Add" [ref=e5480] [cursor=pointer]
+              - article [ref=e5481]:
+                - img "Mega-Mech artwork" [ref=e5483]
+                - generic [ref=e5484]:
+                  - generic "Mega-Mech" [ref=e5485]
+                  - generic [ref=e5486]: Unit | Mind
+                  - button "Add" [ref=e5488] [cursor=pointer]
+              - article [ref=e5489]:
+                - img "Orb of Regret artwork" [ref=e5491]
+                - generic [ref=e5492]:
+                  - generic "Orb of Regret" [ref=e5493]
+                  - generic [ref=e5494]: Gear | Mind
+                  - button "Add" [ref=e5496] [cursor=pointer]
+              - article [ref=e5497]:
+                - img "Pit Crew artwork" [ref=e5499]
+                - generic [ref=e5500]:
+                  - generic "Pit Crew" [ref=e5501]
+                  - generic [ref=e5502]: Unit | Mind
+                  - button "Add" [ref=e5504] [cursor=pointer]
+              - article [ref=e5505]:
+                - img "Riptide Rex artwork" [ref=e5507]
+                - generic [ref=e5508]:
+                  - generic "Riptide Rex" [ref=e5509]
+                  - generic [ref=e5510]: Unit | Mind
+                  - button "Add" [ref=e5512] [cursor=pointer]
+              - article [ref=e5513]:
+                - img "Smoke Screen artwork" [ref=e5515]
+                - generic [ref=e5516]:
+                  - generic "Smoke Screen" [ref=e5517]
+                  - generic [ref=e5518]: Spell | Mind
+                  - button "Add" [ref=e5520] [cursor=pointer]
+              - article [ref=e5521]:
+                - img "Sprite Call artwork" [ref=e5523]
+                - generic [ref=e5524]:
+                  - generic "Sprite Call" [ref=e5525]
+                  - generic [ref=e5526]: Spell | Mind
+                  - button "Add" [ref=e5528] [cursor=pointer]
+              - article [ref=e5529]:
+                - img "Stupefy artwork" [ref=e5531]
+                - generic [ref=e5532]:
+                  - generic "Stupefy" [ref=e5533]
+                  - generic [ref=e5534]: Spell | Mind
+                  - button "Full" [disabled] [ref=e5536]
+              - article [ref=e5537]:
+                - img "Watchful Sentry artwork" [ref=e5539]
+                - generic [ref=e5540]:
+                  - generic "Watchful Sentry" [ref=e5541]
+                  - generic [ref=e5542]: Unit | Mind
+                  - button "Add" [ref=e5544] [cursor=pointer]
+              - article [ref=e5545]:
+                - img "Blastcone Fae artwork" [ref=e5547]
+                - generic [ref=e5548]:
+                  - generic "Blastcone Fae" [ref=e5549]
+                  - generic [ref=e5550]: Unit | Mind
+                  - button "Add" [ref=e5552] [cursor=pointer]
+              - article [ref=e5553]:
+                - img "Energy Conduit artwork" [ref=e5555]
+                - generic [ref=e5556]:
+                  - generic "Energy Conduit" [ref=e5557]
+                  - generic [ref=e5558]: Gear | Mind
+                  - button "Add" [ref=e5560] [cursor=pointer]
+              - article [ref=e5561]:
+                - img "Garbage Grabber artwork" [ref=e5563]
+                - generic [ref=e5564]:
+                  - generic "Garbage Grabber" [ref=e5565]
+                  - generic [ref=e5566]: Gear | Mind
+                  - button "Add" [ref=e5568] [cursor=pointer]
+              - article [ref=e5569]:
+                - img "Gemcraft Seer artwork" [ref=e5571]
+                - generic [ref=e5572]:
+                  - generic "Gemcraft Seer" [ref=e5573]
+                  - generic [ref=e5574]: Unit | Mind
+                  - button "Add" [ref=e5576] [cursor=pointer]
+              - article [ref=e5577]:
+                - img "Mushroom Pouch artwork" [ref=e5579]
+                - generic [ref=e5580]:
+                  - generic "Mushroom Pouch" [ref=e5581]
+                  - generic [ref=e5582]: Gear | Mind
+                  - button "Add" [ref=e5584] [cursor=pointer]
+              - article [ref=e5585]:
+                - img "Portal Rescue artwork" [ref=e5587]
+                - generic [ref=e5588]:
+                  - generic "Portal Rescue" [ref=e5589]
+                  - generic [ref=e5590]: Spell | Mind
+                  - button "Add" [ref=e5592] [cursor=pointer]
+              - article [ref=e5593]:
+                - img "Ravenbloom Student artwork" [ref=e5595]
+                - generic [ref=e5596]:
+                  - generic "Ravenbloom Student" [ref=e5597]
+                  - generic [ref=e5598]: Unit | Mind
+                  - button "Add" [ref=e5600] [cursor=pointer]
+              - article [ref=e5601]:
+                - img "Retreat artwork" [ref=e5603]
+                - generic [ref=e5604]:
+                  - generic "Retreat" [ref=e5605]
+                  - generic [ref=e5606]: Spell | Mind
+                  - button "Add" [ref=e5608] [cursor=pointer]
+              - article [ref=e5609]:
+                - img "Singularity artwork" [ref=e5611]
+                - generic [ref=e5612]:
+                  - generic "Singularity" [ref=e5613]
+                  - generic [ref=e5614]: Spell | Mind
+                  - button "Add" [ref=e5616] [cursor=pointer]
+              - article [ref=e5617]:
+                - img "Sprite Mother artwork" [ref=e5619]
+                - generic [ref=e5620]:
+                  - generic "Sprite Mother" [ref=e5621]
+                  - generic [ref=e5622]: Unit | Mind
+                  - button "Add" [ref=e5624] [cursor=pointer]
+              - article [ref=e5625]:
+                - img "Ava Achiever artwork" [ref=e5627]
+                - generic [ref=e5628]:
+                  - generic "Ava Achiever" [ref=e5629]
+                  - generic [ref=e5630]: Unit | Mind
+                  - button "Add" [ref=e5632] [cursor=pointer]
+              - article [ref=e5633]:
+                - img "Convergent Mutation artwork" [ref=e5635]
+                - generic [ref=e5636]:
+                  - generic "Convergent Mutation" [ref=e5637]
+                  - generic [ref=e5638]: Spell | Mind
+                  - button "Add" [ref=e5640] [cursor=pointer]
+              - article [ref=e5641]:
+                - img "Dr. Mundo - Expert artwork" [ref=e5643]
+                - generic [ref=e5644]:
+                  - generic "Dr. Mundo - Expert" [ref=e5645]
+                  - generic [ref=e5646]: Unit / Champion | Mind
+                  - button "Add" [ref=e5648] [cursor=pointer]
+              - article [ref=e5649]:
+                - img "Ekko - Recurrent artwork" [ref=e5651]
+                - generic [ref=e5652]:
+                  - generic "Ekko - Recurrent" [ref=e5653]
+                  - generic [ref=e5654]: Unit / Champion | Mind
+                  - button "Add" [ref=e5656] [cursor=pointer]
+              - article [ref=e5657]:
+                - img "Heimerdinger - Inventor artwork" [ref=e5659]
+                - generic [ref=e5660]:
+                  - generic "Heimerdinger - Inventor" [ref=e5661]
+                  - generic [ref=e5662]: Unit / Champion | Mind
+                  - button "Add" [ref=e5664] [cursor=pointer]
+              - article [ref=e5665]:
+                - img "Kai'Sa - Evolutionary artwork" [ref=e5667]
+                - generic [ref=e5668]:
+                  - generic "Kai'Sa - Evolutionary" [ref=e5669]
+                  - generic [ref=e5670]: Unit / Champion | Mind
+                  - button "Add" [ref=e5672] [cursor=pointer]
+              - article [ref=e5673]:
+                - img "Malzahar - Fanatic artwork" [ref=e5675]
+                - generic [ref=e5676]:
+                  - generic "Malzahar - Fanatic" [ref=e5677]
+                  - generic [ref=e5678]: Unit / Champion | Mind
+                  - button "Add" [ref=e5680] [cursor=pointer]
+              - article [ref=e5681]:
+                - img "Progress Day artwork" [ref=e5683]
+                - generic [ref=e5684]:
+                  - generic "Progress Day" [ref=e5685]
+                  - generic [ref=e5686]: Spell | Mind
+                  - button "Add" [ref=e5688] [cursor=pointer]
+              - article [ref=e5689]:
+                - img "Promising Future artwork" [ref=e5691]
+                - generic [ref=e5692]:
+                  - generic "Promising Future" [ref=e5693]
+                  - generic [ref=e5694]: Spell | Mind
+                  - button "Add" [ref=e5696] [cursor=pointer]
+              - article [ref=e5697]:
+                - img "Thousand-Tailed Watcher artwork" [ref=e5699]
+                - generic [ref=e5700]:
+                  - generic "Thousand-Tailed Watcher" [ref=e5701]
+                  - generic [ref=e5702]: Unit | Mind
+                  - button "Add" [ref=e5704] [cursor=pointer]
+              - article [ref=e5705]:
+                - img "Viktor - Innovator artwork" [ref=e5707]
+                - generic [ref=e5708]:
+                  - generic "Viktor - Innovator" [ref=e5709]
+                  - generic [ref=e5710]: Unit / Champion | Mind
+                  - button "Add" [ref=e5712] [cursor=pointer]
+              - article [ref=e5713]:
+                - img "Wraith of Echoes artwork" [ref=e5715]
+                - generic [ref=e5716]:
+                  - generic "Wraith of Echoes" [ref=e5717]
+                  - generic [ref=e5718]: Unit | Mind
+                  - button "Add" [ref=e5720] [cursor=pointer]
+              - article [ref=e5721]:
+                - img "Time Warp artwork" [ref=e5723]
+                - generic [ref=e5724]:
+                  - generic "Time Warp" [ref=e5725]
+                  - generic [ref=e5726]: Spell | Mind
+                  - button "Add" [ref=e5728] [cursor=pointer]
+              - article [ref=e5729]:
+                - img "Unchecked Power artwork" [ref=e5731]
+                - generic [ref=e5732]:
+                  - generic "Unchecked Power" [ref=e5733]
+                  - generic [ref=e5734]: Spell | Mind
+                  - button "Add" [ref=e5736] [cursor=pointer]
+              - article [ref=e5737]:
+                - img "Cemetery Attendant artwork" [ref=e5739]
+                - generic [ref=e5740]:
+                  - generic "Cemetery Attendant" [ref=e5741]
+                  - generic [ref=e5742]: Unit | Chaos
+                  - button "Add" [ref=e5744] [cursor=pointer]
+              - article [ref=e5745]:
+                - img "Ember Monk artwork" [ref=e5747]
+                - generic [ref=e5748]:
+                  - generic "Ember Monk" [ref=e5749]
+                  - generic [ref=e5750]: Unit | Chaos
+                  - button "Add" [ref=e5752] [cursor=pointer]
+              - article [ref=e5753]:
+                - img "Fight or Flight artwork" [ref=e5755]
+                - generic [ref=e5756]:
+                  - generic "Fight or Flight" [ref=e5757]
+                  - generic [ref=e5758]: Spell | Chaos
+                  - button "Add" [ref=e5760] [cursor=pointer]
+              - article [ref=e5761]:
+                - img "Gust artwork" [ref=e5763]
+                - generic [ref=e5764]:
+                  - generic "Gust" [ref=e5765]
+                  - generic [ref=e5766]: Spell | Chaos
+                  - button "Add" [ref=e5768] [cursor=pointer]
+              - article [ref=e5769]:
+                - img "Morbid Return artwork" [ref=e5771]
+                - generic [ref=e5772]:
+                  - generic "Morbid Return" [ref=e5773]
+                  - generic [ref=e5774]: Spell | Chaos
+                  - button "Add" [ref=e5776] [cursor=pointer]
+              - article [ref=e5777]:
+                - img "Mystic Poro artwork" [ref=e5779]
+                - generic [ref=e5780]:
+                  - generic "Mystic Poro" [ref=e5781]
+                  - generic [ref=e5782]: Unit | Chaos
+                  - button "Add" [ref=e5784] [cursor=pointer]
+              - article [ref=e5785]:
+                - img "Rebuke artwork" [ref=e5787]
+                - generic [ref=e5788]:
+                  - generic "Rebuke" [ref=e5789]
+                  - generic [ref=e5790]: Spell | Chaos
+                  - button "Add" [ref=e5792] [cursor=pointer]
+              - article [ref=e5793]:
+                - img "Ride the Wind artwork" [ref=e5795]
+                - generic [ref=e5796]:
+                  - generic "Ride the Wind" [ref=e5797]
+                  - generic [ref=e5798]: Spell | Chaos
+                  - button "Add" [ref=e5800] [cursor=pointer]
+              - article [ref=e5801]:
+                - img "Sai Scout artwork" [ref=e5803]
+                - generic [ref=e5804]:
+                  - generic "Sai Scout" [ref=e5805]
+                  - generic [ref=e5806]: Unit | Chaos
+                  - button "Add" [ref=e5808] [cursor=pointer]
+              - article [ref=e5809]:
+                - img "Shipyard Skulker artwork" [ref=e5811]
+                - generic [ref=e5812]:
+                  - generic "Shipyard Skulker" [ref=e5813]
+                  - generic [ref=e5814]: Unit | Chaos
+                  - button "Add" [ref=e5816] [cursor=pointer]
+              - article [ref=e5817]:
+                - img "Sneaky Deckhand artwork" [ref=e5819]
+                - generic [ref=e5820]:
+                  - generic "Sneaky Deckhand" [ref=e5821]
+                  - generic [ref=e5822]: Unit | Chaos
+                  - button "Add" [ref=e5824] [cursor=pointer]
+              - article [ref=e5825]:
+                - img "Stealthy Pursuer artwork" [ref=e5827]
+                - generic [ref=e5828]:
+                  - generic "Stealthy Pursuer" [ref=e5829]
+                  - generic [ref=e5830]: Unit | Chaos
+                  - button "Add" [ref=e5832] [cursor=pointer]
+              - article [ref=e5833]:
+                - img "Undercover Agent artwork" [ref=e5835]
+                - generic [ref=e5836]:
+                  - generic "Undercover Agent" [ref=e5837]
+                  - generic [ref=e5838]: Unit | Chaos
+                  - button "Add" [ref=e5840] [cursor=pointer]
+              - article [ref=e5841]:
+                - img "Acceptable Losses artwork" [ref=e5843]
+                - generic [ref=e5844]:
+                  - generic "Acceptable Losses" [ref=e5845]
+                  - generic [ref=e5846]: Spell | Chaos
+                  - button "Add" [ref=e5848] [cursor=pointer]
+              - article [ref=e5849]:
+                - img "Fading Memories artwork" [ref=e5851]
+                - generic [ref=e5852]:
+                  - generic "Fading Memories" [ref=e5853]
+                  - generic [ref=e5854]: Spell | Chaos
+                  - button "Add" [ref=e5856] [cursor=pointer]
+              - article [ref=e5857]:
+                - img "Pack of Wonders artwork" [ref=e5859]
+                - generic [ref=e5860]:
+                  - generic "Pack of Wonders" [ref=e5861]
+                  - generic [ref=e5862]: Gear | Chaos
+                  - button "Add" [ref=e5864] [cursor=pointer]
+              - article [ref=e5865]:
+                - img "Scrapheap artwork" [ref=e5867]
+                - generic [ref=e5868]:
+                  - generic "Scrapheap" [ref=e5869]
+                  - generic [ref=e5870]: Gear | Chaos
+                  - button "Add" [ref=e5872] [cursor=pointer]
+              - article [ref=e5873]:
+                - img "Stacked Deck artwork" [ref=e5875]
+                - generic [ref=e5876]:
+                  - generic "Stacked Deck" [ref=e5877]
+                  - generic [ref=e5878]: Spell | Chaos
+                  - button "Add" [ref=e5880] [cursor=pointer]
+              - article [ref=e5881]:
+                - img "The Syren artwork" [ref=e5883]
+                - generic [ref=e5884]:
+                  - generic "The Syren" [ref=e5885]
+                  - generic [ref=e5886]: Gear | Chaos
+                  - button "Add" [ref=e5888] [cursor=pointer]
+              - article [ref=e5889]:
+                - img "Traveling Merchant artwork" [ref=e5891]
+                - generic [ref=e5892]:
+                  - generic "Traveling Merchant" [ref=e5893]
+                  - generic [ref=e5894]: Unit | Chaos
+                  - button "Add" [ref=e5896] [cursor=pointer]
+              - article [ref=e5897]:
+                - img "Treasure Trove artwork" [ref=e5899]
+                - generic [ref=e5900]:
+                  - generic "Treasure Trove" [ref=e5901]
+                  - generic [ref=e5902]: Gear | Chaos
+                  - button "Add" [ref=e5904] [cursor=pointer]
+              - article [ref=e5905]:
+                - img "Whirlwind artwork" [ref=e5907]
+                - generic [ref=e5908]:
+                  - generic "Whirlwind" [ref=e5909]
+                  - generic [ref=e5910]: Spell | Chaos
+                  - button "Add" [ref=e5912] [cursor=pointer]
+              - article [ref=e5913]:
+                - img "Zaunite Bouncer artwork" [ref=e5915]
+                - generic [ref=e5916]:
+                  - generic "Zaunite Bouncer" [ref=e5917]
+                  - generic [ref=e5918]: Unit | Chaos
+                  - button "Add" [ref=e5920] [cursor=pointer]
+              - article [ref=e5921]:
+                - img "Kayn - Unleashed artwork" [ref=e5923]
+                - generic [ref=e5924]:
+                  - generic "Kayn - Unleashed" [ref=e5925]
+                  - generic [ref=e5926]: Unit / Champion | Chaos
+                  - button "Add" [ref=e5928] [cursor=pointer]
+              - article [ref=e5929]:
+                - img "Kog'Maw - Caustic artwork" [ref=e5931]
+                - generic [ref=e5932]:
+                  - generic "Kog'Maw - Caustic" [ref=e5933]
+                  - generic [ref=e5934]: Unit / Champion | Chaos
+                  - button "Add" [ref=e5936] [cursor=pointer]
+              - article [ref=e5937]:
+                - img "Maddened Marauder artwork" [ref=e5939]
+                - generic [ref=e5940]:
+                  - generic "Maddened Marauder" [ref=e5941]
+                  - generic [ref=e5942]: Unit | Chaos
+                  - button "Add" [ref=e5944] [cursor=pointer]
+              - article [ref=e5945]:
+                - img "Mindsplitter artwork" [ref=e5947]
+                - generic [ref=e5948]:
+                  - generic "Mindsplitter" [ref=e5949]
+                  - generic [ref=e5950]: Unit | Chaos
+                  - button "Add" [ref=e5952] [cursor=pointer]
+              - article [ref=e5953]:
+                - img "Miss Fortune - Buccaneer artwork" [ref=e5955]
+                - generic [ref=e5956]:
+                  - generic "Miss Fortune - Buccaneer" [ref=e5957]
+                  - generic [ref=e5958]: Unit / Champion | Chaos
+                  - button "Add" [ref=e5960] [cursor=pointer]
+              - article [ref=e5961]:
+                - img "Nocturne - Horrifying artwork" [ref=e5963]
+                - generic [ref=e5964]:
+                  - generic "Nocturne - Horrifying" [ref=e5965]
+                  - generic [ref=e5966]: Unit / Champion | Chaos
+                  - button "Add" [ref=e5968] [cursor=pointer]
+              - article [ref=e5969]:
+                - img "Rhasa the Sunderer artwork" [ref=e5971]
+                - generic [ref=e5972]:
+                  - generic "Rhasa the Sunderer" [ref=e5973]
+                  - generic [ref=e5974]: Unit | Chaos
+                  - button "Full" [disabled] [ref=e5976]
+              - article [ref=e5977]:
+                - img "Soulgorger artwork" [ref=e5979]
+                - generic [ref=e5980]:
+                  - generic "Soulgorger" [ref=e5981]
+                  - generic [ref=e5982]: Unit | Chaos
+                  - button "Add" [ref=e5984] [cursor=pointer]
+              - article [ref=e5985]:
+                - img "Teemo - Scout artwork" [ref=e5987]
+                - generic [ref=e5988]:
+                  - generic "Teemo - Scout" [ref=e5989]
+                  - generic [ref=e5990]: Unit / Champion | Chaos
+                  - button "Add" [ref=e5992] [cursor=pointer]
+              - article [ref=e5993]:
+                - img "The Harrowing artwork" [ref=e5995]
+                - generic [ref=e5996]:
+                  - generic "The Harrowing" [ref=e5997]
+                  - generic [ref=e5998]: Spell | Chaos
+                  - button "Add" [ref=e6000] [cursor=pointer]
+              - article [ref=e6001]:
+                - img "Tideturner artwork" [ref=e6003]
+                - generic [ref=e6004]:
+                  - generic "Tideturner" [ref=e6005]
+                  - generic [ref=e6006]: Unit | Chaos
+                  - button "Add" [ref=e6008] [cursor=pointer]
+              - article [ref=e6009]:
+                - img "Twisted Fate - Gambler artwork" [ref=e6011]
+                - generic [ref=e6012]:
+                  - generic "Twisted Fate - Gambler" [ref=e6013]
+                  - generic [ref=e6014]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6016] [cursor=pointer]
+              - article [ref=e6017]:
+                - img "Invert Timelines artwork" [ref=e6019]
+                - generic [ref=e6020]:
+                  - generic "Invert Timelines" [ref=e6021]
+                  - generic [ref=e6022]: Spell | Chaos
+                  - button "Add" [ref=e6024] [cursor=pointer]
+              - article [ref=e6025]:
+                - img "Jinx - Rebel artwork" [ref=e6027]
+                - generic [ref=e6028]:
+                  - generic "Jinx - Rebel" [ref=e6029]
+                  - generic [ref=e6030]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6032] [cursor=pointer]
+              - article [ref=e6033]:
+                - img "Possession artwork" [ref=e6035]
+                - generic [ref=e6036]:
+                  - generic "Possession" [ref=e6037]
+                  - generic [ref=e6038]: Spell | Chaos
+                  - button "Add" [ref=e6040] [cursor=pointer]
+              - article [ref=e6041]:
+                - img "Lux - Illuminated artwork" [ref=e6043]
+                - generic [ref=e6044]:
+                  - generic "Lux - Illuminated" [ref=e6045]
+                  - generic [ref=e6046]: Unit / Champion | Mind
+                  - button "Add" [ref=e6048] [cursor=pointer]
+              - article [ref=e6049]:
+                - img "Annie - Stubborn artwork" [ref=e6051]
+                - generic [ref=e6052]:
+                  - generic "Annie - Stubborn" [ref=e6053]
+                  - generic [ref=e6054]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6056] [cursor=pointer]
+              - article [ref=e6057]:
+                - img "Flash artwork" [ref=e6059]
+                - generic [ref=e6060]:
+                  - generic "Flash" [ref=e6061]
+                  - generic [ref=e6062]: Spell | Chaos
+                  - button "Add" [ref=e6064] [cursor=pointer]
+              - article [ref=e6065]:
+                - img "Aspiring Engineer artwork" [ref=e6067]
+                - generic [ref=e6068]:
+                  - generic "Aspiring Engineer" [ref=e6069]
+                  - generic [ref=e6070]: Unit | Mind
+                  - button "Add" [ref=e6072] [cursor=pointer]
+              - article [ref=e6073]:
+                - img "Bubble Bot artwork" [ref=e6075]
+                - generic [ref=e6076]:
+                  - generic "Bubble Bot" [ref=e6077]
+                  - generic [ref=e6078]: Unit | Mind
+                  - button "Add" [ref=e6080] [cursor=pointer]
+              - article [ref=e6081]:
+                - img "Chemtech Cask artwork" [ref=e6083]
+                - generic [ref=e6084]:
+                  - generic "Chemtech Cask" [ref=e6085]
+                  - generic [ref=e6086]: Gear | Mind
+                  - button "Add" [ref=e6088] [cursor=pointer]
+              - article [ref=e6089]:
+                - img "Cloth Armor artwork" [ref=e6091]
+                - generic [ref=e6092]:
+                  - generic "Cloth Armor" [ref=e6093]
+                  - generic [ref=e6094]: Gear | Mind
+                  - button "Add" [ref=e6096] [cursor=pointer]
+              - article [ref=e6097]:
+                - img "Forecaster artwork" [ref=e6099]
+                - generic [ref=e6100]:
+                  - generic "Forecaster" [ref=e6101]
+                  - generic [ref=e6102]: Unit | Mind
+                  - button "Add" [ref=e6104] [cursor=pointer]
+              - article [ref=e6105]:
+                - img "Frigid Touch artwork" [ref=e6107]
+                - generic [ref=e6108]:
+                  - generic "Frigid Touch" [ref=e6109]
+                  - generic [ref=e6110]: Spell | Mind
+                  - button "Full" [disabled] [ref=e6112]
+              - article [ref=e6113]:
+                - img "Frostcoat Cub artwork" [ref=e6115]
+                - generic [ref=e6116]:
+                  - generic "Frostcoat Cub" [ref=e6117]
+                  - generic [ref=e6118]: Unit | Mind
+                  - button "Add" [ref=e6120] [cursor=pointer]
+              - article [ref=e6121]:
+                - img "Gearhead artwork" [ref=e6123]
+                - generic [ref=e6124]:
+                  - generic "Gearhead" [ref=e6125]
+                  - generic [ref=e6126]: Unit | Mind
+                  - button "Add" [ref=e6128] [cursor=pointer]
+              - article [ref=e6129]:
+                - img "Plundering Poro artwork" [ref=e6131]
+                - generic [ref=e6132]:
+                  - generic "Plundering Poro" [ref=e6133]
+                  - generic [ref=e6134]: Unit | Mind
+                  - button "Full" [disabled] [ref=e6136]
+              - article [ref=e6137]:
+                - img "Wages of Pain artwork" [ref=e6139]
+                - generic [ref=e6140]:
+                  - generic "Wages of Pain" [ref=e6141]
+                  - generic [ref=e6142]: Spell | Mind
+                  - button "Add" [ref=e6144] [cursor=pointer]
+              - article [ref=e6145]:
+                - img "Breakneck Mech artwork" [ref=e6147]
+                - generic [ref=e6148]:
+                  - generic "Breakneck Mech" [ref=e6149]
+                  - generic [ref=e6150]: Unit | Mind
+                  - button "Add" [ref=e6152] [cursor=pointer]
+              - article [ref=e6153]:
+                - img "Dropboarder artwork" [ref=e6155]
+                - generic [ref=e6156]:
+                  - generic "Dropboarder" [ref=e6157]
+                  - generic [ref=e6158]: Unit | Mind
+                  - button "Add" [ref=e6160] [cursor=pointer]
+              - article [ref=e6161]:
+                - img "Experimental Hexplate artwork" [ref=e6163]
+                - generic [ref=e6164]:
+                  - generic "Experimental Hexplate" [ref=e6165]
+                  - generic [ref=e6166]: Gear | Mind
+                  - button "Add" [ref=e6168] [cursor=pointer]
+              - article [ref=e6169]:
+                - img "Pickpocket artwork" [ref=e6171]
+                - generic [ref=e6172]:
+                  - generic "Pickpocket" [ref=e6173]
+                  - generic [ref=e6174]: Unit | Mind
+                  - button "Add" [ref=e6176] [cursor=pointer]
+              - article [ref=e6177]:
+                - img "Prize of Progress artwork" [ref=e6179]
+                - generic [ref=e6180]:
+                  - generic "Prize of Progress" [ref=e6181]
+                  - generic [ref=e6182]: Unit | Mind
+                  - button "Add" [ref=e6184] [cursor=pointer]
+              - article [ref=e6185]:
+                - img "Production Surge artwork" [ref=e6187]
+                - generic [ref=e6188]:
+                  - generic "Production Surge" [ref=e6189]
+                  - generic [ref=e6190]: Spell | Mind
+                  - button "Add" [ref=e6192] [cursor=pointer]
+              - article [ref=e6193]:
+                - img "Rocket Barrage artwork" [ref=e6195]
+                - generic [ref=e6196]:
+                  - generic "Rocket Barrage" [ref=e6197]
+                  - generic [ref=e6198]: Spell | Mind
+                  - button "Add" [ref=e6200] [cursor=pointer]
+              - article [ref=e6201]:
+                - img "Temporal Portal artwork" [ref=e6203]
+                - generic [ref=e6204]:
+                  - generic "Temporal Portal" [ref=e6205]
+                  - generic [ref=e6206]: Gear | Mind
+                  - button "Add" [ref=e6208] [cursor=pointer]
+              - article [ref=e6209]:
+                - img "Bard - Mercurial artwork" [ref=e6211]
+                - generic [ref=e6212]:
+                  - generic "Bard - Mercurial" [ref=e6213]
+                  - generic [ref=e6214]: Unit / Champion | Mind
+                  - button "Add" [ref=e6216] [cursor=pointer]
+              - article [ref=e6217]:
+                - img "Bellows Breath artwork" [ref=e6219]
+                - generic [ref=e6220]:
+                  - generic "Bellows Breath" [ref=e6221]
+                  - generic [ref=e6222]: Spell | Mind
+                  - button "Add" [ref=e6224] [cursor=pointer]
+              - article [ref=e6225]:
+                - img "Card Sharp artwork" [ref=e6227]
+                - generic [ref=e6228]:
+                  - generic "Card Sharp" [ref=e6229]
+                  - generic [ref=e6230]: Unit | Mind
+                  - button "Full" [disabled] [ref=e6232]
+              - article [ref=e6233]:
+                - img "Ezreal - Dashing artwork" [ref=e6235]
+                - generic [ref=e6236]:
+                  - generic "Ezreal - Dashing" [ref=e6237]
+                  - generic [ref=e6238]: Unit / Champion | Mind
+                  - button "Add" [ref=e6240] [cursor=pointer]
+              - article [ref=e6241]:
+                - img "Hextech Anomaly artwork" [ref=e6243]
+                - generic [ref=e6244]:
+                  - generic "Hextech Anomaly" [ref=e6245]
+                  - generic [ref=e6246]: Gear | Mind
+                  - button "Add" [ref=e6248] [cursor=pointer]
+              - article [ref=e6249]:
+                - img "Jayce - Man of Progress artwork" [ref=e6251]
+                - generic [ref=e6252]:
+                  - generic "Jayce - Man of Progress" [ref=e6253]
+                  - generic [ref=e6254]: Unit / Champion | Mind
+                  - button "Add" [ref=e6256] [cursor=pointer]
+              - article [ref=e6257]:
+                - img "Ornn - Forge God artwork" [ref=e6259]
+                - generic [ref=e6260]:
+                  - generic "Ornn - Forge God" [ref=e6261]
+                  - generic [ref=e6262]: Unit / Champion | Mind
+                  - button "Add" [ref=e6264] [cursor=pointer]
+              - article [ref=e6265]:
+                - img "World Atlas artwork" [ref=e6267]
+                - generic [ref=e6268]:
+                  - generic "World Atlas" [ref=e6269]
+                  - generic [ref=e6270]: Gear | Mind
+                  - button "Add" [ref=e6272] [cursor=pointer]
+              - article [ref=e6273]:
+                - img "Premonition artwork" [ref=e6275]
+                - generic [ref=e6276]:
+                  - generic "Premonition" [ref=e6277]
+                  - generic [ref=e6278]: Spell | Mind
+                  - button "Add" [ref=e6280] [cursor=pointer]
+              - article [ref=e6281]:
+                - img "Renata Glasc - Mastermind artwork" [ref=e6283]
+                - generic [ref=e6284]:
+                  - generic "Renata Glasc - Mastermind" [ref=e6285]
+                  - generic [ref=e6286]: Unit / Champion | Mind
+                  - button "Add" [ref=e6288] [cursor=pointer]
+              - article [ref=e6289]:
+                - img "Rumble - Scrapper artwork" [ref=e6291]
+                - generic [ref=e6292]:
+                  - generic "Rumble - Scrapper" [ref=e6293]
+                  - generic [ref=e6294]: Unit / Champion | Mind
+                  - button "Add" [ref=e6296] [cursor=pointer]
+              - article [ref=e6297]:
+                - img "The Zero Drive artwork" [ref=e6299]
+                - generic [ref=e6300]:
+                  - generic "The Zero Drive" [ref=e6301]
+                  - generic [ref=e6302]: Gear | Mind
+                  - button "Add" [ref=e6304] [cursor=pointer]
+              - article [ref=e6305]:
+                - img "Black Market Broker artwork" [ref=e6307]
+                - generic [ref=e6308]:
+                  - generic "Black Market Broker" [ref=e6309]
+                  - generic [ref=e6310]: Unit | Chaos
+                  - button "Add" [ref=e6312] [cursor=pointer]
+              - article [ref=e6313]:
+                - img "Called Shot artwork" [ref=e6315]
+                - generic [ref=e6316]:
+                  - generic "Called Shot" [ref=e6317]
+                  - generic [ref=e6318]: Spell | Chaos
+                  - button "Full" [disabled] [ref=e6320]
+              - article [ref=e6321]:
+                - img "Corrupt Enforcer artwork" [ref=e6323]
+                - generic [ref=e6324]:
+                  - generic "Corrupt Enforcer" [ref=e6325]
+                  - generic [ref=e6326]: Unit | Chaos
+                  - button "Add" [ref=e6328] [cursor=pointer]
+              - article [ref=e6329]:
+                - img "Doran's Ring artwork" [ref=e6331]
+                - generic [ref=e6332]:
+                  - generic "Doran's Ring" [ref=e6333]
+                  - generic [ref=e6334]: Gear | Chaos
+                  - button "Add" [ref=e6336] [cursor=pointer]
+              - article [ref=e6337]:
+                - img "Fae Porter artwork" [ref=e6339]
+                - generic [ref=e6340]:
+                  - generic "Fae Porter" [ref=e6341]
+                  - generic [ref=e6342]: Unit | Chaos
+                  - button "Add" [ref=e6344] [cursor=pointer]
+              - article [ref=e6345]:
+                - img "Loyal Pup artwork" [ref=e6347]
+                - generic [ref=e6348]:
+                  - generic "Loyal Pup" [ref=e6349]
+                  - generic [ref=e6350]: Unit | Chaos
+                  - button "Add" [ref=e6352] [cursor=pointer]
+              - article [ref=e6353]:
+                - img "Master Bingwen artwork" [ref=e6355]
+                - generic [ref=e6356]:
+                  - generic "Master Bingwen" [ref=e6357]
+                  - generic [ref=e6358]: Unit | Chaos
+                  - button "Add" [ref=e6360] [cursor=pointer]
+              - article [ref=e6361]:
+                - img "Overzealous Fan artwork" [ref=e6363]
+                - generic [ref=e6364]:
+                  - generic "Overzealous Fan" [ref=e6365]
+                  - generic [ref=e6366]: Unit | Chaos
+                  - button "Add" [ref=e6368] [cursor=pointer]
+              - article [ref=e6369]:
+                - img "Temptation artwork" [ref=e6371]
+                - generic [ref=e6372]:
+                  - generic "Temptation" [ref=e6373]
+                  - generic [ref=e6374]: Spell | Chaos
+                  - button "Add" [ref=e6376] [cursor=pointer]
+              - article [ref=e6377]:
+                - img "Treasure Hunter artwork" [ref=e6379]
+                - generic [ref=e6380]:
+                  - generic "Treasure Hunter" [ref=e6381]
+                  - generic [ref=e6382]: Unit | Chaos
+                  - button "Full" [disabled] [ref=e6384]
+              - article [ref=e6385]:
+                - img "Ancient Warmonger artwork" [ref=e6387]
+                - generic [ref=e6388]:
+                  - generic "Ancient Warmonger" [ref=e6389]
+                  - generic [ref=e6390]: Unit | Chaos
+                  - button "Add" [ref=e6392] [cursor=pointer]
+              - article [ref=e6393]:
+                - img "Beast Below artwork" [ref=e6395]
+                - generic [ref=e6396]:
+                  - generic "Beast Below" [ref=e6397]
+                  - generic [ref=e6398]: Unit | Chaos
+                  - button "Add" [ref=e6400] [cursor=pointer]
+              - article [ref=e6401]:
+                - img "Boots of Swiftness artwork" [ref=e6403]
+                - generic [ref=e6404]:
+                  - generic "Boots of Swiftness" [ref=e6405]
+                  - generic [ref=e6406]: Gear | Chaos
+                  - button "Add" [ref=e6408] [cursor=pointer]
+              - article [ref=e6409]:
+                - img "Cull artwork" [ref=e6411]
+                - generic [ref=e6412]:
+                  - generic "Cull" [ref=e6413]
+                  - generic [ref=e6414]: Gear | Chaos
+                  - button "Add" [ref=e6416] [cursor=pointer]
+              - article [ref=e6417]:
+                - img "Factory Recall artwork" [ref=e6419]
+                - generic [ref=e6420]:
+                  - generic "Factory Recall" [ref=e6421]
+                  - generic [ref=e6422]: Spell | Chaos
+                  - button "Add" [ref=e6424] [cursor=pointer]
+              - article [ref=e6425]:
+                - img "Hard Bargain artwork" [ref=e6427]
+                - generic [ref=e6428]:
+                  - generic "Hard Bargain" [ref=e6429]
+                  - generic [ref=e6430]: Spell | Chaos
+                  - button "Add" [ref=e6432] [cursor=pointer]
+              - article [ref=e6433]:
+                - img "Harpoon Squad artwork" [ref=e6435]
+                - generic [ref=e6436]:
+                  - generic "Harpoon Squad" [ref=e6437]
+                  - generic [ref=e6438]: Unit | Chaos
+                  - button "Add" [ref=e6440] [cursor=pointer]
+              - article [ref=e6441]:
+                - img "Windsinger artwork" [ref=e6443]
+                - generic [ref=e6444]:
+                  - generic "Windsinger" [ref=e6445]
+                  - generic [ref=e6446]: Unit | Chaos
+                  - button "Add" [ref=e6448] [cursor=pointer]
+              - article [ref=e6449]:
+                - img "Edge of Night artwork" [ref=e6451]
+                - generic [ref=e6452]:
+                  - generic "Edge of Night" [ref=e6453]
+                  - generic [ref=e6454]: Gear | Chaos
+                  - button "Add" [ref=e6456] [cursor=pointer]
+              - article [ref=e6457]:
+                - img "Fizz - Trickster artwork" [ref=e6459]
+                - generic [ref=e6460]:
+                  - generic "Fizz - Trickster" [ref=e6461]
+                  - generic [ref=e6462]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6464] [cursor=pointer]
+              - article [ref=e6465]:
+                - img "Irelia - Graceful artwork" [ref=e6467]
+                - generic [ref=e6468]:
+                  - generic "Irelia - Graceful" [ref=e6469]
+                  - generic [ref=e6470]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6472] [cursor=pointer]
+              - article [ref=e6473]:
+                - img "Jae Medarda artwork" [ref=e6475]
+                - generic [ref=e6476]:
+                  - generic "Jae Medarda" [ref=e6477]
+                  - generic [ref=e6478]: Unit | Chaos
+                  - button "Add" [ref=e6480] [cursor=pointer]
+              - article [ref=e6481]:
+                - img "Sivir - Mercenary artwork" [ref=e6483]
+                - generic [ref=e6484]:
+                  - generic "Sivir - Mercenary" [ref=e6485]
+                  - generic [ref=e6486]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6488] [cursor=pointer]
+              - article [ref=e6489]:
+                - img "Spirit Wheel artwork" [ref=e6491]
+                - generic [ref=e6492]:
+                  - generic "Spirit Wheel" [ref=e6493]
+                  - generic [ref=e6494]: Gear | Chaos
+                  - button "Add" [ref=e6496] [cursor=pointer]
+              - article [ref=e6497]:
+                - img "Switcheroo artwork" [ref=e6499]
+                - generic [ref=e6500]:
+                  - generic "Switcheroo" [ref=e6501]
+                  - generic [ref=e6502]: Spell | Chaos
+                  - button "Add" [ref=e6504] [cursor=pointer]
+              - article [ref=e6505]:
+                - img "Vex - Cheerless artwork" [ref=e6507]
+                - generic [ref=e6508]:
+                  - generic "Vex - Cheerless" [ref=e6509]
+                  - generic [ref=e6510]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6512] [cursor=pointer]
+              - article [ref=e6513]:
+                - img "Downwell artwork" [ref=e6515]
+                - generic [ref=e6516]:
+                  - generic "Downwell" [ref=e6517]
+                  - generic [ref=e6518]: Spell | Chaos
+                  - button "Add" [ref=e6520] [cursor=pointer]
+              - article [ref=e6521]:
+                - img "Draven - Audacious artwork" [ref=e6523]
+                - generic [ref=e6524]:
+                  - generic "Draven - Audacious" [ref=e6525]
+                  - generic [ref=e6526]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6528] [cursor=pointer]
+              - article [ref=e6529]:
+                - img "Ezreal - Prodigy artwork" [ref=e6531]
+                - generic [ref=e6532]:
+                  - generic "Ezreal - Prodigy" [ref=e6533]
+                  - generic [ref=e6534]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6536] [cursor=pointer]
+              - article [ref=e6537]:
+                - img "Last Rites artwork" [ref=e6539]
+                - generic [ref=e6540]:
+                  - generic "Last Rites" [ref=e6541]
+                  - generic [ref=e6542]: Gear | Chaos
+                  - button "Add" [ref=e6544] [cursor=pointer]
+              - article [ref=e6545]:
+                - img "Arcane Shift artwork" [ref=e6547]
+                - generic [ref=e6548]:
+                  - generic "Arcane Shift" [ref=e6549]
+                  - generic [ref=e6550]: Spell / Signature | Chaos, Mind
+                  - button "Add" [ref=e6552] [cursor=pointer]
+              - article [ref=e6553]:
+                - img "Ahri - Inquisitive artwork" [ref=e6555]
+                - generic [ref=e6556]:
+                  - generic "Ahri - Inquisitive" [ref=e6557]
+                  - generic [ref=e6558]: Unit / Champion | Mind
+                  - button "Add" [ref=e6560] [cursor=pointer]
+              - article [ref=e6561]:
+                - img "Seal of Insight artwork" [ref=e6563]
+                - generic [ref=e6564]:
+                  - generic "Seal of Insight" [ref=e6565]
+                  - generic [ref=e6566]: Gear | Mind
+                  - button "Add" [ref=e6568] [cursor=pointer]
+              - article [ref=e6569]:
+                - img "Teemo - Strategist artwork" [ref=e6571]
+                - generic [ref=e6572]:
+                  - generic "Teemo - Strategist" [ref=e6573]
+                  - generic [ref=e6574]: Unit / Champion | Mind
+                  - button "Add" [ref=e6576] [cursor=pointer]
+              - article [ref=e6577]:
+                - img "Seal of Discord artwork" [ref=e6579]
+                - generic [ref=e6580]:
+                  - generic "Seal of Discord" [ref=e6581]
+                  - generic [ref=e6582]: Gear | Chaos
+                  - button "Add" [ref=e6584] [cursor=pointer]
+              - article [ref=e6585]:
+                - img "Yasuo - Windrider artwork" [ref=e6587]
+                - generic [ref=e6588]:
+                  - generic "Yasuo - Windrider" [ref=e6589]
+                  - generic [ref=e6590]: Unit / Champion | Chaos
+                  - button "Add" [ref=e6592] [cursor=pointer]
+      - complementary [ref=e3841]:
+        - generic [ref=e3843]:
+          - heading "Inspector" [level=2] [ref=e3844]
+          - paragraph [ref=e3845]: Deck search, validation insights, and saved deck management.
+        - generic [ref=e3847]:
+          - heading "Deck Search" [level=2] [ref=e3848]
+          - generic [ref=e3849]:
+            - textbox "Search decks by name, source, legend" [ref=e3850]
+            - combobox "Deck search sort" [ref=e3851]:
+              - option "Recommendation" [selected]
+              - option "Buildability"
+              - option "Competitive"
+              - option "Meta"
+              - option "Price"
+            - button "Refresh Index" [ref=e3852] [cursor=pointer]
+            - button "Search" [ref=e3853] [cursor=pointer]
+          - paragraph [ref=e3919]: Indexed 1866 / 2657 rows. Refreshed 3/1/2026, 7:19:38 PM.
+          - generic [ref=e3854]:
+            - article [ref=e3920]:
+              - generic [ref=e3921]:
+                - generic [ref=e3922]: Missing 7
+                - img "Purple Ezreal Tempo artwork" [ref=e3923]
+              - generic [ref=e3924]:
+                - generic "Purple Ezreal Tempo" [ref=e3925]
+                - generic [ref=e3926]: Rec 43.4 | Competitive - | Meta 23.2 | Price $325.59 | Missing 7
+                - generic [ref=e3927]:
+                  - button "View" [active] [ref=e3928] [cursor=pointer]
+                  - button "Save" [ref=e3929] [cursor=pointer]
+            - article [ref=e3930]:
+              - generic [ref=e3931]:
+                - generic [ref=e3932]: Missing 12
+                - 'img "Bologna #6 - Randyyy artwork" [ref=e3933]'
+              - generic [ref=e3934]:
+                - 'generic "Bologna #6 - Randyyy" [ref=e3935]'
+                - generic [ref=e3936]: Rec 42.6 | Competitive - | Meta 30.2 | Price $512.17 | Missing 12
+                - generic [ref=e3937]:
+                  - button "View" [ref=e3938] [cursor=pointer]
+                  - button "Save" [ref=e3939] [cursor=pointer]
+            - article [ref=e3940]:
+              - generic [ref=e3941]:
+                - generic [ref=e3942]: Missing 4
+                - img "Viktor - Herald of the Arcane Deck artwork" [ref=e3943]
+              - generic [ref=e3944]:
+                - generic "Viktor - Herald of the Arcane Deck" [ref=e3945]
+                - generic [ref=e3946]: Rec 41.9 | Competitive - | Meta 19.2 | Price $95.54 | Missing 4
+                - generic [ref=e3947]:
+                  - button "View" [ref=e3948] [cursor=pointer]
+                  - button "Save" [ref=e3949] [cursor=pointer]
+            - article [ref=e3950]:
+              - generic [ref=e3951]:
+                - generic [ref=e3952]: Missing 6
+                - img "Viktor 1st Place Skirmish FlowGeek&#x27;s artwork" [ref=e3953]
+              - generic [ref=e3954]:
+                - generic "Viktor 1st Place Skirmish FlowGeek&#x27;s" [ref=e3955]
+                - generic [ref=e3956]: Rec 41.8 | Competitive - | Meta 21.3 | Price $138.55 | Missing 6
+                - generic [ref=e3957]:
+                  - button "View" [ref=e3958] [cursor=pointer]
+                  - button "Save" [ref=e3959] [cursor=pointer]
+            - article [ref=e3960]:
+              - generic [ref=e3961]:
+                - generic [ref=e3962]: Missing 3
+                - img "Cheap Viktor artwork" [ref=e3963]
+              - generic [ref=e3964]:
+                - generic "Cheap Viktor" [ref=e3965]
+                - generic [ref=e3966]: Rec 41.6 | Competitive - | Meta 17.7 | Price $76.33 | Missing 3
+                - generic [ref=e3967]:
+                  - button "View" [ref=e3968] [cursor=pointer]
+                  - button "Save" [ref=e3969] [cursor=pointer]
+            - article [ref=e3970]:
+              - generic [ref=e3971]:
+                - generic [ref=e3972]: Missing 6
+                - img "MINIONS, TONIGHT WE STEAL THE MOON! artwork" [ref=e3973]
+              - generic [ref=e3974]:
+                - generic "MINIONS, TONIGHT WE STEAL THE MOON!" [ref=e3975]
+                - generic [ref=e3976]: Rec 40.9 | Competitive - | Meta 21.2 | Price $131.47 | Missing 6
+                - generic [ref=e3977]:
+                  - button "View" [ref=e3978] [cursor=pointer]
+                  - button "Save" [ref=e3979] [cursor=pointer]
+            - article [ref=e3980]:
+              - generic [ref=e3981]:
+                - generic [ref=e3982]: Missing 2
+                - img "viktor 14/02/26 artwork" [ref=e3983]
+              - generic [ref=e3984]:
+                - generic "viktor 14/02/26" [ref=e3985]
+                - generic [ref=e3986]: Rec 40.8 | Competitive - | Meta 16.1 | Price $76.14 | Missing 2
+                - generic [ref=e3987]:
+                  - button "View" [ref=e3988] [cursor=pointer]
+                  - button "Save" [ref=e3989] [cursor=pointer]
+            - article [ref=e3990]:
+              - generic [ref=e3991]:
+                - generic [ref=e3992]: Missing 8
+                - img "New Deck artwork" [ref=e3993]
+              - generic [ref=e3994]:
+                - generic "New Deck" [ref=e3995]
+                - generic [ref=e3996]: Rec 40.0 | Competitive - | Meta 23.6 | Price $345.31 | Missing 8
+                - generic [ref=e3997]:
+                  - button "View" [ref=e3998] [cursor=pointer]
+                  - button "Save" [ref=e3999] [cursor=pointer]
+            - article [ref=e4000]:
+              - generic [ref=e4001]:
+                - generic [ref=e4002]: Missing 6
+                - img "Viktor City Challenge Winner artwork" [ref=e4003]
+              - generic [ref=e4004]:
+                - generic "Viktor City Challenge Winner" [ref=e4005]
+                - generic [ref=e4006]: Rec 39.9 | Competitive - | Meta 20.4 | Price $175.60 | Missing 6
+                - generic [ref=e4007]:
+                  - button "View" [ref=e4008] [cursor=pointer]
+                  - button "Save" [ref=e4009] [cursor=pointer]
+            - article [ref=e4010]:
+              - generic [ref=e4011]:
+                - generic [ref=e4012]: Missing 7
+                - img "Consistent Viktor Deck - Intellectual Adz YouTube artwork" [ref=e4013]
+              - generic [ref=e4014]:
+                - generic "Consistent Viktor Deck - Intellectual Adz YouTube" [ref=e4015]
+                - generic [ref=e4016]: Rec 39.7 | Competitive - | Meta 21.7 | Price $144.30 | Missing 7
+                - generic [ref=e4017]:
+                  - button "View" [ref=e4018] [cursor=pointer]
+                  - button "Save" [ref=e4019] [cursor=pointer]
+            - article [ref=e4020]:
+              - generic [ref=e4021]:
+                - generic [ref=e4022]: Missing 6
+                - img "Summoner Skirmish Nov Decklist - Viktor- Jason Ho artwork" [ref=e4023]
+              - generic [ref=e4024]:
+                - generic "Summoner Skirmish Nov Decklist - Viktor- Jason Ho" [ref=e4025]
+                - generic [ref=e4026]: Rec 39.6 | Competitive - | Meta 20.3 | Price $147.03 | Missing 6
+                - generic [ref=e4027]:
+                  - button "View" [ref=e4028] [cursor=pointer]
+                  - button "Save" [ref=e4029] [cursor=pointer]
+            - article [ref=e4030]:
+              - generic [ref=e4031]:
+                - generic [ref=e4032]: Missing 6
+                - img "Viktor - 1st place Sirmish FlowGeeks's eck artwork" [ref=e4033]
+              - generic [ref=e4034]:
+                - generic "Viktor - 1st place Sirmish FlowGeeks's eck" [ref=e4035]
+                - generic [ref=e4036]: Rec 39.4 | Competitive - | Meta 20.2 | Price $168.10 | Missing 6
+                - generic [ref=e4037]:
+                  - button "View" [ref=e4038] [cursor=pointer]
+                  - button "Save" [ref=e4039] [cursor=pointer]
+            - article [ref=e4040]:
+              - generic [ref=e4041]:
+                - generic [ref=e4042]: Missing 7
+                - img "[guide][thoughts] Dec 2025 1st Place 32-man Skirmish Viktor (Seals, Combat Tricks) artwork" [ref=e4043]
+              - generic [ref=e4044]:
+                - generic "[guide][thoughts] Dec 2025 1st Place 32-man Skirmish Viktor (Seals, Combat Tricks)" [ref=e4045]
+                - generic [ref=e4046]: Rec 38.7 | Competitive - | Meta 21.3 | Price $143.67 | Missing 7
+                - generic [ref=e4047]:
+                  - button "View" [ref=e4048] [cursor=pointer]
+                  - button "Save" [ref=e4049] [cursor=pointer]
+            - article [ref=e4050]:
+              - generic [ref=e4051]:
+                - generic [ref=e4052]: Missing 6
+                - img "Viktor artwork" [ref=e4053]
+              - generic [ref=e4054]:
+                - generic "Viktor" [ref=e4055]
+                - generic [ref=e4056]: Rec 38.6 | Competitive - | Meta 20.1 | Price $119.54 | Missing 6
+                - generic [ref=e4057]:
+                  - button "View" [ref=e4058] [cursor=pointer]
+                  - button "Save" [ref=e4059] [cursor=pointer]
+            - article [ref=e4060]:
+              - generic [ref=e4061]:
+                - generic [ref=e4062]: Missing 10
+                - img "True Display of... Skill? artwork" [ref=e4063]
+              - generic [ref=e4064]:
+                - generic "True Display of... Skill?" [ref=e4065]
+                - generic [ref=e4066]: Rec 38.1 | Competitive - | Meta 24.8 | Price $435.48 | Missing 10
+                - generic [ref=e4067]:
+                  - button "View" [ref=e4068] [cursor=pointer]
+                  - button "Save" [ref=e4069] [cursor=pointer]
+            - article [ref=e4070]:
+              - generic [ref=e4071]:
+                - generic [ref=e4072]: Missing 7
+                - img "1st Place Nexus Night - Viktor artwork" [ref=e4073]
+              - generic [ref=e4074]:
+                - generic "1st Place Nexus Night - Viktor" [ref=e4075]
+                - generic [ref=e4076]: Rec 37.2 | Competitive - | Meta 20.5 | Price $146.50 | Missing 7
+                - generic [ref=e4077]:
+                  - button "View" [ref=e4078] [cursor=pointer]
+                  - button "Save" [ref=e4079] [cursor=pointer]
+            - article [ref=e4080]:
+              - generic [ref=e4081]:
+                - generic [ref=e4082]: Missing 8
+                - img "New Deck artwork" [ref=e4083]
+              - generic [ref=e4084]:
+                - generic "New Deck" [ref=e4085]
+                - generic [ref=e4086]: Rec 37.0 | Competitive - | Meta 22.1 | Price $345.58 | Missing 8
+                - generic [ref=e4087]:
+                  - button "View" [ref=e4088] [cursor=pointer]
+                  - button "Save" [ref=e4089] [cursor=pointer]
+            - article [ref=e4090]:
+              - generic [ref=e4091]:
+                - generic [ref=e4092]: Missing 5
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4093]
+              - generic [ref=e4094]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4095]
+                - generic [ref=e4096]: Rec 36.5 | Competitive - | Meta 18.0 | Price $209.05 | Missing 5
+                - generic [ref=e4097]:
+                  - button "View" [ref=e4098] [cursor=pointer]
+                  - button "Save" [ref=e4099] [cursor=pointer]
+            - article [ref=e4100]:
+              - generic [ref=e4101]:
+                - generic [ref=e4102]: Missing 4
+                - img "Azir Baited Hook 4 Cost artwork" [ref=e4103]
+              - generic [ref=e4104]:
+                - generic "Azir Baited Hook 4 Cost" [ref=e4105]
+                - generic [ref=e4106]: Rec 36.5 | Competitive - | Meta 16.7 | Price $245.09 | Missing 4
+                - generic [ref=e4107]:
+                  - button "View" [ref=e4108] [cursor=pointer]
+                  - button "Save" [ref=e4109] [cursor=pointer]
+            - article [ref=e4110]:
+              - generic [ref=e4111]:
+                - generic [ref=e4112]: Missing 6
+                - img "YXE Summoner Skirmish 1 – 8th Place – Emu Otori artwork" [ref=e4113]
+              - generic [ref=e4114]:
+                - generic "YXE Summoner Skirmish 1 – 8th Place – Emu Otori" [ref=e4115]
+                - generic [ref=e4116]: Rec 36.4 | Competitive - | Meta 18.8 | Price $94.54 | Missing 6
+                - generic [ref=e4117]:
+                  - button "View" [ref=e4118] [cursor=pointer]
+                  - button "Save" [ref=e4119] [cursor=pointer]
+            - article [ref=e4120]:
+              - generic [ref=e4121]:
+                - generic [ref=e4122]: Missing 5
+                - img "Viktor - 1st City Challenge Shanghai National Open artwork" [ref=e4123]
+              - generic [ref=e4124]:
+                - generic "Viktor - 1st City Challenge Shanghai National Open" [ref=e4125]
+                - generic [ref=e4126]: Rec 36.2 | Competitive - | Meta 17.6 | Price $76.32 | Missing 5
+                - generic [ref=e4127]:
+                  - button "View" [ref=e4128] [cursor=pointer]
+                  - button "Save" [ref=e4129] [cursor=pointer]
+            - article [ref=e4130]:
+              - generic [ref=e4131]:
+                - generic [ref=e4132]: Missing 7
+                - img "Viktor Runes & Rift 4th Place artwork" [ref=e4133]
+              - generic [ref=e4134]:
+                - generic "Viktor Runes & Rift 4th Place" [ref=e4135]
+                - generic [ref=e4136]: Rec 35.9 | Competitive - | Meta 20.2 | Price $125.83 | Missing 7
+                - generic [ref=e4137]:
+                  - button "View" [ref=e4138] [cursor=pointer]
+                  - button "Save" [ref=e4139] [cursor=pointer]
+            - article [ref=e4140]:
+              - generic [ref=e4141]:
+                - generic [ref=e4142]: Missing 4
+                - img "Spiritforged Fiora Champion Deck artwork" [ref=e4143]
+              - generic [ref=e4144]:
+                - generic "Spiritforged Fiora Champion Deck" [ref=e4145]
+                - generic [ref=e4146]: Rec 35.4 | Competitive - | Meta 16.2 | Price $163.72 | Missing 4
+                - generic [ref=e4147]:
+                  - button "View" [ref=e4148] [cursor=pointer]
+                  - button "Save" [ref=e4149] [cursor=pointer]
+            - article [ref=e4150]:
+              - generic [ref=e4151]:
+                - generic [ref=e4152]: Missing 8
+                - img "Viktor Set 1 artwork" [ref=e4153]
+              - generic [ref=e4154]:
+                - generic "Viktor Set 1" [ref=e4155]
+                - generic [ref=e4156]: Rec 35.3 | Competitive - | Meta 21.3 | Price $160.38 | Missing 8
+                - generic [ref=e4157]:
+                  - button "View" [ref=e4158] [cursor=pointer]
+                  - button "Save" [ref=e4159] [cursor=pointer]
+            - article [ref=e4160]:
+              - generic [ref=e4161]:
+                - generic [ref=e4162]: Missing 6
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4163]
+              - generic [ref=e4164]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4165]
+                - generic [ref=e4166]: Rec 34.8 | Competitive - | Meta 18.6 | Price $202.36 | Missing 6
+                - generic [ref=e4167]:
+                  - button "View" [ref=e4168] [cursor=pointer]
+                  - button "Save" [ref=e4169] [cursor=pointer]
+            - article [ref=e4170]:
+              - generic [ref=e4171]:
+                - generic [ref=e4172]: Missing 8
+                - img "Viktor Competitive artwork" [ref=e4173]
+              - generic [ref=e4174]:
+                - generic "Viktor Competitive" [ref=e4175]
+                - generic [ref=e4176]: Rec 34.6 | Competitive - | Meta 20.7 | Price $144.84 | Missing 8
+                - generic [ref=e4177]:
+                  - button "View" [ref=e4178] [cursor=pointer]
+                  - button "Save" [ref=e4179] [cursor=pointer]
+            - article [ref=e4180]:
+              - generic [ref=e4181]:
+                - generic [ref=e4182]: Missing 8
+                - img "Viktor - 1st Shanghai City Challenge artwork" [ref=e4183]
+              - generic [ref=e4184]:
+                - generic "Viktor - 1st Shanghai City Challenge" [ref=e4185]
+                - generic [ref=e4186]: Rec 34.5 | Competitive - | Meta 20.7 | Price $147.72 | Missing 8
+                - generic [ref=e4187]:
+                  - button "View" [ref=e4188] [cursor=pointer]
+                  - button "Save" [ref=e4189] [cursor=pointer]
+            - article [ref=e4190]:
+              - generic [ref=e4191]:
+                - generic [ref=e4192]: Missing 8
+                - img "Viktor Strats artwork" [ref=e4193]
+              - generic [ref=e4194]:
+                - generic "Viktor Strats" [ref=e4195]
+                - generic [ref=e4196]: Rec 34.3 | Competitive - | Meta 20.6 | Price $146.35 | Missing 8
+                - generic [ref=e4197]:
+                  - button "View" [ref=e4198] [cursor=pointer]
+                  - button "Save" [ref=e4199] [cursor=pointer]
+            - article [ref=e4200]:
+              - generic [ref=e4201]:
+                - generic [ref=e4202]: Missing 10
+                - img "RiftLounge - Runes &amp; Rift Invitational artwork" [ref=e4203]
+              - generic [ref=e4204]:
+                - generic "RiftLounge - Runes &amp; Rift Invitational" [ref=e4205]
+                - generic [ref=e4206]: Rec 34.1 | Competitive - | Meta 22.6 | Price $328.43 | Missing 10
+                - generic [ref=e4207]:
+                  - button "View" [ref=e4208] [cursor=pointer]
+                  - button "Save" [ref=e4209] [cursor=pointer]
+            - article [ref=e4210]:
+              - generic [ref=e4211]:
+                - generic [ref=e4212]: Missing 2
+                - img "Budget Ahri artwork" [ref=e4213]
+              - generic [ref=e4214]:
+                - generic "Budget Ahri" [ref=e4215]
+                - generic [ref=e4216]: Rec 33.7 | Competitive - | Meta 13.1 | Price $189.95 | Missing 2
+                - generic [ref=e4217]:
+                  - button "View" [ref=e4218] [cursor=pointer]
+                  - button "Save" [ref=e4219] [cursor=pointer]
+            - article [ref=e4220]:
+              - generic [ref=e4221]:
+                - generic [ref=e4222]: Missing 8
+                - img "Viktor - Skirmish Top cut artwork" [ref=e4223]
+              - generic [ref=e4224]:
+                - generic "Viktor - Skirmish Top cut" [ref=e4225]
+                - generic [ref=e4226]: Rec 33.7 | Competitive - | Meta 20.3 | Price $145.98 | Missing 8
+                - generic [ref=e4227]:
+                  - button "View" [ref=e4228] [cursor=pointer]
+                  - button "Save" [ref=e4229] [cursor=pointer]
+            - article [ref=e4230]:
+              - generic [ref=e4231]:
+                - generic [ref=e4232]: Missing 8
+                - img "1st Place Summoner Skirmish Viktor artwork" [ref=e4233]
+              - generic [ref=e4234]:
+                - generic "1st Place Summoner Skirmish Viktor" [ref=e4235]
+                - generic [ref=e4236]: Rec 33.6 | Competitive - | Meta 20.5 | Price $134.31 | Missing 8
+                - generic [ref=e4237]:
+                  - button "View" [ref=e4238] [cursor=pointer]
+                  - button "Save" [ref=e4239] [cursor=pointer]
+            - article [ref=e4240]:
+              - generic [ref=e4241]:
+                - generic [ref=e4242]: Missing 2
+                - img "Viktor Premade Origins Champion Deck artwork" [ref=e4243]
+              - generic [ref=e4244]:
+                - generic "Viktor Premade Origins Champion Deck" [ref=e4245]
+                - generic [ref=e4246]: Rec 33.5 | Competitive - | Meta 13.1 | Price $39.26 | Missing 2
+                - generic [ref=e4247]:
+                  - button "View" [ref=e4248] [cursor=pointer]
+                  - button "Save" [ref=e4249] [cursor=pointer]
+            - article [ref=e4250]:
+              - generic [ref=e4251]:
+                - generic [ref=e4252]: Missing 16
+                - 'img "Bologna #3 - krowz artwork" [ref=e4253]'
+              - generic [ref=e4254]:
+                - 'generic "Bologna #3 - krowz" [ref=e4255]'
+                - generic [ref=e4256]: Rec 33.3 | Competitive - | Meta 31.2 | Price $424.76 | Missing 16
+                - generic [ref=e4257]:
+                  - button "View" [ref=e4258] [cursor=pointer]
+                  - button "Save" [ref=e4259] [cursor=pointer]
+            - article [ref=e4260]:
+              - generic [ref=e4261]:
+                - generic [ref=e4262]: Missing 6
+                - img "Viktor Summoner Skirmish 1st Place artwork" [ref=e4263]
+              - generic [ref=e4264]:
+                - generic "Viktor Summoner Skirmish 1st Place" [ref=e4265]
+                - generic [ref=e4266]: Rec 33.0 | Competitive - | Meta 17.4 | Price $76.66 | Missing 6
+                - generic [ref=e4267]:
+                  - button "View" [ref=e4268] [cursor=pointer]
+                  - button "Save" [ref=e4269] [cursor=pointer]
+            - article [ref=e4270]:
+              - generic [ref=e4271]:
+                - generic [ref=e4272]: Missing 12
+                - img "Irelia broken artwork" [ref=e4273]
+              - generic [ref=e4274]:
+                - generic "Irelia broken" [ref=e4275]
+                - generic [ref=e4276]: Rec 32.7 | Competitive - | Meta 24.9 | Price $763.58 | Missing 12
+                - generic [ref=e4277]:
+                  - button "View" [ref=e4278] [cursor=pointer]
+                  - button "Save" [ref=e4279] [cursor=pointer]
+            - article [ref=e4280]:
+              - generic [ref=e4281]:
+                - generic [ref=e4282]: Missing 8
+                - img "Chihab Viktor artwork" [ref=e4283]
+              - generic [ref=e4284]:
+                - generic "Chihab Viktor" [ref=e4285]
+                - generic [ref=e4286]: Rec 32.7 | Competitive - | Meta 20.1 | Price $124.41 | Missing 8
+                - generic [ref=e4287]:
+                  - button "View" [ref=e4288] [cursor=pointer]
+                  - button "Save" [ref=e4289] [cursor=pointer]
+            - article [ref=e4290]:
+              - generic [ref=e4291]:
+                - generic [ref=e4292]: Missing 4
+                - img "Budget Irelia artwork" [ref=e4293]
+              - generic [ref=e4294]:
+                - generic "Budget Irelia" [ref=e4295]
+                - generic [ref=e4296]: Rec 32.7 | Competitive - | Meta 15.2 | Price $138.02 | Missing 4
+                - generic [ref=e4297]:
+                  - button "View" [ref=e4298] [cursor=pointer]
+                  - button "Save" [ref=e4299] [cursor=pointer]
+            - article [ref=e4300]:
+              - generic [ref=e4301]:
+                - generic [ref=e4302]: Missing 3
+                - img "Viktor - Herald of the Arcane Deck 26-02-13 artwork" [ref=e4303]
+              - generic [ref=e4304]:
+                - generic "Viktor - Herald of the Arcane Deck 26-02-13" [ref=e4305]
+                - generic [ref=e4306]: Rec 32.3 | Competitive - | Meta 13.5 | Price $49.59 | Missing 3
+                - generic [ref=e4307]:
+                  - button "View" [ref=e4308] [cursor=pointer]
+                  - button "Save" [ref=e4309] [cursor=pointer]
+            - article [ref=e4310]:
+              - generic [ref=e4311]:
+                - generic [ref=e4312]: Missing 11
+                - img "Irelia artwork" [ref=e4313]
+              - generic [ref=e4314]:
+                - generic "Irelia" [ref=e4315]
+                - generic [ref=e4316]: Rec 32.2 | Competitive - | Meta 24.0 | Price $398.36 | Missing 11
+                - generic [ref=e4317]:
+                  - button "View" [ref=e4318] [cursor=pointer]
+                  - button "Save" [ref=e4319] [cursor=pointer]
+            - article [ref=e4320]:
+              - generic [ref=e4321]:
+                - generic [ref=e4322]: Missing 9
+                - 'img "Viktor (1st - Nexus Night #5) artwork" [ref=e4323]'
+              - generic [ref=e4324]:
+                - 'generic "Viktor (1st - Nexus Night #5)" [ref=e4325]'
+                - generic [ref=e4326]: Rec 32.2 | Competitive - | Meta 20.7 | Price $157.16 | Missing 9
+                - generic [ref=e4327]:
+                  - button "View" [ref=e4328] [cursor=pointer]
+                  - button "Save" [ref=e4329] [cursor=pointer]
+            - article [ref=e4330]:
+              - generic [ref=e4331]:
+                - generic [ref=e4332]: Missing 2
+                - img "ViktorNation artwork" [ref=e4333]
+              - generic [ref=e4334]:
+                - generic "ViktorNation" [ref=e4335]
+                - generic [ref=e4336]: Rec 32.1 | Competitive - | Meta 12.2 | Price $41.83 | Missing 2
+                - generic [ref=e4337]:
+                  - button "View" [ref=e4338] [cursor=pointer]
+                  - button "Save" [ref=e4339] [cursor=pointer]
+            - article [ref=e4340]:
+              - generic [ref=e4341]:
+                - generic [ref=e4342]: Missing 6
+                - img "Viktor Skirmish Winner artwork" [ref=e4343]
+              - generic [ref=e4344]:
+                - generic "Viktor Skirmish Winner" [ref=e4345]
+                - generic [ref=e4346]: Rec 32.0 | Competitive - | Meta 17.0 | Price $68.69 | Missing 6
+                - generic [ref=e4347]:
+                  - button "View" [ref=e4348] [cursor=pointer]
+                  - button "Save" [ref=e4349] [cursor=pointer]
+            - article [ref=e4350]:
+              - generic [ref=e4351]:
+                - generic [ref=e4352]: Missing 6
+                - img "Viktor Chinese National 29th artwork" [ref=e4353]
+              - generic [ref=e4354]:
+                - generic "Viktor Chinese National 29th" [ref=e4355]
+                - generic [ref=e4356]: Rec 32.0 | Competitive - | Meta 17.0 | Price $70.14 | Missing 6
+                - generic [ref=e4357]:
+                  - button "View" [ref=e4358] [cursor=pointer]
+                  - button "Save" [ref=e4359] [cursor=pointer]
+            - article [ref=e4360]:
+              - generic [ref=e4361]:
+                - generic [ref=e4362]: Missing 8
+                - img "Viktor - Herald of the Arcane Deck - copy artwork" [ref=e4363]
+              - generic [ref=e4364]:
+                - generic "Viktor - Herald of the Arcane Deck - copy" [ref=e4365]
+                - generic [ref=e4366]: Rec 31.6 | Competitive - | Meta 19.0 | Price $140.73 | Missing 8
+                - generic [ref=e4367]:
+                  - button "View" [ref=e4368] [cursor=pointer]
+                  - button "Save" [ref=e4369] [cursor=pointer]
+            - article [ref=e4370]:
+              - generic [ref=e4371]:
+                - generic [ref=e4372]: Missing 10
+                - img "Irelia - Budget - copy artwork" [ref=e4373]
+              - generic [ref=e4374]:
+                - generic "Irelia - Budget - copy" [ref=e4375]
+                - generic [ref=e4376]: Rec 31.5 | Competitive - | Meta 22.4 | Price $366.18 | Missing 10
+                - generic [ref=e4377]:
+                  - button "View" [ref=e4378] [cursor=pointer]
+                  - button "Save" [ref=e4379] [cursor=pointer]
+            - article [ref=e4380]:
+              - generic [ref=e4381]:
+                - generic [ref=e4382]: Missing 9
+                - img "Skirmish 2 artwork" [ref=e4383]
+              - generic [ref=e4384]:
+                - generic "Skirmish 2" [ref=e4385]
+                - generic [ref=e4386]: Rec 31.4 | Competitive - | Meta 20.6 | Price $145.49 | Missing 9
+                - generic [ref=e4387]:
+                  - button "View" [ref=e4388] [cursor=pointer]
+                  - button "Save" [ref=e4389] [cursor=pointer]
+            - article [ref=e4390]:
+              - generic [ref=e4391]:
+                - generic [ref=e4392]: Missing 8
+                - img "Annie Set 2 (Optimized) artwork" [ref=e4393]
+              - generic [ref=e4394]:
+                - generic "Annie Set 2 (Optimized)" [ref=e4395]
+                - generic [ref=e4396]: Rec 31.3 | Competitive - | Meta 18.6 | Price $426.37 | Missing 8
+                - generic [ref=e4397]:
+                  - button "View" [ref=e4398] [cursor=pointer]
+                  - button "Save" [ref=e4399] [cursor=pointer]
+            - article [ref=e4400]:
+              - generic [ref=e4401]:
+                - generic [ref=e4402]: Missing 9
+                - img "The Rifting Turtle&#x27;s Viktor 1st place Deck list. artwork" [ref=e4403]
+              - generic [ref=e4404]:
+                - generic "The Rifting Turtle&#x27;s Viktor 1st place Deck list." [ref=e4405]
+                - generic [ref=e4406]: Rec 31.3 | Competitive - | Meta 20.3 | Price $147.37 | Missing 9
+                - generic [ref=e4407]:
+                  - button "View" [ref=e4408] [cursor=pointer]
+                  - button "Save" [ref=e4409] [cursor=pointer]
+            - article [ref=e4410]:
+              - generic [ref=e4411]:
+                - generic [ref=e4412]: Missing 9
+                - img "Viktor City Challenge Runner Up artwork" [ref=e4413]
+              - generic [ref=e4414]:
+                - generic "Viktor City Challenge Runner Up" [ref=e4415]
+                - generic [ref=e4416]: Rec 31.2 | Competitive - | Meta 20.5 | Price $176.28 | Missing 9
+                - generic [ref=e4417]:
+                  - button "View" [ref=e4418] [cursor=pointer]
+                  - button "Save" [ref=e4419] [cursor=pointer]
+            - article [ref=e4420]:
+              - generic [ref=e4421]:
+                - generic [ref=e4422]: Missing 15
+                - 'img "Ezreal, Prodigal Explorer: S2 Regional Open Chengdu Top 4 (Omegаone.霆霆) artwork" [ref=e4423]'
+              - generic [ref=e4424]:
+                - 'generic "Ezreal, Prodigal Explorer: S2 Regional Open Chengdu Top 4 (Omegаone.霆霆)" [ref=e4425]'
+                - generic [ref=e4426]: Rec 31.1 | Competitive - | Meta 28.6 | Price $480.86 | Missing 15
+                - generic [ref=e4427]:
+                  - button "View" [ref=e4428] [cursor=pointer]
+                  - button "Save" [ref=e4429] [cursor=pointer]
+            - article [ref=e4430]:
+              - generic [ref=e4431]:
+                - generic [ref=e4432]: Missing 3
+                - img "Ezreal - Version 2 artwork" [ref=e4433]
+              - generic [ref=e4434]:
+                - generic "Ezreal - Version 2" [ref=e4435]
+                - generic [ref=e4436]: Rec 31.0 | Competitive - | Meta 13.2 | Price $92.18 | Missing 3
+                - generic [ref=e4437]:
+                  - button "View" [ref=e4438] [cursor=pointer]
+                  - button "Save" [ref=e4439] [cursor=pointer]
+            - article [ref=e4440]:
+              - generic [ref=e4441]:
+                - generic [ref=e4442]: Missing 12
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4443]
+              - generic [ref=e4444]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4445]
+                - generic [ref=e4446]: Rec 30.9 | Competitive - | Meta 24.9 | Price $710.40 | Missing 12
+                - generic [ref=e4447]:
+                  - button "View" [ref=e4448] [cursor=pointer]
+                  - button "Save" [ref=e4449] [cursor=pointer]
+            - article [ref=e4450]:
+              - generic [ref=e4451]:
+                - generic [ref=e4452]: Missing 9
+                - img "VIKTOR JAVI artwork" [ref=e4453]
+              - generic [ref=e4454]:
+                - generic "VIKTOR JAVI" [ref=e4455]
+                - generic [ref=e4456]: Rec 30.8 | Competitive - | Meta 20.6 | Price $154.61 | Missing 9
+                - generic [ref=e4457]:
+                  - button "View" [ref=e4458] [cursor=pointer]
+                  - button "Save" [ref=e4459] [cursor=pointer]
+            - article [ref=e4460]:
+              - generic [ref=e4461]:
+                - generic [ref=e4462]: Missing 10
+                - img "Viktor top 32 Chengdu Regional artwork" [ref=e4463]
+              - generic [ref=e4464]:
+                - generic "Viktor top 32 Chengdu Regional" [ref=e4465]
+                - generic [ref=e4466]: Rec 30.6 | Competitive - | Meta 21.4 | Price $147.06 | Missing 10
+                - generic [ref=e4467]:
+                  - button "View" [ref=e4468] [cursor=pointer]
+                  - button "Save" [ref=e4469] [cursor=pointer]
+            - article [ref=e4470]:
+              - generic [ref=e4471]:
+                - generic [ref=e4472]: Missing 8
+                - img "Viktor - Herald of the Arcane Deck artwork" [ref=e4473]
+              - generic [ref=e4474]:
+                - generic "Viktor - Herald of the Arcane Deck" [ref=e4475]
+                - generic [ref=e4476]: Rec 30.6 | Competitive - | Meta 18.8 | Price $140.91 | Missing 8
+                - generic [ref=e4477]:
+                  - button "View" [ref=e4478] [cursor=pointer]
+                  - button "Save" [ref=e4479] [cursor=pointer]
+            - article [ref=e4480]:
+              - generic [ref=e4481]:
+                - generic [ref=e4482]: Missing 12
+                - img "Irelia - Blade Dancer Deck artwork" [ref=e4483]
+              - generic [ref=e4484]:
+                - generic "Irelia - Blade Dancer Deck" [ref=e4485]
+                - generic [ref=e4486]: Rec 30.4 | Competitive - | Meta 24.1 | Price $464.04 | Missing 12
+                - generic [ref=e4487]:
+                  - button "View" [ref=e4488] [cursor=pointer]
+                  - button "Save" [ref=e4489] [cursor=pointer]
+            - article [ref=e4490]:
+              - generic [ref=e4491]:
+                - generic [ref=e4492]: Missing 5
+                - img "Fiora Precon upvrgrade artwork" [ref=e4493]
+              - generic [ref=e4494]:
+                - generic "Fiora Precon upvrgrade" [ref=e4495]
+                - generic [ref=e4496]: Rec 30.3 | Competitive - | Meta 15.2 | Price $168.50 | Missing 5
+                - generic [ref=e4497]:
+                  - button "View" [ref=e4498] [cursor=pointer]
+                  - button "Save" [ref=e4499] [cursor=pointer]
+            - article [ref=e4500]:
+              - generic [ref=e4501]:
+                - generic [ref=e4502]: Missing 9
+                - 'img "Void: 7th - MaxTapera Tournament artwork" [ref=e4503]'
+              - generic [ref=e4504]:
+                - 'generic "Void: 7th - MaxTapera Tournament" [ref=e4505]'
+                - generic [ref=e4506]: Rec 30.3 | Competitive - | Meta 20.3 | Price $180.48 | Missing 9
+                - generic [ref=e4507]:
+                  - button "View" [ref=e4508] [cursor=pointer]
+                  - button "Save" [ref=e4509] [cursor=pointer]
+            - article [ref=e4510]:
+              - generic [ref=e4511]:
+                - generic [ref=e4512]: Missing 14
+                - 'img "Irelia, Blade Dancer: S2 Regional Open Chengdu Top 8 (LineKа·健一) artwork" [ref=e4513]'
+              - generic [ref=e4514]:
+                - 'generic "Irelia, Blade Dancer: S2 Regional Open Chengdu Top 8 (LineKа·健一)" [ref=e4515]'
+                - generic [ref=e4516]: Rec 30.1 | Competitive - | Meta 26.5 | Price $372.44 | Missing 14
+                - generic [ref=e4517]:
+                  - button "View" [ref=e4518] [cursor=pointer]
+                  - button "Save" [ref=e4519] [cursor=pointer]
+            - article [ref=e4520]:
+              - generic [ref=e4521]:
+                - generic [ref=e4522]: Missing 11
+                - img "Best Aggro Irelia Deck artwork" [ref=e4523]
+              - generic [ref=e4524]:
+                - generic "Best Aggro Irelia Deck" [ref=e4525]
+                - generic [ref=e4526]: Rec 29.9 | Competitive - | Meta 22.0 | Price $322.28 | Missing 11
+                - generic [ref=e4527]:
+                  - button "View" [ref=e4528] [cursor=pointer]
+                  - button "Save" [ref=e4529] [cursor=pointer]
+            - article [ref=e4530]:
+              - generic [ref=e4531]:
+                - generic [ref=e4532]: Missing 13
+                - img "Draven - Glorious Executioner Deck artwork" [ref=e4533]
+              - generic [ref=e4534]:
+                - generic "Draven - Glorious Executioner Deck" [ref=e4535]
+                - generic [ref=e4536]: Rec 29.8 | Competitive - | Meta 24.7 | Price $509.44 | Missing 13
+                - generic [ref=e4537]:
+                  - button "View" [ref=e4538] [cursor=pointer]
+                  - button "Save" [ref=e4539] [cursor=pointer]
+            - article [ref=e4540]:
+              - generic [ref=e4541]:
+                - generic [ref=e4542]: Missing 2
+                - img "MiraclEz - Budget Ezreal Guide artwork" [ref=e4543]
+              - generic [ref=e4544]:
+                - generic "MiraclEz - Budget Ezreal Guide" [ref=e4545]
+                - generic [ref=e4546]: Rec 29.8 | Competitive - | Meta 11.4 | Price $82.41 | Missing 2
+                - generic [ref=e4547]:
+                  - button "View" [ref=e4548] [cursor=pointer]
+                  - button "Save" [ref=e4549] [cursor=pointer]
+            - article [ref=e4550]:
+              - generic [ref=e4551]:
+                - generic [ref=e4552]: Missing 8
+                - 'img "乐在飙亲-阿保: 5-8th- Guangzhou Regionals Tournament (Aug 2025) artwork" [ref=e4553]'
+              - generic [ref=e4554]:
+                - 'generic "乐在飙亲-阿保: 5-8th- Guangzhou Regionals Tournament (Aug 2025)" [ref=e4555]'
+                - generic [ref=e4556]: Rec 29.6 | Competitive - | Meta 18.3 | Price $81.64 | Missing 8
+                - generic [ref=e4557]:
+                  - button "View" [ref=e4558] [cursor=pointer]
+                  - button "Save" [ref=e4559] [cursor=pointer]
+            - article [ref=e4560]:
+              - generic [ref=e4561]:
+                - generic [ref=e4562]: Buildable
+                - img "Master Yi Wuju Bladesman Deck artwork" [ref=e4563]
+              - generic [ref=e4564]:
+                - generic "Master Yi Wuju Bladesman Deck" [ref=e4565]
+                - generic [ref=e4566]: Rec 29.6 | Competitive - | Meta 8.6 | Price $29.52 | Buildable
+                - generic [ref=e4567]:
+                  - button "View" [ref=e4568] [cursor=pointer]
+                  - button "Save" [ref=e4569] [cursor=pointer]
+            - article [ref=e4570]:
+              - generic [ref=e4571]:
+                - generic [ref=e4572]: Missing 6
+                - img "Fiora -My Cards So Far artwork" [ref=e4573]
+              - generic [ref=e4574]:
+                - generic "Fiora -My Cards So Far" [ref=e4575]
+                - generic [ref=e4576]: Rec 29.5 | Competitive - | Meta 15.8 | Price $358.73 | Missing 6
+                - generic [ref=e4577]:
+                  - button "View" [ref=e4578] [cursor=pointer]
+                  - button "Save" [ref=e4579] [cursor=pointer]
+            - article [ref=e4580]:
+              - generic [ref=e4581]:
+                - generic [ref=e4582]: Missing 7
+                - 'img "Thagor: 1st - Riftbound France Cup Season 0 #1 (Aug 10th) artwork" [ref=e4583]'
+              - generic [ref=e4584]:
+                - 'generic "Thagor: 1st - Riftbound France Cup Season 0 #1 (Aug 10th)" [ref=e4585]'
+                - generic [ref=e4586]: Rec 29.5 | Competitive - | Meta 16.9 | Price $168.09 | Missing 7
+                - generic [ref=e4587]:
+                  - button "View" [ref=e4588] [cursor=pointer]
+                  - button "Save" [ref=e4589] [cursor=pointer]
+            - article [ref=e4590]:
+              - generic [ref=e4591]:
+                - generic [ref=e4592]: Missing 13
+                - img "Runes and Rift Weekly - Jan 14th - 4th Place - NATUREAL artwork" [ref=e4593]
+              - generic [ref=e4594]:
+                - generic "Runes and Rift Weekly - Jan 14th - 4th Place - NATUREAL" [ref=e4595]
+                - generic [ref=e4596]: Rec 29.4 | Competitive - | Meta 24.8 | Price $445.50 | Missing 13
+                - generic [ref=e4597]:
+                  - button "View" [ref=e4598] [cursor=pointer]
+                  - button "Save" [ref=e4599] [cursor=pointer]
+            - article [ref=e4600]:
+              - generic [ref=e4601]:
+                - generic [ref=e4602]: Missing 10
+                - img "1st Place Viktor Hook Skirmish artwork" [ref=e4603]
+              - generic [ref=e4604]:
+                - generic "1st Place Viktor Hook Skirmish" [ref=e4605]
+                - generic [ref=e4606]: Rec 29.4 | Competitive - | Meta 20.8 | Price $186.40 | Missing 10
+                - generic [ref=e4607]:
+                  - button "View" [ref=e4608] [cursor=pointer]
+                  - button "Save" [ref=e4609] [cursor=pointer]
+            - article [ref=e4610]:
+              - generic [ref=e4611]:
+                - generic [ref=e4612]: Missing 9
+                - img "Viktor Commander Set 1 artwork" [ref=e4613]
+              - generic [ref=e4614]:
+                - generic "Viktor Commander Set 1" [ref=e4615]
+                - generic [ref=e4616]: Rec 29.3 | Competitive - | Meta 19.3 | Price $175.94 | Missing 9
+                - generic [ref=e4617]:
+                  - button "View" [ref=e4618] [cursor=pointer]
+                  - button "Save" [ref=e4619] [cursor=pointer]
+            - article [ref=e4620]:
+              - generic [ref=e4621]:
+                - generic [ref=e4622]: Missing 10
+                - img "Set 1 Blue Vik artwork" [ref=e4623]
+              - generic [ref=e4624]:
+                - generic "Set 1 Blue Vik" [ref=e4625]
+                - generic [ref=e4626]: Rec 29.2 | Competitive - | Meta 20.4 | Price $116.72 | Missing 10
+                - generic [ref=e4627]:
+                  - button "View" [ref=e4628] [cursor=pointer]
+                  - button "Save" [ref=e4629] [cursor=pointer]
+            - article [ref=e4630]:
+              - generic [ref=e4631]:
+                - generic [ref=e4632]: Missing 15
+                - 'img "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 4 (赤月星宿) artwork" [ref=e4633]'
+              - generic [ref=e4634]:
+                - 'generic "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 4 (赤月星宿)" [ref=e4635]'
+                - generic [ref=e4636]: Rec 29.1 | Competitive - | Meta 27.6 | Price $376.51 | Missing 15
+                - generic [ref=e4637]:
+                  - button "View" [ref=e4638] [cursor=pointer]
+                  - button "Save" [ref=e4639] [cursor=pointer]
+            - article [ref=e4640]:
+              - generic [ref=e4641]:
+                - generic [ref=e4642]: Missing 12
+                - img "Irelia - Blade Dancer Deck artwork" [ref=e4643]
+              - generic [ref=e4644]:
+                - generic "Irelia - Blade Dancer Deck" [ref=e4645]
+                - generic [ref=e4646]: Rec 29.0 | Competitive - | Meta 23.6 | Price $517.68 | Missing 12
+                - generic [ref=e4647]:
+                  - button "View" [ref=e4648] [cursor=pointer]
+                  - button "Save" [ref=e4649] [cursor=pointer]
+            - article [ref=e4650]:
+              - generic [ref=e4651]:
+                - generic [ref=e4652]: Missing 13
+                - img "Irelia day 1 artwork" [ref=e4653]
+              - generic [ref=e4654]:
+                - generic "Irelia day 1" [ref=e4655]
+                - generic [ref=e4656]: Rec 28.8 | Competitive - | Meta 24.5 | Price $589.27 | Missing 13
+                - generic [ref=e4657]:
+                  - button "View" [ref=e4658] [cursor=pointer]
+                  - button "Save" [ref=e4659] [cursor=pointer]
+            - article [ref=e4660]:
+              - generic [ref=e4661]:
+                - generic [ref=e4662]: Missing 4
+                - img "Fiora Starter Deck artwork" [ref=e4663]
+              - generic [ref=e4664]:
+                - generic "Fiora Starter Deck" [ref=e4665]
+                - generic [ref=e4666]: Rec 28.7 | Competitive - | Meta 13.1 | Price $93.13 | Missing 4
+                - generic [ref=e4667]:
+                  - button "View" [ref=e4668] [cursor=pointer]
+                  - button "Save" [ref=e4669] [cursor=pointer]
+            - article [ref=e4670]:
+              - generic [ref=e4671]:
+                - generic [ref=e4672]: Missing 4
+                - img "Jinx Spiritforged artwork" [ref=e4673]
+              - generic [ref=e4674]:
+                - generic "Jinx Spiritforged" [ref=e4675]
+                - generic [ref=e4676]: Rec 28.7 | Competitive - | Meta 13.1 | Price $326.10 | Missing 4
+                - generic [ref=e4677]:
+                  - button "View" [ref=e4678] [cursor=pointer]
+                  - button "Save" [ref=e4679] [cursor=pointer]
+            - article [ref=e4680]:
+              - generic [ref=e4681]:
+                - generic [ref=e4682]: Missing 14
+                - img "Purple draven control artwork" [ref=e4683]
+              - generic [ref=e4684]:
+                - generic "Purple draven control" [ref=e4685]
+                - generic [ref=e4686]: Rec 28.7 | Competitive - | Meta 25.4 | Price $557.54 | Missing 14
+                - generic [ref=e4687]:
+                  - button "View" [ref=e4688] [cursor=pointer]
+                  - button "Save" [ref=e4689] [cursor=pointer]
+            - article [ref=e4690]:
+              - generic [ref=e4691]:
+                - generic [ref=e4692]: Missing 5
+                - 'img "Migan: 3rd - Riftbound Meta Weekly (Jul 26th) artwork" [ref=e4693]'
+              - generic [ref=e4694]:
+                - 'generic "Migan: 3rd - Riftbound Meta Weekly (Jul 26th)" [ref=e4695]'
+                - generic [ref=e4696]: Rec 28.6 | Competitive - | Meta 14.3 | Price $247.97 | Missing 5
+                - generic [ref=e4697]:
+                  - button "View" [ref=e4698] [cursor=pointer]
+                  - button "Save" [ref=e4699] [cursor=pointer]
+            - article [ref=e4700]:
+              - generic [ref=e4701]:
+                - generic [ref=e4702]: Missing 9
+                - img "Viktor - Herald of the Arcane Deck - copy 2 artwork" [ref=e4703]
+              - generic [ref=e4704]:
+                - generic "Viktor - Herald of the Arcane Deck - copy 2" [ref=e4705]
+                - generic [ref=e4706]: Rec 28.5 | Competitive - | Meta 18.9 | Price $139.82 | Missing 9
+                - generic [ref=e4707]:
+                  - button "View" [ref=e4708] [cursor=pointer]
+                  - button "Save" [ref=e4709] [cursor=pointer]
+            - article [ref=e4710]:
+              - generic [ref=e4711]:
+                - generic [ref=e4712]: Missing 4
+                - img "vikktor wishlist artwork" [ref=e4713]
+              - generic [ref=e4714]:
+                - generic "vikktor wishlist" [ref=e4715]
+                - generic [ref=e4716]: Rec 28.4 | Competitive - | Meta 13.0 | Price $48.53 | Missing 4
+                - generic [ref=e4717]:
+                  - button "View" [ref=e4718] [cursor=pointer]
+                  - button "Save" [ref=e4719] [cursor=pointer]
+            - article [ref=e4720]:
+              - generic [ref=e4721]:
+                - generic [ref=e4722]: Missing 6
+                - img "Yone? artwork" [ref=e4723]
+              - generic [ref=e4724]:
+                - generic "Yone?" [ref=e4725]
+                - generic [ref=e4726]: Rec 28.4 | Competitive - | Meta 15.8 | Price $141.44 | Missing 6
+                - generic [ref=e4727]:
+                  - button "View" [ref=e4728] [cursor=pointer]
+                  - button "Save" [ref=e4729] [cursor=pointer]
+            - article [ref=e4730]:
+              - generic [ref=e4731]:
+                - generic [ref=e4732]: Missing 4
+                - img "Viktor skrimish list 12/13/25 artwork" [ref=e4733]
+              - generic [ref=e4734]:
+                - generic "Viktor skrimish list 12/13/25" [ref=e4735]
+                - generic [ref=e4736]: Rec 28.3 | Competitive - | Meta 12.7 | Price $36.47 | Missing 4
+                - generic [ref=e4737]:
+                  - button "View" [ref=e4738] [cursor=pointer]
+                  - button "Save" [ref=e4739] [cursor=pointer]
+            - article [ref=e4740]:
+              - generic [ref=e4741]:
+                - generic [ref=e4742]: Missing 5
+                - img "MilkWorldGlobal&#x27;s Warpless Ahri artwork" [ref=e4743]
+              - generic [ref=e4744]:
+                - generic "MilkWorldGlobal&#x27;s Warpless Ahri" [ref=e4745]
+                - generic [ref=e4746]: Rec 28.1 | Competitive - | Meta 13.9 | Price $219.62 | Missing 5
+                - generic [ref=e4747]:
+                  - button "View" [ref=e4748] [cursor=pointer]
+                  - button "Save" [ref=e4749] [cursor=pointer]
+            - article [ref=e4750]:
+              - generic [ref=e4751]:
+                - generic [ref=e4752]: Missing 13
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4753]
+              - generic [ref=e4754]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4755]
+                - generic [ref=e4756]: Rec 28.1 | Competitive - | Meta 24.4 | Price $516.98 | Missing 13
+                - generic [ref=e4757]:
+                  - button "View" [ref=e4758] [cursor=pointer]
+                  - button "Save" [ref=e4759] [cursor=pointer]
+            - article [ref=e4760]:
+              - generic [ref=e4761]:
+                - generic [ref=e4762]: Missing 8
+                - 'img "Bologna #50 - Rocklho artwork" [ref=e4763]'
+              - generic [ref=e4764]:
+                - 'generic "Bologna #50 - Rocklho" [ref=e4765]'
+                - generic [ref=e4766]: Rec 28.1 | Competitive - | Meta 17.4 | Price $204.25 | Missing 8
+                - generic [ref=e4767]:
+                  - button "View" [ref=e4768] [cursor=pointer]
+                  - button "Save" [ref=e4769] [cursor=pointer]
+            - article [ref=e4770]:
+              - generic [ref=e4771]:
+                - generic [ref=e4772]: Missing 8
+                - 'img "KiriLeJungler: 5-8th - Riftbound France Cup Season 0 #1 (Aug 10th) artwork" [ref=e4773]'
+              - generic [ref=e4774]:
+                - 'generic "KiriLeJungler: 5-8th - Riftbound France Cup Season 0 #1 (Aug 10th)" [ref=e4775]'
+                - generic [ref=e4776]: Rec 28.1 | Competitive - | Meta 17.4 | Price $250.14 | Missing 8
+                - generic [ref=e4777]:
+                  - button "View" [ref=e4778] [cursor=pointer]
+                  - button "Save" [ref=e4779] [cursor=pointer]
+            - article [ref=e4780]:
+              - generic [ref=e4781]:
+                - generic [ref=e4782]: Missing 4
+                - img "Origins Ahri Semi Budget artwork" [ref=e4783]
+              - generic [ref=e4784]:
+                - generic "Origins Ahri Semi Budget" [ref=e4785]
+                - generic [ref=e4786]: Rec 27.9 | Competitive - | Meta 12.8 | Price $185.98 | Missing 4
+                - generic [ref=e4787]:
+                  - button "View" [ref=e4788] [cursor=pointer]
+                  - button "Save" [ref=e4789] [cursor=pointer]
+            - article [ref=e4790]:
+              - generic [ref=e4791]:
+                - generic [ref=e4792]: Missing 5
+                - img "Tempo Viktor - Skirmish Ready artwork" [ref=e4793]
+              - generic [ref=e4794]:
+                - generic "Tempo Viktor - Skirmish Ready" [ref=e4795]
+                - generic [ref=e4796]: Rec 27.8 | Competitive - | Meta 13.7 | Price $39.31 | Missing 5
+                - generic [ref=e4797]:
+                  - button "View" [ref=e4798] [cursor=pointer]
+                  - button "Save" [ref=e4799] [cursor=pointer]
+            - article [ref=e4800]:
+              - generic [ref=e4801]:
+                - generic [ref=e4802]: Missing 4
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4803]
+              - generic [ref=e4804]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4805]
+                - generic [ref=e4806]: Rec 27.7 | Competitive - | Meta 12.7 | Price $93.89 | Missing 4
+                - generic [ref=e4807]:
+                  - button "View" [ref=e4808] [cursor=pointer]
+                  - button "Save" [ref=e4809] [cursor=pointer]
+            - article [ref=e4810]:
+              - generic [ref=e4811]:
+                - generic [ref=e4812]: Missing 8
+                - 'img "10kTurnips: 5-8th - Riftbound Meta Weekly (Aug 10th) artwork" [ref=e4813]'
+              - generic [ref=e4814]:
+                - 'generic "10kTurnips: 5-8th - Riftbound Meta Weekly (Aug 10th)" [ref=e4815]'
+                - generic [ref=e4816]: Rec 27.6 | Competitive - | Meta 17.3 | Price $73.55 | Missing 8
+                - generic [ref=e4817]:
+                  - button "View" [ref=e4818] [cursor=pointer]
+                  - button "Save" [ref=e4819] [cursor=pointer]
+            - article [ref=e4820]:
+              - generic [ref=e4821]:
+                - generic [ref=e4822]: Missing 8
+                - img "Viktor Herald of the Arcane Deck artwork" [ref=e4823]
+              - generic [ref=e4824]:
+                - generic "Viktor Herald of the Arcane Deck" [ref=e4825]
+                - generic [ref=e4826]: Rec 27.5 | Competitive - | Meta 17.3 | Price $78.38 | Missing 8
+                - generic [ref=e4827]:
+                  - button "View" [ref=e4828] [cursor=pointer]
+                  - button "Save" [ref=e4829] [cursor=pointer]
+            - article [ref=e4830]:
+              - generic [ref=e4831]:
+                - generic [ref=e4832]: Missing 13
+                - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4833]
+              - generic [ref=e4834]:
+                - generic "Ezreal - Prodigal Explorer Deck" [ref=e4835]
+                - generic [ref=e4836]: Rec 27.5 | Competitive - | Meta 23.5 | Price $541.98 | Missing 13
+                - generic [ref=e4837]:
+                  - button "View" [ref=e4838] [cursor=pointer]
+                  - button "Save" [ref=e4839] [cursor=pointer]
+            - article [ref=e4840]:
+              - generic [ref=e4841]:
+                - generic [ref=e4842]: Missing 14
+                - img "rat ezreal artwork" [ref=e4843]
+              - generic [ref=e4844]:
+                - generic "rat ezreal" [ref=e4845]
+                - generic [ref=e4846]: Rec 27.4 | Competitive - | Meta 25.1 | Price $470.74 | Missing 14
+                - generic [ref=e4847]:
+                  - button "View" [ref=e4848] [cursor=pointer]
+                  - button "Save" [ref=e4849] [cursor=pointer]
+            - article [ref=e4850]:
+              - generic [ref=e4851]:
+                - generic [ref=e4852]: Missing 10
+                - img "Viktor - 38th Place Chinese National Open artwork" [ref=e4853]
+              - generic [ref=e4854]:
+                - generic "Viktor - 38th Place Chinese National Open" [ref=e4855]
+                - generic [ref=e4856]: Rec 27.4 | Competitive - | Meta 20.1 | Price $121.56 | Missing 10
+                - generic [ref=e4857]:
+                  - button "View" [ref=e4858] [cursor=pointer]
+                  - button "Save" [ref=e4859] [cursor=pointer]
+            - article [ref=e4860]:
+              - generic [ref=e4861]:
+                - generic [ref=e4862]: Missing 7
+                - img "[Set 2] Azir artwork" [ref=e4863]
+              - generic [ref=e4864]:
+                - generic "[Set 2] Azir" [ref=e4865]
+                - generic [ref=e4866]: Rec 27.4 | Competitive - | Meta 15.7 | Price $127.62 | Missing 7
+                - generic [ref=e4867]:
+                  - button "View" [ref=e4868] [cursor=pointer]
+                  - button "Save" [ref=e4869] [cursor=pointer]
+            - article [ref=e4870]:
+              - generic [ref=e4871]:
+                - generic [ref=e4872]: Missing 15
+                - 'img "Bologna #7 - M4rcus99 artwork" [ref=e4873]'
+              - generic [ref=e4874]:
+                - 'generic "Bologna #7 - M4rcus99" [ref=e4875]'
+                - generic [ref=e4876]: Rec 27.3 | Competitive - | Meta 26.4 | Price $362.96 | Missing 15
+                - generic [ref=e4877]:
+                  - button "View" [ref=e4878] [cursor=pointer]
+                  - button "Save" [ref=e4879] [cursor=pointer]
+            - article [ref=e4880]:
+              - generic [ref=e4881]:
+                - generic [ref=e4882]: Missing 4
+                - img "Jinx Premade Origins Champion Deck artwork" [ref=e4883]
+              - generic [ref=e4884]:
+                - generic "Jinx Premade Origins Champion Deck" [ref=e4885]
+                - generic [ref=e4886]: Rec 27.3 | Competitive - | Meta 12.7 | Price $297.75 | Missing 4
+                - generic [ref=e4887]:
+                  - button "View" [ref=e4888] [cursor=pointer]
+                  - button "Save" [ref=e4889] [cursor=pointer]
+            - article [ref=e4890]:
+              - generic [ref=e4891]:
+                - generic [ref=e4892]: Missing 14
+                - img "Control Ezreal (WIP) artwork" [ref=e4893]
+              - generic [ref=e4894]:
+                - generic "Control Ezreal (WIP)" [ref=e4895]
+                - generic [ref=e4896]: Rec 27.3 | Competitive - | Meta 25.0 | Price $454.34 | Missing 14
+                - generic [ref=e4897]:
+                  - button "View" [ref=e4898] [cursor=pointer]
+                  - button "Save" [ref=e4899] [cursor=pointer]
+            - article [ref=e4900]:
+              - generic [ref=e4901]:
+                - generic [ref=e4902]: Missing 7
+                - 'img "【City Challenge】Chengdu Station - #15 artwork" [ref=e4903]'
+              - generic [ref=e4904]:
+                - 'generic "【City Challenge】Chengdu Station - #15" [ref=e4905]'
+                - generic [ref=e4906]: Rec 27.3 | Competitive - | Meta 15.8 | Price $167.69 | Missing 7
+                - generic [ref=e4907]:
+                  - button "View" [ref=e4908] [cursor=pointer]
+                  - button "Save" [ref=e4909] [cursor=pointer]
+            - article [ref=e4910]:
+              - generic [ref=e4911]:
+                - generic [ref=e4912]: Missing 15
+                - 'img "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 8 (Trails) artwork" [ref=e4913]'
+              - generic [ref=e4914]:
+                - 'generic "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 8 (Trails)" [ref=e4915]'
+                - generic [ref=e4916]: Rec 27.2 | Competitive - | Meta 26.6 | Price $376.70 | Missing 15
+                - generic [ref=e4917]:
+                  - button "View" [ref=e4918] [cursor=pointer]
+                  - button "Save" [ref=e4919] [cursor=pointer]
+            - article [ref=e4920]:
+              - generic [ref=e4921]:
+                - generic [ref=e4922]: Missing 2
+                - img "Viktor Budget artwork" [ref=e4923]
+              - generic [ref=e4924]:
+                - generic "Viktor Budget" [ref=e4925]
+                - generic [ref=e4926]: Rec 27.1 | Competitive - | Meta 10.0 | Price $16.04 | Missing 2
+                - generic [ref=e4927]:
+                  - button "View" [ref=e4928] [cursor=pointer]
+                  - button "Save" [ref=e4929] [cursor=pointer]
+            - article [ref=e4930]:
+              - generic [ref=e4931]:
+                - generic [ref=e4932]: Missing 7
+                - img "Viktor - Herald of the Arcane Deck artwork" [ref=e4933]
+              - generic [ref=e4934]:
+                - generic "Viktor - Herald of the Arcane Deck" [ref=e4935]
+                - generic [ref=e4936]: Rec 27.1 | Competitive - | Meta 15.8 | Price $70.70 | Missing 7
+                - generic [ref=e4937]:
+                  - button "View" [ref=e4938] [cursor=pointer]
+                  - button "Save" [ref=e4939] [cursor=pointer]
+            - article [ref=e4940]:
+              - generic [ref=e4941]:
+                - generic [ref=e4942]: Missing 6
+                - img "Yi - SFD - Midrange artwork" [ref=e4943]
+              - generic [ref=e4944]:
+                - generic "Yi - SFD - Midrange" [ref=e4945]
+                - generic [ref=e4946]: Rec 27.1 | Competitive - | Meta 14.9 | Price $286.42 | Missing 6
+                - generic [ref=e4947]:
+                  - button "View" [ref=e4948] [cursor=pointer]
+                  - button "Save" [ref=e4949] [cursor=pointer]
+            - article [ref=e4950]:
+              - generic [ref=e4951]:
+                - generic [ref=e4952]: Missing 6
+                - img "Azir - Emperor of the Sands Deck artwork" [ref=e4953]
+              - generic [ref=e4954]:
+                - generic "Azir - Emperor of the Sands Deck" [ref=e4955]
+                - generic [ref=e4956]: Rec 27.1 | Competitive - | Meta 14.7 | Price $133.06 | Missing 6
+                - generic [ref=e4957]:
+                  - button "View" [ref=e4958] [cursor=pointer]
+                  - button "Save" [ref=e4959] [cursor=pointer]
+            - article [ref=e4960]:
+              - generic [ref=e4961]:
+                - generic [ref=e4962]: Missing 8
+                - img "Irelia v1 artwork" [ref=e4963]
+              - generic [ref=e4964]:
+                - generic "Irelia v1" [ref=e4965]
+                - generic [ref=e4966]: Rec 27.1 | Competitive - | Meta 17.6 | Price $239.05 | Missing 8
+                - generic [ref=e4967]:
+                  - button "View" [ref=e4968] [cursor=pointer]
+                  - button "Save" [ref=e4969] [cursor=pointer]
+            - article [ref=e4970]:
+              - generic [ref=e4971]:
+                - generic [ref=e4972]: Missing 11
+                - img "Big Vik Energy artwork" [ref=e4973]
+              - generic [ref=e4974]:
+                - generic "Big Vik Energy" [ref=e4975]
+                - generic [ref=e4976]: Rec 27.0 | Competitive - | Meta 20.6 | Price $184.07 | Missing 11
+                - generic [ref=e4977]:
+                  - button "View" [ref=e4978] [cursor=pointer]
+                  - button "Save" [ref=e4979] [cursor=pointer]
+            - article [ref=e4980]:
+              - generic [ref=e4981]:
+                - generic [ref=e4982]: Missing 8
+                - 'img "Gadzior: 1st - Riftbound Meta Weekly (Aug 2nd) artwork" [ref=e4983]'
+              - generic [ref=e4984]:
+                - 'generic "Gadzior: 1st - Riftbound Meta Weekly (Aug 2nd)" [ref=e4985]'
+                - generic [ref=e4986]: Rec 27.0 | Competitive - | Meta 17.1 | Price $70.55 | Missing 8
+                - generic [ref=e4987]:
+                  - button "View" [ref=e4988] [cursor=pointer]
+                  - button "Save" [ref=e4989] [cursor=pointer]
+            - article [ref=e4990]:
+              - generic [ref=e4991]:
+                - generic [ref=e4992]: Buildable
+                - img "Ahri - Nine-Tailed Fox Deck artwork" [ref=e4993]
+              - generic [ref=e4994]:
+                - generic "Ahri - Nine-Tailed Fox Deck" [ref=e4995]
+                - generic [ref=e4996]: Rec 26.9 | Competitive - | Meta 7.4 | Price $52.14 | Buildable
+                - generic [ref=e4997]:
+                  - button "View" [ref=e4998] [cursor=pointer]
+                  - button "Save" [ref=e4999] [cursor=pointer]
+            - article [ref=e5000]:
+              - generic [ref=e5001]:
+                - generic [ref=e5002]: Missing 11
+                - img "Old Viktor artwork" [ref=e5003]
+              - generic [ref=e5004]:
+                - generic "Old Viktor" [ref=e5005]
+                - generic [ref=e5006]: Rec 26.7 | Competitive - | Meta 20.7 | Price $157.73 | Missing 11
+                - generic [ref=e5007]:
+                  - button "View" [ref=e5008] [cursor=pointer]
+                  - button "Save" [ref=e5009] [cursor=pointer]
+            - article [ref=e5010]:
+              - generic [ref=e5011]:
+                - generic [ref=e5012]: Missing 3
+                - img "Cheap Kai'sa artwork" [ref=e5013]
+              - generic [ref=e5014]:
+                - generic "Cheap Kai'sa" [ref=e5015]
+                - generic [ref=e5016]: Rec 26.7 | Competitive - | Meta 10.7 | Price $47.43 | Missing 3
+                - generic [ref=e5017]:
+                  - button "View" [ref=e5018] [cursor=pointer]
+                  - button "Save" [ref=e5019] [cursor=pointer]
+            - article [ref=e5020]:
+              - generic [ref=e5021]:
+                - generic [ref=e5022]: Missing 1
+                - img "Lucian my version artwork" [ref=e5023]
+              - generic [ref=e5024]:
+                - generic "Lucian my version" [ref=e5025]
+                - generic [ref=e5026]: Rec 26.7 | Competitive - | Meta 8.8 | Price $141.66 | Missing 1
+                - generic [ref=e5027]:
+                  - button "View" [ref=e5028] [cursor=pointer]
+                  - button "Save" [ref=e5029] [cursor=pointer]
+            - article [ref=e5030]:
+              - generic [ref=e5031]:
+                - generic [ref=e5032]: Missing 7
+                - img "Viktor - Herald of the Arcane Deck artwork" [ref=e5033]
+              - generic [ref=e5034]:
+                - generic "Viktor - Herald of the Arcane Deck" [ref=e5035]
+                - generic [ref=e5036]: Rec 26.6 | Competitive - | Meta 15.6 | Price $70.04 | Missing 7
+                - generic [ref=e5037]:
+                  - button "View" [ref=e5038] [cursor=pointer]
+                  - button "Save" [ref=e5039] [cursor=pointer]
+            - article [ref=e5040]:
+              - generic [ref=e5041]:
+                - generic [ref=e5042]: Missing 11
+                - img "Viktor Sacrifice artwork" [ref=e5043]
+              - generic [ref=e5044]:
+                - generic "Viktor Sacrifice" [ref=e5045]
+                - generic [ref=e5046]: Rec 26.6 | Competitive - | Meta 20.6 | Price $144.49 | Missing 11
+                - generic [ref=e5047]:
+                  - button "View" [ref=e5048] [cursor=pointer]
+                  - button "Save" [ref=e5049] [cursor=pointer]
+            - article [ref=e5050]:
+              - generic [ref=e5051]:
+                - generic [ref=e5052]: Missing 14
+                - 'img "【City Challenge】Tianjin Station - #3 artwork" [ref=e5053]'
+              - generic [ref=e5054]:
+                - 'generic "【City Challenge】Tianjin Station - #3" [ref=e5055]'
+                - generic [ref=e5056]: Rec 26.5 | Competitive - | Meta 24.9 | Price $450.50 | Missing 14
+                - generic [ref=e5057]:
+                  - button "View" [ref=e5058] [cursor=pointer]
+                  - button "Save" [ref=e5059] [cursor=pointer]
+            - article [ref=e5060]:
+              - generic [ref=e5061]:
+                - generic [ref=e5062]: Missing 15
+                - img "Chinese Miracle Draven artwork" [ref=e5063]
+              - generic [ref=e5064]:
+                - generic "Chinese Miracle Draven" [ref=e5065]
+                - generic [ref=e5066]: Rec 26.4 | Competitive - | Meta 25.6 | Price $524.06 | Missing 15
+                - generic [ref=e5067]:
+                  - button "View" [ref=e5068] [cursor=pointer]
+                  - button "Save" [ref=e5069] [cursor=pointer]
+            - article [ref=e5070]:
+              - generic [ref=e5071]:
+                - generic [ref=e5072]: Missing 10
+                - img "Willow&#x27;s Viktor Swarm [Mono Swarm] artwork" [ref=e5073]
+              - generic [ref=e5074]:
+                - generic "Willow&#x27;s Viktor Swarm [Mono Swarm]" [ref=e5075]
+                - generic [ref=e5076]: Rec 26.3 | Competitive - | Meta 19.6 | Price $124.36 | Missing 10
+                - generic [ref=e5077]:
+                  - button "View" [ref=e5078] [cursor=pointer]
+                  - button "Save" [ref=e5079] [cursor=pointer]
+            - article [ref=e5080]:
+              - generic [ref=e5081]:
+                - generic [ref=e5082]: Missing 15
+                - img "Best-Of Ezreal - 29th Place - Fuzhou Regional Open artwork" [ref=e5083]
+              - generic [ref=e5084]:
+                - generic "Best-Of Ezreal - 29th Place - Fuzhou Regional Open" [ref=e5085]
+                - generic [ref=e5086]: Rec 26.3 | Competitive - | Meta 26.1 | Price $510.55 | Missing 15
+                - generic [ref=e5087]:
+                  - button "View" [ref=e5088] [cursor=pointer]
+                  - button "Save" [ref=e5089] [cursor=pointer]
+            - article [ref=e5090]:
+              - generic [ref=e5091]:
+                - generic [ref=e5092]: Missing 14
+                - img "SF Windrider artwork" [ref=e5093]
+              - generic [ref=e5094]:
+                - generic "SF Windrider" [ref=e5095]
+                - generic [ref=e5096]: Rec 26.2 | Competitive - | Meta 25.0 | Price $542.94 | Missing 14
+                - generic [ref=e5097]:
+                  - button "View" [ref=e5098] [cursor=pointer]
+                  - button "Save" [ref=e5099] [cursor=pointer]
+            - article [ref=e5100]:
+              - generic [ref=e5101]:
+                - generic [ref=e5102]: Missing 10
+                - img "Viktor - Herald of the Arcane Deck artwork" [ref=e5103]
+              - generic [ref=e5104]:
+                - generic "Viktor - Herald of the Arcane Deck" [ref=e5105]
+                - generic [ref=e5106]: Rec 26.1 | Competitive - | Meta 19.2 | Price $126.05 | Missing 10
+                - generic [ref=e5107]:
+                  - button "View" [ref=e5108] [cursor=pointer]
+                  - button "Save" [ref=e5109] [cursor=pointer]
+            - article [ref=e5110]:
+              - generic [ref=e5111]:
+                - generic [ref=e5112]: Missing 14
+                - img "Irelia - Blade Dancer Deck artwork" [ref=e5113]
+              - generic [ref=e5114]:
+                - generic "Irelia - Blade Dancer Deck" [ref=e5115]
+                - generic [ref=e5116]: Rec 26.1 | Competitive - | Meta 24.4 | Price $520.68 | Missing 14
+                - generic [ref=e5117]:
+                  - button "View" [ref=e5118] [cursor=pointer]
+                  - button "Save" [ref=e5119] [cursor=pointer]
+        - generic [ref=e3873]:
+          - heading "Validation and Analysis" [level=2] [ref=e3874]
+          - generic [ref=e3875]:
+            - generic [ref=e3876]:
+              - heading "Rule Validation" [level=3] [ref=e3877]
+              - generic [ref=e6593]:
+                - generic [ref=e6594]:
+                  - generic [ref=e6595]: Legal
+                  - generic [ref=e6596]: Deck is valid.
+                - generic [ref=e6597]:
+                  - generic [ref=e6598]:
+                    - generic [ref=e6599]: Issues
+                    - strong [ref=e6600]: "0"
+                  - generic [ref=e6601]:
+                    - generic [ref=e6602]: Rule Codes
+                    - strong [ref=e6603]: "0"
+                  - generic [ref=e6604]:
+                    - generic [ref=e6605]: Rule Refs
+                    - strong [ref=e6606]: "0"
+                - generic [ref=e6607]: No rule violations. You can keep building without interruptions.
+            - heading "Collection Analysis" [level=3] [ref=e3880]
+        - generic [ref=e3882]:
+          - heading "Deck Library" [level=2] [ref=e3883]
+          - generic [ref=e3884]:
+            - generic [ref=e3885]:
+              - heading "Built Decks (Reserve Cards)" [level=3] [ref=e3886]
+              - paragraph [ref=e3887]: Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.
+              - generic [ref=e3888]:
+                - 'button "Open Bologna #1 - Alanzq1" [ref=e3889]':
+                  - 'img "Bologna #1 - Alanzq1 artwork" [ref=e3891]'
+                  - 'generic "Bologna #1 - Alanzq1" [ref=e3893]'
+                - 'button "Open Bologna #3 - krowz" [ref=e3894]':
+                  - 'img "Bologna #3 - krowz artwork" [ref=e3896]'
+                  - 'generic "Bologna #3 - krowz" [ref=e3898]'
+                - button "Open Sett-Fiora" [ref=e3899]:
+                  - img "Sett-Fiora artwork" [ref=e3901]
+                  - generic "Sett-Fiora" [ref=e3903]
+                - button "Open VIKTOR! VIKTOOOR!" [ref=e3904]:
+                  - img "VIKTOR! VIKTOOOR! artwork" [ref=e3906]
+                  - generic "VIKTOR! VIKTOOOR!" [ref=e3908]
+            - generic [ref=e3909]:
+              - heading "Saved Decks" [level=3] [ref=e3910]
+              - paragraph [ref=e3911]: Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.
+              - generic [ref=e3914]:
+                - generic [ref=e3915]: No saved decks yet.
+                - generic [ref=e3916]: Drag built decks here to release reserved cards.
+  - generic:
+    - generic:
+      - img "Cheap Viktor artwork"
+    - generic:
+      - generic: Cheap Viktor
+      - generic: riftboundgg | Legend | Mind, Order
+      - generic: Completion 94.6%

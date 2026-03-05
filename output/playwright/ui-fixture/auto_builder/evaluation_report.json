@@ -1,0 +1,43 @@
+{
+  "nextCardTop10Recall": 1.0,
+  "maskedDeckReconstructionExactCardRecall": 1.0,
+  "winConditionClusterSilhouette": 0.4,
+  "competitiveScoreSpearman": 0.0,
+  "collectionFirstRecommendationHitRate": 1.0,
+  "strictBuildableRecommendationHitRate": 1.0,
+  "strictBuildableCandidateCountP50": 5.0,
+  "strictBuildableCandidateCountP90": 5.0,
+  "strictBuildableEmptyResultRate": 0.0,
+  "winConditionSelectionTable": {
+    "4": {
+      "recommendationHitRate": 1.0,
+      "strictBuildableHitRate": 1.0,
+      "reconstructionRecall": 1.0,
+      "topicCoherence": 0.5,
+      "shellCoverageBalance": 0.3333,
+      "silhouette": 0.4,
+      "strictBuildableCandidateCountP50": 5.0,
+      "strictBuildableCandidateCountP90": 5.0,
+      "strictBuildableEmptyResultRate": 0.0,
+      "strictBuildableCandidateDensity": 1.0,
+      "compositeScore": 0.8687
+    }
+  },
+  "synergySelectionTable": {
+    "8": {
+      "replacementQuality": 0.0,
+      "modularityProxy": 0.0,
+      "coverageScore": 1.0,
+      "buildableRepairSuccess": 0.0,
+      "silhouette": 0.0,
+      "clusterSizeRegularization": 0.0,
+      "compositeScore": 0.2
+    }
+  },
+  "sourceCountsByAdapter": {
+    "meta": 5
+  },
+  "sourceFailuresByAdapter": {
+    "meta": 0
+  }
+}

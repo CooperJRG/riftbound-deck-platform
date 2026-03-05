@@ -189,3 +189,51 @@ def test_similarity_prefers_closer_effect_and_cost_matches() -> None:
     assert suggestion is not None
     assert suggestion.options
     assert suggestion.options[0].card == "Mind Spell B"
+
+
+def test_collection_analysis_completion_cost_uses_cheapest_price_and_buy_link() -> None:
+    deck = DeckPayload(
+        name="Deck Cost",
+        legendTitle="Legend A",
+        chosenChampionTitle="Champion A",
+        main={"Champion A": 1, "Mind Spell A": 3},
+        runes={},
+        battlefields=[],
+        sideboard={},
+    )
+    collection = {
+        "Legend A": 1,
+        "Champion A": 1,
+        "Mind Spell A": 1,
+    }
+    price_map = {
+        "mindspella": 1.95,
+        # Simulate another print/version; completion should use cheapest available.
+        "mindspellaprintb": 2.75,
+    }
+
+    def unit_price_for_title(title: str) -> float | None:
+        key = normalize_card_key(title)
+        if key == "mindspella":
+            return min(1.95, 2.75)
+        return price_map.get(key)
+
+    def buy_url_for_title(title: str) -> str:
+        return f"https://www.tcgplayer.com/search/all/product?q={title}"
+
+    result = analyze_collection_completion(
+        deck,
+        collection=collection,
+        cards=_catalog(),
+        unit_price_for_title=unit_price_for_title,
+        buy_url_for_title=buy_url_for_title,
+    )
+    missing_row = next((row for row in result.missing_cards if row.card == "Mind Spell A"), None)
+    assert missing_row is not None
+    assert missing_row.missing == 2
+    assert missing_row.estimated_unit_price == 1.95
+    assert missing_row.estimated_missing_cost == 3.9
+    assert "tcgplayer.com/search/all/product" in missing_row.tcgplayer_url
+    assert result.estimated_completion_cost == 3.9
+    assert result.missing_cards_priced == 1
+    assert result.missing_cards_unpriced == 0

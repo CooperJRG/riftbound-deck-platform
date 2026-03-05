@@ -1,0 +1,8 @@
+[POST] http://127.0.0.1:8011/api/me/bootstrap => [200] OK
+[GET] http://127.0.0.1:8011/api/cards?limit=1200 => [200] OK
+[GET] http://127.0.0.1:8011/api/decks/formats => [200] OK
+[GET] http://127.0.0.1:8011/api/decks/eligibility?format=constructed&legendTitle=&limit=1000 => [200] OK
+[GET] http://127.0.0.1:8011/api/decks/eligibility?format=constructed&legendTitle=&limit=1000 => [200] OK
+[GET] http://127.0.0.1:8011/api/collection => [200] OK
+[GET] http://127.0.0.1:8011/api/decks/library => [200] OK
+[POST] http://127.0.0.1:8011/api/decks/validate => [200] OK

@@ -1,0 +1,76 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Collection-aware deck building.
+    - tablist "Workspace" [ref=e8]:
+      - tab "Collection Browser" [ref=e9] [cursor=pointer]
+      - tab "Manual Mode" [ref=e10] [cursor=pointer]
+      - tab "Auto Builder" [ref=e11] [cursor=pointer]
+    - generic [ref=e14]: Ready
+  - main [ref=e15]:
+    - tabpanel "Model Observation" [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - heading "Model Observation" [level=2] [ref=e20]
+          - paragraph [ref=e21]: Internal workspace for inspecting model memory, training variants, and production promotion.
+        - generic "Model Observation actions" [ref=e22]:
+          - button "Refresh" [ref=e23] [cursor=pointer]
+          - button "Snapshot Production" [ref=e24] [cursor=pointer]
+      - generic [ref=e26]:
+        - complementary [ref=e27]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: Notebook
+            - heading "Production Model" [level=3] [ref=e31]
+          - generic [ref=e33]:
+            - generic [ref=e34]: Vault
+            - heading "Saved Models" [level=3] [ref=e35]
+        - generic [ref=e38]:
+          - generic [ref=e39]: Observation
+          - heading "What The Model Sees" [level=3] [ref=e40]
+        - complementary [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]: Train
+              - heading "Training Controls" [level=3] [ref=e45]
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - text: Label
+                - textbox "Label" [ref=e48]:
+                  - /placeholder: High Resolution Sweep
+              - generic [ref=e49]:
+                - text: Epochs
+                - spinbutton "Epochs" [ref=e50]
+              - generic [ref=e51]:
+                - text: Torch Device
+                - combobox "Torch Device" [ref=e52]:
+                  - option "Auto" [selected]
+                  - option "CUDA"
+                  - option "CPU"
+                  - option "MPS"
+              - generic [ref=e53]:
+                - text: Min Win Conditions
+                - spinbutton "Min Win Conditions" [ref=e54]
+              - generic [ref=e55]:
+                - text: Min Synergy Clusters
+                - spinbutton "Min Synergy Clusters" [ref=e56]
+              - generic [ref=e57]:
+                - text: Scenario Count
+                - spinbutton "Scenario Count" [ref=e58]
+              - generic [ref=e59]:
+                - text: Pack Min
+                - spinbutton "Pack Min" [ref=e60]
+              - generic [ref=e61]:
+                - text: Pack Max
+                - spinbutton "Pack Max" [ref=e62]
+              - generic [ref=e63]:
+                - checkbox "Synthetic runes unlimited" [ref=e64]
+                - text: Synthetic runes unlimited
+            - generic [ref=e65]:
+              - button "Train Model" [ref=e66] [cursor=pointer]
+              - button "Refresh Training" [ref=e67] [cursor=pointer]
+            - paragraph
+          - generic [ref=e70]:
+            - generic [ref=e71]: Inspector
+            - heading "Selected Model" [level=3] [ref=e72]

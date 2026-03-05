@@ -11,12 +11,35 @@
   <div class="desk-vignette"></div>
   <div class="desk-dust"></div>
 
-  <div class="app-shell">
+  <div id="auth-gate" class="auth-gate" hidden>
+    <div class="auth-card">
+      <div class="auth-copy">
+        <p class="eyebrow">Closed Beta</p>
+        <h1>Riftdesk</h1>
+        <p class="subtitle">Sign in with your beta invite to manage private decks, publish public lists, and track your collection.</p>
+      </div>
+      <form id="auth-login-form" class="auth-form">
+        <label>Email
+          <input id="auth-email" type="email" autocomplete="email" placeholder="your@email.com" required />
+        </label>
+        <label>Password
+          <input id="auth-password" type="password" autocomplete="current-password" placeholder="Password" required />
+        </label>
+        <div class="auth-actions">
+          <button id="auth-signin-btn" type="submit">Sign In</button>
+          <button id="auth-reset-btn" type="button" class="card-action-btn secondary">Send Reset Link</button>
+        </div>
+        <p id="auth-status" class="library-note">Awaiting sign-in.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-shell" class="app-shell" hidden>
     <header class="topbar">
       <div class="topbar-brand">
         <p class="eyebrow">Riftbound Deck Platform</p>
         <h1>Riftdesk</h1>
-        <p class="subtitle">Collection-aware deck building.</p>
+        <p class="subtitle">Invite-only deck building and discovery for the closed beta.</p>
       </div>
       <div class="workspace-tabs topbar-tabs" role="tablist" aria-label="Workspace">
         <button
@@ -28,7 +51,7 @@
           aria-controls="collection-panel"
           data-workspace-tab="collection"
         >
-          Collection Browser
+          Collection
         </button>
         <button
           type="button"
@@ -39,8 +62,41 @@
           aria-controls="deck-panel"
           data-workspace-tab="deck"
         >
-          Deck Worktable
+          Builder
         </button>
+        <button
+          type="button"
+          id="workspace-tab-discover"
+          class="workspace-tab-btn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="inspector-panel"
+          data-workspace-tab="discover"
+        >
+          Discover
+        </button>
+        <button
+          type="button"
+          id="workspace-tab-auto-builder"
+          class="workspace-tab-btn"
+          role="tab"
+          aria-selected="false"
+          aria-controls="auto-builder-panel"
+          data-workspace-tab="auto-builder"
+        >
+          Auto Builder
+        </button>
+      </div>
+      <div id="account-shell" class="account-shell" hidden>
+        <div class="account-copy">
+          <strong id="account-display-name">Beta User</strong>
+          <span id="account-email">beta@example.com</span>
+        </div>
+        <span id="account-role-chip" class="account-role-chip" hidden>Admin</span>
+        <div class="account-actions">
+          <button id="account-model-observation-btn" type="button" class="card-action-btn secondary" hidden>Model Observation</button>
+          <button id="account-signout-btn" type="button" class="card-action-btn secondary">Sign Out</button>
+        </div>
       </div>
       <div id="deck-legality-wrap" class="status-wrap">
         <span id="deck-legality-led" class="status-led" aria-hidden="true"></span>
@@ -59,8 +115,15 @@
           </div>
           <div class="divider"></div>
           <div class="row inputs-inline collection-toolbar">
-            <button id="collection-import-btn">Import CSV</button>
-            <input id="collection-csv-file" type="file" accept=".csv,text/csv" hidden />
+            <button id="collection-import-btn">Import File</button>
+            <select id="collection-import-mode" aria-label="Collection import mode">
+              <option value="merge">Merge Import</option>
+              <option value="replace">Replace Existing</option>
+            </select>
+            <button id="collection-export-json-btn" class="card-action-btn secondary" type="button">Export JSON</button>
+            <button id="collection-export-csv-btn" class="card-action-btn secondary" type="button">Export CSV</button>
+            <button id="collection-reset-btn" class="danger" type="button">Reset Collection</button>
+            <input id="collection-csv-file" type="file" accept=".csv,.json,text/csv,application/json" hidden />
             <input id="collection-search-input" placeholder="Search cards" aria-label="Collection card search" />
             <button id="collection-filter-toggle-btn" type="button" class="card-action-btn secondary">Filters</button>
             <button id="collection-edit-toggle-btn" type="button" class="card-action-btn secondary">Edit</button>
@@ -81,8 +144,14 @@
         <section class="module zone worktable-zone workspace-pane is-active" id="deck-panel" role="tabpanel" aria-labelledby="workspace-tab-deck">
           <div class="module-head">
             <div>
-              <h2>Deck Worktable</h2>
-              <p class="muted">Build with card slots, steppers, and always-on legality checks.</p>
+              <h2>Builder</h2>
+              <p class="muted">Private and public deck editing with legality checks, collection analysis, and ML replacement support.</p>
+            </div>
+            <div class="deck-primary-actions" aria-label="Deck actions">
+              <button id="deck-save-btn">Save Deck</button>
+              <button id="deck-export-btn" type="button" class="card-action-btn secondary">Export JSON</button>
+              <button id="deck-import-open-btn" type="button" class="card-action-btn secondary">Upload / Import</button>
+              <button id="deck-clear-btn" type="button" class="danger">Clear Deck</button>
             </div>
           </div>
           <div class="divider"></div>
@@ -91,6 +160,25 @@
             <label class="deck-name-field">Deck Name
               <input id="deck-name" placeholder="My Deck" />
             </label>
+            <label class="deck-format-field">Format
+              <select id="deck-format-select" aria-label="Deck format"></select>
+            </label>
+          </div>
+
+          <div class="worktable-row worktable-meta-row">
+            <label class="deck-meta-field">Bucket
+              <select id="deck-bucket-select" aria-label="Deck bucket">
+                <option value="saved">Saved</option>
+                <option value="built">Built</option>
+              </select>
+            </label>
+            <label class="deck-meta-field">Visibility
+              <select id="deck-visibility-select" aria-label="Deck visibility">
+                <option value="private">Private</option>
+                <option value="public">Public</option>
+              </select>
+            </label>
+            <p id="deck-save-state" class="deck-save-state">Unsaved changes</p>
           </div>
 
           <div class="worktable-row worktable-top">
@@ -125,28 +213,43 @@
             </section>
           </div>
 
-          <div class="worktable-row battlefields-row section-expandable" data-worktable-section="battlefields">
+          <div class="worktable-row battlefields-row">
             <div class="worktable-row-head">
               <h3>Battlefields</h3>
-              <button type="button" class="section-expand-btn" data-section-expand="battlefields" aria-pressed="false">Expand</button>
             </div>
             <div id="battlefield-slots" class="battlefield-slots"></div>
           </div>
 
-          <div class="worktable-row main-row section-expandable" data-worktable-section="main-deck">
+          <div class="worktable-row main-row">
             <div class="worktable-row-head">
               <h3>Main Deck <span id="main-total-badge" class="counter-pill">0 / 40</span></h3>
-              <button type="button" class="section-expand-btn" data-section-expand="main-deck" aria-pressed="false">Expand</button>
+              <div class="worktable-row-actions">
+                <button id="deck-analyze-btn" type="button" class="card-action-btn secondary">Analyze vs Collection</button>
+                <button id="deck-auto-complete-btn" type="button" class="card-action-btn secondary">Auto Complete Deck</button>
+                <button id="deck-replacement-plan-btn" type="button" class="card-action-btn secondary">Best Replacement Plan</button>
+              </div>
             </div>
             <div class="main-shelf-block">
               <div id="main-deck-list" class="tile-grid compact main-shelf-grid main-deck-shelf"></div>
             </div>
           </div>
-          
-          <div class="worktable-row main-row section-expandable" data-worktable-section="library">
+
+          <div class="worktable-row sideboard-row">
             <div class="worktable-row-head">
-              <h3>Library <span id="library-total-badge" class="counter-pill">0 cards</span></h3>
-              <button type="button" class="section-expand-btn" data-section-expand="library" aria-pressed="false">Expand</button>
+              <h3>Sideboard <span id="sideboard-total-badge" class="counter-pill">0 / 8</span></h3>
+              <div class="worktable-row-actions">
+                <input id="sideboard-search" placeholder="Filter sideboard-legal cards" aria-label="Sideboard card search" />
+                <button id="sideboard-search-btn" type="button" class="card-action-btn secondary">Clear</button>
+                <button id="sideboard-add-btn" type="button" class="card-action-btn secondary">Add Card</button>
+              </div>
+            </div>
+            <p id="sideboard-rule-note" class="library-note"></p>
+            <div id="sideboard-list" class="tile-grid compact main-shelf-grid main-catalog-grid"></div>
+          </div>
+
+          <div class="worktable-row main-row">
+            <div class="worktable-row-head">
+              <h3>Builder Library <span id="library-total-badge" class="counter-pill">0 cards</span></h3>
             </div>
             <div class="main-row-head">
               <div class="row inputs-inline">
@@ -157,17 +260,146 @@
             <div id="main-search-results" class="tile-grid compact main-shelf-grid main-catalog-grid"></div>
           </div>
           </div>
+        </section>
 
-
-          <div class="row">
-            <button id="deck-validate-btn">Validate</button>
-            <button id="deck-analyze-btn">Analyze vs Collection</button>
-            <button id="deck-save-btn">Save Deck</button>
-            <button id="deck-export-btn">Export JSON</button>
+        <section class="module zone auto-builder-zone workspace-pane" id="auto-builder-panel" role="tabpanel" aria-labelledby="workspace-tab-auto-builder" hidden>
+          <div class="module-head">
+            <div>
+              <h2>Auto Builder</h2>
+              <p class="muted">Generate collection-aware decks from learned win conditions, synergy packages, and retrieved shells.</p>
+            </div>
+            <div class="deck-primary-actions" aria-label="Auto Builder actions">
+              <button id="auto-builder-generate-btn" type="button">Generate</button>
+              <button id="auto-builder-refresh-status-btn" type="button" class="card-action-btn secondary">Reload Status</button>
+            </div>
           </div>
-          <div class="row stackable">
-            <textarea id="deck-import-text" rows="3" placeholder="Paste deck JSON to import"></textarea>
-            <button id="deck-import-btn">Import JSON</button>
+          <div class="divider"></div>
+          <div class="auto-builder-layout">
+            <section class="auto-builder-sidebar">
+              <div class="row inputs-inline auto-builder-controls">
+                <select id="auto-builder-ranking-mode" aria-label="Auto Builder ranking mode">
+                  <option value="collection">Collection First</option>
+                  <option value="competitive">Competitive Score</option>
+                  <option value="hybrid">Hybrid</option>
+                </select>
+                <select id="auto-builder-strategy-mode" aria-label="Auto Builder strategy mode">
+                  <option value="hybrid">Hybrid</option>
+                  <option value="pure_generate">Pure Generate</option>
+                  <option value="seed_adapt">Seed Adapt</option>
+                </select>
+                <div class="auto-builder-filter-slot">
+                  <button id="auto-builder-legend-btn" type="button" class="slot-card auto-builder-slot-card" aria-label="Auto Builder legend filter">
+                    <div class="slot-card-art-wrap">
+                      <img id="auto-builder-legend-img" class="slot-card-art is-fallback" alt="" />
+                    </div>
+                    <div id="auto-builder-legend-name" class="slot-card-name">Any Legend</div>
+                  </button>
+                  <button id="auto-builder-legend-clear" type="button" class="card-action-btn secondary auto-builder-filter-clear">Clear</button>
+                </div>
+                <div class="auto-builder-filter-slot">
+                  <button id="auto-builder-champion-btn" type="button" class="slot-card auto-builder-slot-card" aria-label="Auto Builder champion filter">
+                    <div class="slot-card-art-wrap">
+                      <img id="auto-builder-champion-img" class="slot-card-art is-fallback" alt="" />
+                    </div>
+                    <div id="auto-builder-champion-name" class="slot-card-name">Any Champion</div>
+                  </button>
+                  <button id="auto-builder-champion-clear" type="button" class="card-action-btn secondary auto-builder-filter-clear">Clear</button>
+                </div>
+                <label class="toggle-inline" for="auto-builder-only-buildable">
+                  <input id="auto-builder-only-buildable" type="checkbox" />
+                  Only Buildable
+                </label>
+              </div>
+              <p id="auto-builder-status-line" class="library-note auto-builder-status-line"></p>
+              <div id="auto-builder-summary" class="auto-builder-summary"></div>
+              <div id="auto-builder-results" class="auto-builder-results"></div>
+            </section>
+            <section class="auto-builder-detail">
+              <div class="worktable-row-head">
+                <h3>Recommendation Detail</h3>
+                <div class="worktable-row-actions">
+                  <button id="auto-builder-open-manual-btn" type="button" class="card-action-btn secondary">Open in Manual Mode</button>
+                  <button id="auto-builder-save-btn" type="button" class="card-action-btn secondary">Save Deck</button>
+                </div>
+              </div>
+              <div id="auto-builder-detail" class="result analysis-result auto-builder-detail-panel"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="module zone model-observation-zone workspace-pane" id="model-observation-panel" role="tabpanel" aria-label="Model Observation" hidden>
+          <div class="module-head">
+            <div>
+              <h2>Model Observation</h2>
+              <p class="muted">Internal workspace for inspecting model memory, training variants, and production promotion.</p>
+            </div>
+            <div class="deck-primary-actions" aria-label="Model Observation actions">
+              <button id="model-observation-refresh-btn" type="button" class="card-action-btn secondary">Refresh</button>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="model-observation-layout">
+            <aside class="model-observation-sidebar">
+              <section class="model-note-card">
+                <div class="model-note-head">
+                  <span class="model-note-kicker">Notebook</span>
+                  <h3>Production Model</h3>
+                </div>
+                <div id="model-observation-status" class="model-observation-status"></div>
+              </section>
+              <section class="model-note-card">
+                <div class="model-note-head">
+                  <span class="model-note-kicker">Vault</span>
+                  <h3>Saved Models</h3>
+                  <button id="model-observation-snapshot-btn" type="button" class="card-action-btn secondary">Snapshot</button>
+                </div>
+                <div id="model-observation-models" class="model-observation-models"></div>
+              </section>
+            </aside>
+
+            <section class="model-observation-canvas">
+              <section class="model-note-card">
+                <div class="model-note-head">
+                  <span class="model-note-kicker">Observation</span>
+                  <h3>What The Model Sees</h3>
+                </div>
+                <div id="model-observation-canvas" class="model-observation-cards"></div>
+              </section>
+            </section>
+
+            <aside class="model-observation-controls">
+              <section class="model-note-card">
+                <div class="model-note-head">
+                  <span class="model-note-kicker">Train</span>
+                  <h3>Training Controls</h3>
+                </div>
+                <div class="model-train-grid">
+                  <label>Label
+                    <input id="model-training-label" type="text" placeholder="My Custom Model" />
+                  </label>
+                  <label>Epochs
+                    <input id="model-training-epochs" type="number" min="1" step="1" />
+                  </label>
+                </div>
+                <div class="card-actions model-train-actions">
+                  <button id="model-training-run-btn" type="button">Train Model</button>
+                  <button id="model-training-refresh-btn" type="button" class="card-action-btn secondary">Refresh Training</button>
+                </div>
+                <div class="model-progress">
+                  <div id="model-training-progress-bar" class="model-progress-bar"></div>
+                </div>
+                <p id="model-training-status-line" class="library-note"></p>
+                <div id="model-training-live" class="model-training-live"></div>
+              </section>
+
+              <section class="model-note-card">
+                <div class="model-note-head">
+                  <span class="model-note-kicker">Inspector</span>
+                  <h3>Selected Model</h3>
+                </div>
+                <div id="model-observation-detail" class="model-observation-detail"></div>
+              </section>
+            </aside>
           </div>
         </section>
       </section>
@@ -175,24 +407,31 @@
       <aside class="module zone inspector-zone" id="inspector-panel">
         <div class="module-head">
           <div>
-            <h2>Inspector</h2>
-            <p class="muted">Deck search, validation insights, and saved deck management.</p>
+            <h2>Discover</h2>
+            <p class="muted">Search the meta index, browse public beta decks, and manage your saved library.</p>
           </div>
         </div>
         <div class="divider"></div>
         <section class="inspector-block deck-search-block">
-          <h2>Deck Search</h2>
+          <div class="discover-tab-strip" role="tablist" aria-label="Discover sources">
+            <button id="discover-meta-tab" type="button" class="discover-tab-btn is-active" data-discover-tab="meta" aria-selected="true">Meta Index</button>
+            <button id="discover-community-tab" type="button" class="discover-tab-btn" data-discover-tab="community" aria-selected="false">Community</button>
+          </div>
           <div class="row inputs-inline">
             <input id="meta-search" placeholder="Search decks by name, source, legend" />
             <select id="meta-sort-by" aria-label="Deck search sort">
               <option value="recommendation">Recommendation</option>
               <option value="buildability">Buildability</option>
+              <option value="competitive">Competitive</option>
               <option value="meta">Meta</option>
               <option value="price">Price</option>
             </select>
-            <button id="meta-load-btn">Search</button>
+            <button id="meta-refresh-btn" type="button" class="card-action-btn secondary">Refresh Index</button>
+            <button id="meta-load-btn">Load</button>
           </div>
+          <p id="meta-freshness" class="library-note"></p>
           <div id="meta-list" class="tile-grid compact"></div>
+          <div id="community-list" class="tile-grid compact" hidden></div>
         </section>
 
         <section class="inspector-block">
@@ -211,27 +450,19 @@
 
         <section class="inspector-block">
           <h2>Deck Library</h2>
+          <div class="row inputs-inline">
+            <input id="library-search" placeholder="Search my decks by name, source, or legend" />
+            <button id="library-search-btn" type="button" class="card-action-btn secondary">Clear</button>
+          </div>
           <div class="library-split">
             <div class="library-pane">
               <h3 class="inspector-subtitle">Built Decks (Reserve Cards)</h3>
-              <div class="row">
-                <select id="library-built-select"></select>
-                <button id="library-built-load-btn">Load</button>
-                <button id="library-built-update-btn">Update</button>
-                <button id="library-built-delete-btn" class="danger">Delete</button>
-                <button id="library-built-move-btn" class="card-action-btn secondary">Move to Saved</button>
-              </div>
+              <p class="library-note">Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.</p>
               <div id="library-built-gallery" class="tile-grid compact"></div>
             </div>
             <div class="library-pane">
               <h3 class="inspector-subtitle">Saved Decks</h3>
-              <div class="row">
-                <select id="library-saved-select"></select>
-                <button id="library-saved-load-btn">Load</button>
-                <button id="library-saved-update-btn">Update</button>
-                <button id="library-saved-delete-btn" class="danger">Delete</button>
-                <button id="library-saved-move-btn" class="card-action-btn secondary">Move to Built</button>
-              </div>
+              <p class="library-note">Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.</p>
               <div id="library-saved-gallery" class="tile-grid compact"></div>
             </div>
           </div>
@@ -314,6 +545,84 @@
     </div>
   </div>
 
+  <div id="meta-detail-modal" class="picker-modal meta-detail-modal" hidden>
+    <div class="meta-detail-dialog">
+      <div class="meta-detail-head">
+        <div>
+          <h3 id="meta-detail-title">Deck Detail</h3>
+          <div id="meta-detail-meta" class="meta-detail-meta"></div>
+        </div>
+        <button id="meta-detail-close-btn" type="button" class="danger">Close</button>
+      </div>
+      <div id="meta-detail-stats" class="meta-detail-stats"></div>
+      <div class="meta-detail-actions">
+        <button id="meta-detail-use-btn" type="button" class="card-action-btn secondary">Use in Builder</button>
+        <button id="meta-detail-save-btn" type="button" class="card-action-btn">Save to My Decks</button>
+      </div>
+      <div class="meta-detail-grid">
+        <section>
+          <h4>Legend</h4>
+          <div id="meta-detail-legend" class="meta-detail-list"></div>
+        </section>
+        <section>
+          <h4>Chosen Champion</h4>
+          <div id="meta-detail-champion" class="meta-detail-list"></div>
+        </section>
+        <section>
+          <h4>Main Deck</h4>
+          <div id="meta-detail-main" class="meta-detail-list"></div>
+        </section>
+        <section>
+          <h4>Runes</h4>
+          <div id="meta-detail-runes" class="meta-detail-list"></div>
+        </section>
+        <section>
+          <h4>Battlefields</h4>
+          <div id="meta-detail-battlefields" class="meta-detail-list"></div>
+        </section>
+        <section>
+          <h4>Sideboard</h4>
+          <div id="meta-detail-sideboard" class="meta-detail-list"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="deck-import-modal" class="picker-modal deck-import-modal" hidden>
+    <div class="deck-import-dialog">
+      <div class="deck-import-head">
+        <h3>Upload or Paste Deck JSON</h3>
+        <button id="deck-import-close-btn" type="button" class="danger">Close</button>
+      </div>
+      <div id="deck-import-dropzone" class="deck-import-dropzone" tabindex="0">
+        <button id="deck-import-file-pick-btn" type="button" class="card-action-btn secondary">Choose JSON File</button>
+        <input id="deck-import-file" type="file" accept=".json,application/json" hidden />
+        <p id="deck-import-file-name" class="library-note">Drop a deck JSON file here or choose one.</p>
+      </div>
+      <textarea
+        id="deck-import-text"
+        rows="10"
+        placeholder="Paste deck JSON here (raw deck object or { deck: ... })"
+      ></textarea>
+      <div class="deck-import-actions">
+        <button id="deck-import-btn" type="button">Load Into Builder</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="picker-modal" hidden>
+    <div class="confirm-dialog">
+      <h3 id="confirm-modal-title" class="confirm-dialog-title">Confirm</h3>
+      <p id="confirm-modal-body" class="confirm-dialog-body"></p>
+      <input id="confirm-modal-input" type="text" class="confirm-dialog-input" hidden />
+      <div class="confirm-dialog-actions">
+        <button id="confirm-modal-ok" type="button">Confirm</button>
+        <button id="confirm-modal-cancel" type="button" class="card-action-btn secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/supabase-auth.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -1,0 +1,1386 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Collection-aware deck building.
+    - tablist "Workspace" [ref=e8]:
+      - tab "Collection Browser" [ref=e9] [cursor=pointer]
+      - tab "Manual Mode" [ref=e10] [cursor=pointer]
+      - tab "Auto Builder" [active] [selected] [ref=e11] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 40 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 12 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 3 battlefields (found 0)." [ref=e3917]:
+      - generic [ref=e14]: Illegal
+  - main [ref=e15]:
+    - tabpanel "Auto Builder" [ref=e5190]:
+      - generic [ref=e5191]:
+        - generic [ref=e5192]:
+          - heading "Auto Builder" [level=2] [ref=e5193]
+          - paragraph [ref=e5194]: Generate collection-aware decks from learned win conditions, synergy packages, and retrieved shells.
+        - generic "Auto Builder actions" [ref=e5195]:
+          - button "Generate" [ref=e5196] [cursor=pointer]
+          - button "Reload Status" [ref=e5197] [cursor=pointer]
+      - generic [ref=e5199]:
+        - generic [ref=e5200]:
+          - generic [ref=e5201]:
+            - combobox "Auto Builder ranking mode" [ref=e5202]:
+              - option "Collection First" [selected]
+              - option "Competitive Score"
+              - option "Hybrid"
+            - combobox "Auto Builder strategy mode" [ref=e5203]:
+              - option "Hybrid" [selected]
+              - option "Pure Generate"
+              - option "Seed Adapt"
+            - generic [ref=e5204]:
+              - button "Auto Builder legend filter" [ref=e5205] [cursor=pointer]:
+                - img "Any Legend artwork" [ref=e5207]
+                - generic [ref=e5208]: Any Legend
+              - button "Clear" [ref=e5209] [cursor=pointer]
+            - generic [ref=e5210]:
+              - button "Auto Builder champion filter" [ref=e5211] [cursor=pointer]:
+                - img "Any Champion artwork" [ref=e5213]
+                - generic [ref=e5214]: Any Champion
+              - button "Clear" [ref=e5215] [cursor=pointer]
+            - generic [ref=e5216]:
+              - checkbox "Only Buildable" [ref=e5217]
+              - text: Only Buildable
+          - paragraph [ref=e5218]: "Model enabled | 0 training decks | 0 selected win conditions | 0 selected synergy clusters | strict buildable 0.0% hit / 0.0% empty | generated never | Last error: sklearn version mismatch: artifact=1.8.0 runtime=1.6.1"
+          - generic [ref=e5219]:
+            - generic [ref=e5220]:
+              - article [ref=e5221]:
+                - generic [ref=e5222]: Model
+                - strong [ref=e5223]: Ready
+              - article [ref=e5224]:
+                - generic [ref=e5225]: Training Decks
+                - strong [ref=e5226]: "0"
+              - article [ref=e5227]:
+                - generic [ref=e5228]: Selected Counts
+                - strong [ref=e5229]: 0 WC / 0 SC
+              - article [ref=e5230]:
+                - generic [ref=e5231]: Strict Buildable
+                - strong [ref=e5232]: 0.0% hit
+              - article [ref=e5233]:
+                - generic [ref=e5234]: Strategy
+                - strong [ref=e5235]: Collection First / Hybrid
+            - paragraph [ref=e5236]: Generate to produce collection-aware deck candidates.
+          - generic [ref=e5238]: No recommendations yet. Run Generate or use the Manual Mode auto-complete actions.
+        - generic [ref=e5239]:
+          - generic [ref=e5240]:
+            - heading "Recommendation Detail" [level=3] [ref=e5241]
+            - generic [ref=e5242]:
+              - button "Open in Manual Mode" [ref=e5243] [cursor=pointer]
+              - button "Save Deck" [ref=e5244] [cursor=pointer]
+          - generic [ref=e5246]: Generate recommendations to inspect a synthesized deck.
+    - complementary [ref=e3841]:
+      - generic [ref=e3843]:
+        - heading "Inspector" [level=2] [ref=e3844]
+        - paragraph [ref=e3845]: Deck search, validation insights, and saved deck management.
+      - generic [ref=e3847]:
+        - heading "Deck Search" [level=2] [ref=e3848]
+        - generic [ref=e3849]:
+          - textbox "Search decks by name, source, legend" [ref=e3850]
+          - combobox "Deck search sort" [ref=e3851]:
+            - option "Recommendation" [selected]
+            - option "Buildability"
+            - option "Competitive"
+            - option "Meta"
+            - option "Price"
+          - button "Refresh Index" [ref=e3852] [cursor=pointer]
+          - button "Search" [ref=e3853] [cursor=pointer]
+        - paragraph [ref=e3919]: Indexed 1866 / 2657 rows. Refreshed 3/1/2026, 7:19:38 PM.
+        - generic [ref=e3854]:
+          - article [ref=e3920]:
+            - generic [ref=e3921]:
+              - generic [ref=e3922]: Missing 7
+              - img "Purple Ezreal Tempo artwork" [ref=e3923]
+            - generic [ref=e3924]:
+              - generic "Purple Ezreal Tempo" [ref=e3925]
+              - generic [ref=e3926]: Rec 43.4 | Competitive - | Meta 23.2 | Price $325.59 | Missing 7
+              - generic [ref=e3927]:
+                - button "View" [ref=e3928] [cursor=pointer]
+                - button "Save" [ref=e3929] [cursor=pointer]
+          - article [ref=e3930]:
+            - generic [ref=e3931]:
+              - generic [ref=e3932]: Missing 12
+              - 'img "Bologna #6 - Randyyy artwork" [ref=e3933]'
+            - generic [ref=e3934]:
+              - 'generic "Bologna #6 - Randyyy" [ref=e3935]'
+              - generic [ref=e3936]: Rec 42.6 | Competitive - | Meta 30.2 | Price $512.17 | Missing 12
+              - generic [ref=e3937]:
+                - button "View" [ref=e3938] [cursor=pointer]
+                - button "Save" [ref=e3939] [cursor=pointer]
+          - article [ref=e3940]:
+            - generic [ref=e3941]:
+              - generic [ref=e3942]: Missing 4
+              - img "Viktor - Herald of the Arcane Deck artwork" [ref=e3943]
+            - generic [ref=e3944]:
+              - generic "Viktor - Herald of the Arcane Deck" [ref=e3945]
+              - generic [ref=e3946]: Rec 41.9 | Competitive - | Meta 19.2 | Price $95.54 | Missing 4
+              - generic [ref=e3947]:
+                - button "View" [ref=e3948] [cursor=pointer]
+                - button "Save" [ref=e3949] [cursor=pointer]
+          - article [ref=e3950]:
+            - generic [ref=e3951]:
+              - generic [ref=e3952]: Missing 6
+              - img "Viktor 1st Place Skirmish FlowGeek&#x27;s artwork" [ref=e3953]
+            - generic [ref=e3954]:
+              - generic "Viktor 1st Place Skirmish FlowGeek&#x27;s" [ref=e3955]
+              - generic [ref=e3956]: Rec 41.8 | Competitive - | Meta 21.3 | Price $138.55 | Missing 6
+              - generic [ref=e3957]:
+                - button "View" [ref=e3958] [cursor=pointer]
+                - button "Save" [ref=e3959] [cursor=pointer]
+          - article [ref=e3960]:
+            - generic [ref=e3961]:
+              - generic [ref=e3962]: Missing 3
+              - img "Cheap Viktor artwork" [ref=e3963]
+            - generic [ref=e3964]:
+              - generic "Cheap Viktor" [ref=e3965]
+              - generic [ref=e3966]: Rec 41.6 | Competitive - | Meta 17.7 | Price $76.33 | Missing 3
+              - generic [ref=e3967]:
+                - button "View" [ref=e3968] [cursor=pointer]
+                - button "Save" [ref=e3969] [cursor=pointer]
+          - article [ref=e3970]:
+            - generic [ref=e3971]:
+              - generic [ref=e3972]: Missing 6
+              - img "MINIONS, TONIGHT WE STEAL THE MOON! artwork" [ref=e3973]
+            - generic [ref=e3974]:
+              - generic "MINIONS, TONIGHT WE STEAL THE MOON!" [ref=e3975]
+              - generic [ref=e3976]: Rec 40.9 | Competitive - | Meta 21.2 | Price $131.47 | Missing 6
+              - generic [ref=e3977]:
+                - button "View" [ref=e3978] [cursor=pointer]
+                - button "Save" [ref=e3979] [cursor=pointer]
+          - article [ref=e3980]:
+            - generic [ref=e3981]:
+              - generic [ref=e3982]: Missing 2
+              - img "viktor 14/02/26 artwork" [ref=e3983]
+            - generic [ref=e3984]:
+              - generic "viktor 14/02/26" [ref=e3985]
+              - generic [ref=e3986]: Rec 40.8 | Competitive - | Meta 16.1 | Price $76.14 | Missing 2
+              - generic [ref=e3987]:
+                - button "View" [ref=e3988] [cursor=pointer]
+                - button "Save" [ref=e3989] [cursor=pointer]
+          - article [ref=e3990]:
+            - generic [ref=e3991]:
+              - generic [ref=e3992]: Missing 8
+              - img "New Deck artwork" [ref=e3993]
+            - generic [ref=e3994]:
+              - generic "New Deck" [ref=e3995]
+              - generic [ref=e3996]: Rec 40.0 | Competitive - | Meta 23.6 | Price $345.31 | Missing 8
+              - generic [ref=e3997]:
+                - button "View" [ref=e3998] [cursor=pointer]
+                - button "Save" [ref=e3999] [cursor=pointer]
+          - article [ref=e4000]:
+            - generic [ref=e4001]:
+              - generic [ref=e4002]: Missing 6
+              - img "Viktor City Challenge Winner artwork" [ref=e4003]
+            - generic [ref=e4004]:
+              - generic "Viktor City Challenge Winner" [ref=e4005]
+              - generic [ref=e4006]: Rec 39.9 | Competitive - | Meta 20.4 | Price $175.60 | Missing 6
+              - generic [ref=e4007]:
+                - button "View" [ref=e4008] [cursor=pointer]
+                - button "Save" [ref=e4009] [cursor=pointer]
+          - article [ref=e4010]:
+            - generic [ref=e4011]:
+              - generic [ref=e4012]: Missing 7
+              - img "Consistent Viktor Deck - Intellectual Adz YouTube artwork" [ref=e4013]
+            - generic [ref=e4014]:
+              - generic "Consistent Viktor Deck - Intellectual Adz YouTube" [ref=e4015]
+              - generic [ref=e4016]: Rec 39.7 | Competitive - | Meta 21.7 | Price $144.30 | Missing 7
+              - generic [ref=e4017]:
+                - button "View" [ref=e4018] [cursor=pointer]
+                - button "Save" [ref=e4019] [cursor=pointer]
+          - article [ref=e4020]:
+            - generic [ref=e4021]:
+              - generic [ref=e4022]: Missing 6
+              - img "Summoner Skirmish Nov Decklist - Viktor- Jason Ho artwork" [ref=e4023]
+            - generic [ref=e4024]:
+              - generic "Summoner Skirmish Nov Decklist - Viktor- Jason Ho" [ref=e4025]
+              - generic [ref=e4026]: Rec 39.6 | Competitive - | Meta 20.3 | Price $147.03 | Missing 6
+              - generic [ref=e4027]:
+                - button "View" [ref=e4028] [cursor=pointer]
+                - button "Save" [ref=e4029] [cursor=pointer]
+          - article [ref=e4030]:
+            - generic [ref=e4031]:
+              - generic [ref=e4032]: Missing 6
+              - img "Viktor - 1st place Sirmish FlowGeeks's eck artwork" [ref=e4033]
+            - generic [ref=e4034]:
+              - generic "Viktor - 1st place Sirmish FlowGeeks's eck" [ref=e4035]
+              - generic [ref=e4036]: Rec 39.4 | Competitive - | Meta 20.2 | Price $168.10 | Missing 6
+              - generic [ref=e4037]:
+                - button "View" [ref=e4038] [cursor=pointer]
+                - button "Save" [ref=e4039] [cursor=pointer]
+          - article [ref=e4040]:
+            - generic [ref=e4041]:
+              - generic [ref=e4042]: Missing 7
+              - img "[guide][thoughts] Dec 2025 1st Place 32-man Skirmish Viktor (Seals, Combat Tricks) artwork" [ref=e4043]
+            - generic [ref=e4044]:
+              - generic "[guide][thoughts] Dec 2025 1st Place 32-man Skirmish Viktor (Seals, Combat Tricks)" [ref=e4045]
+              - generic [ref=e4046]: Rec 38.7 | Competitive - | Meta 21.3 | Price $143.67 | Missing 7
+              - generic [ref=e4047]:
+                - button "View" [ref=e4048] [cursor=pointer]
+                - button "Save" [ref=e4049] [cursor=pointer]
+          - article [ref=e4050]:
+            - generic [ref=e4051]:
+              - generic [ref=e4052]: Missing 6
+              - img "Viktor artwork" [ref=e4053]
+            - generic [ref=e4054]:
+              - generic "Viktor" [ref=e4055]
+              - generic [ref=e4056]: Rec 38.6 | Competitive - | Meta 20.1 | Price $119.54 | Missing 6
+              - generic [ref=e4057]:
+                - button "View" [ref=e4058] [cursor=pointer]
+                - button "Save" [ref=e4059] [cursor=pointer]
+          - article [ref=e4060]:
+            - generic [ref=e4061]:
+              - generic [ref=e4062]: Missing 10
+              - img "True Display of... Skill? artwork" [ref=e4063]
+            - generic [ref=e4064]:
+              - generic "True Display of... Skill?" [ref=e4065]
+              - generic [ref=e4066]: Rec 38.1 | Competitive - | Meta 24.8 | Price $435.48 | Missing 10
+              - generic [ref=e4067]:
+                - button "View" [ref=e4068] [cursor=pointer]
+                - button "Save" [ref=e4069] [cursor=pointer]
+          - article [ref=e4070]:
+            - generic [ref=e4071]:
+              - generic [ref=e4072]: Missing 7
+              - img "1st Place Nexus Night - Viktor artwork" [ref=e4073]
+            - generic [ref=e4074]:
+              - generic "1st Place Nexus Night - Viktor" [ref=e4075]
+              - generic [ref=e4076]: Rec 37.2 | Competitive - | Meta 20.5 | Price $146.50 | Missing 7
+              - generic [ref=e4077]:
+                - button "View" [ref=e4078] [cursor=pointer]
+                - button "Save" [ref=e4079] [cursor=pointer]
+          - article [ref=e4080]:
+            - generic [ref=e4081]:
+              - generic [ref=e4082]: Missing 8
+              - img "New Deck artwork" [ref=e4083]
+            - generic [ref=e4084]:
+              - generic "New Deck" [ref=e4085]
+              - generic [ref=e4086]: Rec 37.0 | Competitive - | Meta 22.1 | Price $345.58 | Missing 8
+              - generic [ref=e4087]:
+                - button "View" [ref=e4088] [cursor=pointer]
+                - button "Save" [ref=e4089] [cursor=pointer]
+          - article [ref=e4090]:
+            - generic [ref=e4091]:
+              - generic [ref=e4092]: Missing 5
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4093]
+            - generic [ref=e4094]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4095]
+              - generic [ref=e4096]: Rec 36.5 | Competitive - | Meta 18.0 | Price $209.05 | Missing 5
+              - generic [ref=e4097]:
+                - button "View" [ref=e4098] [cursor=pointer]
+                - button "Save" [ref=e4099] [cursor=pointer]
+          - article [ref=e4100]:
+            - generic [ref=e4101]:
+              - generic [ref=e4102]: Missing 4
+              - img "Azir Baited Hook 4 Cost artwork" [ref=e4103]
+            - generic [ref=e4104]:
+              - generic "Azir Baited Hook 4 Cost" [ref=e4105]
+              - generic [ref=e4106]: Rec 36.5 | Competitive - | Meta 16.7 | Price $245.09 | Missing 4
+              - generic [ref=e4107]:
+                - button "View" [ref=e4108] [cursor=pointer]
+                - button "Save" [ref=e4109] [cursor=pointer]
+          - article [ref=e4110]:
+            - generic [ref=e4111]:
+              - generic [ref=e4112]: Missing 6
+              - img "YXE Summoner Skirmish 1 – 8th Place – Emu Otori artwork" [ref=e4113]
+            - generic [ref=e4114]:
+              - generic "YXE Summoner Skirmish 1 – 8th Place – Emu Otori" [ref=e4115]
+              - generic [ref=e4116]: Rec 36.4 | Competitive - | Meta 18.8 | Price $94.54 | Missing 6
+              - generic [ref=e4117]:
+                - button "View" [ref=e4118] [cursor=pointer]
+                - button "Save" [ref=e4119] [cursor=pointer]
+          - article [ref=e4120]:
+            - generic [ref=e4121]:
+              - generic [ref=e4122]: Missing 5
+              - img "Viktor - 1st City Challenge Shanghai National Open artwork" [ref=e4123]
+            - generic [ref=e4124]:
+              - generic "Viktor - 1st City Challenge Shanghai National Open" [ref=e4125]
+              - generic [ref=e4126]: Rec 36.2 | Competitive - | Meta 17.6 | Price $76.32 | Missing 5
+              - generic [ref=e4127]:
+                - button "View" [ref=e4128] [cursor=pointer]
+                - button "Save" [ref=e4129] [cursor=pointer]
+          - article [ref=e4130]:
+            - generic [ref=e4131]:
+              - generic [ref=e4132]: Missing 7
+              - img "Viktor Runes & Rift 4th Place artwork" [ref=e4133]
+            - generic [ref=e4134]:
+              - generic "Viktor Runes & Rift 4th Place" [ref=e4135]
+              - generic [ref=e4136]: Rec 35.9 | Competitive - | Meta 20.2 | Price $125.83 | Missing 7
+              - generic [ref=e4137]:
+                - button "View" [ref=e4138] [cursor=pointer]
+                - button "Save" [ref=e4139] [cursor=pointer]
+          - article [ref=e4140]:
+            - generic [ref=e4141]:
+              - generic [ref=e4142]: Missing 4
+              - img "Spiritforged Fiora Champion Deck artwork" [ref=e4143]
+            - generic [ref=e4144]:
+              - generic "Spiritforged Fiora Champion Deck" [ref=e4145]
+              - generic [ref=e4146]: Rec 35.4 | Competitive - | Meta 16.2 | Price $163.72 | Missing 4
+              - generic [ref=e4147]:
+                - button "View" [ref=e4148] [cursor=pointer]
+                - button "Save" [ref=e4149] [cursor=pointer]
+          - article [ref=e4150]:
+            - generic [ref=e4151]:
+              - generic [ref=e4152]: Missing 8
+              - img "Viktor Set 1 artwork" [ref=e4153]
+            - generic [ref=e4154]:
+              - generic "Viktor Set 1" [ref=e4155]
+              - generic [ref=e4156]: Rec 35.3 | Competitive - | Meta 21.3 | Price $160.38 | Missing 8
+              - generic [ref=e4157]:
+                - button "View" [ref=e4158] [cursor=pointer]
+                - button "Save" [ref=e4159] [cursor=pointer]
+          - article [ref=e4160]:
+            - generic [ref=e4161]:
+              - generic [ref=e4162]: Missing 6
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4163]
+            - generic [ref=e4164]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4165]
+              - generic [ref=e4166]: Rec 34.8 | Competitive - | Meta 18.6 | Price $202.36 | Missing 6
+              - generic [ref=e4167]:
+                - button "View" [ref=e4168] [cursor=pointer]
+                - button "Save" [ref=e4169] [cursor=pointer]
+          - article [ref=e4170]:
+            - generic [ref=e4171]:
+              - generic [ref=e4172]: Missing 8
+              - img "Viktor Competitive artwork" [ref=e4173]
+            - generic [ref=e4174]:
+              - generic "Viktor Competitive" [ref=e4175]
+              - generic [ref=e4176]: Rec 34.6 | Competitive - | Meta 20.7 | Price $144.84 | Missing 8
+              - generic [ref=e4177]:
+                - button "View" [ref=e4178] [cursor=pointer]
+                - button "Save" [ref=e4179] [cursor=pointer]
+          - article [ref=e4180]:
+            - generic [ref=e4181]:
+              - generic [ref=e4182]: Missing 8
+              - img "Viktor - 1st Shanghai City Challenge artwork" [ref=e4183]
+            - generic [ref=e4184]:
+              - generic "Viktor - 1st Shanghai City Challenge" [ref=e4185]
+              - generic [ref=e4186]: Rec 34.5 | Competitive - | Meta 20.7 | Price $147.72 | Missing 8
+              - generic [ref=e4187]:
+                - button "View" [ref=e4188] [cursor=pointer]
+                - button "Save" [ref=e4189] [cursor=pointer]
+          - article [ref=e4190]:
+            - generic [ref=e4191]:
+              - generic [ref=e4192]: Missing 8
+              - img "Viktor Strats artwork" [ref=e4193]
+            - generic [ref=e4194]:
+              - generic "Viktor Strats" [ref=e4195]
+              - generic [ref=e4196]: Rec 34.3 | Competitive - | Meta 20.6 | Price $146.35 | Missing 8
+              - generic [ref=e4197]:
+                - button "View" [ref=e4198] [cursor=pointer]
+                - button "Save" [ref=e4199] [cursor=pointer]
+          - article [ref=e4200]:
+            - generic [ref=e4201]:
+              - generic [ref=e4202]: Missing 10
+              - img "RiftLounge - Runes &amp; Rift Invitational artwork" [ref=e4203]
+            - generic [ref=e4204]:
+              - generic "RiftLounge - Runes &amp; Rift Invitational" [ref=e4205]
+              - generic [ref=e4206]: Rec 34.1 | Competitive - | Meta 22.6 | Price $328.43 | Missing 10
+              - generic [ref=e4207]:
+                - button "View" [ref=e4208] [cursor=pointer]
+                - button "Save" [ref=e4209] [cursor=pointer]
+          - article [ref=e4210]:
+            - generic [ref=e4211]:
+              - generic [ref=e4212]: Missing 2
+              - img "Budget Ahri artwork" [ref=e4213]
+            - generic [ref=e4214]:
+              - generic "Budget Ahri" [ref=e4215]
+              - generic [ref=e4216]: Rec 33.7 | Competitive - | Meta 13.1 | Price $189.95 | Missing 2
+              - generic [ref=e4217]:
+                - button "View" [ref=e4218] [cursor=pointer]
+                - button "Save" [ref=e4219] [cursor=pointer]
+          - article [ref=e4220]:
+            - generic [ref=e4221]:
+              - generic [ref=e4222]: Missing 8
+              - img "Viktor - Skirmish Top cut artwork" [ref=e4223]
+            - generic [ref=e4224]:
+              - generic "Viktor - Skirmish Top cut" [ref=e4225]
+              - generic [ref=e4226]: Rec 33.7 | Competitive - | Meta 20.3 | Price $145.98 | Missing 8
+              - generic [ref=e4227]:
+                - button "View" [ref=e4228] [cursor=pointer]
+                - button "Save" [ref=e4229] [cursor=pointer]
+          - article [ref=e4230]:
+            - generic [ref=e4231]:
+              - generic [ref=e4232]: Missing 8
+              - img "1st Place Summoner Skirmish Viktor artwork" [ref=e4233]
+            - generic [ref=e4234]:
+              - generic "1st Place Summoner Skirmish Viktor" [ref=e4235]
+              - generic [ref=e4236]: Rec 33.6 | Competitive - | Meta 20.5 | Price $134.31 | Missing 8
+              - generic [ref=e4237]:
+                - button "View" [ref=e4238] [cursor=pointer]
+                - button "Save" [ref=e4239] [cursor=pointer]
+          - article [ref=e4240]:
+            - generic [ref=e4241]:
+              - generic [ref=e4242]: Missing 2
+              - img "Viktor Premade Origins Champion Deck artwork" [ref=e4243]
+            - generic [ref=e4244]:
+              - generic "Viktor Premade Origins Champion Deck" [ref=e4245]
+              - generic [ref=e4246]: Rec 33.5 | Competitive - | Meta 13.1 | Price $39.26 | Missing 2
+              - generic [ref=e4247]:
+                - button "View" [ref=e4248] [cursor=pointer]
+                - button "Save" [ref=e4249] [cursor=pointer]
+          - article [ref=e4250]:
+            - generic [ref=e4251]:
+              - generic [ref=e4252]: Missing 16
+              - 'img "Bologna #3 - krowz artwork" [ref=e4253]'
+            - generic [ref=e4254]:
+              - 'generic "Bologna #3 - krowz" [ref=e4255]'
+              - generic [ref=e4256]: Rec 33.3 | Competitive - | Meta 31.2 | Price $424.76 | Missing 16
+              - generic [ref=e4257]:
+                - button "View" [ref=e4258] [cursor=pointer]
+                - button "Save" [ref=e4259] [cursor=pointer]
+          - article [ref=e4260]:
+            - generic [ref=e4261]:
+              - generic [ref=e4262]: Missing 6
+              - img "Viktor Summoner Skirmish 1st Place artwork" [ref=e4263]
+            - generic [ref=e4264]:
+              - generic "Viktor Summoner Skirmish 1st Place" [ref=e4265]
+              - generic [ref=e4266]: Rec 33.0 | Competitive - | Meta 17.4 | Price $76.66 | Missing 6
+              - generic [ref=e4267]:
+                - button "View" [ref=e4268] [cursor=pointer]
+                - button "Save" [ref=e4269] [cursor=pointer]
+          - article [ref=e4270]:
+            - generic [ref=e4271]:
+              - generic [ref=e4272]: Missing 12
+              - img "Irelia broken artwork" [ref=e4273]
+            - generic [ref=e4274]:
+              - generic "Irelia broken" [ref=e4275]
+              - generic [ref=e4276]: Rec 32.7 | Competitive - | Meta 24.9 | Price $763.58 | Missing 12
+              - generic [ref=e4277]:
+                - button "View" [ref=e4278] [cursor=pointer]
+                - button "Save" [ref=e4279] [cursor=pointer]
+          - article [ref=e4280]:
+            - generic [ref=e4281]:
+              - generic [ref=e4282]: Missing 8
+              - img "Chihab Viktor artwork" [ref=e4283]
+            - generic [ref=e4284]:
+              - generic "Chihab Viktor" [ref=e4285]
+              - generic [ref=e4286]: Rec 32.7 | Competitive - | Meta 20.1 | Price $124.41 | Missing 8
+              - generic [ref=e4287]:
+                - button "View" [ref=e4288] [cursor=pointer]
+                - button "Save" [ref=e4289] [cursor=pointer]
+          - article [ref=e4290]:
+            - generic [ref=e4291]:
+              - generic [ref=e4292]: Missing 4
+              - img "Budget Irelia artwork" [ref=e4293]
+            - generic [ref=e4294]:
+              - generic "Budget Irelia" [ref=e4295]
+              - generic [ref=e4296]: Rec 32.7 | Competitive - | Meta 15.2 | Price $138.02 | Missing 4
+              - generic [ref=e4297]:
+                - button "View" [ref=e4298] [cursor=pointer]
+                - button "Save" [ref=e4299] [cursor=pointer]
+          - article [ref=e4300]:
+            - generic [ref=e4301]:
+              - generic [ref=e4302]: Missing 3
+              - img "Viktor - Herald of the Arcane Deck 26-02-13 artwork" [ref=e4303]
+            - generic [ref=e4304]:
+              - generic "Viktor - Herald of the Arcane Deck 26-02-13" [ref=e4305]
+              - generic [ref=e4306]: Rec 32.3 | Competitive - | Meta 13.5 | Price $49.59 | Missing 3
+              - generic [ref=e4307]:
+                - button "View" [ref=e4308] [cursor=pointer]
+                - button "Save" [ref=e4309] [cursor=pointer]
+          - article [ref=e4310]:
+            - generic [ref=e4311]:
+              - generic [ref=e4312]: Missing 11
+              - img "Irelia artwork" [ref=e4313]
+            - generic [ref=e4314]:
+              - generic "Irelia" [ref=e4315]
+              - generic [ref=e4316]: Rec 32.2 | Competitive - | Meta 24.0 | Price $398.36 | Missing 11
+              - generic [ref=e4317]:
+                - button "View" [ref=e4318] [cursor=pointer]
+                - button "Save" [ref=e4319] [cursor=pointer]
+          - article [ref=e4320]:
+            - generic [ref=e4321]:
+              - generic [ref=e4322]: Missing 9
+              - 'img "Viktor (1st - Nexus Night #5) artwork" [ref=e4323]'
+            - generic [ref=e4324]:
+              - 'generic "Viktor (1st - Nexus Night #5)" [ref=e4325]'
+              - generic [ref=e4326]: Rec 32.2 | Competitive - | Meta 20.7 | Price $157.16 | Missing 9
+              - generic [ref=e4327]:
+                - button "View" [ref=e4328] [cursor=pointer]
+                - button "Save" [ref=e4329] [cursor=pointer]
+          - article [ref=e4330]:
+            - generic [ref=e4331]:
+              - generic [ref=e4332]: Missing 2
+              - img "ViktorNation artwork" [ref=e4333]
+            - generic [ref=e4334]:
+              - generic "ViktorNation" [ref=e4335]
+              - generic [ref=e4336]: Rec 32.1 | Competitive - | Meta 12.2 | Price $41.83 | Missing 2
+              - generic [ref=e4337]:
+                - button "View" [ref=e4338] [cursor=pointer]
+                - button "Save" [ref=e4339] [cursor=pointer]
+          - article [ref=e4340]:
+            - generic [ref=e4341]:
+              - generic [ref=e4342]: Missing 6
+              - img "Viktor Skirmish Winner artwork" [ref=e4343]
+            - generic [ref=e4344]:
+              - generic "Viktor Skirmish Winner" [ref=e4345]
+              - generic [ref=e4346]: Rec 32.0 | Competitive - | Meta 17.0 | Price $68.69 | Missing 6
+              - generic [ref=e4347]:
+                - button "View" [ref=e4348] [cursor=pointer]
+                - button "Save" [ref=e4349] [cursor=pointer]
+          - article [ref=e4350]:
+            - generic [ref=e4351]:
+              - generic [ref=e4352]: Missing 6
+              - img "Viktor Chinese National 29th artwork" [ref=e4353]
+            - generic [ref=e4354]:
+              - generic "Viktor Chinese National 29th" [ref=e4355]
+              - generic [ref=e4356]: Rec 32.0 | Competitive - | Meta 17.0 | Price $70.14 | Missing 6
+              - generic [ref=e4357]:
+                - button "View" [ref=e4358] [cursor=pointer]
+                - button "Save" [ref=e4359] [cursor=pointer]
+          - article [ref=e4360]:
+            - generic [ref=e4361]:
+              - generic [ref=e4362]: Missing 8
+              - img "Viktor - Herald of the Arcane Deck - copy artwork" [ref=e4363]
+            - generic [ref=e4364]:
+              - generic "Viktor - Herald of the Arcane Deck - copy" [ref=e4365]
+              - generic [ref=e4366]: Rec 31.6 | Competitive - | Meta 19.0 | Price $140.73 | Missing 8
+              - generic [ref=e4367]:
+                - button "View" [ref=e4368] [cursor=pointer]
+                - button "Save" [ref=e4369] [cursor=pointer]
+          - article [ref=e4370]:
+            - generic [ref=e4371]:
+              - generic [ref=e4372]: Missing 10
+              - img "Irelia - Budget - copy artwork" [ref=e4373]
+            - generic [ref=e4374]:
+              - generic "Irelia - Budget - copy" [ref=e4375]
+              - generic [ref=e4376]: Rec 31.5 | Competitive - | Meta 22.4 | Price $366.18 | Missing 10
+              - generic [ref=e4377]:
+                - button "View" [ref=e4378] [cursor=pointer]
+                - button "Save" [ref=e4379] [cursor=pointer]
+          - article [ref=e4380]:
+            - generic [ref=e4381]:
+              - generic [ref=e4382]: Missing 9
+              - img "Skirmish 2 artwork" [ref=e4383]
+            - generic [ref=e4384]:
+              - generic "Skirmish 2" [ref=e4385]
+              - generic [ref=e4386]: Rec 31.4 | Competitive - | Meta 20.6 | Price $145.49 | Missing 9
+              - generic [ref=e4387]:
+                - button "View" [ref=e4388] [cursor=pointer]
+                - button "Save" [ref=e4389] [cursor=pointer]
+          - article [ref=e4390]:
+            - generic [ref=e4391]:
+              - generic [ref=e4392]: Missing 8
+              - img "Annie Set 2 (Optimized) artwork" [ref=e4393]
+            - generic [ref=e4394]:
+              - generic "Annie Set 2 (Optimized)" [ref=e4395]
+              - generic [ref=e4396]: Rec 31.3 | Competitive - | Meta 18.6 | Price $426.37 | Missing 8
+              - generic [ref=e4397]:
+                - button "View" [ref=e4398] [cursor=pointer]
+                - button "Save" [ref=e4399] [cursor=pointer]
+          - article [ref=e4400]:
+            - generic [ref=e4401]:
+              - generic [ref=e4402]: Missing 9
+              - img "The Rifting Turtle&#x27;s Viktor 1st place Deck list. artwork" [ref=e4403]
+            - generic [ref=e4404]:
+              - generic "The Rifting Turtle&#x27;s Viktor 1st place Deck list." [ref=e4405]
+              - generic [ref=e4406]: Rec 31.3 | Competitive - | Meta 20.3 | Price $147.37 | Missing 9
+              - generic [ref=e4407]:
+                - button "View" [ref=e4408] [cursor=pointer]
+                - button "Save" [ref=e4409] [cursor=pointer]
+          - article [ref=e4410]:
+            - generic [ref=e4411]:
+              - generic [ref=e4412]: Missing 9
+              - img "Viktor City Challenge Runner Up artwork" [ref=e4413]
+            - generic [ref=e4414]:
+              - generic "Viktor City Challenge Runner Up" [ref=e4415]
+              - generic [ref=e4416]: Rec 31.2 | Competitive - | Meta 20.5 | Price $176.28 | Missing 9
+              - generic [ref=e4417]:
+                - button "View" [ref=e4418] [cursor=pointer]
+                - button "Save" [ref=e4419] [cursor=pointer]
+          - article [ref=e4420]:
+            - generic [ref=e4421]:
+              - generic [ref=e4422]: Missing 15
+              - 'img "Ezreal, Prodigal Explorer: S2 Regional Open Chengdu Top 4 (Omegаone.霆霆) artwork" [ref=e4423]'
+            - generic [ref=e4424]:
+              - 'generic "Ezreal, Prodigal Explorer: S2 Regional Open Chengdu Top 4 (Omegаone.霆霆)" [ref=e4425]'
+              - generic [ref=e4426]: Rec 31.1 | Competitive - | Meta 28.6 | Price $480.86 | Missing 15
+              - generic [ref=e4427]:
+                - button "View" [ref=e4428] [cursor=pointer]
+                - button "Save" [ref=e4429] [cursor=pointer]
+          - article [ref=e4430]:
+            - generic [ref=e4431]:
+              - generic [ref=e4432]: Missing 3
+              - img "Ezreal - Version 2 artwork" [ref=e4433]
+            - generic [ref=e4434]:
+              - generic "Ezreal - Version 2" [ref=e4435]
+              - generic [ref=e4436]: Rec 31.0 | Competitive - | Meta 13.2 | Price $92.18 | Missing 3
+              - generic [ref=e4437]:
+                - button "View" [ref=e4438] [cursor=pointer]
+                - button "Save" [ref=e4439] [cursor=pointer]
+          - article [ref=e4440]:
+            - generic [ref=e4441]:
+              - generic [ref=e4442]: Missing 12
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4443]
+            - generic [ref=e4444]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4445]
+              - generic [ref=e4446]: Rec 30.9 | Competitive - | Meta 24.9 | Price $710.40 | Missing 12
+              - generic [ref=e4447]:
+                - button "View" [ref=e4448] [cursor=pointer]
+                - button "Save" [ref=e4449] [cursor=pointer]
+          - article [ref=e4450]:
+            - generic [ref=e4451]:
+              - generic [ref=e4452]: Missing 9
+              - img "VIKTOR JAVI artwork" [ref=e4453]
+            - generic [ref=e4454]:
+              - generic "VIKTOR JAVI" [ref=e4455]
+              - generic [ref=e4456]: Rec 30.8 | Competitive - | Meta 20.6 | Price $154.61 | Missing 9
+              - generic [ref=e4457]:
+                - button "View" [ref=e4458] [cursor=pointer]
+                - button "Save" [ref=e4459] [cursor=pointer]
+          - article [ref=e4460]:
+            - generic [ref=e4461]:
+              - generic [ref=e4462]: Missing 10
+              - img "Viktor top 32 Chengdu Regional artwork" [ref=e4463]
+            - generic [ref=e4464]:
+              - generic "Viktor top 32 Chengdu Regional" [ref=e4465]
+              - generic [ref=e4466]: Rec 30.6 | Competitive - | Meta 21.4 | Price $147.06 | Missing 10
+              - generic [ref=e4467]:
+                - button "View" [ref=e4468] [cursor=pointer]
+                - button "Save" [ref=e4469] [cursor=pointer]
+          - article [ref=e4470]:
+            - generic [ref=e4471]:
+              - generic [ref=e4472]: Missing 8
+              - img "Viktor - Herald of the Arcane Deck artwork" [ref=e4473]
+            - generic [ref=e4474]:
+              - generic "Viktor - Herald of the Arcane Deck" [ref=e4475]
+              - generic [ref=e4476]: Rec 30.6 | Competitive - | Meta 18.8 | Price $140.91 | Missing 8
+              - generic [ref=e4477]:
+                - button "View" [ref=e4478] [cursor=pointer]
+                - button "Save" [ref=e4479] [cursor=pointer]
+          - article [ref=e4480]:
+            - generic [ref=e4481]:
+              - generic [ref=e4482]: Missing 12
+              - img "Irelia - Blade Dancer Deck artwork" [ref=e4483]
+            - generic [ref=e4484]:
+              - generic "Irelia - Blade Dancer Deck" [ref=e4485]
+              - generic [ref=e4486]: Rec 30.4 | Competitive - | Meta 24.1 | Price $464.04 | Missing 12
+              - generic [ref=e4487]:
+                - button "View" [ref=e4488] [cursor=pointer]
+                - button "Save" [ref=e4489] [cursor=pointer]
+          - article [ref=e4490]:
+            - generic [ref=e4491]:
+              - generic [ref=e4492]: Missing 5
+              - img "Fiora Precon upvrgrade artwork" [ref=e4493]
+            - generic [ref=e4494]:
+              - generic "Fiora Precon upvrgrade" [ref=e4495]
+              - generic [ref=e4496]: Rec 30.3 | Competitive - | Meta 15.2 | Price $168.50 | Missing 5
+              - generic [ref=e4497]:
+                - button "View" [ref=e4498] [cursor=pointer]
+                - button "Save" [ref=e4499] [cursor=pointer]
+          - article [ref=e4500]:
+            - generic [ref=e4501]:
+              - generic [ref=e4502]: Missing 9
+              - 'img "Void: 7th - MaxTapera Tournament artwork" [ref=e4503]'
+            - generic [ref=e4504]:
+              - 'generic "Void: 7th - MaxTapera Tournament" [ref=e4505]'
+              - generic [ref=e4506]: Rec 30.3 | Competitive - | Meta 20.3 | Price $180.48 | Missing 9
+              - generic [ref=e4507]:
+                - button "View" [ref=e4508] [cursor=pointer]
+                - button "Save" [ref=e4509] [cursor=pointer]
+          - article [ref=e4510]:
+            - generic [ref=e4511]:
+              - generic [ref=e4512]: Missing 14
+              - 'img "Irelia, Blade Dancer: S2 Regional Open Chengdu Top 8 (LineKа·健一) artwork" [ref=e4513]'
+            - generic [ref=e4514]:
+              - 'generic "Irelia, Blade Dancer: S2 Regional Open Chengdu Top 8 (LineKа·健一)" [ref=e4515]'
+              - generic [ref=e4516]: Rec 30.1 | Competitive - | Meta 26.5 | Price $372.44 | Missing 14
+              - generic [ref=e4517]:
+                - button "View" [ref=e4518] [cursor=pointer]
+                - button "Save" [ref=e4519] [cursor=pointer]
+          - article [ref=e4520]:
+            - generic [ref=e4521]:
+              - generic [ref=e4522]: Missing 11
+              - img "Best Aggro Irelia Deck artwork" [ref=e4523]
+            - generic [ref=e4524]:
+              - generic "Best Aggro Irelia Deck" [ref=e4525]
+              - generic [ref=e4526]: Rec 29.9 | Competitive - | Meta 22.0 | Price $322.28 | Missing 11
+              - generic [ref=e4527]:
+                - button "View" [ref=e4528] [cursor=pointer]
+                - button "Save" [ref=e4529] [cursor=pointer]
+          - article [ref=e4530]:
+            - generic [ref=e4531]:
+              - generic [ref=e4532]: Missing 13
+              - img "Draven - Glorious Executioner Deck artwork" [ref=e4533]
+            - generic [ref=e4534]:
+              - generic "Draven - Glorious Executioner Deck" [ref=e4535]
+              - generic [ref=e4536]: Rec 29.8 | Competitive - | Meta 24.7 | Price $509.44 | Missing 13
+              - generic [ref=e4537]:
+                - button "View" [ref=e4538] [cursor=pointer]
+                - button "Save" [ref=e4539] [cursor=pointer]
+          - article [ref=e4540]:
+            - generic [ref=e4541]:
+              - generic [ref=e4542]: Missing 2
+              - img "MiraclEz - Budget Ezreal Guide artwork" [ref=e4543]
+            - generic [ref=e4544]:
+              - generic "MiraclEz - Budget Ezreal Guide" [ref=e4545]
+              - generic [ref=e4546]: Rec 29.8 | Competitive - | Meta 11.4 | Price $82.41 | Missing 2
+              - generic [ref=e4547]:
+                - button "View" [ref=e4548] [cursor=pointer]
+                - button "Save" [ref=e4549] [cursor=pointer]
+          - article [ref=e4550]:
+            - generic [ref=e4551]:
+              - generic [ref=e4552]: Missing 8
+              - 'img "乐在飙亲-阿保: 5-8th- Guangzhou Regionals Tournament (Aug 2025) artwork" [ref=e4553]'
+            - generic [ref=e4554]:
+              - 'generic "乐在飙亲-阿保: 5-8th- Guangzhou Regionals Tournament (Aug 2025)" [ref=e4555]'
+              - generic [ref=e4556]: Rec 29.6 | Competitive - | Meta 18.3 | Price $81.64 | Missing 8
+              - generic [ref=e4557]:
+                - button "View" [ref=e4558] [cursor=pointer]
+                - button "Save" [ref=e4559] [cursor=pointer]
+          - article [ref=e4560]:
+            - generic [ref=e4561]:
+              - generic [ref=e4562]: Buildable
+              - img "Master Yi Wuju Bladesman Deck artwork" [ref=e4563]
+            - generic [ref=e4564]:
+              - generic "Master Yi Wuju Bladesman Deck" [ref=e4565]
+              - generic [ref=e4566]: Rec 29.6 | Competitive - | Meta 8.6 | Price $29.52 | Buildable
+              - generic [ref=e4567]:
+                - button "View" [ref=e4568] [cursor=pointer]
+                - button "Save" [ref=e4569] [cursor=pointer]
+          - article [ref=e4570]:
+            - generic [ref=e4571]:
+              - generic [ref=e4572]: Missing 6
+              - img "Fiora -My Cards So Far artwork" [ref=e4573]
+            - generic [ref=e4574]:
+              - generic "Fiora -My Cards So Far" [ref=e4575]
+              - generic [ref=e4576]: Rec 29.5 | Competitive - | Meta 15.8 | Price $358.73 | Missing 6
+              - generic [ref=e4577]:
+                - button "View" [ref=e4578] [cursor=pointer]
+                - button "Save" [ref=e4579] [cursor=pointer]
+          - article [ref=e4580]:
+            - generic [ref=e4581]:
+              - generic [ref=e4582]: Missing 7
+              - 'img "Thagor: 1st - Riftbound France Cup Season 0 #1 (Aug 10th) artwork" [ref=e4583]'
+            - generic [ref=e4584]:
+              - 'generic "Thagor: 1st - Riftbound France Cup Season 0 #1 (Aug 10th)" [ref=e4585]'
+              - generic [ref=e4586]: Rec 29.5 | Competitive - | Meta 16.9 | Price $168.09 | Missing 7
+              - generic [ref=e4587]:
+                - button "View" [ref=e4588] [cursor=pointer]
+                - button "Save" [ref=e4589] [cursor=pointer]
+          - article [ref=e4590]:
+            - generic [ref=e4591]:
+              - generic [ref=e4592]: Missing 13
+              - img "Runes and Rift Weekly - Jan 14th - 4th Place - NATUREAL artwork" [ref=e4593]
+            - generic [ref=e4594]:
+              - generic "Runes and Rift Weekly - Jan 14th - 4th Place - NATUREAL" [ref=e4595]
+              - generic [ref=e4596]: Rec 29.4 | Competitive - | Meta 24.8 | Price $445.50 | Missing 13
+              - generic [ref=e4597]:
+                - button "View" [ref=e4598] [cursor=pointer]
+                - button "Save" [ref=e4599] [cursor=pointer]
+          - article [ref=e4600]:
+            - generic [ref=e4601]:
+              - generic [ref=e4602]: Missing 10
+              - img "1st Place Viktor Hook Skirmish artwork" [ref=e4603]
+            - generic [ref=e4604]:
+              - generic "1st Place Viktor Hook Skirmish" [ref=e4605]
+              - generic [ref=e4606]: Rec 29.4 | Competitive - | Meta 20.8 | Price $186.40 | Missing 10
+              - generic [ref=e4607]:
+                - button "View" [ref=e4608] [cursor=pointer]
+                - button "Save" [ref=e4609] [cursor=pointer]
+          - article [ref=e4610]:
+            - generic [ref=e4611]:
+              - generic [ref=e4612]: Missing 9
+              - img "Viktor Commander Set 1 artwork" [ref=e4613]
+            - generic [ref=e4614]:
+              - generic "Viktor Commander Set 1" [ref=e4615]
+              - generic [ref=e4616]: Rec 29.3 | Competitive - | Meta 19.3 | Price $175.94 | Missing 9
+              - generic [ref=e4617]:
+                - button "View" [ref=e4618] [cursor=pointer]
+                - button "Save" [ref=e4619] [cursor=pointer]
+          - article [ref=e4620]:
+            - generic [ref=e4621]:
+              - generic [ref=e4622]: Missing 10
+              - img "Set 1 Blue Vik artwork" [ref=e4623]
+            - generic [ref=e4624]:
+              - generic "Set 1 Blue Vik" [ref=e4625]
+              - generic [ref=e4626]: Rec 29.2 | Competitive - | Meta 20.4 | Price $116.72 | Missing 10
+              - generic [ref=e4627]:
+                - button "View" [ref=e4628] [cursor=pointer]
+                - button "Save" [ref=e4629] [cursor=pointer]
+          - article [ref=e4630]:
+            - generic [ref=e4631]:
+              - generic [ref=e4632]: Missing 15
+              - 'img "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 4 (赤月星宿) artwork" [ref=e4633]'
+            - generic [ref=e4634]:
+              - 'generic "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 4 (赤月星宿)" [ref=e4635]'
+              - generic [ref=e4636]: Rec 29.1 | Competitive - | Meta 27.6 | Price $376.51 | Missing 15
+              - generic [ref=e4637]:
+                - button "View" [ref=e4638] [cursor=pointer]
+                - button "Save" [ref=e4639] [cursor=pointer]
+          - article [ref=e4640]:
+            - generic [ref=e4641]:
+              - generic [ref=e4642]: Missing 12
+              - img "Irelia - Blade Dancer Deck artwork" [ref=e4643]
+            - generic [ref=e4644]:
+              - generic "Irelia - Blade Dancer Deck" [ref=e4645]
+              - generic [ref=e4646]: Rec 29.0 | Competitive - | Meta 23.6 | Price $517.68 | Missing 12
+              - generic [ref=e4647]:
+                - button "View" [ref=e4648] [cursor=pointer]
+                - button "Save" [ref=e4649] [cursor=pointer]
+          - article [ref=e4650]:
+            - generic [ref=e4651]:
+              - generic [ref=e4652]: Missing 13
+              - img "Irelia day 1 artwork" [ref=e4653]
+            - generic [ref=e4654]:
+              - generic "Irelia day 1" [ref=e4655]
+              - generic [ref=e4656]: Rec 28.8 | Competitive - | Meta 24.5 | Price $589.27 | Missing 13
+              - generic [ref=e4657]:
+                - button "View" [ref=e4658] [cursor=pointer]
+                - button "Save" [ref=e4659] [cursor=pointer]
+          - article [ref=e4660]:
+            - generic [ref=e4661]:
+              - generic [ref=e4662]: Missing 4
+              - img "Fiora Starter Deck artwork" [ref=e4663]
+            - generic [ref=e4664]:
+              - generic "Fiora Starter Deck" [ref=e4665]
+              - generic [ref=e4666]: Rec 28.7 | Competitive - | Meta 13.1 | Price $93.13 | Missing 4
+              - generic [ref=e4667]:
+                - button "View" [ref=e4668] [cursor=pointer]
+                - button "Save" [ref=e4669] [cursor=pointer]
+          - article [ref=e4670]:
+            - generic [ref=e4671]:
+              - generic [ref=e4672]: Missing 4
+              - img "Jinx Spiritforged artwork" [ref=e4673]
+            - generic [ref=e4674]:
+              - generic "Jinx Spiritforged" [ref=e4675]
+              - generic [ref=e4676]: Rec 28.7 | Competitive - | Meta 13.1 | Price $326.10 | Missing 4
+              - generic [ref=e4677]:
+                - button "View" [ref=e4678] [cursor=pointer]
+                - button "Save" [ref=e4679] [cursor=pointer]
+          - article [ref=e4680]:
+            - generic [ref=e4681]:
+              - generic [ref=e4682]: Missing 14
+              - img "Purple draven control artwork" [ref=e4683]
+            - generic [ref=e4684]:
+              - generic "Purple draven control" [ref=e4685]
+              - generic [ref=e4686]: Rec 28.7 | Competitive - | Meta 25.4 | Price $557.54 | Missing 14
+              - generic [ref=e4687]:
+                - button "View" [ref=e4688] [cursor=pointer]
+                - button "Save" [ref=e4689] [cursor=pointer]
+          - article [ref=e4690]:
+            - generic [ref=e4691]:
+              - generic [ref=e4692]: Missing 5
+              - 'img "Migan: 3rd - Riftbound Meta Weekly (Jul 26th) artwork" [ref=e4693]'
+            - generic [ref=e4694]:
+              - 'generic "Migan: 3rd - Riftbound Meta Weekly (Jul 26th)" [ref=e4695]'
+              - generic [ref=e4696]: Rec 28.6 | Competitive - | Meta 14.3 | Price $247.97 | Missing 5
+              - generic [ref=e4697]:
+                - button "View" [ref=e4698] [cursor=pointer]
+                - button "Save" [ref=e4699] [cursor=pointer]
+          - article [ref=e4700]:
+            - generic [ref=e4701]:
+              - generic [ref=e4702]: Missing 9
+              - img "Viktor - Herald of the Arcane Deck - copy 2 artwork" [ref=e4703]
+            - generic [ref=e4704]:
+              - generic "Viktor - Herald of the Arcane Deck - copy 2" [ref=e4705]
+              - generic [ref=e4706]: Rec 28.5 | Competitive - | Meta 18.9 | Price $139.82 | Missing 9
+              - generic [ref=e4707]:
+                - button "View" [ref=e4708] [cursor=pointer]
+                - button "Save" [ref=e4709] [cursor=pointer]
+          - article [ref=e4710]:
+            - generic [ref=e4711]:
+              - generic [ref=e4712]: Missing 4
+              - img "vikktor wishlist artwork" [ref=e4713]
+            - generic [ref=e4714]:
+              - generic "vikktor wishlist" [ref=e4715]
+              - generic [ref=e4716]: Rec 28.4 | Competitive - | Meta 13.0 | Price $48.53 | Missing 4
+              - generic [ref=e4717]:
+                - button "View" [ref=e4718] [cursor=pointer]
+                - button "Save" [ref=e4719] [cursor=pointer]
+          - article [ref=e4720]:
+            - generic [ref=e4721]:
+              - generic [ref=e4722]: Missing 6
+              - img "Yone? artwork" [ref=e4723]
+            - generic [ref=e4724]:
+              - generic "Yone?" [ref=e4725]
+              - generic [ref=e4726]: Rec 28.4 | Competitive - | Meta 15.8 | Price $141.44 | Missing 6
+              - generic [ref=e4727]:
+                - button "View" [ref=e4728] [cursor=pointer]
+                - button "Save" [ref=e4729] [cursor=pointer]
+          - article [ref=e4730]:
+            - generic [ref=e4731]:
+              - generic [ref=e4732]: Missing 4
+              - img "Viktor skrimish list 12/13/25 artwork" [ref=e4733]
+            - generic [ref=e4734]:
+              - generic "Viktor skrimish list 12/13/25" [ref=e4735]
+              - generic [ref=e4736]: Rec 28.3 | Competitive - | Meta 12.7 | Price $36.47 | Missing 4
+              - generic [ref=e4737]:
+                - button "View" [ref=e4738] [cursor=pointer]
+                - button "Save" [ref=e4739] [cursor=pointer]
+          - article [ref=e4740]:
+            - generic [ref=e4741]:
+              - generic [ref=e4742]: Missing 5
+              - img "MilkWorldGlobal&#x27;s Warpless Ahri artwork" [ref=e4743]
+            - generic [ref=e4744]:
+              - generic "MilkWorldGlobal&#x27;s Warpless Ahri" [ref=e4745]
+              - generic [ref=e4746]: Rec 28.1 | Competitive - | Meta 13.9 | Price $219.62 | Missing 5
+              - generic [ref=e4747]:
+                - button "View" [ref=e4748] [cursor=pointer]
+                - button "Save" [ref=e4749] [cursor=pointer]
+          - article [ref=e4750]:
+            - generic [ref=e4751]:
+              - generic [ref=e4752]: Missing 13
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4753]
+            - generic [ref=e4754]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4755]
+              - generic [ref=e4756]: Rec 28.1 | Competitive - | Meta 24.4 | Price $516.98 | Missing 13
+              - generic [ref=e4757]:
+                - button "View" [ref=e4758] [cursor=pointer]
+                - button "Save" [ref=e4759] [cursor=pointer]
+          - article [ref=e4760]:
+            - generic [ref=e4761]:
+              - generic [ref=e4762]: Missing 8
+              - 'img "Bologna #50 - Rocklho artwork" [ref=e4763]'
+            - generic [ref=e4764]:
+              - 'generic "Bologna #50 - Rocklho" [ref=e4765]'
+              - generic [ref=e4766]: Rec 28.1 | Competitive - | Meta 17.4 | Price $204.25 | Missing 8
+              - generic [ref=e4767]:
+                - button "View" [ref=e4768] [cursor=pointer]
+                - button "Save" [ref=e4769] [cursor=pointer]
+          - article [ref=e4770]:
+            - generic [ref=e4771]:
+              - generic [ref=e4772]: Missing 8
+              - 'img "KiriLeJungler: 5-8th - Riftbound France Cup Season 0 #1 (Aug 10th) artwork" [ref=e4773]'
+            - generic [ref=e4774]:
+              - 'generic "KiriLeJungler: 5-8th - Riftbound France Cup Season 0 #1 (Aug 10th)" [ref=e4775]'
+              - generic [ref=e4776]: Rec 28.1 | Competitive - | Meta 17.4 | Price $250.14 | Missing 8
+              - generic [ref=e4777]:
+                - button "View" [ref=e4778] [cursor=pointer]
+                - button "Save" [ref=e4779] [cursor=pointer]
+          - article [ref=e4780]:
+            - generic [ref=e4781]:
+              - generic [ref=e4782]: Missing 4
+              - img "Origins Ahri Semi Budget artwork" [ref=e4783]
+            - generic [ref=e4784]:
+              - generic "Origins Ahri Semi Budget" [ref=e4785]
+              - generic [ref=e4786]: Rec 27.9 | Competitive - | Meta 12.8 | Price $185.98 | Missing 4
+              - generic [ref=e4787]:
+                - button "View" [ref=e4788] [cursor=pointer]
+                - button "Save" [ref=e4789] [cursor=pointer]
+          - article [ref=e4790]:
+            - generic [ref=e4791]:
+              - generic [ref=e4792]: Missing 5
+              - img "Tempo Viktor - Skirmish Ready artwork" [ref=e4793]
+            - generic [ref=e4794]:
+              - generic "Tempo Viktor - Skirmish Ready" [ref=e4795]
+              - generic [ref=e4796]: Rec 27.8 | Competitive - | Meta 13.7 | Price $39.31 | Missing 5
+              - generic [ref=e4797]:
+                - button "View" [ref=e4798] [cursor=pointer]
+                - button "Save" [ref=e4799] [cursor=pointer]
+          - article [ref=e4800]:
+            - generic [ref=e4801]:
+              - generic [ref=e4802]: Missing 4
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4803]
+            - generic [ref=e4804]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4805]
+              - generic [ref=e4806]: Rec 27.7 | Competitive - | Meta 12.7 | Price $93.89 | Missing 4
+              - generic [ref=e4807]:
+                - button "View" [ref=e4808] [cursor=pointer]
+                - button "Save" [ref=e4809] [cursor=pointer]
+          - article [ref=e4810]:
+            - generic [ref=e4811]:
+              - generic [ref=e4812]: Missing 8
+              - 'img "10kTurnips: 5-8th - Riftbound Meta Weekly (Aug 10th) artwork" [ref=e4813]'
+            - generic [ref=e4814]:
+              - 'generic "10kTurnips: 5-8th - Riftbound Meta Weekly (Aug 10th)" [ref=e4815]'
+              - generic [ref=e4816]: Rec 27.6 | Competitive - | Meta 17.3 | Price $73.55 | Missing 8
+              - generic [ref=e4817]:
+                - button "View" [ref=e4818] [cursor=pointer]
+                - button "Save" [ref=e4819] [cursor=pointer]
+          - article [ref=e4820]:
+            - generic [ref=e4821]:
+              - generic [ref=e4822]: Missing 8
+              - img "Viktor Herald of the Arcane Deck artwork" [ref=e4823]
+            - generic [ref=e4824]:
+              - generic "Viktor Herald of the Arcane Deck" [ref=e4825]
+              - generic [ref=e4826]: Rec 27.5 | Competitive - | Meta 17.3 | Price $78.38 | Missing 8
+              - generic [ref=e4827]:
+                - button "View" [ref=e4828] [cursor=pointer]
+                - button "Save" [ref=e4829] [cursor=pointer]
+          - article [ref=e4830]:
+            - generic [ref=e4831]:
+              - generic [ref=e4832]: Missing 13
+              - img "Ezreal - Prodigal Explorer Deck artwork" [ref=e4833]
+            - generic [ref=e4834]:
+              - generic "Ezreal - Prodigal Explorer Deck" [ref=e4835]
+              - generic [ref=e4836]: Rec 27.5 | Competitive - | Meta 23.5 | Price $541.98 | Missing 13
+              - generic [ref=e4837]:
+                - button "View" [ref=e4838] [cursor=pointer]
+                - button "Save" [ref=e4839] [cursor=pointer]
+          - article [ref=e4840]:
+            - generic [ref=e4841]:
+              - generic [ref=e4842]: Missing 14
+              - img "rat ezreal artwork" [ref=e4843]
+            - generic [ref=e4844]:
+              - generic "rat ezreal" [ref=e4845]
+              - generic [ref=e4846]: Rec 27.4 | Competitive - | Meta 25.1 | Price $470.74 | Missing 14
+              - generic [ref=e4847]:
+                - button "View" [ref=e4848] [cursor=pointer]
+                - button "Save" [ref=e4849] [cursor=pointer]
+          - article [ref=e4850]:
+            - generic [ref=e4851]:
+              - generic [ref=e4852]: Missing 10
+              - img "Viktor - 38th Place Chinese National Open artwork" [ref=e4853]
+            - generic [ref=e4854]:
+              - generic "Viktor - 38th Place Chinese National Open" [ref=e4855]
+              - generic [ref=e4856]: Rec 27.4 | Competitive - | Meta 20.1 | Price $121.56 | Missing 10
+              - generic [ref=e4857]:
+                - button "View" [ref=e4858] [cursor=pointer]
+                - button "Save" [ref=e4859] [cursor=pointer]
+          - article [ref=e4860]:
+            - generic [ref=e4861]:
+              - generic [ref=e4862]: Missing 7
+              - img "[Set 2] Azir artwork" [ref=e4863]
+            - generic [ref=e4864]:
+              - generic "[Set 2] Azir" [ref=e4865]
+              - generic [ref=e4866]: Rec 27.4 | Competitive - | Meta 15.7 | Price $127.62 | Missing 7
+              - generic [ref=e4867]:
+                - button "View" [ref=e4868] [cursor=pointer]
+                - button "Save" [ref=e4869] [cursor=pointer]
+          - article [ref=e4870]:
+            - generic [ref=e4871]:
+              - generic [ref=e4872]: Missing 15
+              - 'img "Bologna #7 - M4rcus99 artwork" [ref=e4873]'
+            - generic [ref=e4874]:
+              - 'generic "Bologna #7 - M4rcus99" [ref=e4875]'
+              - generic [ref=e4876]: Rec 27.3 | Competitive - | Meta 26.4 | Price $362.96 | Missing 15
+              - generic [ref=e4877]:
+                - button "View" [ref=e4878] [cursor=pointer]
+                - button "Save" [ref=e4879] [cursor=pointer]
+          - article [ref=e4880]:
+            - generic [ref=e4881]:
+              - generic [ref=e4882]: Missing 4
+              - img "Jinx Premade Origins Champion Deck artwork" [ref=e4883]
+            - generic [ref=e4884]:
+              - generic "Jinx Premade Origins Champion Deck" [ref=e4885]
+              - generic [ref=e4886]: Rec 27.3 | Competitive - | Meta 12.7 | Price $297.75 | Missing 4
+              - generic [ref=e4887]:
+                - button "View" [ref=e4888] [cursor=pointer]
+                - button "Save" [ref=e4889] [cursor=pointer]
+          - article [ref=e4890]:
+            - generic [ref=e4891]:
+              - generic [ref=e4892]: Missing 14
+              - img "Control Ezreal (WIP) artwork" [ref=e4893]
+            - generic [ref=e4894]:
+              - generic "Control Ezreal (WIP)" [ref=e4895]
+              - generic [ref=e4896]: Rec 27.3 | Competitive - | Meta 25.0 | Price $454.34 | Missing 14
+              - generic [ref=e4897]:
+                - button "View" [ref=e4898] [cursor=pointer]
+                - button "Save" [ref=e4899] [cursor=pointer]
+          - article [ref=e4900]:
+            - generic [ref=e4901]:
+              - generic [ref=e4902]: Missing 7
+              - 'img "【City Challenge】Chengdu Station - #15 artwork" [ref=e4903]'
+            - generic [ref=e4904]:
+              - 'generic "【City Challenge】Chengdu Station - #15" [ref=e4905]'
+              - generic [ref=e4906]: Rec 27.3 | Competitive - | Meta 15.8 | Price $167.69 | Missing 7
+              - generic [ref=e4907]:
+                - button "View" [ref=e4908] [cursor=pointer]
+                - button "Save" [ref=e4909] [cursor=pointer]
+          - article [ref=e4910]:
+            - generic [ref=e4911]:
+              - generic [ref=e4912]: Missing 15
+              - 'img "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 8 (Trails) artwork" [ref=e4913]'
+            - generic [ref=e4914]:
+              - 'generic "Irelia, Blade Dancer: S2 Regional Open Fuzhou Top 8 (Trails)" [ref=e4915]'
+              - generic [ref=e4916]: Rec 27.2 | Competitive - | Meta 26.6 | Price $376.70 | Missing 15
+              - generic [ref=e4917]:
+                - button "View" [ref=e4918] [cursor=pointer]
+                - button "Save" [ref=e4919] [cursor=pointer]
+          - article [ref=e4920]:
+            - generic [ref=e4921]:
+              - generic [ref=e4922]: Missing 2
+              - img "Viktor Budget artwork" [ref=e4923]
+            - generic [ref=e4924]:
+              - generic "Viktor Budget" [ref=e4925]
+              - generic [ref=e4926]: Rec 27.1 | Competitive - | Meta 10.0 | Price $16.04 | Missing 2
+              - generic [ref=e4927]:
+                - button "View" [ref=e4928] [cursor=pointer]
+                - button "Save" [ref=e4929] [cursor=pointer]
+          - article [ref=e4930]:
+            - generic [ref=e4931]:
+              - generic [ref=e4932]: Missing 7
+              - img "Viktor - Herald of the Arcane Deck artwork" [ref=e4933]
+            - generic [ref=e4934]:
+              - generic "Viktor - Herald of the Arcane Deck" [ref=e4935]
+              - generic [ref=e4936]: Rec 27.1 | Competitive - | Meta 15.8 | Price $70.70 | Missing 7
+              - generic [ref=e4937]:
+                - button "View" [ref=e4938] [cursor=pointer]
+                - button "Save" [ref=e4939] [cursor=pointer]
+          - article [ref=e4940]:
+            - generic [ref=e4941]:
+              - generic [ref=e4942]: Missing 6
+              - img "Yi - SFD - Midrange artwork" [ref=e4943]
+            - generic [ref=e4944]:
+              - generic "Yi - SFD - Midrange" [ref=e4945]
+              - generic [ref=e4946]: Rec 27.1 | Competitive - | Meta 14.9 | Price $286.42 | Missing 6
+              - generic [ref=e4947]:
+                - button "View" [ref=e4948] [cursor=pointer]
+                - button "Save" [ref=e4949] [cursor=pointer]
+          - article [ref=e4950]:
+            - generic [ref=e4951]:
+              - generic [ref=e4952]: Missing 6
+              - img "Azir - Emperor of the Sands Deck artwork" [ref=e4953]
+            - generic [ref=e4954]:
+              - generic "Azir - Emperor of the Sands Deck" [ref=e4955]
+              - generic [ref=e4956]: Rec 27.1 | Competitive - | Meta 14.7 | Price $133.06 | Missing 6
+              - generic [ref=e4957]:
+                - button "View" [ref=e4958] [cursor=pointer]
+                - button "Save" [ref=e4959] [cursor=pointer]
+          - article [ref=e4960]:
+            - generic [ref=e4961]:
+              - generic [ref=e4962]: Missing 8
+              - img "Irelia v1 artwork" [ref=e4963]
+            - generic [ref=e4964]:
+              - generic "Irelia v1" [ref=e4965]
+              - generic [ref=e4966]: Rec 27.1 | Competitive - | Meta 17.6 | Price $239.05 | Missing 8
+              - generic [ref=e4967]:
+                - button "View" [ref=e4968] [cursor=pointer]
+                - button "Save" [ref=e4969] [cursor=pointer]
+          - article [ref=e4970]:
+            - generic [ref=e4971]:
+              - generic [ref=e4972]: Missing 11
+              - img "Big Vik Energy artwork" [ref=e4973]
+            - generic [ref=e4974]:
+              - generic "Big Vik Energy" [ref=e4975]
+              - generic [ref=e4976]: Rec 27.0 | Competitive - | Meta 20.6 | Price $184.07 | Missing 11
+              - generic [ref=e4977]:
+                - button "View" [ref=e4978] [cursor=pointer]
+                - button "Save" [ref=e4979] [cursor=pointer]
+          - article [ref=e4980]:
+            - generic [ref=e4981]:
+              - generic [ref=e4982]: Missing 8
+              - 'img "Gadzior: 1st - Riftbound Meta Weekly (Aug 2nd) artwork" [ref=e4983]'
+            - generic [ref=e4984]:
+              - 'generic "Gadzior: 1st - Riftbound Meta Weekly (Aug 2nd)" [ref=e4985]'
+              - generic [ref=e4986]: Rec 27.0 | Competitive - | Meta 17.1 | Price $70.55 | Missing 8
+              - generic [ref=e4987]:
+                - button "View" [ref=e4988] [cursor=pointer]
+                - button "Save" [ref=e4989] [cursor=pointer]
+          - article [ref=e4990]:
+            - generic [ref=e4991]:
+              - generic [ref=e4992]: Buildable
+              - img "Ahri - Nine-Tailed Fox Deck artwork" [ref=e4993]
+            - generic [ref=e4994]:
+              - generic "Ahri - Nine-Tailed Fox Deck" [ref=e4995]
+              - generic [ref=e4996]: Rec 26.9 | Competitive - | Meta 7.4 | Price $52.14 | Buildable
+              - generic [ref=e4997]:
+                - button "View" [ref=e4998] [cursor=pointer]
+                - button "Save" [ref=e4999] [cursor=pointer]
+          - article [ref=e5000]:
+            - generic [ref=e5001]:
+              - generic [ref=e5002]: Missing 11
+              - img "Old Viktor artwork" [ref=e5003]
+            - generic [ref=e5004]:
+              - generic "Old Viktor" [ref=e5005]
+              - generic [ref=e5006]: Rec 26.7 | Competitive - | Meta 20.7 | Price $157.73 | Missing 11
+              - generic [ref=e5007]:
+                - button "View" [ref=e5008] [cursor=pointer]
+                - button "Save" [ref=e5009] [cursor=pointer]
+          - article [ref=e5010]:
+            - generic [ref=e5011]:
+              - generic [ref=e5012]: Missing 3
+              - img "Cheap Kai'sa artwork" [ref=e5013]
+            - generic [ref=e5014]:
+              - generic "Cheap Kai'sa" [ref=e5015]
+              - generic [ref=e5016]: Rec 26.7 | Competitive - | Meta 10.7 | Price $47.43 | Missing 3
+              - generic [ref=e5017]:
+                - button "View" [ref=e5018] [cursor=pointer]
+                - button "Save" [ref=e5019] [cursor=pointer]
+          - article [ref=e5020]:
+            - generic [ref=e5021]:
+              - generic [ref=e5022]: Missing 1
+              - img "Lucian my version artwork" [ref=e5023]
+            - generic [ref=e5024]:
+              - generic "Lucian my version" [ref=e5025]
+              - generic [ref=e5026]: Rec 26.7 | Competitive - | Meta 8.8 | Price $141.66 | Missing 1
+              - generic [ref=e5027]:
+                - button "View" [ref=e5028] [cursor=pointer]
+                - button "Save" [ref=e5029] [cursor=pointer]
+          - article [ref=e5030]:
+            - generic [ref=e5031]:
+              - generic [ref=e5032]: Missing 7
+              - img "Viktor - Herald of the Arcane Deck artwork" [ref=e5033]
+            - generic [ref=e5034]:
+              - generic "Viktor - Herald of the Arcane Deck" [ref=e5035]
+              - generic [ref=e5036]: Rec 26.6 | Competitive - | Meta 15.6 | Price $70.04 | Missing 7
+              - generic [ref=e5037]:
+                - button "View" [ref=e5038] [cursor=pointer]
+                - button "Save" [ref=e5039] [cursor=pointer]
+          - article [ref=e5040]:
+            - generic [ref=e5041]:
+              - generic [ref=e5042]: Missing 11
+              - img "Viktor Sacrifice artwork" [ref=e5043]
+            - generic [ref=e5044]:
+              - generic "Viktor Sacrifice" [ref=e5045]
+              - generic [ref=e5046]: Rec 26.6 | Competitive - | Meta 20.6 | Price $144.49 | Missing 11
+              - generic [ref=e5047]:
+                - button "View" [ref=e5048] [cursor=pointer]
+                - button "Save" [ref=e5049] [cursor=pointer]
+          - article [ref=e5050]:
+            - generic [ref=e5051]:
+              - generic [ref=e5052]: Missing 14
+              - 'img "【City Challenge】Tianjin Station - #3 artwork" [ref=e5053]'
+            - generic [ref=e5054]:
+              - 'generic "【City Challenge】Tianjin Station - #3" [ref=e5055]'
+              - generic [ref=e5056]: Rec 26.5 | Competitive - | Meta 24.9 | Price $450.50 | Missing 14
+              - generic [ref=e5057]:
+                - button "View" [ref=e5058] [cursor=pointer]
+                - button "Save" [ref=e5059] [cursor=pointer]
+          - article [ref=e5060]:
+            - generic [ref=e5061]:
+              - generic [ref=e5062]: Missing 15
+              - img "Chinese Miracle Draven artwork" [ref=e5063]
+            - generic [ref=e5064]:
+              - generic "Chinese Miracle Draven" [ref=e5065]
+              - generic [ref=e5066]: Rec 26.4 | Competitive - | Meta 25.6 | Price $524.06 | Missing 15
+              - generic [ref=e5067]:
+                - button "View" [ref=e5068] [cursor=pointer]
+                - button "Save" [ref=e5069] [cursor=pointer]
+          - article [ref=e5070]:
+            - generic [ref=e5071]:
+              - generic [ref=e5072]: Missing 10
+              - img "Willow&#x27;s Viktor Swarm [Mono Swarm] artwork" [ref=e5073]
+            - generic [ref=e5074]:
+              - generic "Willow&#x27;s Viktor Swarm [Mono Swarm]" [ref=e5075]
+              - generic [ref=e5076]: Rec 26.3 | Competitive - | Meta 19.6 | Price $124.36 | Missing 10
+              - generic [ref=e5077]:
+                - button "View" [ref=e5078] [cursor=pointer]
+                - button "Save" [ref=e5079] [cursor=pointer]
+          - article [ref=e5080]:
+            - generic [ref=e5081]:
+              - generic [ref=e5082]: Missing 15
+              - img "Best-Of Ezreal - 29th Place - Fuzhou Regional Open artwork" [ref=e5083]
+            - generic [ref=e5084]:
+              - generic "Best-Of Ezreal - 29th Place - Fuzhou Regional Open" [ref=e5085]
+              - generic [ref=e5086]: Rec 26.3 | Competitive - | Meta 26.1 | Price $510.55 | Missing 15
+              - generic [ref=e5087]:
+                - button "View" [ref=e5088] [cursor=pointer]
+                - button "Save" [ref=e5089] [cursor=pointer]
+          - article [ref=e5090]:
+            - generic [ref=e5091]:
+              - generic [ref=e5092]: Missing 14
+              - img "SF Windrider artwork" [ref=e5093]
+            - generic [ref=e5094]:
+              - generic "SF Windrider" [ref=e5095]
+              - generic [ref=e5096]: Rec 26.2 | Competitive - | Meta 25.0 | Price $542.94 | Missing 14
+              - generic [ref=e5097]:
+                - button "View" [ref=e5098] [cursor=pointer]
+                - button "Save" [ref=e5099] [cursor=pointer]
+          - article [ref=e5100]:
+            - generic [ref=e5101]:
+              - generic [ref=e5102]: Missing 10
+              - img "Viktor - Herald of the Arcane Deck artwork" [ref=e5103]
+            - generic [ref=e5104]:
+              - generic "Viktor - Herald of the Arcane Deck" [ref=e5105]
+              - generic [ref=e5106]: Rec 26.1 | Competitive - | Meta 19.2 | Price $126.05 | Missing 10
+              - generic [ref=e5107]:
+                - button "View" [ref=e5108] [cursor=pointer]
+                - button "Save" [ref=e5109] [cursor=pointer]
+          - article [ref=e5110]:
+            - generic [ref=e5111]:
+              - generic [ref=e5112]: Missing 14
+              - img "Irelia - Blade Dancer Deck artwork" [ref=e5113]
+            - generic [ref=e5114]:
+              - generic "Irelia - Blade Dancer Deck" [ref=e5115]
+              - generic [ref=e5116]: Rec 26.1 | Competitive - | Meta 24.4 | Price $520.68 | Missing 14
+              - generic [ref=e5117]:
+                - button "View" [ref=e5118] [cursor=pointer]
+                - button "Save" [ref=e5119] [cursor=pointer]
+      - generic [ref=e3873]:
+        - heading "Validation and Analysis" [level=2] [ref=e3874]
+        - generic [ref=e3875]:
+          - generic [ref=e3876]:
+            - heading "Rule Validation" [level=3] [ref=e3877]
+            - generic [ref=e5120]:
+              - generic [ref=e5121]:
+                - generic [ref=e5122]: Illegal
+                - generic [ref=e5123]: 5 issue(s) found.
+              - generic [ref=e5124]:
+                - generic [ref=e5125]:
+                  - generic [ref=e5126]: Issues
+                  - strong [ref=e5127]: "5"
+                - generic [ref=e5128]:
+                  - generic [ref=e5129]: Rule Codes
+                  - strong [ref=e5130]: "5"
+                - generic [ref=e5131]:
+                  - generic [ref=e5132]: Rule Refs
+                  - strong [ref=e5133]: "6"
+              - generic [ref=e5134]:
+                - generic [ref=e5135]:
+                  - generic [ref=e5136]:
+                    - text: Battlefields
+                    - generic [ref=e5137]: "1"
+                  - article [ref=e5139]:
+                    - generic [ref=e5141]: BATTLEFIELD_COUNT
+                    - generic [ref=e5142]: Deck must contain exactly 3 battlefields (found 0).
+                    - generic [ref=e5143]:
+                      - generic [ref=e5144]: CR 103.4
+                      - generic [ref=e5145]: TR 402.1
+                - generic [ref=e5146]:
+                  - generic [ref=e5147]:
+                    - text: Chosen Champion
+                    - generic [ref=e5148]: "1"
+                  - article [ref=e5150]:
+                    - generic [ref=e5152]: CHAMPION_REQUIRED
+                    - generic [ref=e5153]: Chosen Champion is required for this format.
+                    - generic [ref=e5154]:
+                      - generic [ref=e5155]: CR 103.2.a
+                      - generic [ref=e5156]: TR 402.1
+                - generic [ref=e5157]:
+                  - generic [ref=e5158]:
+                    - text: Legend
+                    - generic [ref=e5159]: "1"
+                  - article [ref=e5161]:
+                    - generic [ref=e5163]: LEGEND_REQUIRED
+                    - generic [ref=e5164]: Legend is required.
+                    - generic [ref=e5165]:
+                      - generic [ref=e5166]: CR 103.1
+                      - generic [ref=e5167]: TR 402.1
+                - generic [ref=e5168]:
+                  - generic [ref=e5169]:
+                    - text: Main Deck
+                    - generic [ref=e5170]: "1"
+                  - article [ref=e5172]:
+                    - generic [ref=e5174]: MAIN_DECK_SIZE
+                    - generic [ref=e5175]: Main deck must contain exactly 40 cards (found 0).
+                    - generic [ref=e5176]:
+                      - generic [ref=e5177]: TR 402.1
+                      - generic [ref=e5178]: TR 601.1.b
+                - generic [ref=e5179]:
+                  - generic [ref=e5180]:
+                    - text: Runes
+                    - generic [ref=e5181]: "1"
+                  - article [ref=e5183]:
+                    - generic [ref=e5185]: RUNE_DECK_SIZE
+                    - generic [ref=e5186]: Rune deck must contain exactly 12 cards (found 0).
+                    - generic [ref=e5187]:
+                      - generic [ref=e5188]: CR 103.3
+                      - generic [ref=e5189]: TR 402.1
+          - heading "Collection Analysis" [level=3] [ref=e3880]
+      - generic [ref=e3882]:
+        - heading "Deck Library" [level=2] [ref=e3883]
+        - generic [ref=e3884]:
+          - generic [ref=e3885]:
+            - heading "Built Decks (Reserve Cards)" [level=3] [ref=e3886]
+            - paragraph [ref=e3887]: Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.
+            - generic [ref=e3888]:
+              - 'button "Open Bologna #1 - Alanzq1" [ref=e3889]':
+                - 'img "Bologna #1 - Alanzq1 artwork" [ref=e3891]'
+                - 'generic "Bologna #1 - Alanzq1" [ref=e3893]'
+              - 'button "Open Bologna #3 - krowz" [ref=e3894]':
+                - 'img "Bologna #3 - krowz artwork" [ref=e3896]'
+                - 'generic "Bologna #3 - krowz" [ref=e3898]'
+              - button "Open Sett-Fiora" [ref=e3899]:
+                - img "Sett-Fiora artwork" [ref=e3901]
+                - generic "Sett-Fiora" [ref=e3903]
+              - button "Open VIKTOR! VIKTOOOR!" [ref=e3904]:
+                - img "VIKTOR! VIKTOOOR! artwork" [ref=e3906]
+                - generic "VIKTOR! VIKTOOOR!" [ref=e3908]
+          - generic [ref=e3909]:
+            - heading "Saved Decks" [level=3] [ref=e3910]
+            - paragraph [ref=e3911]: Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.
+            - generic [ref=e3914]:
+              - generic [ref=e3915]: No saved decks yet.
+              - generic [ref=e3916]: Drag built decks here to release reserved cards.

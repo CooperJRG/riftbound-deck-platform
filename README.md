@@ -39,12 +39,69 @@ python run.py
 
 Default URL: `http://127.0.0.1:8010`
 
+## Hourly Meta Index Auto-Refresh
+
+The API can run the full ingest + metascore rebuild pipeline in the background every hour.
+
+PowerShell example:
+
+```powershell
+cd riftbound-deck-platform-v2
+$env:RB_META_AUTO_REFRESH_ENABLED = "1"
+$env:RB_META_AUTO_REFRESH_RUN_ON_STARTUP = "1"
+$env:RB_META_AUTO_REFRESH_INTERVAL_SEC = "3600"
+$env:RB_META_AUTO_REFRESH_TIMEOUT_SEC = "1800"
+$env:RB_META_REFRESH_EXTRA_ARGS = "--price-weight 1.35 --piltover-pages 100 --riftboundgg-pages 40 --riot-bologna-weight 1.1"
+python run.py
+```
+
+What this does:
+- Runs `../scripts/refresh_meta_deck_index.py` on the configured interval.
+- Pulls fresh deck sources and base-card prices.
+- Imports Riot Bologna article decklists as a unique browse source (`source=riot-bologna`).
+- Recomputes metascores (including price contribution) and writes updated artifacts.
+- Reloads the in-memory API meta index immediately after each successful run.
+
+Optional overrides:
+- `RB_META_REFRESH_SCRIPT_PATH`
+- `RB_META_INDEX_PATH`
+- `RB_META_INDEX_CSV_PATH`
+- `RB_BASE_CARD_PRICES_JSON_PATH`
+- `RB_BASE_CARD_PRICES_CSV_PATH`
+- `RB_DECK_SOURCES_CACHE_DIR`
+
+Note: run a single API process for this mode, otherwise each process will run its own hourly job.
+
 ## Tests
 
 ```bash
 cd riftbound-deck-platform-v2
 python -m pytest -q
 ```
+
+## Auto Builder Benchmark
+
+Benchmark the current auto-builder artifact against a freshly trained artifact:
+
+```bash
+cd riftbound-deck-platform-v2
+python scripts/benchmark_auto_builder.py --epochs 1 --torch-device cpu
+```
+
+This prints JSON with:
+- baseline vs newly trained selected win-condition and synergy counts
+- strict-buildable hit-rate and empty-result deltas
+- recommendation latency for both artifacts
+- fresh training wall-clock time
+
+For repeated retrains on a stable corpus, the trainer can reuse previously discovered resolution counts instead of re-running the full NMF and spectral search:
+
+```bash
+cd riftbound-deck-platform-v2
+python scripts/train_auto_builder.py --torch-device cuda --resolution-mode auto
+```
+
+`--resolution-mode auto` reuses the existing artifact's selected counts when the training corpus fingerprint matches. Use `--resolution-mode search` to force a full re-selection pass, or `--reference-artifact <dir>` to reuse counts from a different artifact bundle.
 
 ## Notes
 

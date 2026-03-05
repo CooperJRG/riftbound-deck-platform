@@ -1,0 +1,66 @@
+[
+  {
+    "cluster_id": 0,
+    "label": "Cluster 1: Champion C",
+    "top_cards": [
+      "Champion C"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 1,
+    "label": "Cluster 2: Order Spell",
+    "top_cards": [
+      "Order Spell"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 2,
+    "label": "Cluster 3: Mind Spell",
+    "top_cards": [
+      "Mind Spell"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 3,
+    "label": "Cluster 4: Mind Gear",
+    "top_cards": [
+      "Mind Gear"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 4,
+    "label": "Cluster 5: Order Gear",
+    "top_cards": [
+      "Order Gear"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 5,
+    "label": "Cluster 6: Champion A",
+    "top_cards": [
+      "Champion A"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 6,
+    "label": "Cluster 7: Champion B",
+    "top_cards": [
+      "Champion B"
+    ],
+    "avg_competitive_score": 0.0
+  },
+  {
+    "cluster_id": 7,
+    "label": "Cluster 8: Chaos Spell",
+    "top_cards": [
+      "Chaos Spell"
+    ],
+    "avg_competitive_score": 0.0
+  }
+]

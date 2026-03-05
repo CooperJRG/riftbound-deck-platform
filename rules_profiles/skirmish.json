@@ -1,0 +1,78 @@
+{
+  "format": "skirmish",
+  "description": "Lower-commitment constructed variant for local testing and pickup events.",
+  "source_of_truth": [
+    {
+      "file": "rules/Riftbound Core Rules v1.2.txt",
+      "sections": [
+        "103.1",
+        "103.2",
+        "103.3",
+        "103.4"
+      ]
+    },
+    {
+      "file": "rules/Riftbound tournament rules.txt",
+      "sections": [
+        "402.1",
+        "403",
+        "601.1"
+      ]
+    }
+  ],
+  "constraints": {
+    "legend_required": true,
+    "legend_card_type": "Legend",
+    "chosen_champion_required": true,
+    "champion_super_type": "Champion",
+    "main_deck_size_exact": 30,
+    "rune_count_exact": 6,
+    "battlefield_count_exact": 2,
+    "battlefield_unique_required": true,
+    "main_copy_limit": 2,
+    "combined_main_sideboard_copy_limit": 2,
+    "sideboard_max": 4,
+    "signature_max_total": 2,
+    "domain_identity_enforced": true,
+    "rune_card_type": "Rune",
+    "battlefield_card_type": "Battlefield",
+    "allowed_main_card_types": [
+      "Unit",
+      "Gear",
+      "Spell"
+    ],
+    "allowed_sideboard_card_types": [
+      "Unit",
+      "Gear",
+      "Spell"
+    ]
+  },
+  "rule_refs": {
+    "legend_required": [
+      "CR 103.1",
+      "TR 402.1"
+    ],
+    "chosen_champion_required": [
+      "CR 103.2.a",
+      "TR 402.1"
+    ],
+    "main_deck_size": [
+      "TR 402.1",
+      "TR 601.1.b"
+    ],
+    "rune_count": [
+      "CR 103.3"
+    ],
+    "battlefield_count": [
+      "CR 103.4",
+      "TR 402.1"
+    ],
+    "sideboard_max": [
+      "TR 601.1.c.1"
+    ],
+    "combined_copy_limit": [
+      "TR 403.3",
+      "TR 601.1.c.3"
+    ]
+  }
+}

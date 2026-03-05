@@ -1,0 +1,184 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Invite-only deck building and discovery for the closed beta.
+    - tablist "Workspace" [ref=e8]:
+      - tab "Collection" [ref=e9] [cursor=pointer]
+      - tab "Builder" [ref=e10] [cursor=pointer]
+      - tab "Discover" [active] [selected] [ref=e11] [cursor=pointer]
+      - tab "Auto Builder" [ref=e12] [cursor=pointer]
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - strong [ref=e15]: Admin Tester
+        - generic [ref=e16]: admin@example.test
+      - generic [ref=e17]: Admin
+      - button "Sign Out" [ref=e18] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 2 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 1 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 1 battlefields (found 0)." [ref=e19]:
+      - generic [ref=e21]: Illegal
+  - main [ref=e22]:
+    - complementary [ref=e283]:
+      - generic [ref=e285]:
+        - heading "Discover" [level=2] [ref=e286]
+        - paragraph [ref=e287]: Search the meta index, browse public beta decks, and manage your saved library.
+      - generic [ref=e289]:
+        - tablist "Discover sources" [ref=e290]:
+          - button "Meta Index" [ref=e291] [cursor=pointer]
+          - button "Community" [ref=e292] [cursor=pointer]
+        - generic [ref=e293]:
+          - textbox "Search decks by name, source, legend" [ref=e294]
+          - combobox "Deck search sort" [ref=e295]:
+            - option "Recommendation" [selected]
+            - option "Buildability"
+            - option "Competitive"
+            - option "Meta"
+            - option "Price"
+          - button "Refresh Index" [ref=e296] [cursor=pointer]
+          - button "Load" [ref=e297] [cursor=pointer]
+        - paragraph [ref=e386]: Indexed 7 / 7 rows. Refreshed 3/1/2026, 8:31:56 PM.
+        - generic [ref=e298]:
+          - article [ref=e387]:
+            - generic [ref=e388]:
+              - generic [ref=e389]: Missing 5
+              - img "Meta Deck Four artwork" [ref=e390]
+            - generic [ref=e391]:
+              - generic "Meta Deck Four" [ref=e392]
+              - generic [ref=e393]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e394]:
+                - button "View" [ref=e395] [cursor=pointer]
+                - button "Save to My Decks" [ref=e396] [cursor=pointer]
+          - article [ref=e397]:
+            - generic [ref=e398]:
+              - generic [ref=e399]: Missing 5
+              - img "Meta Deck One artwork" [ref=e400]
+            - generic [ref=e401]:
+              - generic "Meta Deck One" [ref=e402]
+              - generic [ref=e403]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e404]:
+                - button "View" [ref=e405] [cursor=pointer]
+                - button "Save to My Decks" [ref=e406] [cursor=pointer]
+          - article [ref=e407]:
+            - generic [ref=e408]:
+              - generic [ref=e409]: Missing 5
+              - img "Meta Deck One Gear artwork" [ref=e410]
+            - generic [ref=e411]:
+              - generic "Meta Deck One Gear" [ref=e412]
+              - generic [ref=e413]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e414]:
+                - button "View" [ref=e415] [cursor=pointer]
+                - button "Save to My Decks" [ref=e416] [cursor=pointer]
+          - article [ref=e417]:
+            - generic [ref=e418]:
+              - generic [ref=e419]: Missing 5
+              - img "Meta Deck Three artwork" [ref=e420]
+            - generic [ref=e421]:
+              - generic "Meta Deck Three" [ref=e422]
+              - generic [ref=e423]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e424]:
+                - button "View" [ref=e425] [cursor=pointer]
+                - button "Save to My Decks" [ref=e426] [cursor=pointer]
+          - article [ref=e427]:
+            - generic [ref=e428]:
+              - generic [ref=e429]: Missing 5
+              - img "Meta Deck Three Gear artwork" [ref=e430]
+            - generic [ref=e431]:
+              - generic "Meta Deck Three Gear" [ref=e432]
+              - generic [ref=e433]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e434]:
+                - button "View" [ref=e435] [cursor=pointer]
+                - button "Save to My Decks" [ref=e436] [cursor=pointer]
+          - article [ref=e437]:
+            - generic [ref=e438]:
+              - generic [ref=e439]: Missing 5
+              - img "Meta Deck Two artwork" [ref=e440]
+            - generic [ref=e441]:
+              - generic "Meta Deck Two" [ref=e442]
+              - generic [ref=e443]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e444]:
+                - button "View" [ref=e445] [cursor=pointer]
+                - button "Save to My Decks" [ref=e446] [cursor=pointer]
+          - article [ref=e447]:
+            - generic [ref=e448]:
+              - generic [ref=e449]: Missing 5
+              - img "Meta Deck Two Gear artwork" [ref=e450]
+            - generic [ref=e451]:
+              - generic "Meta Deck Two Gear" [ref=e452]
+              - generic [ref=e453]: Rec -11.3 | Competitive 0.0 | Meta - | Price - | Missing 5
+              - generic [ref=e454]:
+                - button "View" [ref=e455] [cursor=pointer]
+                - button "Save to My Decks" [ref=e456] [cursor=pointer]
+      - generic [ref=e299]:
+        - heading "Validation and Analysis" [level=2] [ref=e300]
+        - generic [ref=e301]:
+          - generic [ref=e302]:
+            - heading "Rule Validation" [level=3] [ref=e303]
+            - generic [ref=e305]:
+              - generic [ref=e306]:
+                - generic [ref=e307]: Illegal
+                - generic [ref=e308]: 5 issue(s) found.
+              - generic [ref=e309]:
+                - generic [ref=e310]:
+                  - generic [ref=e311]: Issues
+                  - strong [ref=e312]: "5"
+                - generic [ref=e313]:
+                  - generic [ref=e314]: Rule Codes
+                  - strong [ref=e315]: "5"
+                - generic [ref=e316]:
+                  - generic [ref=e317]: Rule Refs
+                  - strong [ref=e318]: "0"
+              - generic [ref=e319]:
+                - generic [ref=e320]:
+                  - generic [ref=e321]:
+                    - text: Battlefields
+                    - generic [ref=e322]: "1"
+                  - article [ref=e324]:
+                    - generic [ref=e326]: BATTLEFIELD_COUNT
+                    - generic [ref=e327]: Deck must contain exactly 1 battlefields (found 0).
+                - generic [ref=e328]:
+                  - generic [ref=e329]:
+                    - text: Chosen Champion
+                    - generic [ref=e330]: "1"
+                  - article [ref=e332]:
+                    - generic [ref=e334]: CHAMPION_REQUIRED
+                    - generic [ref=e335]: Chosen Champion is required for this format.
+                - generic [ref=e336]:
+                  - generic [ref=e337]:
+                    - text: Legend
+                    - generic [ref=e338]: "1"
+                  - article [ref=e340]:
+                    - generic [ref=e342]: LEGEND_REQUIRED
+                    - generic [ref=e343]: Legend is required.
+                - generic [ref=e344]:
+                  - generic [ref=e345]:
+                    - text: Main Deck
+                    - generic [ref=e346]: "1"
+                  - article [ref=e348]:
+                    - generic [ref=e350]: MAIN_DECK_SIZE
+                    - generic [ref=e351]: Main deck must contain exactly 2 cards (found 0).
+                - generic [ref=e352]:
+                  - generic [ref=e353]:
+                    - text: Runes
+                    - generic [ref=e354]: "1"
+                  - article [ref=e356]:
+                    - generic [ref=e358]: RUNE_DECK_SIZE
+                    - generic [ref=e359]: Rune deck must contain exactly 1 cards (found 0).
+          - heading "Collection Analysis" [level=3] [ref=e361]
+      - generic [ref=e363]:
+        - heading "Deck Library" [level=2] [ref=e364]
+        - generic [ref=e365]:
+          - textbox "Search my decks by name, source, or legend" [ref=e366]
+          - button "Clear" [ref=e367] [cursor=pointer]
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - heading "Built Decks (Reserve Cards)" [level=3] [ref=e370]
+            - paragraph [ref=e371]: Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.
+            - generic [ref=e374]:
+              - generic [ref=e375]: No built decks yet.
+              - generic [ref=e376]: Drag saved decks here to reserve cards.
+          - generic [ref=e377]:
+            - heading "Saved Decks" [level=3] [ref=e378]
+            - paragraph [ref=e379]: Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.
+            - generic [ref=e382]:
+              - generic [ref=e383]: No saved decks yet.
+              - generic [ref=e384]: Drag built decks here to release reserved cards.

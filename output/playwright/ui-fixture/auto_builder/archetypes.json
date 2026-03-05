@@ -1,0 +1,262 @@
+[
+  {
+    "archetype_id": "legenda|championa|mind::1",
+    "shell_id": "legenda|championa|mind",
+    "archetype_name": "Champion A Archetype 1",
+    "legend_title": "Legend A",
+    "chosen_champion_title": "Champion A",
+    "prototype_main": {
+      "championa": 1,
+      "mindspell": 1
+    },
+    "win_condition_vector": [
+      1.0,
+      0.0,
+      0.0,
+      5.97240572969282e-13
+    ],
+    "top_core_cards": [
+      "Champion A",
+      "Mind Spell"
+    ],
+    "top_flex_cards": [],
+    "nearest_seed_decks": [
+      {
+        "source": "meta",
+        "deck_id": "meta-1",
+        "deck_name": "Meta Deck One",
+        "score": 0.0
+      }
+    ],
+    "rune_weights": {
+      "Mind Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Mind Field": 1.0
+    },
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "confidence": 0.7083,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "win_condition_id": 0,
+    "synergy_cluster_ids": [
+      2,
+      7
+    ],
+    "synergy_cluster_labels": [
+      "Cluster 3: Mind Spell",
+      "Cluster 8: Champion A"
+    ]
+  },
+  {
+    "archetype_id": "legenda|championa|mind::2",
+    "shell_id": "legenda|championa|mind",
+    "archetype_name": "Champion A Archetype 2",
+    "legend_title": "Legend A",
+    "chosen_champion_title": "Champion A",
+    "prototype_main": {
+      "championa": 1,
+      "mindgear": 1
+    },
+    "win_condition_vector": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "top_core_cards": [
+      "Champion A",
+      "Mind Gear"
+    ],
+    "top_flex_cards": [],
+    "nearest_seed_decks": [
+      {
+        "source": "meta",
+        "deck_id": "meta-1b",
+        "deck_name": "Meta Deck One Gear",
+        "score": 0.0
+      }
+    ],
+    "rune_weights": {
+      "Mind Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Mind Field": 1.0
+    },
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "confidence": 0.7083,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "win_condition_id": 0,
+    "synergy_cluster_ids": [
+      3,
+      7
+    ],
+    "synergy_cluster_labels": [
+      "Cluster 4: Mind Gear",
+      "Cluster 8: Champion A"
+    ]
+  },
+  {
+    "archetype_id": "legendb|championb|chaos::1",
+    "shell_id": "legendb|championb|chaos",
+    "archetype_name": "Champion B Archetype 1",
+    "legend_title": "Legend B",
+    "chosen_champion_title": "Champion B",
+    "prototype_main": {
+      "championb": 1,
+      "chaosspell": 1
+    },
+    "win_condition_vector": [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    "top_core_cards": [
+      "Champion B",
+      "Chaos Spell"
+    ],
+    "top_flex_cards": [],
+    "nearest_seed_decks": [
+      {
+        "source": "meta",
+        "deck_id": "meta-2",
+        "deck_name": "Meta Deck Two",
+        "score": 0.0
+      }
+    ],
+    "rune_weights": {
+      "Chaos Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Chaos Field": 1.0
+    },
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "confidence": 0.7083,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "win_condition_id": 2,
+    "synergy_cluster_ids": [
+      5,
+      6
+    ],
+    "synergy_cluster_labels": [
+      "Cluster 6: Champion B",
+      "Cluster 7: Chaos Spell"
+    ]
+  },
+  {
+    "archetype_id": "legendc|championc|order::1",
+    "shell_id": "legendc|championc|order",
+    "archetype_name": "Champion C Archetype 1",
+    "legend_title": "Legend C",
+    "chosen_champion_title": "Champion C",
+    "prototype_main": {
+      "championc": 1,
+      "orderspell": 1
+    },
+    "win_condition_vector": [
+      0.0,
+      6.350533658405766e-05,
+      0.0,
+      0.9999364614486694
+    ],
+    "top_core_cards": [
+      "Champion C",
+      "Order Spell"
+    ],
+    "top_flex_cards": [],
+    "nearest_seed_decks": [
+      {
+        "source": "meta",
+        "deck_id": "meta-3",
+        "deck_name": "Meta Deck Three",
+        "score": 0.0
+      }
+    ],
+    "rune_weights": {
+      "Order Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Order Field": 1.0
+    },
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "confidence": 0.7083,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "win_condition_id": 3,
+    "synergy_cluster_ids": [
+      0,
+      1
+    ],
+    "synergy_cluster_labels": [
+      "Cluster 1: Champion C",
+      "Cluster 2: Order Spell"
+    ]
+  },
+  {
+    "archetype_id": "legendc|championc|order::2",
+    "shell_id": "legendc|championc|order",
+    "archetype_name": "Champion C Archetype 2",
+    "legend_title": "Legend C",
+    "chosen_champion_title": "Champion C",
+    "prototype_main": {
+      "championc": 1,
+      "ordergear": 1
+    },
+    "win_condition_vector": [
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    "top_core_cards": [
+      "Champion C",
+      "Order Gear"
+    ],
+    "top_flex_cards": [],
+    "nearest_seed_decks": [
+      {
+        "source": "meta",
+        "deck_id": "meta-3b",
+        "deck_name": "Meta Deck Three Gear",
+        "score": 0.0
+      }
+    ],
+    "rune_weights": {
+      "Order Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Order Field": 1.0
+    },
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "confidence": 0.7083,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "win_condition_id": 1,
+    "synergy_cluster_ids": [
+      0,
+      4
+    ],
+    "synergy_cluster_labels": [
+      "Cluster 1: Champion C",
+      "Cluster 5: Order Gear"
+    ]
+  }
+]

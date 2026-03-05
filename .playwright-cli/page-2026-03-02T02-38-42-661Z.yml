@@ -1,0 +1,129 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Invite-only deck building and discovery for the closed beta.
+    - tablist "Workspace" [ref=e8]:
+      - tab "Collection" [ref=e9] [cursor=pointer]
+      - tab "Builder" [selected] [ref=e10] [cursor=pointer]
+      - tab "Discover" [ref=e11] [cursor=pointer]
+      - tab "Auto Builder" [ref=e12] [cursor=pointer]
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - strong [ref=e15]: Admin Tester
+        - generic [ref=e16]: admin@example.test
+      - generic [ref=e17]: Admin
+      - button "Sign Out" [ref=e18] [cursor=pointer]
+    - generic [ref=e21]: Ready
+  - main [ref=e22]:
+    - tabpanel "Builder" [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - heading "Builder" [level=2] [ref=e27]
+          - paragraph [ref=e28]: Private and public deck editing with legality checks, collection analysis, and ML replacement support.
+        - generic "Deck actions" [ref=e29]:
+          - button "Save Deck" [ref=e30] [cursor=pointer]
+          - button "Export JSON" [ref=e31] [cursor=pointer]
+          - button "Upload / Import" [ref=e32] [cursor=pointer]
+          - button "Clear Deck" [ref=e33] [cursor=pointer]
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - text: Deck Name
+            - textbox "Deck Name" [ref=e38]:
+              - /placeholder: My Deck
+          - generic [ref=e39]:
+            - text: Format
+            - combobox "Deck format" [ref=e40]
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - text: Bucket
+            - combobox "Deck bucket" [ref=e43]:
+              - option "Saved" [selected]
+              - option "Built"
+          - generic [ref=e44]:
+            - text: Visibility
+            - combobox "Deck visibility" [ref=e45]:
+              - option "Private" [selected]
+              - option "Public"
+          - paragraph [ref=e46]: Unsaved changes
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - heading "Legend" [level=3] [ref=e49]
+            - button "Choose Legend" [ref=e50] [cursor=pointer]:
+              - generic [ref=e52]: Choose Legend
+          - generic [ref=e53]:
+            - heading "Chosen Champion" [level=3] [ref=e54]
+            - button "Choose Champion" [ref=e55] [cursor=pointer]:
+              - generic [ref=e57]: Choose Champion
+            - generic [ref=e58]:
+              - button "-" [ref=e59] [cursor=pointer]
+              - generic [ref=e60]: "0"
+              - button "+" [ref=e61] [cursor=pointer]
+          - heading "Runes 0 / 12" [level=3] [ref=e63]:
+            - text: Runes
+            - generic [ref=e64]: 0 / 12
+        - heading "Battlefields" [level=3] [ref=e67]
+        - generic [ref=e69]:
+          - heading "Main Deck 0 / 40" [level=3] [ref=e70]:
+            - text: Main Deck
+            - generic [ref=e71]: 0 / 40
+          - generic [ref=e72]:
+            - button "Analyze vs Collection" [ref=e73] [cursor=pointer]
+            - button "Auto Complete Deck" [ref=e74] [cursor=pointer]
+            - button "Best Replacement Plan" [ref=e75] [cursor=pointer]
+        - generic [ref=e78]:
+          - generic [ref=e79]:
+            - heading "Sideboard 0 / 8" [level=3] [ref=e80]:
+              - text: Sideboard
+              - generic [ref=e81]: 0 / 8
+            - generic [ref=e82]:
+              - textbox "Sideboard card search" [ref=e83]:
+                - /placeholder: Filter sideboard-legal cards
+              - button "Clear" [ref=e84] [cursor=pointer]
+              - button "Add Card" [ref=e85] [cursor=pointer]
+          - paragraph
+        - generic [ref=e87]:
+          - heading "Builder Library 0 cards" [level=3] [ref=e89]:
+            - text: Builder Library
+            - generic [ref=e90]: 0 cards
+          - generic [ref=e92]:
+            - textbox "Filter cards in library" [ref=e93]
+            - button "Clear" [ref=e94] [cursor=pointer]
+    - complementary [ref=e96]:
+      - generic [ref=e98]:
+        - heading "Discover" [level=2] [ref=e99]
+        - paragraph [ref=e100]: Search the meta index, browse public beta decks, and manage your saved library.
+      - generic [ref=e102]:
+        - tablist "Discover sources" [ref=e103]:
+          - button "Meta Index" [ref=e104] [cursor=pointer]
+          - button "Community" [ref=e105] [cursor=pointer]
+        - generic [ref=e106]:
+          - textbox "Search decks by name, source, legend" [ref=e107]
+          - combobox "Deck search sort" [ref=e108]:
+            - option "Recommendation" [selected]
+            - option "Buildability"
+            - option "Competitive"
+            - option "Meta"
+            - option "Price"
+          - button "Refresh Index" [ref=e109] [cursor=pointer]
+          - button "Load" [ref=e110] [cursor=pointer]
+        - paragraph
+      - generic [ref=e112]:
+        - heading "Validation and Analysis" [level=2] [ref=e113]
+        - generic [ref=e114]:
+          - heading "Rule Validation" [level=3] [ref=e116]
+          - heading "Collection Analysis" [level=3] [ref=e119]
+      - generic [ref=e121]:
+        - heading "Deck Library" [level=2] [ref=e122]
+        - generic [ref=e123]:
+          - textbox "Search my decks by name, source, or legend" [ref=e124]
+          - button "Clear" [ref=e125] [cursor=pointer]
+        - generic [ref=e126]:
+          - generic [ref=e127]:
+            - heading "Built Decks (Reserve Cards)" [level=3] [ref=e128]
+            - paragraph [ref=e129]: Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.
+          - generic [ref=e131]:
+            - heading "Saved Decks" [level=3] [ref=e132]
+            - paragraph [ref=e133]: Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.

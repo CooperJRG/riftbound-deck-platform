@@ -1,0 +1,3 @@
+[     439ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:8765/favicon.ico:0
+[   65164ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8765/api/model-observation/models/20260301T041217Z-model-02/promote:0
+[   69073ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://127.0.0.1:8765/assets/skeuo/backgrounds/bg_desk_main_3840x2160.png:0

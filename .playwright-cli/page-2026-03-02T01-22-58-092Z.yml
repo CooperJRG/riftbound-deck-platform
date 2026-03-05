@@ -1,0 +1,798 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Collection-aware deck building.
+    - tablist "Workspace" [ref=e8]:
+      - tab "Collection Browser" [ref=e9] [cursor=pointer]
+      - tab "Manual Mode" [ref=e10] [cursor=pointer]
+      - tab "Auto Builder" [ref=e11] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 40 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 12 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 3 battlefields (found 0)." [ref=e73]:
+      - generic [ref=e14]: Illegal
+  - main [ref=e15]:
+    - tabpanel "Model Observation" [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - heading "Model Observation" [level=2] [ref=e20]
+          - paragraph [ref=e21]: Internal workspace for inspecting model memory, training variants, and production promotion.
+        - generic "Model Observation actions" [ref=e22]:
+          - button "Refresh" [ref=e23] [cursor=pointer]
+          - button "Snapshot Production" [ref=e24] [cursor=pointer]
+      - generic [ref=e26]:
+        - complementary [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]: Notebook
+              - heading "Production Model" [level=3] [ref=e31]
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - article [ref=e76]:
+                  - generic [ref=e77]: Training Decks
+                  - strong [ref=e78]: "0"
+                - article [ref=e79]:
+                  - generic [ref=e80]: Win Conditions
+                  - strong [ref=e81]: "0"
+                - article [ref=e82]:
+                  - generic [ref=e83]: Synergy Clusters
+                  - strong [ref=e84]: "0"
+                - article [ref=e85]:
+                  - generic [ref=e86]: Shells / Archetypes
+                  - strong [ref=e87]: 0 / 0
+              - paragraph [ref=e88]: Production model generated never on cpu.
+              - generic [ref=e90]:
+                - generic [ref=e91]: Sources
+                - strong [ref=e92]: "0"
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]: Vault
+              - heading "Saved Models" [level=3] [ref=e35]
+            - generic [ref=e93]:
+              - article [ref=e94]:
+                - generic [ref=e95]:
+                  - generic [ref=e96]:
+                    - generic [ref=e97]: Tiny Sweep
+                    - generic [ref=e98]: trained | ready | production
+                  - generic [ref=e99]: 4 WC / 8 SC
+                - generic [ref=e100]:
+                  - generic [ref=e101]: 5 decks
+                  - generic [ref=e102]: cpu
+                  - generic [ref=e103]: 3/1/2026, 7:20:52 PM
+                - generic [ref=e104]:
+                  - button "Inspect" [ref=e105] [cursor=pointer]
+                  - button "Live" [disabled] [ref=e106] [cursor=pointer]
+              - article [ref=e107]:
+                - generic [ref=e108]:
+                  - generic [ref=e109]:
+                    - generic [ref=e110]: Snapshot A
+                    - generic [ref=e111]: snapshot | ready
+                  - generic [ref=e112]: 4 WC / 8 SC
+                - generic [ref=e113]:
+                  - generic [ref=e114]: 5 decks
+                  - generic [ref=e115]: cpu
+                  - generic [ref=e116]: 3/1/2026, 7:20:52 PM
+                - generic [ref=e117]:
+                  - button "Inspect" [ref=e118] [cursor=pointer]
+                  - button "Promote" [ref=e119] [cursor=pointer]
+              - article [ref=e120]:
+                - generic [ref=e121]:
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: Tiny Sweep
+                    - generic [ref=e124]: trained | ready
+                  - generic [ref=e125]: 4 WC / 8 SC
+                - generic [ref=e126]:
+                  - generic [ref=e127]: 5 decks
+                  - generic [ref=e128]: cpu
+                  - generic [ref=e129]: 3/1/2026, 7:19:43 PM
+                - generic [ref=e130]:
+                  - button "Inspect" [ref=e131] [cursor=pointer]
+                  - button "Promote" [ref=e132] [cursor=pointer]
+              - article [ref=e133]:
+                - generic [ref=e134]:
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: Snapshot A
+                    - generic [ref=e137]: snapshot | ready
+                  - generic [ref=e138]: 4 WC / 8 SC
+                - generic [ref=e139]:
+                  - generic [ref=e140]: 5 decks
+                  - generic [ref=e141]: cpu
+                  - generic [ref=e142]: 3/1/2026, 7:19:43 PM
+                - generic [ref=e143]:
+                  - button "Inspect" [ref=e144] [cursor=pointer]
+                  - button "Promote" [ref=e145] [cursor=pointer]
+              - article [ref=e146]:
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - generic [ref=e149]: Tiny Sweep
+                    - generic [ref=e150]: trained | ready
+                  - generic [ref=e151]: 4 WC / 8 SC
+                - generic [ref=e152]:
+                  - generic [ref=e153]: 5 decks
+                  - generic [ref=e154]: cpu
+                  - generic [ref=e155]: 3/1/2026, 7:18:41 PM
+                - generic [ref=e156]:
+                  - button "Inspect" [ref=e157] [cursor=pointer]
+                  - button "Promote" [ref=e158] [cursor=pointer]
+              - article [ref=e159]:
+                - generic [ref=e160]:
+                  - generic [ref=e161]:
+                    - generic [ref=e162]: Snapshot A
+                    - generic [ref=e163]: snapshot | ready
+                  - generic [ref=e164]: 4 WC / 8 SC
+                - generic [ref=e165]:
+                  - generic [ref=e166]: 5 decks
+                  - generic [ref=e167]: cpu
+                  - generic [ref=e168]: 3/1/2026, 7:18:41 PM
+                - generic [ref=e169]:
+                  - button "Inspect" [ref=e170] [cursor=pointer]
+                  - button "Promote" [ref=e171] [cursor=pointer]
+              - article [ref=e172]:
+                - generic [ref=e173]:
+                  - generic [ref=e174]:
+                    - generic [ref=e175]: Tiny Sweep
+                    - generic [ref=e176]: trained | ready
+                  - generic [ref=e177]: 4 WC / 8 SC
+                - generic [ref=e178]:
+                  - generic [ref=e179]: 5 decks
+                  - generic [ref=e180]: cpu
+                  - generic [ref=e181]: 3/1/2026, 10:55:55 AM
+                - generic [ref=e182]:
+                  - button "Inspect" [ref=e183] [cursor=pointer]
+                  - button "Promote" [ref=e184] [cursor=pointer]
+              - article [ref=e185]:
+                - generic [ref=e186]:
+                  - generic [ref=e187]:
+                    - generic [ref=e188]: Snapshot A
+                    - generic [ref=e189]: snapshot | ready
+                  - generic [ref=e190]: 4 WC / 8 SC
+                - generic [ref=e191]:
+                  - generic [ref=e192]: 5 decks
+                  - generic [ref=e193]: cpu
+                  - generic [ref=e194]: 3/1/2026, 10:55:55 AM
+                - generic [ref=e195]:
+                  - button "Inspect" [ref=e196] [cursor=pointer]
+                  - button "Promote" [ref=e197] [cursor=pointer]
+              - article [ref=e198]:
+                - generic [ref=e199]:
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: Tiny Sweep
+                    - generic [ref=e202]: trained | ready
+                  - generic [ref=e203]: 4 WC / 8 SC
+                - generic [ref=e204]:
+                  - generic [ref=e205]: 5 decks
+                  - generic [ref=e206]: cpu
+                  - generic [ref=e207]: 3/1/2026, 10:55:40 AM
+                - generic [ref=e208]:
+                  - button "Inspect" [ref=e209] [cursor=pointer]
+                  - button "Promote" [ref=e210] [cursor=pointer]
+              - article [ref=e211]:
+                - generic [ref=e212]:
+                  - generic [ref=e213]:
+                    - generic [ref=e214]: Snapshot A
+                    - generic [ref=e215]: snapshot | ready
+                  - generic [ref=e216]: 4 WC / 8 SC
+                - generic [ref=e217]:
+                  - generic [ref=e218]: 5 decks
+                  - generic [ref=e219]: cpu
+                  - generic [ref=e220]: 3/1/2026, 10:55:40 AM
+                - generic [ref=e221]:
+                  - button "Inspect" [ref=e222] [cursor=pointer]
+                  - button "Promote" [ref=e223] [cursor=pointer]
+              - article [ref=e224]:
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - generic [ref=e227]: Tiny Sweep
+                    - generic [ref=e228]: trained | ready
+                  - generic [ref=e229]: 4 WC / 8 SC
+                - generic [ref=e230]:
+                  - generic [ref=e231]: 5 decks
+                  - generic [ref=e232]: cpu
+                  - generic [ref=e233]: 3/1/2026, 10:55:20 AM
+                - generic [ref=e234]:
+                  - button "Inspect" [ref=e235] [cursor=pointer]
+                  - button "Promote" [ref=e236] [cursor=pointer]
+              - article [ref=e237]:
+                - generic [ref=e238]:
+                  - generic [ref=e239]:
+                    - generic [ref=e240]: Snapshot A
+                    - generic [ref=e241]: snapshot | ready
+                  - generic [ref=e242]: 4 WC / 8 SC
+                - generic [ref=e243]:
+                  - generic [ref=e244]: 5 decks
+                  - generic [ref=e245]: cpu
+                  - generic [ref=e246]: 3/1/2026, 10:53:52 AM
+                - generic [ref=e247]:
+                  - button "Inspect" [ref=e248] [cursor=pointer]
+                  - button "Promote" [ref=e249] [cursor=pointer]
+              - article [ref=e250]:
+                - generic [ref=e251]:
+                  - generic [ref=e252]:
+                    - generic [ref=e253]: Tiny Sweep
+                    - generic [ref=e254]: trained | ready
+                  - generic [ref=e255]: 4 WC / 8 SC
+                - generic [ref=e256]:
+                  - generic [ref=e257]: 5 decks
+                  - generic [ref=e258]: cpu
+                  - generic [ref=e259]: 3/1/2026, 10:52:37 AM
+                - generic [ref=e260]:
+                  - button "Inspect" [ref=e261] [cursor=pointer]
+                  - button "Promote" [ref=e262] [cursor=pointer]
+              - article [ref=e263]:
+                - generic [ref=e264]:
+                  - generic [ref=e265]:
+                    - generic [ref=e266]: Snapshot A
+                    - generic [ref=e267]: snapshot | ready
+                  - generic [ref=e268]: 4 WC / 8 SC
+                - generic [ref=e269]:
+                  - generic [ref=e270]: 5 decks
+                  - generic [ref=e271]: cpu
+                  - generic [ref=e272]: 3/1/2026, 10:52:37 AM
+                - generic [ref=e273]:
+                  - button "Inspect" [ref=e274] [cursor=pointer]
+                  - button "Promote" [ref=e275] [cursor=pointer]
+              - article [ref=e276]:
+                - generic [ref=e277]:
+                  - generic [ref=e278]:
+                    - generic [ref=e279]: Tiny Sweep
+                    - generic [ref=e280]: trained | ready
+                  - generic [ref=e281]: 4 WC / 8 SC
+                - generic [ref=e282]:
+                  - generic [ref=e283]: 5 decks
+                  - generic [ref=e284]: cpu
+                  - generic [ref=e285]: 3/1/2026, 10:24:38 AM
+                - generic [ref=e286]:
+                  - button "Inspect" [ref=e287] [cursor=pointer]
+                  - button "Promote" [ref=e288] [cursor=pointer]
+              - article [ref=e289]:
+                - generic [ref=e290]:
+                  - generic [ref=e291]:
+                    - generic [ref=e292]: Snapshot A
+                    - generic [ref=e293]: snapshot | ready
+                  - generic [ref=e294]: 4 WC / 8 SC
+                - generic [ref=e295]:
+                  - generic [ref=e296]: 5 decks
+                  - generic [ref=e297]: cpu
+                  - generic [ref=e298]: 3/1/2026, 10:24:38 AM
+                - generic [ref=e299]:
+                  - button "Inspect" [ref=e300] [cursor=pointer]
+                  - button "Promote" [ref=e301] [cursor=pointer]
+              - article [ref=e302]:
+                - generic [ref=e303]:
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: Tiny Sweep
+                    - generic [ref=e306]: trained | ready
+                  - generic [ref=e307]: 4 WC / 8 SC
+                - generic [ref=e308]:
+                  - generic [ref=e309]: 5 decks
+                  - generic [ref=e310]: cpu
+                  - generic [ref=e311]: 3/1/2026, 10:22:59 AM
+                - generic [ref=e312]:
+                  - button "Inspect" [ref=e313] [cursor=pointer]
+                  - button "Promote" [ref=e314] [cursor=pointer]
+              - article [ref=e315]:
+                - generic [ref=e316]:
+                  - generic [ref=e317]:
+                    - generic [ref=e318]: Snapshot A
+                    - generic [ref=e319]: snapshot | ready
+                  - generic [ref=e320]: 4 WC / 8 SC
+                - generic [ref=e321]:
+                  - generic [ref=e322]: 5 decks
+                  - generic [ref=e323]: cpu
+                  - generic [ref=e324]: 3/1/2026, 10:22:59 AM
+                - generic [ref=e325]:
+                  - button "Inspect" [ref=e326] [cursor=pointer]
+                  - button "Promote" [ref=e327] [cursor=pointer]
+              - article [ref=e328]:
+                - generic [ref=e329]:
+                  - generic [ref=e330]:
+                    - generic [ref=e331]: Tiny Sweep
+                    - generic [ref=e332]: trained | ready
+                  - generic [ref=e333]: 4 WC / 8 SC
+                - generic [ref=e334]:
+                  - generic [ref=e335]: 5 decks
+                  - generic [ref=e336]: cpu
+                  - generic [ref=e337]: 3/1/2026, 10:20:48 AM
+                - generic [ref=e338]:
+                  - button "Inspect" [ref=e339] [cursor=pointer]
+                  - button "Promote" [ref=e340] [cursor=pointer]
+              - article [ref=e341]:
+                - generic [ref=e342]:
+                  - generic [ref=e343]:
+                    - generic [ref=e344]: Snapshot A
+                    - generic [ref=e345]: snapshot | ready
+                  - generic [ref=e346]: 4 WC / 8 SC
+                - generic [ref=e347]:
+                  - generic [ref=e348]: 5 decks
+                  - generic [ref=e349]: cpu
+                  - generic [ref=e350]: 3/1/2026, 10:20:48 AM
+                - generic [ref=e351]:
+                  - button "Inspect" [ref=e352] [cursor=pointer]
+                  - button "Promote" [ref=e353] [cursor=pointer]
+              - article [ref=e354]:
+                - generic [ref=e355]:
+                  - generic [ref=e356]:
+                    - generic [ref=e357]: Tiny Sweep
+                    - generic [ref=e358]: trained | ready
+                  - generic [ref=e359]: 4 WC / 8 SC
+                - generic [ref=e360]:
+                  - generic [ref=e361]: 5 decks
+                  - generic [ref=e362]: cpu
+                  - generic [ref=e363]: 3/1/2026, 10:17:13 AM
+                - generic [ref=e364]:
+                  - button "Inspect" [ref=e365] [cursor=pointer]
+                  - button "Promote" [ref=e366] [cursor=pointer]
+              - article [ref=e367]:
+                - generic [ref=e368]:
+                  - generic [ref=e369]:
+                    - generic [ref=e370]: Snapshot A
+                    - generic [ref=e371]: snapshot | ready
+                  - generic [ref=e372]: 4 WC / 8 SC
+                - generic [ref=e373]:
+                  - generic [ref=e374]: 5 decks
+                  - generic [ref=e375]: cpu
+                  - generic [ref=e376]: 3/1/2026, 10:17:13 AM
+                - generic [ref=e377]:
+                  - button "Inspect" [ref=e378] [cursor=pointer]
+                  - button "Promote" [ref=e379] [cursor=pointer]
+              - article [ref=e380]:
+                - generic [ref=e381]:
+                  - generic [ref=e382]:
+                    - generic [ref=e383]: Tiny Sweep
+                    - generic [ref=e384]: trained | ready
+                  - generic [ref=e385]: 4 WC / 8 SC
+                - generic [ref=e386]:
+                  - generic [ref=e387]: 5 decks
+                  - generic [ref=e388]: cpu
+                  - generic [ref=e389]: 3/1/2026, 12:33:20 AM
+                - generic [ref=e390]:
+                  - button "Inspect" [ref=e391] [cursor=pointer]
+                  - button "Promote" [ref=e392] [cursor=pointer]
+              - article [ref=e393]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]:
+                    - generic [ref=e396]: Snapshot A
+                    - generic [ref=e397]: snapshot | ready
+                  - generic [ref=e398]: 4 WC / 8 SC
+                - generic [ref=e399]:
+                  - generic [ref=e400]: 5 decks
+                  - generic [ref=e401]: cpu
+                  - generic [ref=e402]: 3/1/2026, 12:33:20 AM
+                - generic [ref=e403]:
+                  - button "Inspect" [ref=e404] [cursor=pointer]
+                  - button "Promote" [ref=e405] [cursor=pointer]
+              - article [ref=e406]:
+                - generic [ref=e407]:
+                  - generic [ref=e408]:
+                    - generic [ref=e409]: Tiny Sweep
+                    - generic [ref=e410]: trained | ready
+                  - generic [ref=e411]: 4 WC / 8 SC
+                - generic [ref=e412]:
+                  - generic [ref=e413]: 5 decks
+                  - generic [ref=e414]: cpu
+                  - generic [ref=e415]: 3/1/2026, 12:20:39 AM
+                - generic [ref=e416]:
+                  - button "Inspect" [ref=e417] [cursor=pointer]
+                  - button "Promote" [ref=e418] [cursor=pointer]
+              - article [ref=e419]:
+                - generic [ref=e420]:
+                  - generic [ref=e421]:
+                    - generic [ref=e422]: Snapshot A
+                    - generic [ref=e423]: snapshot | ready
+                  - generic [ref=e424]: 4 WC / 8 SC
+                - generic [ref=e425]:
+                  - generic [ref=e426]: 5 decks
+                  - generic [ref=e427]: cpu
+                  - generic [ref=e428]: 3/1/2026, 12:20:39 AM
+                - generic [ref=e429]:
+                  - button "Inspect" [ref=e430] [cursor=pointer]
+                  - button "Promote" [ref=e431] [cursor=pointer]
+              - article [ref=e432]:
+                - generic [ref=e433]:
+                  - generic [ref=e434]:
+                    - generic [ref=e435]: Model-02
+                    - generic [ref=e436]: trained | ready
+                  - generic [ref=e437]: 56 WC / 48 SC
+                - generic [ref=e438]:
+                  - generic [ref=e439]: 1560 decks
+                  - generic [ref=e440]: cuda
+                  - generic [ref=e441]: 2/28/2026, 10:12:17 PM
+                - generic [ref=e442]:
+                  - button "Inspect" [ref=e443] [cursor=pointer]
+                  - button "Promote" [ref=e444] [cursor=pointer]
+              - article [ref=e445]:
+                - generic [ref=e446]:
+                  - generic [ref=e447]:
+                    - generic [ref=e448]: Model-02
+                    - generic [ref=e449]: trained | ready
+                  - generic [ref=e450]: 56 WC / 48 SC
+                - generic [ref=e451]:
+                  - generic [ref=e452]: 1560 decks
+                  - generic [ref=e453]: cuda
+                  - generic [ref=e454]: 2/28/2026, 9:54:04 PM
+                - generic [ref=e455]:
+                  - button "Inspect" [ref=e456] [cursor=pointer]
+                  - button "Promote" [ref=e457] [cursor=pointer]
+              - article [ref=e458]:
+                - generic [ref=e459]:
+                  - generic [ref=e460]:
+                    - generic [ref=e461]: Model-01
+                    - generic [ref=e462]: trained | ready
+                  - generic [ref=e463]: 56 WC / 48 SC
+                - generic [ref=e464]:
+                  - generic [ref=e465]: 1560 decks
+                  - generic [ref=e466]: cuda
+                  - generic [ref=e467]: 2/28/2026, 9:27:16 PM
+                - generic [ref=e468]:
+                  - button "Inspect" [ref=e469] [cursor=pointer]
+                  - button "Promote" [ref=e470] [cursor=pointer]
+              - article [ref=e471]:
+                - generic [ref=e472]:
+                  - generic [ref=e473]:
+                    - generic [ref=e474]: Tiny Sweep
+                    - generic [ref=e475]: trained | ready
+                  - generic [ref=e476]: 4 WC / 8 SC
+                - generic [ref=e477]:
+                  - generic [ref=e478]: 5 decks
+                  - generic [ref=e479]: cpu
+                  - generic [ref=e480]: 2/28/2026, 9:21:46 PM
+                - generic [ref=e481]:
+                  - button "Inspect" [ref=e482] [cursor=pointer]
+                  - button "Promote" [ref=e483] [cursor=pointer]
+              - article [ref=e484]:
+                - generic [ref=e485]:
+                  - generic [ref=e486]:
+                    - generic [ref=e487]: Snapshot A
+                    - generic [ref=e488]: snapshot | ready
+                  - generic [ref=e489]: 4 WC / 8 SC
+                - generic [ref=e490]:
+                  - generic [ref=e491]: 5 decks
+                  - generic [ref=e492]: cpu
+                  - generic [ref=e493]: 2/28/2026, 9:21:45 PM
+                - generic [ref=e494]:
+                  - button "Inspect" [ref=e495] [cursor=pointer]
+                  - button "Promote" [ref=e496] [cursor=pointer]
+              - article [ref=e497]:
+                - generic [ref=e498]:
+                  - generic [ref=e499]:
+                    - generic [ref=e500]: Tiny Sweep
+                    - generic [ref=e501]: trained | ready
+                  - generic [ref=e502]: 4 WC / 8 SC
+                - generic [ref=e503]:
+                  - generic [ref=e504]: 5 decks
+                  - generic [ref=e505]: cpu
+                  - generic [ref=e506]: 2/28/2026, 9:21:27 PM
+                - generic [ref=e507]:
+                  - button "Inspect" [ref=e508] [cursor=pointer]
+                  - button "Promote" [ref=e509] [cursor=pointer]
+              - article [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]:
+                    - generic [ref=e513]: Snapshot A
+                    - generic [ref=e514]: snapshot | ready
+                  - generic [ref=e515]: 4 WC / 8 SC
+                - generic [ref=e516]:
+                  - generic [ref=e517]: 5 decks
+                  - generic [ref=e518]: cpu
+                  - generic [ref=e519]: 2/28/2026, 9:21:27 PM
+                - generic [ref=e520]:
+                  - button "Inspect" [ref=e521] [cursor=pointer]
+                  - button "Promote" [ref=e522] [cursor=pointer]
+              - article [ref=e523]:
+                - generic [ref=e524]:
+                  - generic [ref=e525]:
+                    - generic [ref=e526]: Snapshot A
+                    - generic [ref=e527]: snapshot | ready
+                  - generic [ref=e528]: 4 WC / 8 SC
+                - generic [ref=e529]:
+                  - generic [ref=e530]: 5 decks
+                  - generic [ref=e531]: cpu
+                  - generic [ref=e532]: 2/28/2026, 9:20:40 PM
+                - generic [ref=e533]:
+                  - button "Inspect" [ref=e534] [cursor=pointer]
+                  - button "Promote" [ref=e535] [cursor=pointer]
+              - article [ref=e536]:
+                - generic [ref=e537]:
+                  - generic [ref=e538]:
+                    - generic [ref=e539]: Tiny Sweep
+                    - generic [ref=e540]: trained | ready
+                  - generic [ref=e541]: 4 WC / 8 SC
+                - generic [ref=e542]:
+                  - generic [ref=e543]: 5 decks
+                  - generic [ref=e544]: cpu
+                  - generic [ref=e545]: 2/28/2026, 7:59:30 PM
+                - generic [ref=e546]:
+                  - button "Inspect" [ref=e547] [cursor=pointer]
+                  - button "Promote" [ref=e548] [cursor=pointer]
+              - article [ref=e549]:
+                - generic [ref=e550]:
+                  - generic [ref=e551]:
+                    - generic [ref=e552]: Snapshot A
+                    - generic [ref=e553]: snapshot | ready
+                  - generic [ref=e554]: 4 WC / 8 SC
+                - generic [ref=e555]:
+                  - generic [ref=e556]: 5 decks
+                  - generic [ref=e557]: cpu
+                  - generic [ref=e558]: 2/28/2026, 7:59:30 PM
+                - generic [ref=e559]:
+                  - button "Inspect" [ref=e560] [cursor=pointer]
+                  - button "Promote" [ref=e561] [cursor=pointer]
+              - article [ref=e562]:
+                - generic [ref=e563]:
+                  - generic [ref=e564]:
+                    - generic [ref=e565]: Tiny Sweep
+                    - generic [ref=e566]: trained | ready
+                  - generic [ref=e567]: 4 WC / 8 SC
+                - generic [ref=e568]:
+                  - generic [ref=e569]: 5 decks
+                  - generic [ref=e570]: cpu
+                  - generic [ref=e571]: 2/28/2026, 6:40:31 PM
+                - generic [ref=e572]:
+                  - button "Inspect" [ref=e573] [cursor=pointer]
+                  - button "Promote" [ref=e574] [cursor=pointer]
+              - article [ref=e575]:
+                - generic [ref=e576]:
+                  - generic [ref=e577]:
+                    - generic [ref=e578]: Snapshot A
+                    - generic [ref=e579]: snapshot | ready
+                  - generic [ref=e580]: 4 WC / 8 SC
+                - generic [ref=e581]:
+                  - generic [ref=e582]: 5 decks
+                  - generic [ref=e583]: cpu
+                  - generic [ref=e584]: 2/28/2026, 6:40:31 PM
+                - generic [ref=e585]:
+                  - button "Inspect" [ref=e586] [cursor=pointer]
+                  - button "Promote" [ref=e587] [cursor=pointer]
+              - article [ref=e588]:
+                - generic [ref=e589]:
+                  - generic [ref=e590]:
+                    - generic [ref=e591]: Tiny Sweep
+                    - generic [ref=e592]: trained | ready
+                  - generic [ref=e593]: 4 WC / 8 SC
+                - generic [ref=e594]:
+                  - generic [ref=e595]: 5 decks
+                  - generic [ref=e596]: cpu
+                  - generic [ref=e597]: 2/28/2026, 5:48:30 PM
+                - generic [ref=e598]:
+                  - button "Inspect" [ref=e599] [cursor=pointer]
+                  - button "Promote" [ref=e600] [cursor=pointer]
+              - article [ref=e601]:
+                - generic [ref=e602]:
+                  - generic [ref=e603]:
+                    - generic [ref=e604]: Snapshot A
+                    - generic [ref=e605]: snapshot | ready
+                  - generic [ref=e606]: 4 WC / 8 SC
+                - generic [ref=e607]:
+                  - generic [ref=e608]: 5 decks
+                  - generic [ref=e609]: cpu
+                  - generic [ref=e610]: 2/28/2026, 5:48:29 PM
+                - generic [ref=e611]:
+                  - button "Inspect" [ref=e612] [cursor=pointer]
+                  - button "Promote" [ref=e613] [cursor=pointer]
+              - article [ref=e614]:
+                - generic [ref=e615]:
+                  - generic [ref=e616]:
+                    - generic [ref=e617]: Tiny Sweep
+                    - generic [ref=e618]: trained | ready
+                  - generic [ref=e619]: 4 WC / 8 SC
+                - generic [ref=e620]:
+                  - generic [ref=e621]: 5 decks
+                  - generic [ref=e622]: cpu
+                  - generic [ref=e623]: 2/28/2026, 5:11:46 PM
+                - generic [ref=e624]:
+                  - button "Inspect" [ref=e625] [cursor=pointer]
+                  - button "Promote" [ref=e626] [cursor=pointer]
+              - article [ref=e627]:
+                - generic [ref=e628]:
+                  - generic [ref=e629]:
+                    - generic [ref=e630]: Snapshot A
+                    - generic [ref=e631]: snapshot | ready
+                  - generic [ref=e632]: 4 WC / 8 SC
+                - generic [ref=e633]:
+                  - generic [ref=e634]: 5 decks
+                  - generic [ref=e635]: cpu
+                  - generic [ref=e636]: 2/28/2026, 5:11:45 PM
+                - generic [ref=e637]:
+                  - button "Inspect" [ref=e638] [cursor=pointer]
+                  - button "Promote" [ref=e639] [cursor=pointer]
+              - article [ref=e640]:
+                - generic [ref=e641]:
+                  - generic [ref=e642]:
+                    - generic [ref=e643]: Tiny Sweep
+                    - generic [ref=e644]: trained | ready
+                  - generic [ref=e645]: 4 WC / 8 SC
+                - generic [ref=e646]:
+                  - generic [ref=e647]: 5 decks
+                  - generic [ref=e648]: cpu
+                  - generic [ref=e649]: 2/28/2026, 4:29:54 PM
+                - generic [ref=e650]:
+                  - button "Inspect" [ref=e651] [cursor=pointer]
+                  - button "Promote" [ref=e652] [cursor=pointer]
+              - article [ref=e653]:
+                - generic [ref=e654]:
+                  - generic [ref=e655]:
+                    - generic [ref=e656]: Snapshot A
+                    - generic [ref=e657]: snapshot | ready
+                  - generic [ref=e658]: 4 WC / 8 SC
+                - generic [ref=e659]:
+                  - generic [ref=e660]: 5 decks
+                  - generic [ref=e661]: cpu
+                  - generic [ref=e662]: 2/28/2026, 4:29:54 PM
+                - generic [ref=e663]:
+                  - button "Inspect" [ref=e664] [cursor=pointer]
+                  - button "Promote" [ref=e665] [cursor=pointer]
+              - article [ref=e666]:
+                - generic [ref=e667]:
+                  - generic [ref=e668]:
+                    - generic [ref=e669]: Model-00
+                    - generic [ref=e670]: trained | ready
+                  - generic [ref=e671]: 64 WC / 128 SC
+                - generic [ref=e672]:
+                  - generic [ref=e673]: 1561 decks
+                  - generic [ref=e674]: cuda
+                  - generic [ref=e675]: 2/28/2026, 1:20:47 PM
+                - generic [ref=e676]:
+                  - button "Inspect" [ref=e677] [cursor=pointer]
+                  - button "Promote" [ref=e678] [cursor=pointer]
+              - article [ref=e679]:
+                - generic [ref=e680]:
+                  - generic [ref=e681]:
+                    - generic [ref=e682]: Tiny Sweep
+                    - generic [ref=e683]: trained | ready
+                  - generic [ref=e684]: 4 WC / 8 SC
+                - generic [ref=e685]:
+                  - generic [ref=e686]: 5 decks
+                  - generic [ref=e687]: cpu
+                  - generic [ref=e688]: 2/28/2026, 1:18:07 PM
+                - generic [ref=e689]:
+                  - button "Inspect" [ref=e690] [cursor=pointer]
+                  - button "Promote" [ref=e691] [cursor=pointer]
+              - article [ref=e692]:
+                - generic [ref=e693]:
+                  - generic [ref=e694]:
+                    - generic [ref=e695]: Snapshot A
+                    - generic [ref=e696]: snapshot | ready
+                  - generic [ref=e697]: 4 WC / 8 SC
+                - generic [ref=e698]:
+                  - generic [ref=e699]: 5 decks
+                  - generic [ref=e700]: cpu
+                  - generic [ref=e701]: 2/28/2026, 1:18:07 PM
+                - generic [ref=e702]:
+                  - button "Inspect" [ref=e703] [cursor=pointer]
+                  - button "Promote" [ref=e704] [cursor=pointer]
+              - article [ref=e705]:
+                - generic [ref=e706]:
+                  - generic [ref=e707]:
+                    - generic [ref=e708]: Tiny Sweep
+                    - generic [ref=e709]: trained | ready
+                  - generic [ref=e710]: 4 WC / 8 SC
+                - generic [ref=e711]:
+                  - generic [ref=e712]: 5 decks
+                  - generic [ref=e713]: cpu
+                  - generic [ref=e714]: 2/28/2026, 12:55:16 PM
+                - generic [ref=e715]:
+                  - button "Inspect" [ref=e716] [cursor=pointer]
+                  - button "Promote" [ref=e717] [cursor=pointer]
+              - article [ref=e718]:
+                - generic [ref=e719]:
+                  - generic [ref=e720]:
+                    - generic [ref=e721]: Snapshot A
+                    - generic [ref=e722]: snapshot | ready
+                  - generic [ref=e723]: 4 WC / 8 SC
+                - generic [ref=e724]:
+                  - generic [ref=e725]: 5 decks
+                  - generic [ref=e726]: cpu
+                  - generic [ref=e727]: 2/28/2026, 12:55:16 PM
+                - generic [ref=e728]:
+                  - button "Inspect" [ref=e729] [cursor=pointer]
+                  - button "Promote" [ref=e730] [cursor=pointer]
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Observation
+            - heading "What The Model Sees" [level=3] [ref=e40]
+          - generic [ref=e733]: No learned features are available in the current production artifact.
+        - complementary [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]:
+              - generic [ref=e44]: Train
+              - heading "Training Controls" [level=3] [ref=e45]
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - text: Label
+                - textbox "Label" [ref=e48]:
+                  - /placeholder: High Resolution Sweep
+              - generic [ref=e49]:
+                - text: Epochs
+                - spinbutton "Epochs" [ref=e50]: "1024"
+              - generic [ref=e51]:
+                - text: Torch Device
+                - combobox "Torch Device" [ref=e52]:
+                  - option "Auto"
+                  - option "CUDA" [selected]
+                  - option "CPU"
+                  - option "MPS"
+              - generic [ref=e53]:
+                - text: Min Win Conditions
+                - spinbutton "Min Win Conditions" [ref=e54]: "56"
+              - generic [ref=e55]:
+                - text: Min Synergy Clusters
+                - spinbutton "Min Synergy Clusters" [ref=e56]: "48"
+              - generic [ref=e57]:
+                - text: Scenario Count
+                - spinbutton "Scenario Count" [ref=e58]: "4"
+              - generic [ref=e59]:
+                - text: Pack Min
+                - spinbutton "Pack Min" [ref=e60]: "24"
+              - generic [ref=e61]:
+                - text: Pack Max
+                - spinbutton "Pack Max" [ref=e62]: "240"
+              - generic [ref=e63]:
+                - checkbox "Synthetic runes unlimited" [checked] [ref=e64]
+                - text: Synthetic runes unlimited
+            - generic [ref=e65]:
+              - button "Train Model" [ref=e66] [cursor=pointer]
+              - button "Refresh Training" [ref=e67] [cursor=pointer]
+            - paragraph [ref=e734]: No active training job.
+            - generic [ref=e735]:
+              - generic [ref=e736]:
+                - generic [ref=e737]:
+                  - generic [ref=e738]: IDLE
+                  - generic [ref=e739]: Idle
+                  - generic [ref=e740]: 0/0
+                  - generic [ref=e741]: 0.0%
+                - generic [ref=e742]:
+                  - generic [ref=e743]: Job -
+                  - generic [ref=e744]: No updates yet
+              - generic [ref=e746]: No training events yet.
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: Inspector
+              - heading "Selected Model" [level=3] [ref=e72]
+            - generic [ref=e747]:
+              - generic [ref=e748]:
+                - generic [ref=e749]: Tiny Sweep
+                - generic [ref=e750]: trained | ready | production
+              - generic [ref=e751]:
+                - heading "Counts" [level=4] [ref=e752]
+                - generic [ref=e753]:
+                  - generic [ref=e754]: Training Decks
+                  - strong [ref=e755]: "5"
+                - generic [ref=e756]:
+                  - generic [ref=e757]: Win Conditions
+                  - strong [ref=e758]: "4"
+                - generic [ref=e759]:
+                  - generic [ref=e760]: Synergy Clusters
+                  - strong [ref=e761]: "8"
+                - generic [ref=e762]:
+                  - generic [ref=e763]: Device / Epochs
+                  - strong [ref=e764]: cpu / 1
+              - generic [ref=e765]:
+                - heading "Source Mix" [level=4] [ref=e766]
+                - generic [ref=e767]:
+                  - generic [ref=e768]: meta
+                  - strong [ref=e769]: "5"
+              - generic [ref=e770]:
+                - heading "Top Metrics" [level=4] [ref=e771]
+                - generic [ref=e772]:
+                  - generic [ref=e773]: nextCardTop10Recall
+                  - strong [ref=e774]: "1.0000"
+                - generic [ref=e775]:
+                  - generic [ref=e776]: maskedDeckReconstructionExactCardRecall
+                  - strong [ref=e777]: "1.0000"
+                - generic [ref=e778]:
+                  - generic [ref=e779]: winConditionClusterSilhouette
+                  - strong [ref=e780]: "0.4000"
+                - generic [ref=e781]:
+                  - generic [ref=e782]: competitiveScoreSpearman
+                  - strong [ref=e783]: "0.0000"
+                - generic [ref=e784]:
+                  - generic [ref=e785]: collectionFirstRecommendationHitRate
+                  - strong [ref=e786]: "1.0000"
+                - generic [ref=e787]:
+                  - generic [ref=e788]: strictBuildableRecommendationHitRate
+                  - strong [ref=e789]: "1.0000"
+                - generic [ref=e790]:
+                  - generic [ref=e791]: strictBuildableCandidateCountP50
+                  - strong [ref=e792]: "5.0000"
+                - generic [ref=e793]:
+                  - generic [ref=e794]: strictBuildableCandidateCountP90
+                  - strong [ref=e795]: "5.0000"

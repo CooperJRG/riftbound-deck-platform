@@ -15,6 +15,7 @@ def _card(
     super_type: str = "",
     champion_tags: tuple[str, ...] = (),
     domains: tuple[str, ...] = ("Mind",),
+    is_unique: bool = False,
 ) -> CardRecord:
     return CardRecord(
         title=title,
@@ -27,6 +28,7 @@ def _card(
         cost=2,
         might=2,
         image_url="",
+        is_unique=is_unique,
     )
 
 
@@ -62,6 +64,7 @@ def _catalog() -> CardCatalog:
         elif "Adept" in name or "Guard" in name or "Scout" in name:
             card_type = "Unit"
         cards.append(_card(name, card_type))
+    cards.append(_card("Forgefire Cape", "Gear", is_unique=True))
     cards.append(_card("Colorless Relic", "Gear", domains=tuple()))
 
     by_title = {c.title: c for c in cards}
@@ -149,3 +152,22 @@ def test_domainless_main_card_fails_domain_identity() -> None:
     result = validate_deck(deck, rules=_rules(), cards=_catalog())
     assert result.is_valid is False
     assert any(issue.code == "MAIN_DOMAIN" for issue in result.issues)
+
+
+def test_unique_card_limit_fails_for_multiple_main_copies() -> None:
+    deck = _valid_deck()
+    deck.main["Arcane Relay"] = 1
+    deck.main["Forgefire Cape"] = 2
+    result = validate_deck(deck, rules=_rules(), cards=_catalog())
+    assert result.is_valid is False
+    assert any(issue.code == "UNIQUE_CARD_LIMIT" for issue in result.issues)
+
+
+def test_unique_card_limit_fails_across_main_and_sideboard() -> None:
+    deck = _valid_deck()
+    deck.main["Arcane Relay"] = 2
+    deck.main["Forgefire Cape"] = 1
+    deck.sideboard["Forgefire Cape"] = 1
+    result = validate_deck(deck, rules=_rules(), cards=_catalog())
+    assert result.is_valid is False
+    assert any(issue.code == "UNIQUE_CARD_LIMIT" for issue in result.issues)

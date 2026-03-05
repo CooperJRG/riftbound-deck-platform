@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query, Request
 
+from app.auth.dependencies import AuthContext, require_admin, require_user
+from app.core.rate_limits import limiter
 from app.core.services import get_services
 from app.domain.normalization import normalize_card_key
-from app.domain.models import MetaDeckSummary
+from app.domain.models import MetaDeckSummary, MetaIndexStatus
 
 router = APIRouter(prefix="/api/meta", tags=["meta"])
 
@@ -32,6 +34,9 @@ class _MetaRankRow:
     missing_copies: int | None
     missing_unique_cards: int | None
     recommendation_score: float | None
+    competitive_score: float | None
+    win_condition_id: int | None
+    win_condition_label: str
 
 
 def _clamp(value: float, lo: float, hi: float) -> float:
@@ -113,6 +118,16 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
                 _normalize_meta_score(row.meta_score),
                 float(row.recommendation_score or 0.0),
                 float(row.views or 0.0),
+            ),
+            reverse=desc,
+        )
+    if key == "competitive":
+        return sorted(
+            rows,
+            key=lambda row: (
+                float(row.competitive_score or 0.0),
+                _normalize_meta_score(row.meta_score),
+                float(row.recommendation_score or 0.0),
             ),
             reverse=desc,
         )
@@ -211,13 +226,16 @@ def _collection_metrics_for_entry(
 
 
 @router.get("/decks", response_model=list[MetaDeckSummary])
+@limiter.limit("60/minute")
 def list_meta_decks(
+    request: Request,
     query: str = Query(default="", max_length=120),
     sort_by: str = Query(default="recommendation", alias="sortBy", max_length=40),
     sort_dir: str = Query(default="desc", alias="sortDir", max_length=8),
     include_collection: bool = Query(default=True, alias="includeCollection"),
     limit: int = Query(default=60, ge=1, le=300),
     offset: int = Query(default=0, ge=0),
+    auth: AuthContext = Depends(require_user),
 ) -> list[MetaDeckSummary]:
     svc = get_services()
     # Score/sort against a large pool first, then return requested window.
@@ -225,8 +243,9 @@ def list_meta_decks(
     rows: list[_MetaRankRow] = []
 
     if include_collection:
-        collection_by_key = _collection_by_key(svc.storage.get_effective_collection())
+        collection_by_key = _collection_by_key(svc.storage.get_effective_collection(user_id=auth.user_id))
         for entry in entries:
+            annotation = svc.auto_builder.annotation_for_entry(entry)
             is_buildable, completion_pct, missing_copies, missing_unique_cards = _collection_metrics_for_entry(
                 requirements_by_key=entry.requirements_by_key,
                 total_required=entry.total_required,
@@ -256,10 +275,14 @@ def list_meta_decks(
                         meta_score=entry.meta_score,
                         is_buildable=is_buildable,
                     ),
+                    competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
+                    win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
+                    win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
                 )
             )
     else:
         for entry in entries:
+            annotation = svc.auto_builder.annotation_for_entry(entry)
             rows.append(
                 _MetaRankRow(
                     source=entry.source,
@@ -278,6 +301,9 @@ def list_meta_decks(
                     missing_copies=None,
                     missing_unique_cards=None,
                     recommendation_score=_default_recommendation_without_collection(entry.meta_score),
+                    competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
+                    win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
+                    win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
                 )
             )
 
@@ -301,7 +327,27 @@ def list_meta_decks(
             missingCopies=row.missing_copies,
             missingUniqueCards=row.missing_unique_cards,
             recommendationScore=row.recommendation_score,
+            competitiveScore=row.competitive_score,
+            winConditionId=row.win_condition_id,
+            winConditionLabel=row.win_condition_label,
             deck=row.deck,
         )
         for row in ranked[start:end]
     ]
+
+
+@router.get("/status", response_model=MetaIndexStatus)
+@limiter.limit("60/minute")
+def meta_index_status(request: Request, _auth: AuthContext = Depends(require_user)) -> MetaIndexStatus:
+    svc = get_services()
+    payload = dict(svc.meta.status())
+    payload["sourcePath"] = ""
+    payload["lastError"] = None
+    return MetaIndexStatus(**payload)
+
+
+@router.post("/refresh", response_model=MetaIndexStatus)
+@limiter.limit("5/hour")
+def refresh_meta_index(request: Request, _auth=Depends(require_admin)) -> MetaIndexStatus:
+    svc = get_services()
+    return MetaIndexStatus(**svc.meta.refresh())

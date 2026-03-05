@@ -1,0 +1,137 @@
+{
+  "generatedAt": "2026-03-02T01:23:37.062433+00:00",
+  "trainingDeckCount": 5,
+  "validationDeckCount": 1,
+  "cardCount": 8,
+  "winConditionCount": 4,
+  "synergyClusterCount": 8,
+  "embeddingDim": 64,
+  "negativeSamples": 10,
+  "nmfComponents": 4,
+  "spectralClusters": 8,
+  "knnNeighbors": 5,
+  "epochs": 1,
+  "bundleVersion": 3,
+  "sourceCounts": {
+    "meta": 5
+  },
+  "uniqueShellCount": 3,
+  "archetypeCount": 5,
+  "pythonVersion": "3.13.5",
+  "numpyVersion": "2.3.2",
+  "sklearnVersion": "1.6.1",
+  "torchVersion": "2.8.0+cpu",
+  "torchDevice": "cpu",
+  "minWinConditionCount": 56,
+  "minSynergyClusterCount": 112,
+  "syntheticCollectionConfig": {
+    "packMin": 24,
+    "packMax": 240,
+    "scenarioCount": 4,
+    "runeUnlimited": true
+  },
+  "syntheticCollectionSummary": {
+    "commonPool": 18,
+    "uncommonPool": 0,
+    "rarePool": 0,
+    "epicPool": 0
+  },
+  "defaultMinResults": 12,
+  "maxVariantsPerShell": 2,
+  "selectedWinConditionCount": 4,
+  "selectedSynergyClusterCount": 8,
+  "candidateWinConditionCounts": [
+    4
+  ],
+  "candidateSynergyClusterCounts": [
+    8
+  ],
+  "winConditionSelectionMetrics": {
+    "4": {
+      "recommendationHitRate": 1.0,
+      "strictBuildableHitRate": 1.0,
+      "reconstructionRecall": 1.0,
+      "topicCoherence": 0.5,
+      "shellCoverageBalance": 0.3333,
+      "silhouette": 0.4,
+      "strictBuildableCandidateCountP50": 5.0,
+      "strictBuildableCandidateCountP90": 5.0,
+      "strictBuildableEmptyResultRate": 0.0,
+      "strictBuildableCandidateDensity": 1.0,
+      "compositeScore": 0.8687
+    }
+  },
+  "synergySelectionMetrics": {
+    "8": {
+      "replacementQuality": 0.0,
+      "modularityProxy": 0.0,
+      "coverageScore": 1.0,
+      "buildableRepairSuccess": 0.0,
+      "silhouette": 0.0,
+      "clusterSizeRegularization": 0.0,
+      "compositeScore": 0.2
+    }
+  },
+  "trainingCorpusFingerprint": "0bacd8648705af6033aeae325a2fea329e0b414741e56207f555310fb1affc2b",
+  "resolutionSelectionMode": "search",
+  "resolutionReferenceArtifact": "",
+  "strictBuildableRecommendationHitRate": 1.0,
+  "strictBuildableEmptyResultRate": 0.0,
+  "generatorWinVectorSize": 4,
+  "generatorClusterVectorSize": 8,
+  "embeddingNeighborCount": 12,
+  "sourceHealth": {
+    "meta": {
+      "fetched": 5,
+      "accepted": 5,
+      "failures": 0,
+      "errors": []
+    }
+  },
+  "artifactVersionHealth": {
+    "runtimeMatches": true
+  },
+  "trainingMetrics": {
+    "nextCardTop10Recall": 1.0,
+    "maskedDeckReconstructionExactCardRecall": 1.0,
+    "winConditionClusterSilhouette": 0.4,
+    "competitiveScoreSpearman": 0.0,
+    "collectionFirstRecommendationHitRate": 1.0,
+    "strictBuildableRecommendationHitRate": 1.0,
+    "strictBuildableCandidateCountP50": 5.0,
+    "strictBuildableCandidateCountP90": 5.0,
+    "strictBuildableEmptyResultRate": 0.0,
+    "winConditionSelectionTable": {
+      "4": {
+        "recommendationHitRate": 1.0,
+        "strictBuildableHitRate": 1.0,
+        "reconstructionRecall": 1.0,
+        "topicCoherence": 0.5,
+        "shellCoverageBalance": 0.3333,
+        "silhouette": 0.4,
+        "strictBuildableCandidateCountP50": 5.0,
+        "strictBuildableCandidateCountP90": 5.0,
+        "strictBuildableEmptyResultRate": 0.0,
+        "strictBuildableCandidateDensity": 1.0,
+        "compositeScore": 0.8687
+      }
+    },
+    "synergySelectionTable": {
+      "8": {
+        "replacementQuality": 0.0,
+        "modularityProxy": 0.0,
+        "coverageScore": 1.0,
+        "buildableRepairSuccess": 0.0,
+        "silhouette": 0.0,
+        "clusterSizeRegularization": 0.0,
+        "compositeScore": 0.2
+      }
+    },
+    "sourceCountsByAdapter": {
+      "meta": 5
+    },
+    "sourceFailuresByAdapter": {
+      "meta": 0
+    }
+  }
+}

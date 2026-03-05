@@ -1,0 +1,67 @@
+[
+  {
+    "component_id": 0,
+    "label": "WC01 | Champion A",
+    "top_cards": [
+      "Mind Spell",
+      "Champion A"
+    ],
+    "top_effect_tokens": [],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 1,
+    "label": "WC02 | Champion C",
+    "top_cards": [
+      "Order Spell",
+      "Champion C"
+    ],
+    "top_effect_tokens": [],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 2,
+    "label": "WC03 | Champion B",
+    "top_cards": [
+      "Chaos Spell",
+      "Champion B"
+    ],
+    "top_effect_tokens": [],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 3,
+    "label": "WC04 | Champion A",
+    "top_cards": [
+      "Mind Gear",
+      "Champion A"
+    ],
+    "top_effect_tokens": [],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 4,
+    "label": "WC05 | Champion C",
+    "top_cards": [
+      "Order Gear",
+      "Champion C"
+    ],
+    "top_effect_tokens": [],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  }
+]

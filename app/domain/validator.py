@@ -281,6 +281,24 @@ def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) 
                     "combined_copy_limit",
                 )
 
+    combined_registered = Counter(main)
+    for title, qty in sideboard.items():
+        combined_registered[title] += qty
+    for title, qty in sorted(combined_registered.items()):
+        card = cards.get(title)
+        if card is None or not bool(card.is_unique):
+            continue
+        if int(qty) <= 1:
+            continue
+        ref_key = "combined_copy_limit" if int(sideboard.get(title, 0)) > 0 else "main_copy_limit"
+        field = "sideboard" if int(sideboard.get(title, 0)) > 0 else "main"
+        add_issue(
+            "UNIQUE_CARD_LIMIT",
+            field,
+            f"Card '{title}' is unique and your registered deck may contain only 1 copy ({qty} found).",
+            ref_key,
+        )
+
     if signature_limit and signature_total > signature_limit:
         add_issue(
             "SIGNATURE_LIMIT",

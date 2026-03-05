@@ -50,3 +50,24 @@ def load_format_rules(path: Path) -> FormatRules:
         rule_refs={k: list(v or []) for k, v in dict(raw.get("rule_refs") or {}).items()},
     )
 
+
+def normalize_format_name(value: str) -> str:
+    return str(value or "").strip().lower() or "constructed"
+
+
+def load_format_rules_map(*, default_profile: Path, profiles_dir: Path | None = None) -> dict[str, FormatRules]:
+    loaded: dict[str, FormatRules] = {}
+    default_rules = load_format_rules(default_profile)
+    loaded[normalize_format_name(default_rules.format_name)] = default_rules
+
+    profile_dir = profiles_dir if profiles_dir is not None else default_profile.parent
+    if not profile_dir.is_dir():
+        return loaded
+
+    for path in sorted(profile_dir.glob("*.json")):
+        try:
+            rules = load_format_rules(path)
+        except Exception:
+            continue
+        loaded[normalize_format_name(rules.format_name)] = rules
+    return loaded

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 
@@ -129,6 +130,7 @@ class MetaDeckIndexEntry:
     search_key: str
     requirements_by_key: tuple[tuple[str, int], ...]
     total_required: int
+    duplicate_source_count: int = 1
 
 
 class MetaDeckRepository:
@@ -136,8 +138,13 @@ class MetaDeckRepository:
         self._path = path
         self._catalog = catalog
         self._rules = rules
-        self._entries = self._build_index()
+        self._entries: list[MetaDeckIndexEntry] = []
         self._query_cache: dict[str, tuple[int, ...]] = {}
+        self._raw_row_count = 0
+        self._last_refreshed_at: str | None = None
+        self._last_refresh_attempt_at: str | None = None
+        self._last_error: str | None = None
+        self.refresh()
 
     def _load_rows(self) -> list[dict]:
         if not self._path.is_file():
@@ -145,8 +152,7 @@ class MetaDeckRepository:
         raw = json.loads(self._path.read_text(encoding="utf-8"))
         return raw if isinstance(raw, list) else []
 
-    def _build_index(self) -> list[MetaDeckIndexEntry]:
-        rows = self._load_rows()
+    def _build_index(self, rows: list[dict]) -> list[MetaDeckIndexEntry]:
         out: list[MetaDeckIndexEntry] = []
         for row in rows:
             if not isinstance(row, dict):
@@ -195,9 +201,37 @@ class MetaDeckRepository:
                     search_key=hay,
                     requirements_by_key=requirements_by_key,
                     total_required=total_required,
+                    duplicate_source_count=max(1, _to_int(row.get("duplicateSourceCount")) or 1),
                 )
             )
         return out
+
+    def refresh(self) -> dict[str, object]:
+        attempt_at = datetime.now(timezone.utc).isoformat()
+        self._last_refresh_attempt_at = attempt_at
+        try:
+            rows = self._load_rows()
+            entries = self._build_index(rows)
+        except Exception as exc:
+            self._last_error = str(exc)
+            return self.status()
+
+        self._entries = entries
+        self._query_cache = {}
+        self._raw_row_count = len(rows)
+        self._last_refreshed_at = attempt_at
+        self._last_error = None
+        return self.status()
+
+    def status(self) -> dict[str, object]:
+        return {
+            "sourcePath": str(self._path),
+            "indexedDecks": len(self._entries),
+            "rawRows": int(self._raw_row_count),
+            "lastRefreshedAt": self._last_refreshed_at,
+            "lastRefreshAttemptAt": self._last_refresh_attempt_at,
+            "lastError": self._last_error,
+        }
 
     def search_entries(self, *, query: str = "", limit: int | None = None, offset: int = 0) -> list[MetaDeckIndexEntry]:
         needle = normalize_card_key(query)

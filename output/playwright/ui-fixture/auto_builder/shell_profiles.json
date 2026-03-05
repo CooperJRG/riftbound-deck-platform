@@ -1,0 +1,71 @@
+[
+  {
+    "shell_id": "legenda|championa|mind",
+    "shell_label": "Legend A / Champion A",
+    "legend_title": "Legend A",
+    "chosen_champion_title": "Champion A",
+    "legend_domains": [
+      "Mind"
+    ],
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "meta": 2
+    },
+    "rune_weights": {
+      "Mind Rune": 2.0
+    },
+    "battlefield_weights": {
+      "Mind Field": 2.0
+    }
+  },
+  {
+    "shell_id": "legendb|championb|chaos",
+    "shell_label": "Legend B / Champion B",
+    "legend_title": "Legend B",
+    "chosen_champion_title": "Champion B",
+    "legend_domains": [
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "meta": 1
+    },
+    "rune_weights": {
+      "Chaos Rune": 1.0
+    },
+    "battlefield_weights": {
+      "Chaos Field": 1.0
+    }
+  },
+  {
+    "shell_id": "legendc|championc|order",
+    "shell_label": "Legend C / Champion C",
+    "legend_title": "Legend C",
+    "chosen_champion_title": "Champion C",
+    "legend_domains": [
+      "Order"
+    ],
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 0.0,
+    "buildability_prior": 1.0,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "meta": 2
+    },
+    "rune_weights": {
+      "Order Rune": 2.0
+    },
+    "battlefield_weights": {
+      "Order Field": 2.0
+    }
+  }
+]

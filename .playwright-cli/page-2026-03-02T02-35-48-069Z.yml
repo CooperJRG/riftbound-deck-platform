@@ -1,0 +1,159 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: Riftbound Deck Platform
+        - heading "Riftdesk" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Invite-only deck building and discovery for the closed beta.
+      - tablist "Workspace" [ref=e8]:
+        - tab "Collection" [ref=e9] [cursor=pointer]
+        - tab "Builder" [ref=e10] [cursor=pointer]
+        - tab "Discover" [selected] [ref=e11] [cursor=pointer]
+        - tab "Auto Builder" [ref=e12] [cursor=pointer]
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - strong [ref=e15]: Admin Tester
+          - generic [ref=e16]: admin@example.test
+        - generic [ref=e17]: Admin
+        - button "Sign Out" [ref=e18] [cursor=pointer]
+      - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 2 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 1 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 1 battlefields (found 0)." [ref=e19]:
+        - generic [ref=e21]: Loaded 1 discover results.
+    - main [ref=e22]:
+      - complementary [ref=e283]:
+        - generic [ref=e285]:
+          - heading "Discover" [level=2] [ref=e286]
+          - paragraph [ref=e287]: Search the meta index, browse public beta decks, and manage your saved library.
+        - generic [ref=e289]:
+          - tablist "Discover sources" [ref=e290]:
+            - button "Meta Index" [ref=e291] [cursor=pointer]
+            - button "Community" [ref=e292] [cursor=pointer]
+          - generic [ref=e293]:
+            - textbox "Search decks by name, source, legend" [ref=e294]
+            - button "Load" [ref=e297] [cursor=pointer]
+          - article [ref=e458]:
+            - generic [ref=e459]:
+              - generic [ref=e460]: Mine
+              - img "Community Smoke Deck artwork" [ref=e461]
+            - generic [ref=e462]:
+              - generic "Community Smoke Deck" [ref=e463]
+              - generic [ref=e464]: Admin Tester | Legend A
+              - generic [ref=e465]:
+                - button "View" [active] [ref=e466] [cursor=pointer]
+                - button "Save to My Decks" [ref=e467] [cursor=pointer]
+        - generic [ref=e299]:
+          - heading "Validation and Analysis" [level=2] [ref=e300]
+          - generic [ref=e301]:
+            - generic [ref=e302]:
+              - heading "Rule Validation" [level=3] [ref=e303]
+              - generic [ref=e305]:
+                - generic [ref=e306]:
+                  - generic [ref=e307]: Illegal
+                  - generic [ref=e308]: 5 issue(s) found.
+                - generic [ref=e309]:
+                  - generic [ref=e310]:
+                    - generic [ref=e311]: Issues
+                    - strong [ref=e312]: "5"
+                  - generic [ref=e313]:
+                    - generic [ref=e314]: Rule Codes
+                    - strong [ref=e315]: "5"
+                  - generic [ref=e316]:
+                    - generic [ref=e317]: Rule Refs
+                    - strong [ref=e318]: "0"
+                - generic [ref=e319]:
+                  - generic [ref=e320]:
+                    - generic [ref=e321]:
+                      - text: Battlefields
+                      - generic [ref=e322]: "1"
+                    - article [ref=e324]:
+                      - generic [ref=e326]: BATTLEFIELD_COUNT
+                      - generic [ref=e327]: Deck must contain exactly 1 battlefields (found 0).
+                  - generic [ref=e328]:
+                    - generic [ref=e329]:
+                      - text: Chosen Champion
+                      - generic [ref=e330]: "1"
+                    - article [ref=e332]:
+                      - generic [ref=e334]: CHAMPION_REQUIRED
+                      - generic [ref=e335]: Chosen Champion is required for this format.
+                  - generic [ref=e336]:
+                    - generic [ref=e337]:
+                      - text: Legend
+                      - generic [ref=e338]: "1"
+                    - article [ref=e340]:
+                      - generic [ref=e342]: LEGEND_REQUIRED
+                      - generic [ref=e343]: Legend is required.
+                  - generic [ref=e344]:
+                    - generic [ref=e345]:
+                      - text: Main Deck
+                      - generic [ref=e346]: "1"
+                    - article [ref=e348]:
+                      - generic [ref=e350]: MAIN_DECK_SIZE
+                      - generic [ref=e351]: Main deck must contain exactly 2 cards (found 0).
+                  - generic [ref=e352]:
+                    - generic [ref=e353]:
+                      - text: Runes
+                      - generic [ref=e354]: "1"
+                    - article [ref=e356]:
+                      - generic [ref=e358]: RUNE_DECK_SIZE
+                      - generic [ref=e359]: Rune deck must contain exactly 1 cards (found 0).
+            - heading "Collection Analysis" [level=3] [ref=e361]
+        - generic [ref=e363]:
+          - heading "Deck Library" [level=2] [ref=e364]
+          - generic [ref=e365]:
+            - textbox "Search my decks by name, source, or legend" [ref=e366]
+            - button "Clear" [ref=e367] [cursor=pointer]
+          - generic [ref=e368]:
+            - generic [ref=e369]:
+              - heading "Built Decks (Reserve Cards)" [level=3] [ref=e370]
+              - paragraph [ref=e371]: Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.
+              - generic [ref=e374]:
+                - generic [ref=e375]: No built decks yet.
+                - generic [ref=e376]: Drag saved decks here to reserve cards.
+            - generic [ref=e377]:
+              - heading "Saved Decks" [level=3] [ref=e378]
+              - paragraph [ref=e379]: Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.
+              - generic [ref=e382]:
+                - generic [ref=e383]: No saved decks yet.
+                - generic [ref=e384]: Drag built decks here to release reserved cards.
+  - generic [ref=e469]:
+    - generic [ref=e470]:
+      - generic [ref=e471]:
+        - heading "Community Smoke Deck" [level=3] [ref=e472]
+        - generic [ref=e473]: Admin Tester | Legend A | public
+      - button "Close" [ref=e474] [cursor=pointer]
+    - generic [ref=e475]: Visibility public | Bucket saved | Published 3/1/2026, 8:35:02 PM
+    - generic [ref=e476]:
+      - button "Use in Builder" [ref=e477] [cursor=pointer]
+      - button "Save to My Decks" [ref=e478] [cursor=pointer]
+    - generic [ref=e479]:
+      - generic [ref=e480]:
+        - heading "Legend" [level=4] [ref=e481]
+        - generic [ref=e483]:
+          - generic [ref=e484]: 1x Legend A
+          - generic [ref=e485]: Legend | Mind
+      - generic [ref=e486]:
+        - heading "Chosen Champion" [level=4] [ref=e487]
+        - generic [ref=e489]:
+          - generic [ref=e490]: 1x Champion A
+          - generic [ref=e491]: Unit / Champion | Mind
+      - generic [ref=e492]:
+        - heading "Main Deck" [level=4] [ref=e493]
+        - generic [ref=e494]:
+          - generic [ref=e495]:
+            - generic [ref=e496]: 1x Champion A
+            - generic [ref=e497]: Unit / Champion | Mind
+          - generic [ref=e498]:
+            - generic [ref=e499]: 1x Mind Spell
+            - generic [ref=e500]: Spell | Mind
+      - generic [ref=e501]:
+        - heading "Runes" [level=4] [ref=e502]
+        - generic [ref=e504]:
+          - generic [ref=e505]: 1x Mind Rune
+          - generic [ref=e506]: Rune | Mind
+      - generic [ref=e507]:
+        - heading "Battlefields" [level=4] [ref=e508]
+        - generic [ref=e510]:
+          - generic [ref=e511]: 1x Mind Field
+          - generic [ref=e512]: Battlefield | Mind
+      - generic [ref=e513]:
+        - heading "Sideboard" [level=4] [ref=e514]
+        - generic [ref=e516]: None

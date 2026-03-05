@@ -21,6 +21,8 @@ class EligibilitySnapshot:
     battlefield_count: int
     main_copy_limit: int
     allowed_main_card_types: tuple[str, ...]
+    sideboard_max: int
+    allowed_sideboard_card_types: tuple[str, ...]
 
 
 def _title_match(title: str, query: str) -> bool:
@@ -149,4 +151,6 @@ def build_eligibility_snapshot(
         battlefield_count=rules.int_constraint("battlefield_count_exact", 3),
         main_copy_limit=rules.int_constraint("main_copy_limit", 3),
         allowed_main_card_types=tuple(rules.list_constraint("allowed_main_card_types")),
+        sideboard_max=rules.int_constraint("sideboard_max", 8),
+        allowed_sideboard_card_types=tuple(rules.list_constraint("allowed_sideboard_card_types")),
     )

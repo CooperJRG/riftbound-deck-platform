@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import Counter
 import re
+from typing import Callable
 
 from app.domain.models import (
     CardNeed,
@@ -338,6 +339,8 @@ def analyze_collection_completion(
     *,
     collection: dict[str, int],
     cards: CardCatalog | None = None,
+    unit_price_for_title: Callable[[str], float | None] | None = None,
+    buy_url_for_title: Callable[[str], str] | None = None,
 ) -> DeckAnalysisResult:
     requirements = _deck_requirement_map(deck)
     collection_by_key = {
@@ -349,6 +352,9 @@ def analyze_collection_completion(
     total_required = sum(requirements.values())
     total_owned_for_deck = 0
     missing_copies = 0
+    missing_cards_priced = 0
+    missing_cards_unpriced = 0
+    estimated_completion_cost = 0.0
     missing_cards: list[CardNeed] = []
     for title, required in sorted(requirements.items()):
         key = normalize_card_key(title)
@@ -358,12 +364,27 @@ def analyze_collection_completion(
         total_owned_for_deck += owned_for_card
         missing_copies += missing
         if missing > 0:
+            estimated_unit_price: float | None = None
+            estimated_missing_cost: float | None = None
+            if unit_price_for_title is not None:
+                unit = unit_price_for_title(title)
+                if unit is not None and unit > 0:
+                    estimated_unit_price = round(float(unit), 2)
+                    estimated_missing_cost = round(float(missing) * estimated_unit_price, 2)
+                    estimated_completion_cost += estimated_missing_cost
+                    missing_cards_priced += 1
+                else:
+                    missing_cards_unpriced += 1
+            tcgplayer_url = buy_url_for_title(title) if buy_url_for_title is not None else ""
             missing_cards.append(
                 CardNeed(
                     card=title,
                     required=required,
                     owned=owned,
                     missing=missing,
+                    estimated_unit_price=estimated_unit_price,
+                    estimated_missing_cost=estimated_missing_cost,
+                    tcgplayer_url=tcgplayer_url,
                 )
             )
 
@@ -378,6 +399,13 @@ def analyze_collection_completion(
         )
 
     completion_pct = 100.0 if total_required <= 0 else round((total_owned_for_deck / total_required) * 100.0, 2)
+    completion_cost: float | None
+    if missing_copies <= 0:
+        completion_cost = 0.0
+    elif missing_cards_priced <= 0:
+        completion_cost = None
+    else:
+        completion_cost = round(estimated_completion_cost, 2)
     return DeckAnalysisResult(
         total_required=total_required,
         total_owned_for_deck=total_owned_for_deck,
@@ -385,6 +413,9 @@ def analyze_collection_completion(
         missing_unique_cards=len(missing_cards),
         completion_pct=completion_pct,
         is_buildable=missing_copies == 0,
+        estimated_completion_cost=completion_cost,
+        missing_cards_priced=missing_cards_priced,
+        missing_cards_unpriced=missing_cards_unpriced,
         missing_cards=missing_cards,
         shopping_list=missing_cards,
         replacement_suggestions=replacement_suggestions,

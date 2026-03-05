@@ -1,6 +1,44 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+import re
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+_CAMEL_SEGMENT_RE = re.compile(r"(?<!^)(?=[A-Z])")
+_CAMEL_KEY_RE = re.compile(r"^[a-z]+(?:[A-Z][A-Za-z0-9]*)+$")
+
+
+def _camel_to_snake(value: str) -> str:
+    text = str(value or "").strip()
+    if not text or "_" in text or not _CAMEL_KEY_RE.fullmatch(text):
+        return text
+    return _CAMEL_SEGMENT_RE.sub("_", text).lower()
+
+
+def _normalize_input_keys(value: Any) -> Any:
+    if isinstance(value, dict):
+        out: dict[Any, Any] = {}
+        for key, item in value.items():
+            normalized_key = _camel_to_snake(key) if isinstance(key, str) else key
+            out[normalized_key] = _normalize_input_keys(item)
+        return out
+    if isinstance(value, list):
+        return [_normalize_input_keys(item) for item in value]
+    return value
+
+
+class StrictInputModel(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input_keys(cls, value: Any) -> Any:
+        return _normalize_input_keys(value)
+
+
+class VisibilityMixin(BaseModel):
+    visibility: str = "private"
 
 
 class DeckPayload(BaseModel):
@@ -44,6 +82,9 @@ class CardNeed(BaseModel):
     required: int
     owned: int
     missing: int
+    estimated_unit_price: float | None = None
+    estimated_missing_cost: float | None = None
+    tcgplayer_url: str = ""
 
 
 class ReplacementOption(BaseModel):
@@ -51,6 +92,10 @@ class ReplacementOption(BaseModel):
     owned: int
     available: int
     score: float = 0.0
+    source: str = "heuristic"
+    reason: str = ""
+    win_condition_match: float = Field(default=0.0, alias="winConditionMatch")
+    synergy_match: float = Field(default=0.0, alias="synergyMatch")
 
 
 class CardReplacementSuggestion(BaseModel):
@@ -66,9 +111,13 @@ class DeckAnalysisResult(BaseModel):
     missing_unique_cards: int
     completion_pct: float
     is_buildable: bool
+    estimated_completion_cost: float | None = None
+    missing_cards_priced: int = 0
+    missing_cards_unpriced: int = 0
     missing_cards: list[CardNeed] = Field(default_factory=list)
     shopping_list: list[CardNeed] = Field(default_factory=list)
     replacement_suggestions: list[CardReplacementSuggestion] = Field(default_factory=list)
+    win_condition_label: str = Field(default="", alias="winConditionLabel")
 
 
 class CollectionSnapshot(BaseModel):
@@ -81,23 +130,33 @@ class CollectionSnapshot(BaseModel):
     total_available_copies: int = 0
 
 
-class CollectionItemRequest(BaseModel):
+class CollectionItemRequest(StrictInputModel):
     card: str
     quantity: int
 
 
-class CollectionCsvImportRequest(BaseModel):
-    csv_text: str = Field(alias="csvText")
-    replace_existing: bool = Field(default=False, alias="replaceExisting")
+class CollectionCsvImportRequest(StrictInputModel):
+    csv_text: str
+    replace_existing: bool = False
 
 
-class DeckValidationRequest(BaseModel):
+class CollectionJsonImportRequest(StrictInputModel):
+    json_text: str
+    replace_existing: bool = False
+
+
+class CollectionResetRequest(StrictInputModel):
+    confirm_phrase: str
+    create_backup: bool = True
+
+
+class DeckValidationRequest(StrictInputModel):
     deck: DeckPayload
 
 
-class DeckAnalyzeRequest(BaseModel):
+class DeckAnalyzeRequest(StrictInputModel):
     deck: DeckPayload
-    collection_override: dict[str, int] | None = Field(default=None, alias="collectionOverride")
+    collection_override: dict[str, int] | None = None
 
 
 class DeckLibraryRow(BaseModel):
@@ -106,26 +165,32 @@ class DeckLibraryRow(BaseModel):
     source: str
     format: str
     bucket: str = "saved"
+    visibility: str = "private"
+    owner_display_name: str = Field(default="", alias="ownerDisplayName")
+    is_owner: bool = Field(default=True, alias="isOwner")
+    published_at: str | None = Field(default=None, alias="publishedAt")
     updated_at: str = Field(alias="updatedAt")
     created_at: str = Field(alias="createdAt")
     deck: DeckPayload
 
 
-class DeckLibraryUpsertRequest(BaseModel):
+class DeckLibraryUpsertRequest(StrictInputModel):
     deck: DeckPayload
     name: str | None = None
     source: str | None = None
     bucket: str | None = None
+    visibility: str | None = None
 
 
-class DeckImportRequest(BaseModel):
-    raw_text: str = Field(alias="rawText")
+class DeckImportRequest(StrictInputModel):
+    raw_text: str
     name: str | None = None
     source: str | None = None
     bucket: str | None = None
+    visibility: str | None = None
 
 
-class DeckLibraryBucketRequest(BaseModel):
+class DeckLibraryBucketRequest(StrictInputModel):
     bucket: str
 
 
@@ -145,6 +210,9 @@ class MetaDeckSummary(BaseModel):
     missing_copies: int | None = Field(default=None, alias="missingCopies")
     missing_unique_cards: int | None = Field(default=None, alias="missingUniqueCards")
     recommendation_score: float | None = Field(default=None, alias="recommendationScore")
+    competitive_score: float | None = Field(default=None, alias="competitiveScore")
+    win_condition_id: int | None = Field(default=None, alias="winConditionId")
+    win_condition_label: str = Field(default="", alias="winConditionLabel")
     deck: DeckPayload
 
 
@@ -180,3 +248,246 @@ class DeckEligibilityResponse(BaseModel):
     battlefield_count: int = Field(default=3, alias="battlefieldCount")
     main_copy_limit: int = Field(default=3, alias="mainCopyLimit")
     allowed_main_card_types: list[str] = Field(default_factory=list, alias="allowedMainCardTypes")
+    sideboard_max: int = Field(default=8, alias="sideboardMax")
+    allowed_sideboard_card_types: list[str] = Field(default_factory=list, alias="allowedSideboardCardTypes")
+
+
+class FormatProfileSummary(BaseModel):
+    format_name: str = Field(alias="format")
+    description: str = ""
+    is_default: bool = Field(default=False, alias="isDefault")
+    main_deck_size: int = Field(default=40, alias="mainDeckSize")
+    rune_deck_size: int = Field(default=12, alias="runeDeckSize")
+    battlefield_count: int = Field(default=3, alias="battlefieldCount")
+    sideboard_max: int = Field(default=8, alias="sideboardMax")
+    main_copy_limit: int = Field(default=3, alias="mainCopyLimit")
+
+
+class MetaIndexStatus(BaseModel):
+    source_path: str = Field(alias="sourcePath")
+    indexed_decks: int = Field(alias="indexedDecks")
+    raw_rows: int = Field(alias="rawRows")
+    last_refreshed_at: str | None = Field(default=None, alias="lastRefreshedAt")
+    last_refresh_attempt_at: str | None = Field(default=None, alias="lastRefreshAttemptAt")
+    last_error: str | None = Field(default=None, alias="lastError")
+
+
+class AutoBuilderStatus(BaseModel):
+    enabled: bool = True
+    model_dir: str = Field(alias="modelDir")
+    generated_at: str | None = Field(default=None, alias="generatedAt")
+    training_deck_count: int = Field(default=0, alias="trainingDeckCount")
+    card_count: int = Field(default=0, alias="cardCount")
+    win_condition_count: int = Field(default=0, alias="winConditionCount")
+    synergy_cluster_count: int = Field(default=0, alias="synergyClusterCount")
+    source_counts: dict[str, int] = Field(default_factory=dict, alias="sourceCounts")
+    unique_shell_count: int = Field(default=0, alias="uniqueShellCount")
+    archetype_count: int = Field(default=0, alias="archetypeCount")
+    default_min_results: int = Field(default=12, alias="defaultMinResults")
+    max_variants_per_shell: int = Field(default=2, alias="maxVariantsPerShell")
+    artifact_sklearn_version: str = Field(default="", alias="artifactSklearnVersion")
+    runtime_sklearn_version: str = Field(default="", alias="runtimeSklearnVersion")
+    artifact_torch_version: str = Field(default="", alias="artifactTorchVersion")
+    runtime_torch_version: str = Field(default="", alias="runtimeTorchVersion")
+    training_torch_device: str = Field(default="", alias="trainingTorchDevice")
+    runtime_torch_device: str = Field(default="", alias="runtimeTorchDevice")
+    training_metrics: dict[str, Any] = Field(default_factory=dict, alias="trainingMetrics")
+    selected_win_condition_count: int = Field(default=0, alias="selectedWinConditionCount")
+    selected_synergy_cluster_count: int = Field(default=0, alias="selectedSynergyClusterCount")
+    candidate_win_condition_counts: list[int] = Field(default_factory=list, alias="candidateWinConditionCounts")
+    candidate_synergy_cluster_counts: list[int] = Field(default_factory=list, alias="candidateSynergyClusterCounts")
+    win_condition_selection_metrics: dict[str, dict[str, float]] = Field(default_factory=dict, alias="winConditionSelectionMetrics")
+    synergy_selection_metrics: dict[str, dict[str, float]] = Field(default_factory=dict, alias="synergySelectionMetrics")
+    resolution_selection_mode: str = Field(default="", alias="resolutionSelectionMode")
+    resolution_reference_artifact: str = Field(default="", alias="resolutionReferenceArtifact")
+    generator_win_vector_size: int = Field(default=0, alias="generatorWinVectorSize")
+    generator_cluster_vector_size: int = Field(default=0, alias="generatorClusterVectorSize")
+    embedding_neighbor_count: int = Field(default=0, alias="embeddingNeighborCount")
+    strict_buildable_recommendation_hit_rate: float = Field(default=0.0, alias="strictBuildableRecommendationHitRate")
+    strict_buildable_empty_result_rate: float = Field(default=0.0, alias="strictBuildableEmptyResultRate")
+    source_health: dict[str, dict[str, object]] = Field(default_factory=dict, alias="sourceHealth")
+    last_loaded_at: str | None = Field(default=None, alias="lastLoadedAt")
+    runtime_warnings: list[str] = Field(default_factory=list, alias="runtimeWarnings")
+    last_error: str | None = Field(default=None, alias="lastError")
+
+
+class AutoBuilderRecommendationRequest(StrictInputModel):
+    top: int = 24
+    ranking_mode: str = "collection"
+    strategy_mode: str = "hybrid"
+    legend_title: str = ""
+    chosen_champion_title: str = ""
+    only_buildable: bool = False
+    min_results: int = 12
+    diversity_mode: str = "shells"
+    collection_override: dict[str, int] | None = None
+
+
+class AutoBuilderCompleteRequest(StrictInputModel):
+    deck: DeckPayload
+    ranking_mode: str = "collection"
+    strategy_mode: str = "hybrid"
+    collection_override: dict[str, int] | None = None
+
+
+class AutoBuilderExplanation(BaseModel):
+    kind: str = ""
+    label: str = ""
+    value: str = ""
+
+
+class SeedDeckReference(BaseModel):
+    source: str = ""
+    deck_id: str = Field(default="", alias="deckId")
+    deck_name: str = Field(default="", alias="deckName")
+    score: float = 0.0
+
+
+class WinConditionSummary(BaseModel):
+    id: int
+    label: str
+    top_cards: list[str] = Field(default_factory=list, alias="topCards")
+    top_effect_tokens: list[str] = Field(default_factory=list, alias="topEffectTokens")
+    sample_deck_count: int = Field(default=0, alias="sampleDeckCount")
+    avg_competitive_score: float = Field(default=0.0, alias="avgCompetitiveScore")
+    shell_coverage_count: int = Field(default=0, alias="shellCoverageCount")
+    archetype_count: int = Field(default=0, alias="archetypeCount")
+
+
+class SynergyClusterSummary(BaseModel):
+    id: int
+    label: str
+    top_cards: list[str] = Field(default_factory=list, alias="topCards")
+    avg_competitive_score: float = Field(default=0.0, alias="avgCompetitiveScore")
+
+
+class AutoBuilderCandidate(BaseModel):
+    build_mode: str = Field(default="hybrid", alias="buildMode")
+    shell_id: str = Field(default="", alias="shellId")
+    shell_label: str = Field(default="", alias="shellLabel")
+    archetype_id: str = Field(default="", alias="archetypeId")
+    archetype_name: str = Field(default="", alias="archetypeName")
+    archetype_confidence: float = Field(default=0.0, alias="archetypeConfidence")
+    win_condition_id: int = Field(default=0, alias="winConditionId")
+    win_condition_label: str = Field(default="", alias="winConditionLabel")
+    win_condition_confidence: float = Field(default=0.0, alias="winConditionConfidence")
+    synergy_cluster_ids: list[int] = Field(default_factory=list, alias="synergyClusterIds")
+    synergy_cluster_labels: list[str] = Field(default_factory=list, alias="synergyClusterLabels")
+    competitive_score: float = Field(default=0.0, alias="competitiveScore")
+    ranking_score: float = Field(default=0.0, alias="rankingScore")
+    source_breakdown: dict[str, int] = Field(default_factory=dict, alias="sourceBreakdown")
+    validation_fallback: str = Field(default="", alias="validationFallback")
+    is_buildable: bool = Field(default=False, alias="isBuildable")
+    completion_pct: float = Field(default=0.0, alias="completionPct")
+    estimated_completion_cost: float | None = Field(default=None, alias="estimatedCompletionCost")
+    missing_copies: int = Field(default=0, alias="missingCopies")
+    missing_unique_cards: int = Field(default=0, alias="missingUniqueCards")
+    missing_cards: list[CardNeed] = Field(default_factory=list, alias="missingCards")
+    replacement_suggestions: list[CardReplacementSuggestion] = Field(default_factory=list, alias="replacementSuggestions")
+    seed_decks: list[SeedDeckReference] = Field(default_factory=list, alias="seedDecks")
+    explanations: list[AutoBuilderExplanation] = Field(default_factory=list)
+    deck: DeckPayload
+
+
+class AutoBuilderRecommendation(AutoBuilderCandidate):
+    rank: int = 0
+
+
+class SyntheticCollectionConfig(StrictInputModel):
+    pack_min: int | None = None
+    pack_max: int | None = None
+    scenario_count: int | None = None
+    rune_unlimited: bool | None = None
+
+
+class ModelObservationTrainingRequest(StrictInputModel):
+    label: str = ""
+    epochs: int | None = None
+
+
+class ModelVersionActionRequest(StrictInputModel):
+    label: str = ""
+
+
+class ModelTrainingStatus(BaseModel):
+    is_running: bool = Field(default=False, alias="isRunning")
+    job_id: str = Field(default="", alias="jobId")
+    label: str = ""
+    status: str = ""
+    started_at: str | None = Field(default=None, alias="startedAt")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
+    finished_at: str | None = Field(default=None, alias="finishedAt")
+    stage: str = ""
+    step: int = 0
+    total_steps: int = Field(default=0, alias="totalSteps")
+    progress_pct: float = Field(default=0.0, alias="progressPct")
+    message: str = ""
+    error: str = ""
+    output_dir: str = Field(default="", alias="outputDir")
+    model_id: str = Field(default="", alias="modelId")
+    params: dict[str, Any] = Field(default_factory=dict)
+    result: dict[str, Any] = Field(default_factory=dict)
+    events: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ModelVersionSummary(BaseModel):
+    id: str
+    label: str = ""
+    kind: str = ""
+    status: str = ""
+    is_production: bool = Field(default=False, alias="isProduction")
+    created_at: str | None = Field(default=None, alias="createdAt")
+    promoted_at: str | None = Field(default=None, alias="promotedAt")
+    model_dir: str = Field(default="", alias="modelDir")
+    generated_at: str | None = Field(default=None, alias="generatedAt")
+    training_deck_count: int = Field(default=0, alias="trainingDeckCount")
+    win_condition_count: int = Field(default=0, alias="winConditionCount")
+    synergy_cluster_count: int = Field(default=0, alias="synergyClusterCount")
+    epochs: int = 0
+    torch_device: str = Field(default="", alias="torchDevice")
+    source_counts: dict[str, int] = Field(default_factory=dict, alias="sourceCounts")
+    training_metrics: dict[str, Any] = Field(default_factory=dict, alias="trainingMetrics")
+
+
+class ModelObservationOverview(BaseModel):
+    status: AutoBuilderStatus
+    training: ModelTrainingStatus
+    models: list[ModelVersionSummary] = Field(default_factory=list)
+    observation: dict[str, Any] = Field(default_factory=dict)
+    defaults: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserProfileSummary(BaseModel):
+    user_id: str = Field(alias="userId")
+    email: str
+    display_name: str = Field(alias="displayName")
+    role: str = "user"
+    status: str = "active"
+    created_at: str | None = Field(default=None, alias="createdAt")
+    updated_at: str | None = Field(default=None, alias="updatedAt")
+    last_login_at: str | None = Field(default=None, alias="lastLoginAt")
+
+
+class FeatureFlags(BaseModel):
+    auto_builder_enabled: bool = Field(default=False, alias="autoBuilderEnabled")
+    model_observation_enabled: bool = Field(default=False, alias="modelObservationEnabled")
+    community_gallery_enabled: bool = Field(default=True, alias="communityGalleryEnabled")
+
+
+class MeResponse(BaseModel):
+    user: UserProfileSummary
+    feature_flags: FeatureFlags = Field(alias="featureFlags")
+
+
+class PublicDeckListResponse(BaseModel):
+    decks: list[DeckLibraryRow] = Field(default_factory=list)
+    total: int = 0
+
+
+class BetaInviteSummary(BaseModel):
+    email: str
+    role: str = "user"
+    status: str = "invited"
+    accepted_user_id: str | None = Field(default=None, alias="acceptedUserId")
+    invited_at: str | None = Field(default=None, alias="invitedAt")
+    accepted_at: str | None = Field(default=None, alias="acceptedAt")
