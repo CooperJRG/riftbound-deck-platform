@@ -169,8 +169,8 @@ def load_config() -> AppConfig:
         default=("http://127.0.0.1:8010", "http://localhost:8010"),
     )
     sentry_dsn = str(os.getenv("RB_SENTRY_DSN", "") or "").strip()
-    host = os.getenv("RB_HOST", "127.0.0.1")
-    port = int(os.getenv("RB_PORT", "8010"))
+    host = os.getenv("RB_HOST", "0.0.0.0" if os.getenv("PORT") else "127.0.0.1")
+    port = int(os.getenv("PORT") or os.getenv("RB_PORT", "8010"))
     return AppConfig(
         app_root=app_root,
         workspace_root=workspace_root,
