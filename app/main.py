@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import anyio
 from contextlib import asynccontextmanager
 import json
 import logging
@@ -99,6 +100,9 @@ async def request_logging_middleware(request: Request, call_next):
     started = time.perf_counter()
     try:
         response = await call_next(request)
+    except anyio.EndOfStream:
+        # Client disconnected (e.g. navigated away); do not log as error.
+        raise
     except Exception:
         elapsed_ms = round((time.perf_counter() - started) * 1000.0, 2)
         auth = getattr(request.state, "auth", None)

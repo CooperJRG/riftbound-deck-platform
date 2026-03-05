@@ -38,7 +38,13 @@ class PostgresStorage:
         if not str(database_url or "").strip():
             raise RuntimeError("RB_DATABASE_URL is required when RB_STORAGE_BACKEND=postgres.")
         self._database_url = str(database_url).strip()
-        self._pool = ConnectionPool(conninfo=self._database_url, kwargs={"row_factory": dict_row}, min_size=1, max_size=10)
+        # prepare_threshold=None avoids DuplicatePreparedStatement when connections are reused (e.g. Supabase pooler).
+        self._pool = ConnectionPool(
+            conninfo=self._database_url,
+            kwargs={"row_factory": dict_row, "prepare_threshold": None},
+            min_size=1,
+            max_size=10,
+        )
 
     @property
     def db_path(self) -> Path | None:
