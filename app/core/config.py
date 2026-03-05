@@ -95,12 +95,12 @@ def load_config() -> AppConfig:
     storage_backend = str(os.getenv("RB_STORAGE_BACKEND", "postgres" if database_url else "sqlite") or "sqlite").strip().lower()
     if storage_backend not in {"sqlite", "postgres"}:
         storage_backend = "sqlite"
+    # Cards: default to visible copy in project root (riftbound-cards.json); override with RB_CARDS_PATH.
+    default_cards = app_root / "riftbound-cards.json"
     cards_path = _resolve_path(
-        os.getenv("RB_CARDS_PATH", str(file_base / "riftbound-cards.json") if file_base == app_root else str(workspace_root / "riftbound-cards.json")),
-        base=file_base if file_base == app_root else workspace_root,
+        os.getenv("RB_CARDS_PATH", str(default_cards)),
+        base=app_root,
     )
-    if not os.getenv("RB_CARDS_PATH") and file_base == app_root:
-        cards_path = (app_root / "data" / "riftbound-cards.json").resolve()
     meta_index_path = _resolve_path(
         os.getenv("RB_META_INDEX_PATH", str(file_base / "artifacts" / "meta-deck-index.json")),
         base=file_base,

@@ -8,6 +8,9 @@ from app.domain.normalization import normalize_card_key, strip_starter_suffix
 
 BASE_DOMAINS = ("Calm", "Chaos", "Body", "Fury", "Mind", "Order")
 
+# Piltover Archive CDN: artwork when card JSON has no imageUrl (format SET-NUMBER e.g. OGS-001)
+PILTOVER_CARD_ART_BASE = "https://cdn.piltoverarchive.com/cards"
+
 
 def _parse_domains(color: str | None) -> tuple[tuple[str, ...], bool]:
     if not color:
@@ -201,3 +204,19 @@ def load_card_catalog(path: Path) -> CardCatalog:
             by_key[key] = card
 
     return CardCatalog(cards=tuple(cards), by_title=by_title, by_key=by_key)
+
+
+def card_art_url(card: CardRecord) -> str:
+    """Resolved artwork URL: use catalog imageUrl, or Piltover CDN from set + number."""
+    if card.image_url and card.image_url.strip():
+        return card.image_url.strip()
+    set_name = (card.set_name or "").strip()
+    card_number = (card.card_number or "").strip()
+    if not set_name or not card_number:
+        return ""
+    # Set code = first token (e.g. "OGS - Proving Grounds" -> "OGS", "SFD" -> "SFD")
+    set_code = set_name.split()[0].upper() if set_name.split() else ""
+    if not set_code:
+        return ""
+    # CDN path: SET-NUMBER.webp (e.g. OGS-001, SFD-129)
+    return f"{PILTOVER_CARD_ART_BASE}/{set_code}-{card_number}.webp?width=3840"

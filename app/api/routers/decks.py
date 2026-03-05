@@ -22,6 +22,7 @@ from app.domain.models import (
 )
 from app.domain.normalization import canonicalize_titles, coerce_cards_map
 from app.domain.validator import validate_deck
+from app.infra.cards_repo import card_art_url
 
 router = APIRouter(prefix="/api/decks", tags=["decks"])
 
@@ -76,7 +77,7 @@ def card_to_view(card) -> CardView:
         cost=card.cost,
         might=card.might,
         isUnique=bool(card.is_unique),
-        imageUrl=card.image_url,
+        imageUrl=card_art_url(card),
         rarity=card.rarity,
         set=card.set_name,
         cardNumber=card.card_number,
