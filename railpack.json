@@ -2,10 +2,14 @@
   "$schema": "https://schema.railpack.com",
   "steps": {
     "install": {
+      "inputs": [
+        { "step": "packages:mise" },
+        { "local": true, "include": ["."] }
+      ],
       "commands": [
         "python -m venv /app/.venv",
         "/app/.venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu",
-        "/app/.venv/bin/pip install -r requirements.txt"
+        "/app/.venv/bin/pip install -r /app/requirements.txt"
       ]
     }
   }
