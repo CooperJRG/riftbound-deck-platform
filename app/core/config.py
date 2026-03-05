@@ -89,37 +89,41 @@ def _env_list(name: str, *, default: tuple[str, ...]) -> tuple[str, ...]:
 def load_config() -> AppConfig:
     app_root = Path(__file__).resolve().parents[2]
     workspace_root = app_root.parent
+    # On Railway (PORT set), default data paths under app_root so deploy bundle is self-contained.
+    file_base = app_root if os.getenv("PORT") else workspace_root
     database_url = str(os.getenv("RB_DATABASE_URL", "") or "").strip()
     storage_backend = str(os.getenv("RB_STORAGE_BACKEND", "postgres" if database_url else "sqlite") or "sqlite").strip().lower()
     if storage_backend not in {"sqlite", "postgres"}:
         storage_backend = "sqlite"
     cards_path = _resolve_path(
-        os.getenv("RB_CARDS_PATH", str(workspace_root / "riftbound-cards.json")),
-        base=workspace_root,
+        os.getenv("RB_CARDS_PATH", str(file_base / "riftbound-cards.json") if file_base == app_root else str(workspace_root / "riftbound-cards.json")),
+        base=file_base if file_base == app_root else workspace_root,
     )
+    if not os.getenv("RB_CARDS_PATH") and file_base == app_root:
+        cards_path = (app_root / "data" / "riftbound-cards.json").resolve()
     meta_index_path = _resolve_path(
-        os.getenv("RB_META_INDEX_PATH", str(workspace_root / "artifacts" / "meta-deck-index.json")),
-        base=workspace_root,
+        os.getenv("RB_META_INDEX_PATH", str(file_base / "artifacts" / "meta-deck-index.json")),
+        base=file_base,
     )
     meta_index_csv_path = _resolve_path(
         os.getenv("RB_META_INDEX_CSV_PATH", str(meta_index_path.with_suffix(".csv"))),
-        base=workspace_root,
+        base=file_base,
     )
     base_card_prices_json_path = _resolve_path(
-        os.getenv("RB_BASE_CARD_PRICES_JSON_PATH", str(workspace_root / "artifacts" / "base-card-prices.json")),
-        base=workspace_root,
+        os.getenv("RB_BASE_CARD_PRICES_JSON_PATH", str(file_base / "artifacts" / "base-card-prices.json")),
+        base=file_base,
     )
     base_card_prices_csv_path = _resolve_path(
-        os.getenv("RB_BASE_CARD_PRICES_CSV_PATH", str(workspace_root / "artifacts" / "base-card-prices.csv")),
-        base=workspace_root,
+        os.getenv("RB_BASE_CARD_PRICES_CSV_PATH", str(file_base / "artifacts" / "base-card-prices.csv")),
+        base=file_base,
     )
     deck_sources_cache_dir = _resolve_path(
-        os.getenv("RB_DECK_SOURCES_CACHE_DIR", str(workspace_root / "artifacts" / "deck_sources")),
-        base=workspace_root,
+        os.getenv("RB_DECK_SOURCES_CACHE_DIR", str(file_base / "artifacts" / "deck_sources")),
+        base=file_base,
     )
     meta_refresh_script_path = _resolve_path(
-        os.getenv("RB_META_REFRESH_SCRIPT_PATH", str(workspace_root / "scripts" / "refresh_meta_deck_index.py")),
-        base=workspace_root,
+        os.getenv("RB_META_REFRESH_SCRIPT_PATH", str(file_base / "scripts" / "refresh_meta_deck_index.py")),
+        base=file_base,
     )
     meta_refresh_extra_args = _env_command_args("RB_META_REFRESH_EXTRA_ARGS")
     meta_auto_refresh_enabled = _env_bool("RB_META_AUTO_REFRESH_ENABLED", default=False)
@@ -127,12 +131,12 @@ def load_config() -> AppConfig:
     meta_auto_refresh_timeout_sec = _env_int("RB_META_AUTO_REFRESH_TIMEOUT_SEC", default=1800, minimum=60)
     meta_auto_refresh_run_on_startup = _env_bool("RB_META_AUTO_REFRESH_RUN_ON_STARTUP", default=False)
     auto_builder_dir = _resolve_path(
-        os.getenv("RB_AUTO_BUILDER_DIR", str(workspace_root / "artifacts" / "auto_builder")),
-        base=workspace_root,
+        os.getenv("RB_AUTO_BUILDER_DIR", str(file_base / "artifacts" / "auto_builder")),
+        base=file_base,
     )
     model_registry_dir = _resolve_path(
-        os.getenv("RB_MODEL_REGISTRY_DIR", str(workspace_root / "artifacts" / "auto_builder_models")),
-        base=workspace_root,
+        os.getenv("RB_MODEL_REGISTRY_DIR", str(file_base / "artifacts" / "auto_builder_models")),
+        base=file_base,
     )
     auto_builder_enabled = _env_bool(
         "RB_ENABLE_AUTO_BUILDER",
@@ -149,8 +153,8 @@ def load_config() -> AppConfig:
         base=app_root,
     )
     rules_reference_dir = _resolve_path(
-        os.getenv("RB_RULES_REFERENCE_DIR", str(workspace_root / "rules")),
-        base=workspace_root,
+        os.getenv("RB_RULES_REFERENCE_DIR", str(file_base / "rules")),
+        base=file_base,
     )
     db_path = _resolve_path(
         os.getenv("RB_DB_PATH", str(app_root / "data" / "deck_platform.db")),

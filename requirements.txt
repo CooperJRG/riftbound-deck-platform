@@ -14,8 +14,8 @@ slowapi==0.1.9
 # HTTP client
 httpx==0.27.2
 
-# Auto-builder / ML (heavy; omit if not using model features)
-torch==2.8.0
+# Auto-builder / ML. torch: install CPU-only on Railway to stay under 4 GB image limit
+# (see railpack.json: installs from https://download.pytorch.org/whl/cpu first)
 scikit-learn==1.6.1
 numpy==2.3.2
 pillow==10.4.0

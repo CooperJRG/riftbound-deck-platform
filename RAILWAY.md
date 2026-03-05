@@ -1,7 +1,8 @@
 # Railway deployment
 
 - **Region:** `europe-west4` (set in Railway project settings).
-- **Start:** Railpack uses the `Procfile` (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`).
+- **Start:** Railpack uses the `Procfile` or `railway.toml` (`uvicorn app.main:app --host 0.0.0.0 --port $PORT`).
+- **Image size:** PyTorch is installed as **CPU-only** via `railpack.json` so the image stays under the 4 GB limit. Do not add `torch` to `requirements.txt`; it is installed in the custom install step.
 
 ## Required variables
 
