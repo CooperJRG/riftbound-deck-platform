@@ -26,6 +26,10 @@ Optional: `RB_ENABLE_AUTO_BUILDER`, `RB_ENABLE_MODEL_OBSERVATION`, `RB_SENTRY_DS
 
 **Cards:** The app defaults to `riftbound-cards.json` in the **project root** (visible next to `app/`, `web/`). A copy is committed there so Railway and local both use it without extra env. Override with `RB_CARDS_PATH` if needed.
 
+**Auto-builder model:** The most recent production model (**closed-beta**) is in `artifacts/`:
+- `artifacts/auto_builder/` — bundle used at runtime (default `RB_AUTO_BUILDER_DIR`).
+- `artifacts/auto_builder_models/` — registry with `manifest.json` and `versions/20260305T213936Z-model-closed-beta/`. Production model id: `20260305T213936Z-model-closed-beta`.
+
 ## Custom domain with Cloudflare (riftdesk.com)
 
 ### 1. Add the domain in Railway

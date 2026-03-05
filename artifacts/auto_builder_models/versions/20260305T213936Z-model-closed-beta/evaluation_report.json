@@ -1,0 +1,45 @@
+{
+  "nextCardTop10Recall": 0.4062,
+  "maskedDeckReconstructionExactCardRecall": 0.0469,
+  "winConditionClusterSilhouette": 0.2698,
+  "competitiveScoreSpearman": 0.8012,
+  "moeLoadBalanceLoss": 2.002875,
+  "collectionFirstRecommendationHitRate": 0.9963,
+  "strictBuildableRecommendationHitRate": 0.5476,
+  "strictBuildableCandidateCountP50": 2.0,
+  "strictBuildableCandidateCountP90": 40.0,
+  "strictBuildableEmptyResultRate": 0.3624,
+  "winConditionSelectionTable": {
+    "20": {
+      "recommendationHitRate": 0.9963,
+      "strictBuildableHitRate": 0.5476,
+      "reconstructionRecall": 0.247,
+      "topicCoherence": 0.3591,
+      "shellCoverageBalance": 0.1276,
+      "silhouette": 0.2698,
+      "strictBuildableCandidateCountP50": 2.0,
+      "strictBuildableCandidateCountP90": 40.0,
+      "strictBuildableEmptyResultRate": 0.3624,
+      "strictBuildableCandidateDensity": 1.0,
+      "compositeScore": 0.5127
+    }
+  },
+  "synergySelectionTable": {
+    "24": {
+      "replacementQuality": 0.8854,
+      "modularityProxy": 0.3005,
+      "coverageScore": 0.8582,
+      "buildableRepairSuccess": 0.6789,
+      "silhouette": 0.0922,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.6906
+    }
+  },
+  "sourceCountsByAdapter": {
+    "piltoverarchive": 943,
+    "riftboundgg": 517,
+    "riot-bologna": 27,
+    "mobalytics-tournament": 43
+  },
+  "sourceFailuresByAdapter": {}
+}

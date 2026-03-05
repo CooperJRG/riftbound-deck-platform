@@ -1,0 +1,14 @@
+{
+  "productionModelId": "20260305T213936Z-model-closed-beta",
+  "models": [
+    {
+      "id": "20260305T213936Z-model-closed-beta",
+      "label": "Model-Closed-Beta",
+      "kind": "trained",
+      "status": "ready",
+      "createdAt": "2026-03-05T21:39:36.220464+00:00",
+      "promotedAt": "2026-03-05T21:53:16.844671+00:00",
+      "dirName": "20260305T213936Z-model-closed-beta"
+    }
+  ]
+}

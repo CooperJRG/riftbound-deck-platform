@@ -1,0 +1,135 @@
+{
+  "generatedAt": "2026-03-05T21:52:57.117159+00:00",
+  "trainingDeckCount": 1530,
+  "validationDeckCount": 336,
+  "cardCount": 454,
+  "winConditionCount": 20,
+  "synergyClusterCount": 24,
+  "embeddingDim": 64,
+  "negativeSamples": 15,
+  "nmfComponents": 20,
+  "spectralClusters": 24,
+  "knnNeighbors": 25,
+  "epochs": 128,
+  "bundleVersion": 3,
+  "sourceCounts": {
+    "piltoverarchive": 943,
+    "riftboundgg": 517,
+    "riot-bologna": 27,
+    "mobalytics-tournament": 43
+  },
+  "uniqueShellCount": 58,
+  "archetypeCount": 1156,
+  "pythonVersion": "3.13.5",
+  "numpyVersion": "2.3.2",
+  "sklearnVersion": "1.6.1",
+  "torchVersion": "2.12.0.dev20260304+cu128",
+  "torchDevice": "cuda",
+  "minWinConditionCount": 20,
+  "minSynergyClusterCount": 24,
+  "syntheticCollectionConfig": {
+    "packMin": 24,
+    "packMax": 240,
+    "scenarioCount": 4,
+    "runeUnlimited": true
+  },
+  "syntheticCollectionSummary": {
+    "commonPool": 301,
+    "uncommonPool": 0,
+    "rarePool": 150,
+    "epicPool": 90
+  },
+  "defaultMinResults": 12,
+  "maxVariantsPerShell": 2,
+  "selectedWinConditionCount": 20,
+  "selectedSynergyClusterCount": 24,
+  "candidateWinConditionCounts": [
+    20
+  ],
+  "candidateSynergyClusterCounts": [
+    24
+  ],
+  "winConditionSelectionMetrics": {
+    "20": {
+      "recommendationHitRate": 0.9963,
+      "strictBuildableHitRate": 0.5476,
+      "reconstructionRecall": 0.247,
+      "topicCoherence": 0.3591,
+      "shellCoverageBalance": 0.1276,
+      "silhouette": 0.2698,
+      "strictBuildableCandidateCountP50": 2.0,
+      "strictBuildableCandidateCountP90": 40.0,
+      "strictBuildableEmptyResultRate": 0.3624,
+      "strictBuildableCandidateDensity": 1.0,
+      "compositeScore": 0.5127
+    }
+  },
+  "synergySelectionMetrics": {
+    "24": {
+      "replacementQuality": 0.8854,
+      "modularityProxy": 0.3005,
+      "coverageScore": 0.8582,
+      "buildableRepairSuccess": 0.6789,
+      "silhouette": 0.0922,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.6906
+    }
+  },
+  "trainingCorpusFingerprint": "a3d03315e05a28d73b065adfc084f6e50ac84c83ca1448ebe7c9e52b7c8a12d2",
+  "resolutionSelectionMode": "reuse",
+  "resolutionReferenceArtifact": "C:\\Users\\coope\\Documents\\Riftbound Test\\artifacts\\auto_builder",
+  "strictBuildableRecommendationHitRate": 0.5476,
+  "strictBuildableEmptyResultRate": 0.3624,
+  "generatorWinVectorSize": 20,
+  "generatorClusterVectorSize": 24,
+  "embeddingNeighborCount": 12,
+  "sourceHealth": {},
+  "artifactVersionHealth": {
+    "runtimeMatches": true
+  },
+  "trainingMetrics": {
+    "nextCardTop10Recall": 0.4062,
+    "maskedDeckReconstructionExactCardRecall": 0.0469,
+    "winConditionClusterSilhouette": 0.2698,
+    "competitiveScoreSpearman": 0.8012,
+    "moeLoadBalanceLoss": 2.002875,
+    "collectionFirstRecommendationHitRate": 0.9963,
+    "strictBuildableRecommendationHitRate": 0.5476,
+    "strictBuildableCandidateCountP50": 2.0,
+    "strictBuildableCandidateCountP90": 40.0,
+    "strictBuildableEmptyResultRate": 0.3624,
+    "winConditionSelectionTable": {
+      "20": {
+        "recommendationHitRate": 0.9963,
+        "strictBuildableHitRate": 0.5476,
+        "reconstructionRecall": 0.247,
+        "topicCoherence": 0.3591,
+        "shellCoverageBalance": 0.1276,
+        "silhouette": 0.2698,
+        "strictBuildableCandidateCountP50": 2.0,
+        "strictBuildableCandidateCountP90": 40.0,
+        "strictBuildableEmptyResultRate": 0.3624,
+        "strictBuildableCandidateDensity": 1.0,
+        "compositeScore": 0.5127
+      }
+    },
+    "synergySelectionTable": {
+      "24": {
+        "replacementQuality": 0.8854,
+        "modularityProxy": 0.3005,
+        "coverageScore": 0.8582,
+        "buildableRepairSuccess": 0.6789,
+        "silhouette": 0.0922,
+        "clusterSizeRegularization": 1.0,
+        "compositeScore": 0.6906
+      }
+    },
+    "sourceCountsByAdapter": {
+      "piltoverarchive": 943,
+      "riftboundgg": 517,
+      "riot-bologna": 27,
+      "mobalytics-tournament": 43
+    },
+    "sourceFailuresByAdapter": {}
+  }
+}
