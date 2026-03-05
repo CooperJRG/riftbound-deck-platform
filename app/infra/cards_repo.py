@@ -138,6 +138,8 @@ class CardCatalog:
 
 
 def load_card_catalog(path: Path) -> CardCatalog:
+    if not path.is_file():
+        return CardCatalog(cards=(), by_title={}, by_key={})
     raw = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, list):
         raise ValueError(f"Card catalog at {path} is invalid.")
