@@ -447,7 +447,7 @@
         <div class="module-head">
           <div>
             <h2>Discover</h2>
-            <p class="muted">Search the meta index, browse public beta decks, and manage your saved library.</p>
+            <p class="muted">Search the meta index and browse public beta decks.</p>
           </div>
         </div>
         <div class="divider"></div>
@@ -478,27 +478,28 @@
           <div id="community-list" class="tile-grid compact" hidden></div>
         </section>
 
-        <section class="inspector-block">
-          <h2>Deck Library</h2>
-          <div class="row inputs-inline">
-            <input id="library-search" placeholder="Search my decks by name, source, or legend" />
-            <button id="library-search-btn" type="button" class="card-action-btn secondary">Clear</button>
-          </div>
-          <div class="library-split">
-            <div class="library-pane">
-              <h3 class="inspector-subtitle">Built Decks (Reserve Cards)</h3>
-              <p class="library-note">Click to expand details, double-click to open. Drag cards to Saved to release reserved cards.</p>
-              <div id="library-built-gallery" class="tile-grid compact"></div>
-            </div>
-            <div class="library-pane">
-              <h3 class="inspector-subtitle">Saved Decks</h3>
-              <p class="library-note">Click to expand details, double-click to open. Drag cards to Built to reserve cards for that deck.</p>
-              <div id="library-saved-gallery" class="tile-grid compact"></div>
-            </div>
-          </div>
-        </section>
       </aside>
     </main>
+
+    <aside id="deck-library-sidebar" class="deck-library-sidebar" aria-label="Deck Library">
+      <h2 class="deck-library-sidebar-title">Deck Library</h2>
+      <div class="row inputs-inline">
+        <input id="library-search" placeholder="Search decks by name, source, or legend" />
+        <button id="library-search-btn" type="button" class="card-action-btn secondary">Clear</button>
+      </div>
+      <div class="library-split">
+        <div class="library-pane">
+          <h3 class="inspector-subtitle">Built Decks</h3>
+          <p class="library-note">Double-click to open. Drag to Saved to release reserved cards.</p>
+          <div id="library-built-gallery" class="tile-grid compact"></div>
+        </div>
+        <div class="library-pane">
+          <h3 class="inspector-subtitle">Saved Decks</h3>
+          <p class="library-note">Double-click to open. Drag to Built to reserve cards.</p>
+          <div id="library-saved-gallery" class="tile-grid compact"></div>
+        </div>
+      </div>
+    </aside>
     </div><!-- /.app-body -->
   </div><!-- /#app-shell -->
 

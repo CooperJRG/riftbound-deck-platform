@@ -542,22 +542,24 @@ class PostgresStorage:
         sort_by: str = "updated",
     ) -> list[DeckLibraryRow]:
         clauses = ["d.visibility = %s"]
-        params: list[Any] = [_VISIBILITY_PUBLIC]
         needle = str(query or "").strip().lower()
         if needle:
             clauses.append("(lower(d.name) LIKE %s OR lower(d.source) LIKE %s OR lower(d.legend_title) LIKE %s OR lower(p.display_name) LIKE %s)")
             like = f"%{needle}%"
-            params.extend([like, like, like, like])
+            like_params = [like, like, like, like]
+        else:
+            like_params = []
         clean_format = str(format_name or "").strip().lower()
+        format_param = [clean_format] if clean_format else []
         if clean_format:
             clauses.append("lower(d.format) = %s")
-            params.append(clean_format)
         order_by = "d.updated_at DESC"
         if sort_by == "likes":
             order_by = "like_count DESC, d.updated_at DESC"
         elif sort_by == "name":
             order_by = "lower(d.name) ASC"
-        params.extend([viewer_user_id, max(1, int(limit)), max(0, int(offset))])
+        # Param order must match SQL: 1) liked_by_me viewer_user_id (in SELECT), 2) WHERE visibility, 3) LIKEs, 4) format, 5) limit, 6) offset
+        params: list[Any] = [viewer_user_id, _VISIBILITY_PUBLIC, *like_params, *format_param, max(1, int(limit)), max(0, int(offset))]
         rows = self._deck_rows(
             f"""
             SELECT d.id::text AS id, d.user_id::text AS user_id, d.name, d.source, d.format, d.bucket, d.visibility,

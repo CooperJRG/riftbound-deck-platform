@@ -100,6 +100,7 @@
       metaDetailSource: "meta",
       loadedWorkspaces: {
         core: false,
+        library: false,
         deck: false,
         collection: false,
         discover: false,
@@ -361,6 +362,7 @@
     state.metaStatus = null;
     state.ui.loadedWorkspaces = {
       core: false,
+      library: false,
       deck: false,
       collection: false,
       discover: false,
@@ -6906,6 +6908,13 @@
 
   async function ensureWorkspaceLoaded(workspace) {
     await loadCoreWorkspace();
+
+    // Library sidebar is always visible — load it once in the background
+    if (!state.ui.loadedWorkspaces.library) {
+      state.ui.loadedWorkspaces.library = true;
+      void loadLibrary();
+    }
+
     const tab = String(workspace || state.ui.workspaceTab || "deck").trim();
     if (tab === "collection") {
       await loadCollection();
@@ -6937,7 +6946,7 @@
       state.ui.loadedWorkspaces.modelObservation = true;
       return;
     }
-    await Promise.all([loadCollection(), loadLibrary()]);
+    await loadCollection();
     state.ui.loadedWorkspaces.deck = true;
   }
 
