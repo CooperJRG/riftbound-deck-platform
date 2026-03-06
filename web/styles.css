@@ -1286,7 +1286,7 @@ body.workspace-model-observation-active .inspector-zone {
 
 .battlefield-slots {
   display: grid;
-  grid-template-columns: repeat(3, minmax(120px, min(200px, 1fr)));
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
   gap: 8px;
 }
 
@@ -1367,7 +1367,7 @@ body.workspace-model-observation-active .inspector-zone {
 }
 
 .main-shelf-grid:not(.main-deck-shelf).tile-grid.compact {
-  grid-template-columns: repeat(auto-fill, minmax(var(--main-shelf-min, 116px), min(200px, 1fr)));
+  grid-template-columns: repeat(auto-fill, minmax(var(--main-shelf-min, 116px), 1fr));
   gap: var(--tile-gap, 8px);
 }
 
@@ -2618,7 +2618,7 @@ button.danger {
 /* Meta and community lists fill the full discover panel — cap at ~4 columns, no internal scroll */
 #meta-list,
 #community-list {
-  grid-template-columns: repeat(auto-fill, minmax(max(200px, 18%), min(300px, 1fr)));
+  grid-template-columns: repeat(auto-fill, minmax(max(200px, 22%), 1fr));
   max-height: none;
   overflow: visible;
 }
@@ -2632,7 +2632,7 @@ button.danger {
   z-index: 1;
   margin-top: 8px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--tile-min, 142px), min(var(--tile-max, 220px), 1fr)));
+  grid-template-columns: repeat(auto-fill, minmax(var(--tile-min, 142px), 1fr));
   gap: var(--tile-gap, 8px);
   max-height: 62vh;
   overflow: auto;
@@ -2656,7 +2656,7 @@ button.danger {
 
 #community-list.tile-grid.compact,
 #meta-list.tile-grid.compact {
-  grid-template-columns: repeat(auto-fill, minmax(min(134px, 25%), min(220px, 1fr)));
+  grid-template-columns: repeat(auto-fill, minmax(min(134px, 25%), 1fr));
 }
 
 .card-tile {
