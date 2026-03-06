@@ -263,6 +263,8 @@
     const isAdmin = String((me && me.role) || "").trim().toLowerCase() === "admin";
     if (roleChip) roleChip.hidden = !isAdmin;
     if (modelObservationBtn) modelObservationBtn.hidden = !isAdmin;
+    const sidebarModelBtn = document.getElementById("sidebar-nav-model-observation-btn");
+    if (sidebarModelBtn) sidebarModelBtn.hidden = !isAdmin;
     if (metaRefreshBtn) metaRefreshBtn.hidden = !isAdmin || state.ui.discoverTab !== "meta";
   }
 

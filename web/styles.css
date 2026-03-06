@@ -77,8 +77,8 @@
 html,
 body {
   margin: 0;
-  min-height: 100%;
-  overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -129,7 +129,16 @@ body {
   z-index: 1;
   max-width: 1700px;
   margin: 0 auto;
-  padding: 18px 14px 24px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-body {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
 }
 
 h1,
@@ -143,8 +152,12 @@ h3 {
 }
 
 h1 {
-  font-size: clamp(24px, 2.9vw, 37px);
+  font-size: clamp(22px, 2.6vw, 34px);
   line-height: 1.1;
+}
+
+.topbar-brand h1 {
+  font-size: clamp(18px, 1.8vw, 26px);
 }
 
 h2 {
@@ -154,12 +167,12 @@ h2 {
 .topbar {
   position: relative;
   overflow: clip;
-  padding: 16px 18px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   border-radius: var(--radius-xl);
   border: 1px solid rgba(166, 149, 118, 0.86);
   background-image:
@@ -176,10 +189,9 @@ h2 {
 .topbar-brand {
   position: relative;
   z-index: 1;
-  flex: 1 1 420px;
-  min-width: min(420px, 100%);
-  padding: 8px 10px;
-  border-radius: 12px;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border-radius: 10px;
   background: linear-gradient(180deg, rgba(18, 13, 8, 0.56), rgba(72, 57, 36, 0.34));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -249,11 +261,15 @@ h2 {
 }
 
 .layout {
-  margin-top: 12px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: grid;
   gap: 12px;
   align-items: start;
   grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr);
+  padding: 10px 12px 12px 10px;
+  overflow: hidden;
 }
 
 body.workspace-auto-builder-active .layout {
@@ -277,12 +293,13 @@ body.workspace-discover-active #inspector-panel {
 }
 
 .auth-gate {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 10;
   display: grid;
   place-items: center;
   padding: 24px;
+  overflow-y: auto;
 }
 
 .auth-card {
@@ -332,6 +349,80 @@ body.workspace-discover-active #inspector-panel {
 
 .auth-link:hover {
   color: #f4dfb8;
+}
+
+.setup-card {
+  max-width: 560px;
+}
+
+.setup-header {
+  margin-bottom: 20px;
+}
+
+.setup-tagline {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(240, 220, 180, 0.8);
+}
+
+.setup-steps {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.setup-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(160, 130, 80, 0.22);
+  background: rgba(255, 250, 240, 0.06);
+}
+
+.setup-step-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(220, 180, 100, 0.5);
+  background: rgba(200, 155, 75, 0.18);
+  font-size: 12px;
+  font-weight: 800;
+  color: #e8c97a;
+}
+
+.setup-step-body {
+  display: grid;
+  gap: 3px;
+  font-size: 13px;
+}
+
+.setup-step-body strong {
+  font-weight: 800;
+  color: #f4e9d4;
+}
+
+.setup-step-body span {
+  color: rgba(230, 210, 175, 0.72);
+  line-height: 1.4;
+}
+
+.setup-note {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.setup-actions {
+  margin-top: 4px;
 }
 
 .account-setup-complete .auth-actions {
@@ -488,12 +579,95 @@ body.workspace-model-observation-active .inspector-zone {
   margin-left: auto;
 }
 
+/* ── Sidebar navigation ───────────────────────────────────────────── */
+.sidebar-nav {
+  width: 72px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 10px 6px;
+  overflow: hidden;
+  border-right: 1px solid rgba(100, 78, 44, 0.35);
+  background:
+    linear-gradient(180deg, rgba(28, 20, 11, 0.82), rgba(44, 32, 18, 0.74)),
+    var(--asset-walnut);
+  background-size: cover, 260px 260px;
+}
+
+.sidebar-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(210, 180, 130, 0.5);
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  font-size: 0; /* reset — children set their own sizes */
+}
+
+.sidebar-icon {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.sidebar-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav-btn:hover {
+  background: rgba(200, 160, 80, 0.1);
+  color: rgba(230, 200, 150, 0.85);
+}
+
+.sidebar-nav-btn.is-active {
+  background: rgba(200, 160, 80, 0.18);
+  border-color: rgba(200, 160, 80, 0.38);
+  color: #e8d0a0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sidebar-spacer {
+  flex: 1;
+}
+
+#workspace-panel {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 8px;
+  height: 100%;
+}
+
+#inspector-panel {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-top: 8px;
+  height: 100%;
+}
+
 .workspace-pane {
   display: none;
 }
 
 .workspace-pane.is-active {
   display: block;
+  animation: panel-fade-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes panel-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .zone {
@@ -4538,16 +4712,11 @@ code {
 }
 
 @media (max-aspect-ratio: 1/1) {
-  .app-shell {
-    padding: 12px 10px 16px;
-  }
-
   .topbar {
-    padding: 12px 12px;
+    padding: 8px 12px;
   }
 
   .layout {
-    margin-top: 10px;
     gap: 10px;
   }
 
@@ -4693,16 +4862,18 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .workspace-tabs {
-    width: 100%;
-    justify-content: stretch;
-    margin-left: 0;
-    order: 3;
+  /* Sidebar: icon-only, narrowed */
+  .sidebar-nav {
+    width: 52px;
+    padding: 8px 4px;
   }
 
-  .workspace-tab-btn {
-    flex: 1 1 0;
-    min-width: 0;
+  .sidebar-nav-btn {
+    padding: 9px 4px;
+  }
+
+  .sidebar-label {
+    display: none;
   }
 
   .model-status-grid {
@@ -4938,13 +5109,9 @@ code {
   }
 
   /* ── Spacing ──────────────────────────────────────────────── */
-  .app-shell {
-    padding: 8px 8px 16px;
-  }
-
   .topbar {
-    padding: 10px 12px;
-    gap: 10px;
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   /* ── Typography ───────────────────────────────────────────── */
@@ -4956,26 +5123,37 @@ code {
     font-size: 14px;
   }
 
-  .subtitle {
-    font-size: 12px;
-  }
-
-  /* ── Account shell: stack info + buttons ─────────────────── */
-  .account-shell {
-    flex-wrap: wrap;
+  /* ── Sidebar → fixed bottom navigation bar on phones ─────── */
+  .sidebar-nav {
     width: 100%;
+    height: 56px;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 4px;
+    gap: 0;
+    border-right: none;
+    border-top: 1px solid rgba(100, 78, 44, 0.4);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    background: rgba(20, 14, 8, 0.94);
+    backdrop-filter: blur(14px);
   }
 
+  .app-body {
+    padding-bottom: 56px;
+  }
+
+  .sidebar-spacer {
+    display: none;
+  }
+
+  /* ── Account shell: compact ───────────────────────────────── */
   .account-copy {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  /* ── Workspace tabs: smaller text so 4 fit on one row ─────── */
-  .workspace-tab-btn {
-    font-size: 10px;
-    padding: 5px 6px;
-    letter-spacing: 0;
+    display: none; /* hide email/name on phone — just show buttons */
   }
 
   /* ── Discover tab strip ───────────────────────────────────── */

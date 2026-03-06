@@ -38,20 +38,50 @@
   </div>
 
   <div id="account-setup-gate" class="auth-gate account-setup-gate" hidden>
-    <div class="auth-card">
-      <div id="account-setup-intro" class="auth-copy account-setup-intro">
-        <p class="eyebrow">Closed Beta</p>
-        <h1>Set up your account</h1>
-        <p class="subtitle">Account creation is invite-only. If you received an invite, use the link in that email to accept it and create your account. After you’ve accepted, sign in below to continue.</p>
-        <div class="auth-actions" style="margin-top: 12px;">
-          <a id="account-setup-signin-link" href="#" class="card-action-btn secondary" style="display: inline-flex;">Sign in</a>
+    <div class="auth-card setup-card">
+      <div id="account-setup-intro" class="account-setup-intro">
+        <div class="setup-header">
+          <p class="eyebrow">Closed Beta</p>
+          <h1>Set up your account</h1>
+          <p class="setup-tagline">Riftdesk is invite-only. Here’s how to get access:</p>
+        </div>
+        <ol class="setup-steps">
+          <li class="setup-step">
+            <span class="setup-step-num">1</span>
+            <div class="setup-step-body">
+              <strong>Check your invite email</strong>
+              <span>Look for a Riftbound invitation email and click the link inside to accept.</span>
+            </div>
+          </li>
+          <li class="setup-step">
+            <span class="setup-step-num">2</span>
+            <div class="setup-step-body">
+              <strong>Set a password</strong>
+              <span>The invite link will prompt you to choose a password for your account.</span>
+            </div>
+          </li>
+          <li class="setup-step">
+            <span class="setup-step-num">3</span>
+            <div class="setup-step-body">
+              <strong>Sign in to Riftdesk</strong>
+              <span>Once your account is created, return here and sign in with your email and password.</span>
+            </div>
+          </li>
+        </ol>
+        <p class="setup-note muted">Don’t have an invite? Access is currently limited to closed beta participants.</p>
+        <div class="auth-actions setup-actions">
+          <a id="account-setup-signin-link" href="#" class="card-action-btn secondary">← Back to Sign In</a>
         </div>
       </div>
-      <div id="account-setup-complete" class="auth-copy account-setup-complete" hidden>
-        <p class="eyebrow">You’re all set</p>
-        <h1>Account ready</h1>
-        <p class="subtitle">Your account is set up. Go to Riftdesk to start building decks.</p>
-        <button id="account-setup-go-btn" type="button">Go to Riftdesk</button>
+      <div id="account-setup-complete" class="account-setup-complete" hidden>
+        <div class="setup-header">
+          <p class="eyebrow">You’re all set</p>
+          <h1>Account ready</h1>
+          <p class="setup-tagline">Your account has been set up. Welcome to the Riftbound closed beta.</p>
+        </div>
+        <div class="auth-actions setup-actions">
+          <button id="account-setup-go-btn" type="button">Go to Riftdesk</button>
+        </div>
       </div>
       <p id="account-setup-status" class="library-note account-setup-status" hidden></p>
     </div>
@@ -62,53 +92,6 @@
       <div class="topbar-brand">
         <p class="eyebrow">Riftbound Deck Platform</p>
         <h1>Riftdesk</h1>
-        <p class="subtitle">Invite-only deck building and discovery for the closed beta.</p>
-      </div>
-      <div class="workspace-tabs topbar-tabs" role="tablist" aria-label="Workspace">
-        <button
-          type="button"
-          id="workspace-tab-collection"
-          class="workspace-tab-btn"
-          role="tab"
-          aria-selected="false"
-          aria-controls="collection-panel"
-          data-workspace-tab="collection"
-        >
-          Collection
-        </button>
-        <button
-          type="button"
-          id="workspace-tab-deck"
-          class="workspace-tab-btn is-active"
-          role="tab"
-          aria-selected="true"
-          aria-controls="deck-panel"
-          data-workspace-tab="deck"
-        >
-          Builder
-        </button>
-        <button
-          type="button"
-          id="workspace-tab-discover"
-          class="workspace-tab-btn"
-          role="tab"
-          aria-selected="false"
-          aria-controls="inspector-panel"
-          data-workspace-tab="discover"
-        >
-          Discover
-        </button>
-        <button
-          type="button"
-          id="workspace-tab-auto-builder"
-          class="workspace-tab-btn"
-          role="tab"
-          aria-selected="false"
-          aria-controls="auto-builder-panel"
-          data-workspace-tab="auto-builder"
-        >
-          Auto Builder
-        </button>
       </div>
       <div id="account-shell" class="account-shell" hidden>
         <div class="account-copy">
@@ -117,7 +100,7 @@
         </div>
         <span id="account-role-chip" class="account-role-chip" hidden>Admin</span>
         <div class="account-actions">
-          <button id="account-model-observation-btn" type="button" class="card-action-btn secondary" hidden>Model Observation</button>
+          <button id="account-model-observation-btn" type="button" class="card-action-btn secondary" hidden>Model</button>
           <button id="account-signout-btn" type="button" class="card-action-btn secondary">Sign Out</button>
         </div>
       </div>
@@ -126,6 +109,31 @@
         <span id="app-status" class="status">Ready</span>
       </div>
     </header>
+
+    <div class="app-body">
+      <nav class="sidebar-nav" id="sidebar-nav" role="tablist" aria-label="Workspace">
+        <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="collection-panel" data-workspace-tab="collection" tabindex="-1">
+          <span class="sidebar-icon" aria-hidden="true">⊞</span>
+          <span class="sidebar-label">Cards</span>
+        </button>
+        <button type="button" class="sidebar-nav-btn is-active" role="tab" aria-selected="true" aria-controls="deck-panel" data-workspace-tab="deck" tabindex="0">
+          <span class="sidebar-icon" aria-hidden="true">⚔</span>
+          <span class="sidebar-label">Build</span>
+        </button>
+        <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="inspector-panel" data-workspace-tab="discover" tabindex="-1">
+          <span class="sidebar-icon" aria-hidden="true">◎</span>
+          <span class="sidebar-label">Explore</span>
+        </button>
+        <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="auto-builder-panel" data-workspace-tab="auto-builder" tabindex="-1">
+          <span class="sidebar-icon" aria-hidden="true">✦</span>
+          <span class="sidebar-label">Auto</span>
+        </button>
+        <div class="sidebar-spacer" aria-hidden="true"></div>
+        <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="model-observation-panel" data-workspace-tab="model-observation" tabindex="-1" id="sidebar-nav-model-observation-btn" hidden>
+          <span class="sidebar-icon" aria-hidden="true">⬡</span>
+          <span class="sidebar-label">Model</span>
+        </button>
+      </nav>
 
     <main class="layout">
       <section class="workspace-zone" id="workspace-panel">
@@ -492,7 +500,8 @@
         </section>
       </aside>
     </main>
-  </div>
+    </div><!-- /.app-body -->
+  </div><!-- /#app-shell -->
 
   <div id="card-preview" class="card-preview" hidden>
     <div class="card-preview-art-wrap">
