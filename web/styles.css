@@ -5094,7 +5094,14 @@ code {
 }
 
 @media (max-width: 980px) {
-  /* Switch to page-level scroll on tablet/phone — panels stack, user scrolls the page */
+  /* Switch to page-level scroll on tablet/phone */
+  html,
+  body {
+    height: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   .app-shell {
     height: auto;
     min-height: 100dvh;

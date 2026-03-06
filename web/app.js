@@ -1368,6 +1368,12 @@
     document.body.classList.toggle("workspace-discover-active", active === "discover");
     document.body.classList.toggle("workspace-model-observation-active", active === "model-observation");
 
+    // Inspector panel is discover-only — hide/show via hidden attribute (overrides all CSS specificity)
+    const inspectorPanel = document.getElementById("inspector-panel");
+    const workspacePanel = document.getElementById("workspace-panel");
+    if (inspectorPanel) inspectorPanel.hidden = active !== "discover";
+    if (workspacePanel) workspacePanel.hidden = active === "discover";
+
     Array.from(document.querySelectorAll("[data-workspace-tab]")).forEach((btn) => {
       const target = String(btn.getAttribute("data-workspace-tab") || "").trim();
       const on = target === active;
