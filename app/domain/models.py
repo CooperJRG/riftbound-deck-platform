@@ -171,6 +171,8 @@ class DeckLibraryRow(BaseModel):
     published_at: str | None = Field(default=None, alias="publishedAt")
     updated_at: str = Field(alias="updatedAt")
     created_at: str = Field(alias="createdAt")
+    like_count: int = Field(default=0, alias="likeCount")
+    liked_by_me: bool = Field(default=False, alias="likedByMe")
     deck: DeckPayload
 
 
@@ -192,6 +194,10 @@ class DeckImportRequest(StrictInputModel):
 
 class DeckLibraryBucketRequest(StrictInputModel):
     bucket: str
+
+
+class DeckVisibilityRequest(StrictInputModel):
+    visibility: str
 
 
 class MetaDeckSummary(BaseModel):
@@ -472,6 +478,10 @@ class FeatureFlags(BaseModel):
     auto_builder_enabled: bool = Field(default=False, alias="autoBuilderEnabled")
     model_observation_enabled: bool = Field(default=False, alias="modelObservationEnabled")
     community_gallery_enabled: bool = Field(default=True, alias="communityGalleryEnabled")
+
+
+class UpdateDisplayNameRequest(BaseModel):
+    display_name: str = Field(alias="displayName")
 
 
 class MeResponse(BaseModel):

@@ -86,10 +86,10 @@
         <h1>Riftdesk</h1>
       </div>
       <div id="account-shell" class="account-shell" hidden>
-        <div class="account-copy">
+        <button id="account-profile-btn" type="button" class="account-copy" aria-label="Open account settings">
           <strong id="account-display-name">Beta User</strong>
           <span id="account-email">beta@example.com</span>
-        </div>
+        </button>
         <span id="account-role-chip" class="account-role-chip" hidden>Admin</span>
         <div class="account-actions">
           <button id="account-model-observation-btn" type="button" class="card-action-btn secondary" hidden>Model</button>
@@ -442,12 +442,17 @@
           </div>
           <div class="row inputs-inline">
             <input id="meta-search" placeholder="Search decks by name, source, legend" />
-            <select id="meta-sort-by" aria-label="Deck search sort">
+            <select id="meta-sort-by" aria-label="Meta deck sort">
               <option value="recommendation">Recommendation</option>
               <option value="buildability">Buildability</option>
               <option value="competitive">Competitive</option>
               <option value="meta">Meta</option>
               <option value="price">Price</option>
+            </select>
+            <select id="community-sort-by" aria-label="Community deck sort" hidden>
+              <option value="updated">Recently Updated</option>
+              <option value="likes">Most Liked</option>
+              <option value="name">Name A–Z</option>
             </select>
             <button id="meta-refresh-btn" type="button" class="card-action-btn secondary">Refresh Index</button>
             <button id="meta-load-btn">Load</button>
@@ -494,6 +499,51 @@
     </main>
     </div><!-- /.app-body -->
   </div><!-- /#app-shell -->
+
+  <!-- Account settings panel (slide-over) -->
+  <aside id="account-panel" class="account-panel" hidden aria-label="Account settings" role="dialog" aria-modal="true">
+    <div class="account-panel-backdrop" id="account-panel-backdrop"></div>
+    <div class="account-panel-sheet">
+      <div class="account-panel-header">
+        <div class="account-panel-avatar" id="account-panel-avatar" aria-hidden="true">BU</div>
+        <div class="account-panel-identity">
+          <strong id="account-panel-name">Beta User</strong>
+          <span id="account-panel-email">—</span>
+        </div>
+        <button type="button" class="account-panel-close" id="account-panel-close" aria-label="Close account panel">✕</button>
+      </div>
+      <div class="account-panel-body">
+        <section class="account-panel-section">
+          <h3 class="account-panel-section-title">Display Name</h3>
+          <div class="account-name-row">
+            <input id="account-panel-name-input" type="text" class="account-name-input" maxlength="32"
+              placeholder="Your display name" autocomplete="off" spellcheck="false" />
+            <button id="account-panel-name-save" type="button" class="card-action-btn">Save</button>
+          </div>
+          <p id="account-panel-name-status" class="account-panel-status" hidden></p>
+        </section>
+        <section class="account-panel-section">
+          <h3 class="account-panel-section-title">Account</h3>
+          <dl class="account-panel-info">
+            <dt>Email</dt><dd id="account-panel-info-email">—</dd>
+            <dt>Member since</dt><dd id="account-panel-info-joined">—</dd>
+            <dt>Role</dt><dd id="account-panel-info-role">User</dd>
+          </dl>
+        </section>
+        <section class="account-panel-section">
+          <h3 class="account-panel-section-title">Library</h3>
+          <dl class="account-panel-info">
+            <dt>Saved decks</dt><dd id="account-panel-saved-count">0</dd>
+            <dt>Built decks</dt><dd id="account-panel-built-count">0</dd>
+            <dt>Public decks</dt><dd id="account-panel-public-count">0</dd>
+          </dl>
+        </section>
+      </div>
+      <div class="account-panel-footer">
+        <button id="account-panel-signout" type="button" class="card-action-btn danger" style="width:100%">Sign Out</button>
+      </div>
+    </div>
+  </aside>
 
   <div id="card-preview" class="card-preview" hidden>
     <div class="card-preview-art-wrap">

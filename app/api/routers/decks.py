@@ -12,6 +12,7 @@ from app.domain.models import (
     DeckAnalyzeRequest,
     DeckLibraryBucketRequest,
     DeckEligibilityResponse,
+    DeckVisibilityRequest,
     FormatProfileSummary,
     DeckImportRequest,
     DeckLibraryRow,
@@ -199,17 +200,20 @@ def list_public_library(
     request: Request,
     query: str = Query(default="", max_length=120),
     format_name: str | None = Query(default=None, alias="format", max_length=40),
+    sort_by: str = Query(default="updated", alias="sortBy", max_length=16),
     limit: int = Query(default=60, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     auth: AuthContext = Depends(require_user),
 ) -> list[DeckLibraryRow]:
     svc = get_services()
+    clean_sort = sort_by if sort_by in ("updated", "likes", "name") else "updated"
     return svc.storage.list_public_decks(
         viewer_user_id=auth.user_id,
         query=query,
         format_name=format_name,
         limit=limit,
         offset=offset,
+        sort_by=clean_sort,
     )
 
 
@@ -221,6 +225,43 @@ def get_public_library_deck(request: Request, deck_id: str, auth: AuthContext = 
     if row is None:
         raise HTTPException(status_code=404, detail="Public deck not found.")
     return row
+
+
+@router.post("/public/{deck_id}/like")
+@limiter.limit("60/minute")
+def like_public_deck(request: Request, deck_id: str, auth: AuthContext = Depends(require_user)) -> dict:
+    svc = get_services()
+    row = svc.storage.get_public_deck(viewer_user_id=auth.user_id, deck_id=deck_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Public deck not found.")
+    svc.storage.like_deck(user_id=auth.user_id, deck_id=deck_id)
+    return {"liked": True}
+
+
+@router.delete("/public/{deck_id}/like")
+@limiter.limit("60/minute")
+def unlike_public_deck(request: Request, deck_id: str, auth: AuthContext = Depends(require_user)) -> dict:
+    svc = get_services()
+    svc.storage.unlike_deck(user_id=auth.user_id, deck_id=deck_id)
+    return {"liked": False}
+
+
+@router.post("/public/{deck_id}/copy", response_model=DeckLibraryRow)
+@limiter.limit("20/minute")
+def copy_public_deck(request: Request, deck_id: str, auth: AuthContext = Depends(require_user)) -> DeckLibraryRow:
+    svc = get_services()
+    source_row = svc.storage.get_public_deck(viewer_user_id=auth.user_id, deck_id=deck_id)
+    if source_row is None:
+        raise HTTPException(status_code=404, detail="Public deck not found.")
+    created = svc.storage.create_deck(
+        user_id=auth.user_id,
+        deck=source_row.deck,
+        name=source_row.name,
+        source="community",
+        bucket="saved",
+        visibility="private",
+    )
+    return created
 
 
 @router.post("/library", response_model=DeckLibraryRow)
@@ -273,6 +314,26 @@ def update_library_deck(request: Request, deck_id: str, body: DeckLibraryUpsertR
 def update_library_deck_bucket(request: Request, deck_id: str, body: DeckLibraryBucketRequest, auth: AuthContext = Depends(require_user)) -> DeckLibraryRow:
     svc = get_services()
     updated = svc.storage.set_deck_bucket(user_id=auth.user_id, deck_id=deck_id, bucket=body.bucket)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Deck not found.")
+    return updated
+
+
+@router.put("/library/{deck_id}/visibility", response_model=DeckLibraryRow)
+@limiter.limit("30/minute")
+def update_library_deck_visibility(request: Request, deck_id: str, body: DeckVisibilityRequest, auth: AuthContext = Depends(require_user)) -> DeckLibraryRow:
+    svc = get_services()
+    row = svc.storage.get_deck(user_id=auth.user_id, deck_id=deck_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Deck not found.")
+    updated = svc.storage.update_deck(
+        deck_id,
+        user_id=auth.user_id,
+        deck=row.deck,
+        name=None,
+        source=None,
+        visibility=body.visibility,
+    )
     if updated is None:
         raise HTTPException(status_code=404, detail="Deck not found.")
     return updated

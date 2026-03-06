@@ -1385,6 +1385,7 @@
     const communityList = document.getElementById("community-list");
     const freshness = document.getElementById("meta-freshness");
     const sortSelect = document.getElementById("meta-sort-by");
+    const communitySortSelect = document.getElementById("community-sort-by");
     const refreshBtn = document.getElementById("meta-refresh-btn");
     Array.from(document.querySelectorAll("[data-discover-tab]")).forEach((btn) => {
       const on = String(btn.getAttribute("data-discover-tab") || "") === tab;
@@ -1394,6 +1395,7 @@
     if (metaList) metaList.hidden = tab !== "meta";
     if (communityList) communityList.hidden = tab !== "community";
     if (sortSelect) sortSelect.hidden = tab !== "meta";
+    if (communitySortSelect) communitySortSelect.hidden = tab !== "community";
     if (refreshBtn) refreshBtn.hidden = tab !== "meta";
     if (freshness) freshness.hidden = tab !== "meta";
     renderAccountShell();
@@ -2239,7 +2241,10 @@
           const source = String(row.source || "").trim() || "builder";
           const visibility = normalizeDeckVisibility(row.visibility);
           const subtitle = legendTitle ? `Legend: ${legendTitle} | ${source}` : source;
-          const actions = `<button type="button" class="card-action-btn danger" data-lib-delete="${escAttr(row.id)}">Delete</button>`;
+          const isPublic = visibility === "public";
+          const actions =
+            `<button type="button" class="card-action-btn secondary" data-lib-visibility="${escAttr(row.id)}" data-lib-vis-current="${isPublic ? "public" : "private"}">${isPublic ? "Unpublish" : "Publish"}</button>` +
+            `<button type="button" class="card-action-btn danger" data-lib-delete="${escAttr(row.id)}">Delete</button>`;
           return tileHtml({
             title: displayName,
             imageUrl: info && info.imageUrl ? info.imageUrl : "",
@@ -2269,6 +2274,7 @@
         const sourceBucket = tile.getAttribute("data-lib-bucket") || "saved";
         tile.addEventListener("click", (ev) => {
           if (ev.target && ev.target.closest && ev.target.closest("[data-lib-delete]")) return;
+          if (ev.target && ev.target.closest && ev.target.closest("[data-lib-visibility]")) return;
           state.ui.libraryExpandedDeckId = state.ui.libraryExpandedDeckId === id ? "" : id;
           renderLibrary();
         });
@@ -2291,6 +2297,30 @@
         tile.addEventListener("dragend", () => {
           tile.classList.remove("is-dragging");
           stopLibraryDrag();
+        });
+      });
+
+      Array.from(root.querySelectorAll("[data-lib-visibility]")).forEach((btn) => {
+        btn.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          const id = btn.getAttribute("data-lib-visibility") || "";
+          const current = btn.getAttribute("data-lib-vis-current") || "private";
+          const nextVisibility = current === "public" ? "private" : "public";
+          withBusy(btn, "…", async () => {
+            try {
+              const updated = await api(`/api/decks/library/${encodeURIComponent(id)}/visibility`, {
+                method: "PUT",
+                body: { visibility: nextVisibility }
+              });
+              const libIdx = state.library.findIndex((entry) => String((entry && entry.id) || "") === id);
+              if (libIdx !== -1) state.library[libIdx] = updated;
+              renderLibrary();
+              setStatus(nextVisibility === "public" ? "Deck published to community." : "Deck unpublished.", false);
+              refreshMetaSearchResults().catch(() => {});
+            } catch (err) {
+              setStatus(err.message || "Could not update visibility.", true);
+            }
+          });
         });
       });
 
@@ -2351,16 +2381,20 @@
     const rows = source === "community" ? state.communityDecks : state.metaDecks;
     const row = rows[idx];
     if (!row) return;
-    await api("/api/decks/library", {
-      method: "POST",
-      body: {
-        name: row.deckName || row.name || "Deck",
-        source: row.source || (source === "community" ? "community" : "meta"),
-        bucket: "saved",
-        visibility: "private",
-        deck: row.deck
-      }
-    });
+    if (source === "community" && row.id) {
+      await api(`/api/decks/public/${encodeURIComponent(row.id)}/copy`, { method: "POST" });
+    } else {
+      await api("/api/decks/library", {
+        method: "POST",
+        body: {
+          name: row.deckName || row.name || "Deck",
+          source: row.source || (source === "community" ? "community" : "meta"),
+          bucket: "saved",
+          visibility: "private",
+          deck: row.deck
+        }
+      });
+    }
     await loadLibrary();
     setStatus(`Saved ${source === "community" ? "community" : "meta"} deck: ${row.deckName || row.name || "Deck"}`, false);
   }
@@ -2555,15 +2589,20 @@
         const leaderInfo = lookupCard(legend);
         const owner = String(row.ownerDisplayName || "").trim() || "Beta User";
         const published = row.publishedAt ? new Date(row.publishedAt).toLocaleDateString() : "Unpublished";
+        const likeCount = Number(row.likeCount || 0);
+        const likedByMe = Boolean(row.likedByMe);
+        const likeLabel = likedByMe ? `♥ ${likeCount}` : `♡ ${likeCount}`;
+        const likeClass = likedByMe ? "card-action-btn is-liked" : "card-action-btn secondary";
         const actions =
           `<button type="button" class="card-action-btn secondary" data-community-view="${idx}">View</button>` +
-          `<button type="button" class="card-action-btn" data-community-save="${idx}">Save to My Decks</button>`;
+          `<button type="button" class="${likeClass}" data-community-like="${idx}" data-deck-id="${escAttr(row.id)}" data-liked="${likedByMe ? "1" : "0"}">${likeLabel}</button>` +
+          (!row.isOwner ? `<button type="button" class="card-action-btn" data-community-save="${idx}">Save to Library</button>` : "");
         return tileHtml({
           title: row.name || "Public Deck",
           imageUrl: leaderInfo && leaderInfo.imageUrl ? leaderInfo.imageUrl : "",
           subtitle: `${owner} | ${legend || "No legend"}`,
-          meta: `${row.visibility || "public"} | ${published}`,
-          stats: `${row.bucket || "saved"} | ${row.isOwner ? "Your deck" : "Public beta deck"}`,
+          meta: `${published}`,
+          stats: `${row.isOwner ? "Your deck" : "Community"}`,
           badge: row.isOwner ? "Mine" : "Public",
           badgeClass: "is-bottom-right",
           actions
@@ -2578,6 +2617,32 @@
       btn.addEventListener("click", () => {
         openMetaDetailModal(Number(btn.getAttribute("data-community-view")), "community");
       });
+    });
+    Array.from(root.querySelectorAll("[data-community-like]")).forEach((btn) => {
+      btn.addEventListener("click", () => withBusy(btn, "…", async () => {
+        const idx = Number(btn.getAttribute("data-community-like"));
+        const deckId = btn.getAttribute("data-deck-id") || "";
+        const wasLiked = btn.getAttribute("data-liked") === "1";
+        try {
+          if (wasLiked) {
+            await api(`/api/decks/public/${encodeURIComponent(deckId)}/like`, { method: "DELETE" });
+          } else {
+            await api(`/api/decks/public/${encodeURIComponent(deckId)}/like`, { method: "POST" });
+          }
+          // Optimistic update in state
+          if (state.communityDecks[idx]) {
+            const row = state.communityDecks[idx];
+            state.communityDecks[idx] = {
+              ...row,
+              likedByMe: !wasLiked,
+              likeCount: Math.max(0, Number(row.likeCount || 0) + (wasLiked ? -1 : 1))
+            };
+          }
+          renderCommunity();
+        } catch (err) {
+          setStatus(err.message || "Could not update like.", true);
+        }
+      }));
     });
     Array.from(root.querySelectorAll("[data-community-save]")).forEach((btn) => {
       btn.addEventListener("click", () => withBusy(btn, "Saving…", async () => {
@@ -4124,11 +4189,19 @@
     renderMeta();
   }
 
+  function communitySortByValue() {
+    const select = document.getElementById("community-sort-by");
+    const raw = String((select && select.value) || "updated").trim().toLowerCase();
+    if (["updated", "likes", "name"].includes(raw)) return raw;
+    return "updated";
+  }
+
   async function loadCommunityDecks() {
     const root = document.getElementById("community-list");
     if (root) root.innerHTML = skeletonTiles(6);
     const query = String(((document.getElementById("meta-search") || {}).value || "")).trim();
-    state.communityDecks = await api(`/api/decks/public?limit=120&query=${encodeURIComponent(query)}`);
+    const sortBy = communitySortByValue();
+    state.communityDecks = await api(`/api/decks/public?limit=120&query=${encodeURIComponent(query)}&sortBy=${encodeURIComponent(sortBy)}`);
     renderCommunity();
   }
 
@@ -7011,6 +7084,126 @@
       });
     }
 
+    // ── Account panel ────────────────────────────────────────────
+    function initials(name) {
+      return String(name || "?").trim().split(/\s+/).map((w) => w[0] || "").join("").slice(0, 2).toUpperCase() || "?";
+    }
+
+    function openAccountPanel() {
+      const panel = document.getElementById("account-panel");
+      if (!panel) return;
+      const me = state.auth.me || {};
+
+      // Populate header
+      const avatarEl = document.getElementById("account-panel-avatar");
+      if (avatarEl) avatarEl.textContent = initials(me.displayName || me.email || "BU");
+      const panelNameEl = document.getElementById("account-panel-name");
+      if (panelNameEl) panelNameEl.textContent = me.displayName || "Beta User";
+      const panelEmailEl = document.getElementById("account-panel-email");
+      if (panelEmailEl) panelEmailEl.textContent = me.email || "";
+
+      // Name input
+      const nameInput = document.getElementById("account-panel-name-input");
+      if (nameInput) nameInput.value = me.displayName || "";
+      const nameStatus = document.getElementById("account-panel-name-status");
+      if (nameStatus) { nameStatus.hidden = true; nameStatus.textContent = ""; }
+
+      // Info section
+      const infoEmail = document.getElementById("account-panel-info-email");
+      if (infoEmail) infoEmail.textContent = me.email || "—";
+      const infoJoined = document.getElementById("account-panel-info-joined");
+      if (infoJoined) {
+        const d = me.createdAt ? new Date(me.createdAt) : null;
+        infoJoined.textContent = d && !isNaN(d) ? d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : "—";
+      }
+      const infoRole = document.getElementById("account-panel-info-role");
+      if (infoRole) infoRole.textContent = me.role === "admin" ? "Admin" : "Beta member";
+
+      // Library stats
+      const lib = Array.isArray(state.library) ? state.library : [];
+      const savedCount = document.getElementById("account-panel-saved-count");
+      const builtCount = document.getElementById("account-panel-built-count");
+      const publicCount = document.getElementById("account-panel-public-count");
+      if (savedCount) savedCount.textContent = lib.filter((r) => r.bucket === "saved").length;
+      if (builtCount) builtCount.textContent = lib.filter((r) => r.bucket === "built").length;
+      if (publicCount) publicCount.textContent = lib.filter((r) => r.visibility === "public").length;
+
+      panel.hidden = false;
+      document.body.style.overflow = "hidden";
+      setTimeout(() => nameInput && nameInput.focus(), 80);
+    }
+
+    function closeAccountPanel() {
+      const panel = document.getElementById("account-panel");
+      if (panel) panel.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    const accountProfileBtn = document.getElementById("account-profile-btn");
+    if (accountProfileBtn) {
+      accountProfileBtn.addEventListener("click", openAccountPanel);
+    }
+
+    const accountPanelClose = document.getElementById("account-panel-close");
+    if (accountPanelClose) {
+      accountPanelClose.addEventListener("click", closeAccountPanel);
+    }
+
+    const accountPanelBackdrop = document.getElementById("account-panel-backdrop");
+    if (accountPanelBackdrop) {
+      accountPanelBackdrop.addEventListener("click", closeAccountPanel);
+    }
+
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape") {
+        const panel = document.getElementById("account-panel");
+        if (panel && !panel.hidden) { closeAccountPanel(); ev.preventDefault(); }
+      }
+    });
+
+    const accountPanelNameSave = document.getElementById("account-panel-name-save");
+    if (accountPanelNameSave) {
+      accountPanelNameSave.addEventListener("click", async () => {
+        const nameInput = document.getElementById("account-panel-name-input");
+        const nameStatus = document.getElementById("account-panel-name-status");
+        const showStatus = (msg, isError) => {
+          if (!nameStatus) return;
+          nameStatus.textContent = msg;
+          nameStatus.style.color = isError ? "#ffd6d8" : "#d9ffeb";
+          nameStatus.hidden = !msg;
+        };
+        const newName = (nameInput ? nameInput.value : "").trim();
+        if (!newName) { showStatus("Display name cannot be empty.", true); return; }
+        await withBusy(accountPanelNameSave, "Saving…", async () => {
+          try {
+            const data = await api("/api/me/display-name", { method: "PUT", body: { displayName: newName } });
+            if (data && data.user && data.user.displayName) {
+              state.auth.me = { ...(state.auth.me || {}), displayName: data.user.displayName };
+              renderAccountShell();
+              // Refresh panel header
+              const avatarEl = document.getElementById("account-panel-avatar");
+              if (avatarEl) avatarEl.textContent = initials(data.user.displayName);
+              const panelNameEl = document.getElementById("account-panel-name");
+              if (panelNameEl) panelNameEl.textContent = data.user.displayName;
+            }
+            showStatus("Display name updated.", false);
+          } catch (err) {
+            showStatus(err.message || "Could not update display name.", true);
+          }
+        });
+      });
+    }
+
+    const accountPanelSignout = document.getElementById("account-panel-signout");
+    if (accountPanelSignout) {
+      accountPanelSignout.addEventListener("click", async () => {
+        closeAccountPanel();
+        await signOut("Signed out.");
+        setStatus("Signed out.", false);
+      });
+    }
+    // ── End account panel ─────────────────────────────────────────
+
     const accountModelObservationBtn = document.getElementById("account-model-observation-btn");
     if (accountModelObservationBtn) {
       accountModelObservationBtn.addEventListener("click", () => {
@@ -7522,6 +7715,18 @@
           setStatus(`Loaded ${state.metaDecks.length} meta index results.`, false);
         } catch (err) {
           setStatus(err.message || "Could not load deck search results.", true);
+        }
+      });
+    }
+
+    const commSortSelect = document.getElementById("community-sort-by");
+    if (commSortSelect) {
+      commSortSelect.addEventListener("change", async () => {
+        try {
+          await loadCommunityDecks();
+          setStatus(`Loaded ${state.communityDecks.length} community decks.`, false);
+        } catch (err) {
+          setStatus(err.message || "Could not load community decks.", true);
         }
       });
     }

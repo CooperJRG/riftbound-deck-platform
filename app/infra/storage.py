@@ -20,7 +20,7 @@ _INVITE_INVITED = "invited"
 _INVITE_REVOKED = "revoked"
 _PROFILE_ACTIVE = "active"
 _PROFILE_DISABLED = "disabled"
-_SCHEMA_VERSION = 4
+_SCHEMA_VERSION = 5
 
 
 def _utc_now_iso() -> str:
@@ -148,10 +148,20 @@ class SqliteStorage:
                     FOREIGN KEY(user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE
                 );
 
+                CREATE TABLE IF NOT EXISTS deck_likes (
+                    user_id TEXT NOT NULL,
+                    deck_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    PRIMARY KEY(user_id, deck_id),
+                    FOREIGN KEY(user_id) REFERENCES user_profiles(user_id) ON DELETE CASCADE,
+                    FOREIGN KEY(deck_id) REFERENCES user_decks(id) ON DELETE CASCADE
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_user_collection_cards_user_id ON user_collection_cards (user_id);
                 CREATE INDEX IF NOT EXISTS idx_user_decks_user_id_updated_at ON user_decks (user_id, updated_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_user_decks_visibility_updated_at ON user_decks (visibility, updated_at DESC);
                 CREATE INDEX IF NOT EXISTS idx_user_decks_visibility_format_updated_at ON user_decks (visibility, format, updated_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_deck_likes_deck_id ON deck_likes (deck_id);
 
                 CREATE TABLE IF NOT EXISTS schema_meta (
                     id INTEGER PRIMARY KEY CHECK(id = 1),
@@ -387,6 +397,44 @@ class SqliteStorage:
             raise RuntimeError("Profile bootstrap failed.")
         return profile
 
+    def update_display_name(self, *, user_id: str, display_name: str) -> UserProfileSummary:
+        clean_user_id = str(user_id or "").strip()
+        clean_name = str(display_name or "").strip()[:32]
+        if not clean_name:
+            raise ValueError("Display name cannot be empty.")
+        now = _utc_now_iso()
+        with self._connect() as conn:
+            conn.execute(
+                "UPDATE user_profiles SET display_name = ?, updated_at = ? WHERE user_id = ?",
+                (clean_name, now, clean_user_id),
+            )
+            row = conn.execute(
+                "SELECT user_id, email, display_name, role, status, created_at, updated_at, last_login_at FROM user_profiles WHERE user_id = ?",
+                (clean_user_id,),
+            ).fetchone()
+        profile = self._profile_from_row(row)
+        if profile is None:
+            raise RuntimeError("Profile not found.")
+        return profile
+
+    def like_deck(self, *, user_id: str, deck_id: str) -> None:
+        now = _utc_now_iso()
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO deck_likes (user_id, deck_id, created_at)
+                VALUES (?, ?, ?)
+                """,
+                (str(user_id or "").strip(), str(deck_id or "").strip(), now),
+            )
+
+    def unlike_deck(self, *, user_id: str, deck_id: str) -> None:
+        with self._connect() as conn:
+            conn.execute(
+                "DELETE FROM deck_likes WHERE user_id = ? AND deck_id = ?",
+                (str(user_id or "").strip(), str(deck_id or "").strip()),
+            )
+
     def get_collection(self, *, user_id: str) -> dict[str, int]:
         with self._connect() as conn:
             rows = conn.execute(
@@ -517,6 +565,9 @@ class SqliteStorage:
         if row is None:
             return None
         payload_raw = json.loads(str(row["payload_json"]))
+        keys = row.keys()
+        like_count = int(row["like_count"]) if "like_count" in keys else 0
+        liked_by_me = bool(row["liked_by_me"]) if "liked_by_me" in keys else False
         return DeckLibraryRow(
             id=str(row["id"]),
             name=str(row["name"]),
@@ -529,6 +580,8 @@ class SqliteStorage:
             publishedAt=str(row["published_at"]) if row["published_at"] is not None else None,
             createdAt=str(row["created_at"]),
             updatedAt=str(row["updated_at"]),
+            likeCount=like_count,
+            likedByMe=liked_by_me,
             deck=DeckPayload.model_validate(payload_raw),
         )
 
@@ -567,6 +620,7 @@ class SqliteStorage:
         format_name: str | None = None,
         limit: int = 60,
         offset: int = 0,
+        sort_by: str = "updated",
     ) -> list[DeckLibraryRow]:
         needle = str(query or "").strip().lower()
         where = ["d.visibility = ?"]
@@ -580,16 +634,26 @@ class SqliteStorage:
         if clean_format:
             where.append("lower(d.format) = ?")
             params.append(clean_format)
-        params.extend([max(1, int(limit)), max(0, int(offset))])
+        order_by = "d.updated_at DESC"
+        if sort_by == "likes":
+            order_by = "like_count DESC, d.updated_at DESC"
+        elif sort_by == "name":
+            order_by = "lower(d.name) ASC"
+        params.extend([viewer_user_id, max(1, int(limit)), max(0, int(offset))])
         with self._connect() as conn:
             rows = conn.execute(
                 f"""
                 SELECT d.id, d.user_id, d.name, d.source, d.format, d.bucket, d.visibility, d.payload_json,
-                       d.published_at, d.created_at, d.updated_at, p.display_name AS owner_display_name
+                       d.published_at, d.created_at, d.updated_at, p.display_name AS owner_display_name,
+                       COUNT(lk.deck_id) AS like_count,
+                       MAX(CASE WHEN lk.user_id = ? THEN 1 ELSE 0 END) AS liked_by_me
                 FROM user_decks d
                 JOIN user_profiles p ON p.user_id = d.user_id
+                LEFT JOIN deck_likes lk ON lk.deck_id = d.id
                 WHERE {' AND '.join(where)}
-                ORDER BY d.updated_at DESC
+                GROUP BY d.id, d.user_id, d.name, d.source, d.format, d.bucket, d.visibility,
+                         d.payload_json, d.published_at, d.created_at, d.updated_at, p.display_name
+                ORDER BY {order_by}
                 LIMIT ? OFFSET ?
                 """,
                 tuple(params),
@@ -616,12 +680,17 @@ class SqliteStorage:
             row = conn.execute(
                 """
                 SELECT d.id, d.user_id, d.name, d.source, d.format, d.bucket, d.visibility, d.payload_json,
-                       d.published_at, d.created_at, d.updated_at, p.display_name AS owner_display_name
+                       d.published_at, d.created_at, d.updated_at, p.display_name AS owner_display_name,
+                       COUNT(lk.deck_id) AS like_count,
+                       MAX(CASE WHEN lk.user_id = ? THEN 1 ELSE 0 END) AS liked_by_me
                 FROM user_decks d
                 JOIN user_profiles p ON p.user_id = d.user_id
+                LEFT JOIN deck_likes lk ON lk.deck_id = d.id
                 WHERE d.id = ? AND d.visibility = ?
+                GROUP BY d.id, d.user_id, d.name, d.source, d.format, d.bucket, d.visibility,
+                         d.payload_json, d.published_at, d.created_at, d.updated_at, p.display_name
                 """,
-                (deck_id, _VISIBILITY_PUBLIC),
+                (viewer_user_id, deck_id, _VISIBILITY_PUBLIC),
             ).fetchone()
         return self._deck_row_to_model(row, viewer_user_id=viewer_user_id)
 
