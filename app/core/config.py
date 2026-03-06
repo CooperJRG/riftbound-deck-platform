@@ -38,6 +38,7 @@ class AppConfig:
     supabase_anon_key: str
     supabase_jwks_url: str
     supabase_jwt_audience: str
+    supabase_service_role_key: str
     allowed_origins: tuple[str, ...]
     sentry_dsn: str
     host: str
@@ -168,6 +169,7 @@ def load_config() -> AppConfig:
     supabase_anon_key = str(os.getenv("RB_SUPABASE_ANON_KEY", "") or "").strip()
     supabase_jwks_url = str(os.getenv("RB_SUPABASE_JWKS_URL", "") or "").strip()
     supabase_jwt_audience = str(os.getenv("RB_SUPABASE_JWT_AUDIENCE", "authenticated") or "authenticated").strip()
+    supabase_service_role_key = str(os.getenv("RB_SUPABASE_SERVICE_ROLE_KEY", "") or "").strip()
     allowed_origins = _env_list(
         "RB_ALLOWED_ORIGINS",
         default=("http://127.0.0.1:8010", "http://localhost:8010"),
@@ -206,6 +208,7 @@ def load_config() -> AppConfig:
         supabase_anon_key=supabase_anon_key,
         supabase_jwks_url=supabase_jwks_url,
         supabase_jwt_audience=supabase_jwt_audience,
+        supabase_service_role_key=supabase_service_role_key,
         allowed_origins=allowed_origins,
         sentry_dsn=sentry_dsn,
         host=host,

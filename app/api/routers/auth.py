@@ -1,0 +1,109 @@
+from __future__ import annotations
+
+import json
+import urllib.error
+import urllib.request
+from pydantic import BaseModel
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from app.core.rate_limits import limiter
+from app.core.services import AppServices, get_services
+
+router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+class AccountSetupRequest(BaseModel):
+    email: str
+    password: str
+
+
+def _supabase_admin_headers(service_role_key: str) -> dict[str, str]:
+    return {
+        "apikey": service_role_key,
+        "Authorization": f"Bearer {service_role_key}",
+        "Content-Type": "application/json",
+    }
+
+
+def _find_supabase_user(supabase_url: str, service_role_key: str, email: str) -> dict | None:
+    """Return the Supabase user record for the given email, or None."""
+    url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users?email={urllib.request.quote(email, safe='')}&page=1&per_page=1"
+    req = urllib.request.Request(url, headers=_supabase_admin_headers(service_role_key))
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+            users = data.get("users") or []
+            return users[0] if users else None
+    except Exception:
+        return None
+
+
+def _create_supabase_user(supabase_url: str, service_role_key: str, email: str, password: str) -> str:
+    """Create a new confirmed Supabase user. Returns the user_id."""
+    url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users"
+    payload = json.dumps({"email": email, "password": password, "email_confirm": True}).encode()
+    req = urllib.request.Request(url, data=payload, headers=_supabase_admin_headers(service_role_key), method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read())
+            return str(data.get("id", ""))
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Could not create account: {body}") from exc
+
+
+def _set_supabase_password(supabase_url: str, service_role_key: str, user_id: str, password: str) -> None:
+    """Update an existing Supabase user's password."""
+    url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users/{user_id}"
+    payload = json.dumps({"password": password}).encode()
+    req = urllib.request.Request(url, data=payload, headers=_supabase_admin_headers(service_role_key), method="PUT")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as _resp:
+            pass
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Could not set password: {body}") from exc
+
+
+@router.post("/setup")
+@limiter.limit("5/hour")
+def account_setup(
+    request: Request,
+    body: AccountSetupRequest,
+    services: AppServices = Depends(get_services),
+) -> dict:
+    email = str(body.email or "").strip().lower()
+    password = str(body.password or "").strip()
+
+    if not email or not password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password are required.")
+    if len(password) < 8:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must be at least 8 characters.")
+
+    if not services.config.supabase_url or not services.config.supabase_service_role_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Account setup is not available in this environment.",
+        )
+
+    # Check the email is on the beta invite list.
+    invite = services.storage.get_beta_invite(email=email)
+    if invite is None:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This email is not on the beta invite list.")
+    if invite.status == "revoked":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This beta invite has been revoked.")
+
+    supabase_url = services.config.supabase_url
+    service_role_key = services.config.supabase_service_role_key
+
+    try:
+        existing = _find_supabase_user(supabase_url, service_role_key, email)
+        if existing:
+            _set_supabase_password(supabase_url, service_role_key, str(existing["id"]), password)
+        else:
+            _create_supabase_user(supabase_url, service_role_key, email, password)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    return {"ok": True, "message": "Account set up. You can now sign in."}

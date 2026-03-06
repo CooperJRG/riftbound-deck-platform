@@ -2140,6 +2140,13 @@ textarea {
   resize: vertical;
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 button {
   border: 1px solid rgba(106, 74, 25, 0.94);
   color: #fff2dd;
@@ -2178,6 +2185,41 @@ button:active {
   box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.36),
     0 2px 6px rgba(0, 0, 0, 0.34);
+}
+
+button:disabled,
+button[disabled] {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+button.is-loading {
+  cursor: wait;
+  opacity: 0.72;
+  position: relative;
+}
+
+button.is-loading::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  animation: btn-spin 0.65s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: translateY(-50%) rotate(360deg); }
 }
 
 button.danger {

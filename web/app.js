@@ -1173,11 +1173,40 @@
     }
   }
 
+  function debounce(fn, ms) {
+    let timer;
+    return function (...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
+    };
+  }
+
+  let _statusTimer;
   function setStatus(text, error) {
     const el = document.getElementById("app-status");
     if (!el) return;
+    clearTimeout(_statusTimer);
     el.textContent = text;
     el.style.color = error ? "#ffd6d8" : "#d9ffeb";
+    _statusTimer = setTimeout(() => {
+      el.textContent = "Ready";
+      el.style.color = "#d9ffeb";
+    }, error ? 6000 : 3000);
+  }
+
+  async function withBusy(btn, busyLabel, fn) {
+    if (!btn || btn.disabled) return;
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add("is-loading");
+    if (busyLabel) btn.textContent = busyLabel;
+    try {
+      return await fn();
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove("is-loading");
+      if (busyLabel) btn.innerHTML = origHtml;
+    }
   }
 
   function showConfirmModal({
@@ -2501,13 +2530,14 @@
       });
     });
     Array.from(root.querySelectorAll("[data-meta-save]")).forEach((btn) => {
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", () => withBusy(btn, "Saving…", async () => {
         try {
           await saveDiscoverDeck("meta", Number(btn.getAttribute("data-meta-save")));
+          setStatus("Deck saved to library.", false);
         } catch (err) {
           setStatus(err.message || "Could not save meta deck.", true);
         }
-      });
+      }));
     });
     renderMetaStatus();
   }
@@ -2550,13 +2580,14 @@
       });
     });
     Array.from(root.querySelectorAll("[data-community-save]")).forEach((btn) => {
-      btn.addEventListener("click", async () => {
+      btn.addEventListener("click", () => withBusy(btn, "Saving…", async () => {
         try {
           await saveDiscoverDeck("community", Number(btn.getAttribute("data-community-save")));
+          setStatus("Deck saved to library.", false);
         } catch (err) {
           setStatus(err.message || "Could not save community deck.", true);
         }
-      });
+      }));
     });
   }
 
@@ -6205,10 +6236,10 @@
     });
     const searchInput = root.querySelector("#model-graph-search");
     if (searchInput) {
-      searchInput.addEventListener("input", () => {
+      searchInput.addEventListener("input", debounce(() => {
         state.modelObservation.graphSearch = String(searchInput.value || "");
         renderModelObservationCanvas();
-      });
+      }, 260));
       searchInput.addEventListener("keydown", (event) => {
         if (event.key !== "Escape") return;
         if (!searchInput.value) return;
@@ -6844,27 +6875,33 @@
     if (authLoginForm) {
       authLoginForm.addEventListener("submit", async (ev) => {
         ev.preventDefault();
-        const email = String(((document.getElementById("auth-email") || {}).value || "")).trim();
-        const password = String(((document.getElementById("auth-password") || {}).value || "")).trim();
+        const emailEl = document.getElementById("auth-email");
+        const passwordEl = document.getElementById("auth-password");
+        const signinBtn = document.getElementById("auth-signin-btn");
+        const email = String((emailEl && emailEl.value) || "").trim();
+        const password = String((passwordEl && passwordEl.value) || "").trim();
         if (!email || !password) {
           setAuthMessage("Enter both email and password.", true);
           return;
         }
+        const els = [emailEl, passwordEl, signinBtn].filter(Boolean);
+        els.forEach((el) => { el.disabled = true; });
         try {
-          setAuthMessage("Signing in...", false);
+          setAuthMessage("Signing in…", false);
           await loginWithPassword(email, password);
           await loadInitialWorkspace();
           setStatus("Signed in.", false);
         } catch (err) {
           state.auth.status = "error";
           setAuthMessage(err.message || "Sign-in failed.", true);
+          els.forEach((el) => { el.disabled = false; });
         }
       });
     }
 
     const authResetBtn = document.getElementById("auth-reset-btn");
     if (authResetBtn) {
-      authResetBtn.addEventListener("click", async () => {
+      authResetBtn.addEventListener("click", () => withBusy(authResetBtn, "Sending…", async () => {
         const email = String(((document.getElementById("auth-email") || {}).value || "")).trim();
         if (!email) {
           setAuthMessage("Enter your email to request a password reset.", true);
@@ -6872,10 +6909,11 @@
         }
         try {
           await sendPasswordResetEmail(email);
+          setAuthMessage("Reset link sent — check your inbox.", false);
         } catch (err) {
           setAuthMessage(err.message || "Password reset failed.", true);
         }
-      });
+      }));
     }
 
     const authSetupLink = document.getElementById("auth-setup-link");
@@ -6901,6 +6939,61 @@
       accountSetupGoBtn.addEventListener("click", () => {
         window.location.hash = "";
         renderAuthShell();
+      });
+    }
+
+    const accountSetupForm = document.getElementById("account-setup-form");
+    if (accountSetupForm) {
+      accountSetupForm.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const emailEl = document.getElementById("setup-email");
+        const pwEl = document.getElementById("setup-password");
+        const pw2El = document.getElementById("setup-password-confirm");
+        const submitBtn = document.getElementById("account-setup-submit-btn");
+        const statusEl = document.getElementById("account-setup-status");
+
+        const showSetupStatus = (msg, isError) => {
+          if (!statusEl) return;
+          statusEl.textContent = msg;
+          statusEl.style.color = isError ? "#ffd6d8" : "#d9ffeb";
+          statusEl.hidden = !msg;
+        };
+
+        const email = (emailEl ? emailEl.value : "").trim().toLowerCase();
+        const password = pwEl ? pwEl.value : "";
+        const confirm = pw2El ? pw2El.value : "";
+
+        showSetupStatus("", false);
+        if (!email || !password) { showSetupStatus("Email and password are required.", true); return; }
+        if (password.length < 8) { showSetupStatus("Password must be at least 8 characters.", true); return; }
+        if (password !== confirm) { showSetupStatus("Passwords do not match.", true); return; }
+
+        const formEls = [emailEl, pwEl, pw2El, submitBtn].filter(Boolean);
+        formEls.forEach((el) => { el.disabled = true; });
+        if (submitBtn) { submitBtn.textContent = "Creating account…"; submitBtn.classList.add("is-loading"); }
+
+        try {
+          const resp = await fetch("/api/auth/setup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            showSetupStatus(data.detail || "Account setup failed.", true);
+            return;
+          }
+          showSetupStatus("Account created! Signing you in…", false);
+          await loginWithPassword(email, password);
+          renderSetupGateView(true, "", false);
+          await loadInitialWorkspace();
+          setStatus("Signed in.", false);
+        } catch (err) {
+          showSetupStatus(err.message || "Something went wrong.", true);
+        } finally {
+          formEls.forEach((el) => { el.disabled = false; });
+          if (submitBtn) { submitBtn.textContent = "Create Account"; submitBtn.classList.remove("is-loading"); }
+        }
       });
     }
 
@@ -7014,7 +7107,7 @@
 
     const mainSearchInput = document.getElementById("main-card-search");
     if (mainSearchInput) {
-      mainSearchInput.addEventListener("input", () => renderMainSearchResults());
+      mainSearchInput.addEventListener("input", debounce(() => renderMainSearchResults(), 180));
       mainSearchInput.addEventListener("keydown", (ev) => {
         if (ev.key === "Enter") {
           ev.preventDefault();
@@ -7034,7 +7127,7 @@
 
     const sideboardSearchInput = document.getElementById("sideboard-search");
     if (sideboardSearchInput) {
-      sideboardSearchInput.addEventListener("input", () => renderSideboardList());
+      sideboardSearchInput.addEventListener("input", debounce(() => renderSideboardList(), 180));
       sideboardSearchInput.addEventListener("keydown", (ev) => {
         if (ev.key === "Enter") ev.preventDefault();
       });
@@ -7054,7 +7147,7 @@
 
     const pickerSearch = document.getElementById("picker-search-input");
     if (pickerSearch) {
-      pickerSearch.addEventListener("input", () => renderPickerGrid());
+      pickerSearch.addEventListener("input", debounce(() => renderPickerGrid(), 180));
     }
 
     const pickerModal = document.getElementById("card-picker-modal");
@@ -7107,24 +7200,25 @@
     }
     const metaDetailUse = document.getElementById("meta-detail-use-btn");
     if (metaDetailUse) {
-      metaDetailUse.addEventListener("click", async () => {
+      metaDetailUse.addEventListener("click", () => withBusy(metaDetailUse, "Loading…", async () => {
         try {
           await useDiscoverDeck(state.ui.metaDetailSource, state.ui.metaDetailIndex);
           closeMetaDetailModal();
         } catch (err) {
           setStatus(err.message || "Could not load deck.", true);
         }
-      });
+      }));
     }
     const metaDetailSave = document.getElementById("meta-detail-save-btn");
     if (metaDetailSave) {
-      metaDetailSave.addEventListener("click", async () => {
+      metaDetailSave.addEventListener("click", () => withBusy(metaDetailSave, "Saving…", async () => {
         try {
           await saveDiscoverDeck(state.ui.metaDetailSource, state.ui.metaDetailIndex);
+          setStatus("Deck saved to library.", false);
         } catch (err) {
           setStatus(err.message || "Could not save deck.", true);
         }
-      });
+      }));
     }
 
     const collectionImportBtn = document.getElementById("collection-import-btn");
@@ -7186,10 +7280,10 @@
 
     const collectionSearchInput = document.getElementById("collection-search-input");
     if (collectionSearchInput) {
-      collectionSearchInput.addEventListener("input", () => {
+      collectionSearchInput.addEventListener("input", debounce(() => {
         state.ui.collectionSearch = String(collectionSearchInput.value || "").trim();
         rerenderCollectionFromState();
-      });
+      }, 180));
     }
 
     const collectionFilterToggleBtn = document.getElementById("collection-filter-toggle-btn");
@@ -7241,7 +7335,7 @@
 
     const deckAutoCompleteBtn = document.getElementById("deck-auto-complete-btn");
     if (deckAutoCompleteBtn) {
-      deckAutoCompleteBtn.addEventListener("click", async () => {
+      deckAutoCompleteBtn.addEventListener("click", () => withBusy(deckAutoCompleteBtn, "Working…", async () => {
         try {
           const response = await runAutoBuilderCompletion();
           if (!response || !response.bestCandidate || !response.bestCandidate.deck) {
@@ -7253,12 +7347,12 @@
         } catch (err) {
           setStatus(err.message || "Auto-complete failed.", true);
         }
-      });
+      }));
     }
 
     const replacementPlanBtn = document.getElementById("deck-replacement-plan-btn");
     if (replacementPlanBtn) {
-      replacementPlanBtn.addEventListener("click", async () => {
+      replacementPlanBtn.addEventListener("click", () => withBusy(replacementPlanBtn, "Working…", async () => {
         try {
           await runAutoBuilderCompletion();
           setWorkspaceTab("auto-builder");
@@ -7266,12 +7360,12 @@
         } catch (err) {
           setStatus(err.message || "Replacement planning failed.", true);
         }
-      });
+      }));
     }
 
     const deckSaveBtn = document.getElementById("deck-save-btn");
     if (deckSaveBtn) {
-      deckSaveBtn.addEventListener("click", async () => {
+      deckSaveBtn.addEventListener("click", () => withBusy(deckSaveBtn, "Saving…", async () => {
         try {
           await saveCurrentDeckToLibrary();
           if (state.lastValidation && !state.lastValidation.is_valid) {
@@ -7282,7 +7376,7 @@
         } catch (err) {
           setStatus(err.message || "Could not save deck.", true);
         }
-      });
+      }));
     }
 
     const deckExportBtn = document.getElementById("deck-export-btn");
@@ -7511,26 +7605,26 @@
 
     const autoBuilderGenerateBtn = document.getElementById("auto-builder-generate-btn");
     if (autoBuilderGenerateBtn) {
-      autoBuilderGenerateBtn.addEventListener("click", async () => {
+      autoBuilderGenerateBtn.addEventListener("click", () => withBusy(autoBuilderGenerateBtn, "Generating…", async () => {
         try {
           await loadAutoBuilderRecommendations();
           setStatus(`Loaded ${state.autoBuilder.recommendations.length} auto-builder recommendations.`, false);
         } catch (err) {
           setStatus(err.message || "Auto Builder generation failed.", true);
         }
-      });
+      }));
     }
 
     const autoBuilderRefreshStatusBtn = document.getElementById("auto-builder-refresh-status-btn");
     if (autoBuilderRefreshStatusBtn) {
-      autoBuilderRefreshStatusBtn.addEventListener("click", async () => {
+      autoBuilderRefreshStatusBtn.addEventListener("click", () => withBusy(autoBuilderRefreshStatusBtn, "Checking…", async () => {
         try {
           await loadAutoBuilderStatus();
           setStatus("Auto Builder status refreshed.", false);
         } catch (err) {
           setStatus(err.message || "Could not refresh Auto Builder status.", true);
         }
-      });
+      }));
     }
 
     const autoBuilderOpenManualBtn = document.getElementById("auto-builder-open-manual-btn");

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 
 from app.auth.dependencies import AuthContext, require_admin, require_user
 from app.core.rate_limits import limiter
@@ -242,70 +242,52 @@ def list_meta_decks(
     entries = svc.meta.search_entries(query=query, limit=_candidate_pool_limit(limit), offset=0)
     rows: list[_MetaRankRow] = []
 
-    if include_collection:
-        collection_by_key = _collection_by_key(svc.storage.get_effective_collection(user_id=auth.user_id))
-        for entry in entries:
-            annotation = svc.auto_builder.annotation_for_entry(entry)
+    collection_by_key = (
+        _collection_by_key(svc.storage.get_effective_collection(user_id=auth.user_id))
+        if include_collection
+        else {}
+    )
+    for entry in entries:
+        annotation = svc.auto_builder.annotation_for_entry(entry)
+        if include_collection:
             is_buildable, completion_pct, missing_copies, missing_unique_cards = _collection_metrics_for_entry(
                 requirements_by_key=entry.requirements_by_key,
                 total_required=entry.total_required,
                 collection_by_key=collection_by_key,
             )
-            rows.append(
-                _MetaRankRow(
-                    source=entry.source,
-                    deck_id=entry.deck_id,
-                    deck_name=entry.deck_name,
-                    deck_url=entry.deck_url,
-                    meta_score=entry.meta_score,
-                    deck_price=entry.deck_price,
-                    views=entry.views,
-                    likes=entry.likes,
-                    age_days=entry.age_days,
-                    leader_title=entry.leader_title,
-                    deck=entry.deck,
-                    is_buildable=is_buildable,
-                    completion_pct=completion_pct,
-                    missing_copies=missing_copies,
-                    missing_unique_cards=missing_unique_cards,
-                    recommendation_score=_recommendation_score(
-                        completion_pct=completion_pct,
-                        missing_copies=missing_copies,
-                        missing_unique_cards=missing_unique_cards,
-                        meta_score=entry.meta_score,
-                        is_buildable=is_buildable,
-                    ),
-                    competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
-                    win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
-                    win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
-                )
+            rec_score = _recommendation_score(
+                completion_pct=completion_pct,
+                missing_copies=missing_copies,
+                missing_unique_cards=missing_unique_cards,
+                meta_score=entry.meta_score,
+                is_buildable=is_buildable,
             )
-    else:
-        for entry in entries:
-            annotation = svc.auto_builder.annotation_for_entry(entry)
-            rows.append(
-                _MetaRankRow(
-                    source=entry.source,
-                    deck_id=entry.deck_id,
-                    deck_name=entry.deck_name,
-                    deck_url=entry.deck_url,
-                    meta_score=entry.meta_score,
-                    deck_price=entry.deck_price,
-                    views=entry.views,
-                    likes=entry.likes,
-                    age_days=entry.age_days,
-                    leader_title=entry.leader_title,
-                    deck=entry.deck,
-                    is_buildable=None,
-                    completion_pct=None,
-                    missing_copies=None,
-                    missing_unique_cards=None,
-                    recommendation_score=_default_recommendation_without_collection(entry.meta_score),
-                    competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
-                    win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
-                    win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
-                )
+        else:
+            is_buildable = completion_pct = missing_copies = missing_unique_cards = None
+            rec_score = _default_recommendation_without_collection(entry.meta_score)
+        rows.append(
+            _MetaRankRow(
+                source=entry.source,
+                deck_id=entry.deck_id,
+                deck_name=entry.deck_name,
+                deck_url=entry.deck_url,
+                meta_score=entry.meta_score,
+                deck_price=entry.deck_price,
+                views=entry.views,
+                likes=entry.likes,
+                age_days=entry.age_days,
+                leader_title=entry.leader_title,
+                deck=entry.deck,
+                is_buildable=is_buildable,
+                completion_pct=completion_pct,
+                missing_copies=missing_copies,
+                missing_unique_cards=missing_unique_cards,
+                recommendation_score=rec_score,
+                competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
+                win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
+                win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
             )
+        )
 
     ranked = _sort_meta_rows(rows, sort_by=sort_by, sort_dir=sort_dir)
     start = max(0, int(offset))
@@ -338,11 +320,12 @@ def list_meta_decks(
 
 @router.get("/status", response_model=MetaIndexStatus)
 @limiter.limit("60/minute")
-def meta_index_status(request: Request, _auth: AuthContext = Depends(require_user)) -> MetaIndexStatus:
+def meta_index_status(request: Request, response: Response, _auth: AuthContext = Depends(require_user)) -> MetaIndexStatus:
     svc = get_services()
     payload = dict(svc.meta.status())
     payload["sourcePath"] = ""
     payload["lastError"] = None
+    response.headers["Cache-Control"] = "private, max-age=60"
     return MetaIndexStatus(**payload)
 
 

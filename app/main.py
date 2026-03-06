@@ -26,7 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover - local/dev fallback
     SlowAPIMiddleware = None
     _rate_limit_exceeded_handler = None
 
-from app.api.routers import auto_builder, cards, collection, decks, health, me, meta, model_observation
+from app.api.routers import auth, auto_builder, cards, collection, decks, health, me, meta, model_observation
 from app.core.meta_auto_refresh import MetaAutoRefreshScheduler
 from app.core.rate_limits import limiter
 from app.core.services import get_services
@@ -85,6 +85,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(auth.router)
 app.include_router(me.router)
 app.include_router(cards.router)
 app.include_router(collection.router)

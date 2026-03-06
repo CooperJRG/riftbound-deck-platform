@@ -16,20 +16,33 @@ from app.domain.models import (
     CollectionResetRequest,
     CollectionSnapshot,
 )
-from app.domain.normalization import coerce_quantity
+from app.domain.normalization import coerce_quantity, normalize_card_key
 
 router = APIRouter(prefix="/api/collection", tags=["collection"])
 
 
 def _snapshot(*, user_id: str) -> CollectionSnapshot:
     svc = get_services()
-    cards = svc.storage.get_collection(user_id=user_id)
-    in_use = svc.storage.get_collection_in_use(user_id=user_id)
-    available = svc.storage.get_effective_collection(user_id=user_id)
+    owned = svc.storage.get_collection(user_id=user_id)
+    in_use_by_key = svc.storage.get_built_cards_in_use(user_id=user_id)
+    # Derive in_use and available in a single pass — avoids 3 redundant get_collection() calls.
+    in_use: dict[str, int] = {}
+    available: dict[str, int] = {}
+    for title, qty in owned.items():
+        key = normalize_card_key(title)
+        used = min(max(0, int(qty)), max(0, int(in_use_by_key.get(key, 0))))
+        avail = max(0, int(qty) - used)
+        if used > 0:
+            in_use[title] = used
+        if avail > 0:
+            available[title] = avail
+    sort_key = lambda item: item[0].casefold()  # noqa: E731
+    in_use = dict(sorted(in_use.items(), key=sort_key))
+    available = dict(sorted(available.items(), key=sort_key))
     return CollectionSnapshot(
-        cards=cards,
-        total_unique_cards=len(cards),
-        total_copies=sum(int(v) for v in cards.values()),
+        cards=owned,
+        total_unique_cards=len(owned),
+        total_copies=sum(int(v) for v in owned.values()),
         in_use_cards=in_use,
         available_cards=available,
         total_in_use_copies=sum(int(v) for v in in_use.values()),

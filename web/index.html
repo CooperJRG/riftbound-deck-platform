@@ -39,51 +39,43 @@
 
   <div id="account-setup-gate" class="auth-gate account-setup-gate" hidden>
     <div class="auth-card setup-card">
+
       <div id="account-setup-intro" class="account-setup-intro">
         <div class="setup-header">
           <p class="eyebrow">Closed Beta</p>
           <h1>Set up your account</h1>
-          <p class="setup-tagline">Riftdesk is invite-only. Here’s how to get access:</p>
+          <p class="setup-tagline">Enter the email from your beta invite and choose a password.</p>
         </div>
-        <ol class="setup-steps">
-          <li class="setup-step">
-            <span class="setup-step-num">1</span>
-            <div class="setup-step-body">
-              <strong>Check your invite email</strong>
-              <span>Look for a Riftbound invitation email and click the link inside to accept.</span>
-            </div>
-          </li>
-          <li class="setup-step">
-            <span class="setup-step-num">2</span>
-            <div class="setup-step-body">
-              <strong>Set a password</strong>
-              <span>The invite link will prompt you to choose a password for your account.</span>
-            </div>
-          </li>
-          <li class="setup-step">
-            <span class="setup-step-num">3</span>
-            <div class="setup-step-body">
-              <strong>Sign in to Riftdesk</strong>
-              <span>Once your account is created, return here and sign in with your email and password.</span>
-            </div>
-          </li>
-        </ol>
-        <p class="setup-note muted">Don’t have an invite? Access is currently limited to closed beta participants.</p>
-        <div class="auth-actions setup-actions">
-          <a id="account-setup-signin-link" href="#" class="card-action-btn secondary">← Back to Sign In</a>
-        </div>
+        <form id="account-setup-form" class="auth-form" autocomplete="on" novalidate>
+          <label>Email address
+            <input id="setup-email" type="email" autocomplete="email" placeholder="your@email.com" required />
+          </label>
+          <label>Password
+            <input id="setup-password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required />
+          </label>
+          <label>Confirm password
+            <input id="setup-password-confirm" type="password" autocomplete="new-password" placeholder="Confirm your password" required />
+          </label>
+          <div class="auth-actions setup-actions">
+            <button id="account-setup-submit-btn" type="submit">Create Account</button>
+            <a id="account-setup-signin-link" href="#" class="card-action-btn secondary">Back to Sign In</a>
+          </div>
+          <p class="setup-note muted">Access is invite-only. Your email must match a registered beta invite.</p>
+        </form>
+        <p id="account-setup-status" class="library-note account-setup-status" hidden></p>
       </div>
+
       <div id="account-setup-complete" class="account-setup-complete" hidden>
         <div class="setup-header">
           <p class="eyebrow">You’re all set</p>
-          <h1>Account ready</h1>
-          <p class="setup-tagline">Your account has been set up. Welcome to the Riftbound closed beta.</p>
+          <h1>Welcome to Riftdesk</h1>
+          <p class="setup-tagline">Your account is ready. Signing you in…</p>
         </div>
         <div class="auth-actions setup-actions">
           <button id="account-setup-go-btn" type="button">Go to Riftdesk</button>
         </div>
       </div>
-      <p id="account-setup-status" class="library-note account-setup-status" hidden></p>
+
     </div>
   </div>
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 
 from app.auth.dependencies import AuthContext, require_user
 from app.core.rate_limits import limiter
@@ -26,8 +26,9 @@ def auto_builder_status(request: Request, _auth: AuthContext = Depends(require_u
 
 @router.get("/win-conditions", response_model=list[WinConditionSummary])
 @limiter.limit("60/minute")
-def auto_builder_win_conditions(request: Request, _auth: AuthContext = Depends(require_user)) -> list[WinConditionSummary]:
+def auto_builder_win_conditions(request: Request, response: Response, _auth: AuthContext = Depends(require_user)) -> list[WinConditionSummary]:
     svc = get_services()
+    response.headers["Cache-Control"] = "private, max-age=600"
     return [WinConditionSummary(**row) for row in svc.auto_builder.win_conditions()]
 
 

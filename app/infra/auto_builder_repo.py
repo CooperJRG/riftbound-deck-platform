@@ -315,7 +315,12 @@ class AutoBuilderRepository:
             score = 0.0 if denom <= 0 else float(len(target & other)) / float(denom)
             scored.append((score, row))
         scored.sort(key=lambda item: (-item[0], str(item[1].get("deckName") or "").lower()))
-        return scored[0][1] if scored and scored[0][0] > 0 else None
+        result = scored[0][1] if scored and scored[0][0] > 0 else None
+        # Cache result under both ref_key and signature so repeat lookups skip this O(N) scan.
+        if ref_key[0] or ref_key[1]:
+            self._profiles_by_ref[ref_key] = result
+        self._profiles_by_signature[signature] = result
+        return result
 
     def annotation_for_entry(self, entry: MetaDeckIndexEntry) -> dict[str, Any]:
         profile = self._match_profile(deck=entry.deck, source=entry.source, deck_id=entry.deck_id)
