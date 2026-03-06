@@ -886,6 +886,13 @@ body.workspace-model-observation-active .inspector-zone {
   min-height: 0;
 }
 
+/* Auto builder scrolls as one page — override clip/hidden from .module and .workspace-pane */
+#auto-builder-panel {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
 .workspace-pane {
   display: none;
 }
@@ -1995,9 +2002,6 @@ body.workspace-model-observation-active .inspector-zone {
   display: grid;
   gap: 10px;
   align-content: start;
-  max-height: 62vh;
-  overflow: auto;
-  padding-right: 4px;
 }
 
 .auto-builder-loading-list {
@@ -2314,8 +2318,23 @@ body.workspace-model-observation-active .inspector-zone {
 }
 
 .picker-dialog .tile-grid {
+  --tile-min: 164px;
   max-height: unset;
   min-height: 260px;
+}
+
+/* Picker tiles need extra body height to show title + subtitle + Select button */
+.picker-dialog .card-tile {
+  min-height: 320px;
+}
+
+/* Center the Select button and give it full width for easy tapping */
+.picker-dialog .card-actions {
+  justify-content: center;
+}
+
+.picker-dialog .card-actions .card-action-btn {
+  flex: 1;
 }
 
 .row {
@@ -5150,10 +5169,6 @@ code {
 
   body.workspace-auto-builder-active .layout {
     grid-template-columns: 1fr;
-  }
-
-  .auto-builder-results {
-    max-height: 42vh;
   }
 }
 
