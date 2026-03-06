@@ -1,0 +1,557 @@
+code,title,price
+OGN-001,Blazing Scorcher,0.0300
+OGN-002,Brazen Buccaneer,0.0300
+OGN-003,Chemtech Enforcer,0.0200
+OGN-004,Cleave,0.1500
+OGN-005,Disintegrate,0.0600
+OGN-006,Flame Chompers,0.0300
+OGN-007,Fury Rune,0.1900
+OGN-008,Get Excited!,0.0600
+OGN-009,Hextech Ray,0.1300
+OGN-010,Legion Rearguard,0.0500
+OGN-011,Magma Wurm,0.0400
+OGN-012,Noxus Hopeful,0.1700
+OGN-013,Pouty Poro,0.1100
+OGN-014,Sky Splitter,0.0600
+OGN-015,Captain Farron,0.1300
+OGN-016,Dangerous Duo,0.0900
+OGN-017,Iron Ballista,0.1400
+OGN-018,Noxus Saboteur,0.1000
+OGN-019,Raging Soul,0.0600
+OGN-020,Scrapyard Champion,0.1300
+OGN-021,Sun Disc,0.1600
+OGN-022,Thermo Beam,0.2500
+OGN-023,Unlicensed Armory,0.1700
+OGN-024,Void Seeker,0.2900
+OGN-025,Blind Fury,0.0200
+OGN-026,Brynhir Thundersong,1.0000
+OGN-027,Darius - Trifarian,2.0000
+OGN-028,Draven - Showboat,0.1000
+OGN-029,Falling Star,2.0000
+OGN-030,Jinx - Demolitionist,0.0200
+OGN-031,Raging Firebrand,0.0200
+OGN-032,Ravenborn Tome,0.1600
+OGN-033,Shakedown,0.0700
+OGN-034,Tryndamere - Barbarian,0.2200
+OGN-035,Vayne - Hunter,0.3000
+OGN-036,Vi - Destructive,2.9500
+OGN-037,Immortal Phoenix,7.0000
+OGN-038,Kadregrin the Infernal,2.0000
+OGN-039,Kai'Sa - Survivor,39.9900
+OGN-040,Seal of Rage,9.9900
+OGN-041,Volibear - Furious,1.5000
+OGN-042,Calm Rune,0.2700
+OGN-043,Charm,0.2100
+OGN-044,Clockwork Keeper,0.0700
+OGN-045,Defy,0.3200
+OGN-046,En Garde,0.1200
+OGN-047,Find Your Center,0.1300
+OGN-048,Meditation,0.0600
+OGN-049,Playful Phantom,0.0300
+OGN-050,Rune Prison,0.1300
+OGN-051,Solari Shieldbearer,0.0500
+OGN-052,Stalwart Poro,0.0600
+OGN-053,Stand United,0.0300
+OGN-054,Sunlit Guardian,0.1000
+OGN-055,Wielder of Water,0.0800
+OGN-056,Adaptatron,0.2500
+OGN-057,Block,0.1600
+OGN-058,Discipline,0.2800
+OGN-059,Eclipse Herald,0.1200
+OGN-060,Mask of Foresight,0.2200
+OGN-061,Poro Herder,0.1100
+OGN-062,Reinforce,0.1400
+OGN-063,Spirit's Refuge,0.1500
+OGN-064,Wind Wall,1.0400
+OGN-065,Wizened Elder,0.0500
+OGN-066,Ahri - Alluring,1.0000
+OGN-067,Blitzcrank - Impassive,1.9000
+OGN-068,Caitlyn - Patrolling,0.0500
+OGN-069,Last Stand,0.3800
+OGN-070,Mageseeker Warden,0.0200
+OGN-071,Party Favors,0.0200
+OGN-072,Solari Shrine,0.0200
+OGN-073,Sona - Harmonious,0.2500
+OGN-074,Taric - Protector,0.0400
+OGN-075,Tasty Faefolk,6.5000
+OGN-076,Yasuo - Remorseful,0.1300
+OGN-077,Zhonya's Hourglass,3.0000
+OGN-078,Lee Sin - Ascetic,1.2000
+OGN-079,Leona - Zealot,2.4900
+OGN-080,Mystic Reversal,4.2000
+OGN-081,Seal of Focus,8.0000
+OGN-082,Whiteflame Protector,7.9900
+OGN-083,Consult the Past,0.1400
+OGN-084,Eager Apprentice,0.0400
+OGN-085,Falling Comet,0.0700
+OGN-086,Jeweled Colossus,0.0400
+OGN-087,Lecturing Yordle,0.1700
+OGN-088,Mega-Mech,0.0600
+OGN-089,Mind Rune,0.3500
+OGN-090,Orb of Regret,0.0200
+OGN-091,Pit Crew,0.1100
+OGN-092,Riptide Rex,0.1100
+OGN-093,Smoke Screen,0.1100
+OGN-094,Sprite Call,0.0800
+OGN-095,Stupefy,0.1100
+OGN-096,Watchful Sentry,0.0900
+OGN-097,Blastcone Fae,0.1700
+OGN-098,Energy Conduit,0.1600
+OGN-099,Garbage Grabber,0.1300
+OGN-100,Gemcraft Seer,0.1000
+OGN-101,Mushroom Pouch,0.0700
+OGN-102,Portal Rescue,0.1100
+OGN-103,Ravenbloom Student,0.2100
+OGN-104,Retreat,1.3700
+OGN-105,Singularity,1.3500
+OGN-106,Sprite Mother,1.2100
+OGN-107,Ava Achiever,0.8000
+OGN-108,Convergent Mutation,0.3000
+OGN-109,Dr. Mundo - Expert,4.9500
+OGN-110,Ekko - Recurrent,0.1000
+OGN-111,Heimerdinger - Inventor,0.3000
+OGN-112,Kai'Sa - Evolutionary,0.1000
+OGN-113,Malzahar - Fanatic,0.5000
+OGN-114,Progress Day,0.0500
+OGN-115,Promising Future,0.0200
+OGN-116,Thousand-Tailed Watcher,10.0000
+OGN-117,Viktor - Innovator,2.0000
+OGN-118,Wraith of Echoes,0.0200
+OGN-119,Ahri - Inquisitive,3.5000
+OGN-120,Seal of Insight,5.0000
+OGN-121,Teemo - Strategist,1.7500
+OGN-122,Time Warp,34.0000
+OGN-123,Unchecked Power,5.5000
+OGN-124,Arena Bar,0.0500
+OGN-125,Bilgewater Bully,0.0200
+OGN-126,Body Rune,0.1700
+OGN-127,Cannon Barrage,0.0700
+OGN-128,Challenge,0.1000
+OGN-129,Confront,0.0400
+OGN-130,Crackshot Corsair,0.0300
+OGN-131,Dune Drake,0.0400
+OGN-132,First Mate,0.0900
+OGN-133,Flurry of Blades,0.0400
+OGN-134,Mobilize,0.0700
+OGN-135,Pakaa Cub,0.0300
+OGN-136,Pit Rookie,0.0800
+OGN-137,Stormclaw Ursine,0.0300
+OGN-138,Catalyst of Aeons,0.2800
+OGN-139,Cithria of Cloudfield,0.1000
+OGN-140,Herald of Scales,0.1700
+OGN-141,Kinkou Monk,0.2300
+OGN-142,Mountain Drake,0.0700
+OGN-143,Pirate's Haven,0.0800
+OGN-144,Spoils of War,0.1200
+OGN-145,Unyielding Spirit,0.4700
+OGN-146,Wallop,0.1700
+OGN-147,Wildclaw Shaman,0.0300
+OGN-148,Anivia - Primal,0.6900
+OGN-149,Carnivorous Snapvine,0.1000
+OGN-150,Kraken Hunter,0.0200
+OGN-151,Lee Sin - Centered,0.0200
+OGN-152,Mistfall,0.0200
+OGN-153,Overt Operation,0.0200
+OGN-154,Primal Strength,0.2000
+OGN-155,Qiyana - Victorious,0.5000
+OGN-156,Sabotage,1.0000
+OGN-157,Udyr - Wildman,0.0400
+OGN-158,Volibear - Imposing,0.0200
+OGN-159,Warwick - Hunter,0.1000
+OGN-160,Dazzling Aurora,16.9900
+OGN-161,Deadbloom Predator,18.9900
+OGN-162,Miss Fortune - Captain,2.9000
+OGN-163,Seal of Strength,11.7500
+OGN-164,Sett - Brawler,18.0000
+OGN-165,Cemetery Attendant,0.0400
+OGN-166,Chaos Rune,0.2200
+OGN-167,Ember Monk,0.1100
+OGN-168,Fight or Flight,0.1200
+OGN-169,Gust,0.0800
+OGN-170,Morbid Return,0.0300
+OGN-171,Mystic Poro,0.0500
+OGN-172,Rebuke,0.2200
+OGN-173,Ride the Wind,0.3300
+OGN-174,Sai Scout,0.0400
+OGN-175,Shipyard Skulker,0.0300
+OGN-176,Sneaky Deckhand,0.1400
+OGN-177,Stealthy Pursuer,0.0700
+OGN-178,Undercover Agent,0.0500
+OGN-179,Acceptable Losses,0.2200
+OGN-180,Fading Memories,0.1600
+OGN-181,Pack of Wonders,0.1400
+OGN-182,Scrapheap,0.2300
+OGN-183,Stacked Deck,4.3100
+OGN-184,The Syren,0.1800
+OGN-185,Traveling Merchant,0.1100
+OGN-186,Treasure Trove,0.1900
+OGN-187,Whirlwind,0.0900
+OGN-188,Zaunite Bouncer,0.1500
+OGN-189,Kayn - Unleashed,0.1500
+OGN-190,Kog'Maw - Caustic,1.0000
+OGN-191,Maddened Marauder,0.1700
+OGN-192,Mindsplitter,6.0000
+OGN-193,Miss Fortune - Buccaneer,0.0300
+OGN-194,Nocturne - Horrifying,0.5500
+OGN-195,Rhasa the Sunderer,0.9800
+OGN-196,Soulgorger,0.0500
+OGN-197,Teemo - Scout,2.5000
+OGN-198,The Harrowing,0.0500
+OGN-199,Tideturner,1.0000
+OGN-200,Twisted Fate - Gambler,0.0200
+OGN-201,Invert Timelines,9.9900
+OGN-202,Jinx - Rebel,1.4500
+OGN-203,Possession,2.7500
+OGN-204,Seal of Discord,18.5000
+OGN-205,Yasuo - Windrider,1.8000
+OGN-206,Back to Back,0.0600
+OGN-207,Call to Glory,0.1400
+OGN-208,Cruel Patron,0.0400
+OGN-209,Cull the Weak,0.1500
+OGN-210,Daring Poro,0.0600
+OGN-211,Faithful Manufactor,0.1200
+OGN-212,Forge of the Future,0.0700
+OGN-213,Hidden Blade,0.2200
+OGN-214,Order Rune,0.2100
+OGN-215,Petty Officer,0.0200
+OGN-216,Soaring Scout,0.0700
+OGN-217,Trifarian Gloryseeker,0.0500
+OGN-218,Vanguard Captain,0.1300
+OGN-219,Vanguard Sergeant,0.0500
+OGN-220,Facebreaker,0.1800
+OGN-221,Imperial Decree,0.6800
+OGN-222,Noxian Drummer,0.1200
+OGN-223,Peak Guardian,0.1000
+OGN-224,Salvage,1.6200
+OGN-225,Solari Chief,0.1100
+OGN-226,Spectral Matron,0.3100
+OGN-227,Symbol of the Solari,0.1100
+OGN-228,Vanguard Helm,0.0700
+OGN-229,Vengeance,0.2300
+OGN-230,Albus Ferros,0.0200
+OGN-231,Commander Ledros,0.4900
+OGN-232,Fiora - Victorious,1.7500
+OGN-233,Grand Strategem,1.0000
+OGN-234,Harnessed Dragon,0.0900
+OGN-235,Karma - Channeler,0.0800
+OGN-236,Karthus - Eternal,0.0500
+OGN-237,King's Edict,2.0000
+OGN-238,Leona - Determined,2.4900
+OGN-239,Machine Evangel,0.3000
+OGN-240,Sett - Kingpin,0.1000
+OGN-241,Shen - Kinkou,0.2000
+OGN-242,Baited Hook,17.0000
+OGN-243,Darius - Executioner,1.0000
+OGN-244,Divine Judgment,4.0000
+OGN-245,Seal of Unity,10.0000
+OGN-246,Viktor - Leader,3.0000
+OGN-247,Kai'Sa - Daughter of the Void,0.0500
+OGN-248,Icathian Rain,10.0000
+OGN-249,Volibear - Relentless Storm,0.0200
+OGN-250,Stormbringer,1.9000
+OGN-251,Jinx - Loose Cannon,0.0200
+OGN-252,Super Mega Death Rocket!,4.0000
+OGN-253,Darius - Hand of Noxus,0.0200
+OGN-254,Noxian Guillotine,0.9900
+OGN-255,Ahri - Nine-Tailed Fox,0.0200
+OGN-256,Fox-Fire,14.8000
+OGN-257,Lee Sin - Blind Monk,0.0200
+OGN-258,Dragon's Rage,1.9900
+OGN-259,Yasuo - Unforgiven,0.1500
+OGN-260,Last Breath,2.2500
+OGN-261,Leona - Radiant Dawn,0.0200
+OGN-262,Zenith Blade,5.0000
+OGN-263,Teemo - Swift Scout,0.1500
+OGN-264,Guerilla Warfare,2.5000
+OGN-265,Viktor - Herald of the Arcane,0.1500
+OGN-266,Siphon Power,1.8000
+OGN-267,Miss Fortune - Bounty Hunter,0.0200
+OGN-268,Bullet Time,3.9900
+OGN-269,Sett - The Boss,0.0200
+OGN-270,Showstopper,10.0000
+OGN-271,Recruit (DE),0.1900
+OGN-272,Recruit (NX),0.0500
+OGN-273,Recruit (ZN),0.0200
+OGN-274,Sprite,0.0800
+OGN-275,Altar to Unity,0.1000
+OGN-276,Aspirant's Climb,0.1900
+OGN-277,Back-Alley Bar,0.1200
+OGN-278,Bandle Tree,0.1800
+OGN-279,Fortified Position,0.1300
+OGN-280,Grove of the God-Willow,0.2200
+OGN-281,Hallowed Tomb,0.1500
+OGN-282,Monastery of Hirana,0.1300
+OGN-283,Navori Fighting Pit,0.0900
+OGN-284,Obelisk of Power,0.2500
+OGN-285,Reaver's Row,0.1400
+OGN-286,Reckoner's Arena,0.1300
+OGN-287,Sigil of the Storm,0.1500
+OGN-288,Startipped Peak,0.2000
+OGN-289,Targon's Peak,0.1600
+OGN-290,The Arena's Greatest,0.2200
+OGN-291,The Candlelit Sanctum,0.2000
+OGN-292,The Dreaming Tree,0.3900
+OGN-293,The Grand Plaza,0.1200
+OGN-294,Trifarian War Camp,0.2000
+OGN-295,Vilemaw's Lair,0.2200
+OGN-296,Void Gate,0.1500
+OGN-297,Windswept Hillock,0.2000
+OGN-298,Zaun Warrens,0.1900
+OGN-299,Kai'Sa - Daughter of the Void,68.0000
+OGN-300,Volibear - Relentless Storm,23.0000
+OGN-301,Jinx - Loose Cannon,575.0000
+OGN-302,Darius - Hand of Noxus,39.9800
+OGN-303,Ahri - Nine-Tailed Fox,84.9900
+OGN-304,Lee Sin - Blind Monk,60.0000
+OGN-305,Yasuo - Unforgiven,37.0000
+OGN-306,Leona - Radiant Dawn,398.0000
+OGN-307,Teemo - Swift Scout,63.7500
+OGN-308,Viktor - Herald of the Arcane,56.9900
+OGN-309,Miss Fortune - Bounty Hunter,60.3000
+OGN-310,Sett - The Boss,34.9900
+OGS-001,Annie - Fiery,1.6100
+OGS-002,Firestorm,0.3900
+OGS-003,Incinerate,1.4700
+OGS-004,Master Yi - Meditative,1.7100
+OGS-005,Zephyr Sage,0.3000
+OGS-006,Lux - Illuminated,1.5200
+OGS-007,Garen - Rugged,1.3600
+OGS-008,Gentlemen's Duel,0.3900
+OGS-009,Master Yi - Honed,2.7600
+OGS-010,Annie - Stubborn,5.7300
+OGS-011,Flash,44.0700
+OGS-012,Blast of Power,5.7300
+OGS-013,Garen - Commander,2.1700
+OGS-014,Lux - Crownguard,6.5000
+OGS-015,Recruit the Vanguard,5.9700
+OGS-016,Vanguard Attendant,0.2700
+OGS-017,Annie - Dark Child - Starter,19.5500
+OGS-018,Tibbers,1.1500
+OGS-019,Master Yi - Wuju Bladesman - Starter,13.6000
+OGS-020,Highlander,0.8900
+OGS-021,Lux - Lady of Luminosity - Starter,6.7800
+OGS-022,Final Spark,2.3100
+OGS-023,Garen - Might of Demacia - Starter,1.4900
+OGS-024,Decisive Strike,0.6700
+SFD-001,Against the Odds,0.2700
+SFD-002,Armed Assailant,0.0600
+SFD-003,Blood Rush,0.2400
+SFD-005,Detonate,0.0900
+SFD-006,Eager Drakehound,0.1000
+SFD-007,Gem Jammer,0.1600
+SFD-008,Sentinel Adept,0.1000
+SFD-010,Void Drone,0.0900
+SFD-012,Battering Ram,1.0400
+SFD-015,Perched Grimwyrm,0.1400
+SFD-016,Recurve Bow,0.1000
+SFD-017,Sudden Storm,0.1400
+SFD-018,Void Hatchling,0.3000
+SFD-019,Assembly Rig,0.1700
+SFD-020,Draven - Vanquisher,1.3300
+SFD-021,Ferrous Forerunner,1.5000
+SFD-022,Long Sword,0.2600
+SFD-023,Piercing Light,1.4000
+SFD-024,Rell - Magnetic,0.2700
+SFD-025,Rengar - Pouncing,0.9000
+SFD-026,Rumble - Hotheaded,0.1300
+SFD-027,Dunebreaker,3.4800
+SFD-028,Lucian - Gunslinger,1.7000
+SFD-029,Rek'Sai - Breacher,10.5500
+SFD-030,Skyfall of Areion,11.6400
+SFD-031,Desert's Call,0.1200
+SFD-032,Disarming Rake,0.1300
+SFD-033,Doran's Shield,0.1300
+SFD-034,Feral Strength,0.1500
+SFD-035,Guardian of the Passage,0.0900
+SFD-036,Lonely Poro,0.1300
+SFD-037,Navori Scout,0.1100
+SFD-038,Ribbon Dancer,0.1200
+SFD-039,Royal Entourage,0.1300
+SFD-040,Thwonk!,0.1700
+SFD-041,Apprentice Smith,0.1100
+SFD-043,Emperor's Divide,0.2600
+SFD-044,Legion Quartermaster,0.0900
+SFD-045,Not So Fast,0.9700
+SFD-046,Poro Snax,0.3500
+SFD-047,Simian Ancestor,0.1600
+SFD-048,Stellacorn Herder,0.5300
+SFD-049,Aphelios - Exalted,0.4000
+SFD-050,Azir - Ascendant,0.2100
+SFD-051,Guardian Angel,5.0500
+SFD-052,Heart of Dark Ice,0.2300
+SFD-053,Janna - Savior,0.6200
+SFD-054,Jax - Unmatched,0.1400
+SFD-055,Needlessly Large Yordle,0.3000
+SFD-056,Sterak's Gage,0.2700
+SFD-057,Irelia - Fervent,24.5900
+SFD-058,Ornn - Blacksmith,4.2900
+SFD-059,Svellsongur,23.4100
+SFD-060,Tianna Crownguard,8.6900
+SFD-061,Aspiring Engineer,0.0600
+SFD-062,Bubble Bot,0.0700
+SFD-064,Cloth Armor,0.2000
+SFD-065,Forecaster,0.0900
+SFD-066,Frigid Touch,0.1200
+SFD-067,Frostcoat Cub,0.0900
+SFD-068,Gearhead,0.0800
+SFD-069,Plundering Poro,0.1200
+SFD-070,Wages of Pain,0.1900
+SFD-072,Dropboarder,0.1200
+SFD-074,Pickpocket,0.1100
+SFD-075,Prize of Progress,0.2500
+SFD-076,Production Surge,0.2200
+SFD-077,Rocket Barrage,0.2500
+SFD-078,Temporal Portal,0.1300
+SFD-079,Bard - Mercurial,0.2400
+SFD-080,Bellows Breath,1.6600
+SFD-081,Card Sharp,0.5200
+SFD-082,Ezreal - Dashing,0.2200
+SFD-083,Hextech Anomaly,0.3200
+SFD-084,Jayce - Man of Progress,0.9800
+SFD-086,World Atlas,0.3300
+SFD-087,Premonition,7.1700
+SFD-088,Renata Glasc - Mastermind,4.9800
+SFD-089,Rumble - Scrapper,1.9900
+SFD-091,Buhru Captain,0.1200
+SFD-092,Combat Chef,0.0700
+SFD-093,Dauntless Vanguard,0.0700
+SFD-094,Direwing,0.2100
+SFD-096,Laurent Bladekeeper,0.1100
+SFD-097,Punch First,0.1700
+SFD-098,Sea Monkey,0.1900
+SFD-099,Veteran Poro,0.0900
+SFD-100,Yordle Explorer,0.1000
+SFD-101,Fae Dragon,0.6200
+SFD-102,Hexdrinker,0.1500
+SFD-103,Jaull-Fish,0.2600
+SFD-104,Petricite Monument,0.1200
+SFD-105,Ruin Runner,0.9600
+SFD-106,Show of Strength,0.2900
+SFD-107,Strike Down,0.1400
+SFD-108,Warmog's Armor,0.2300
+SFD-109,Akshan - Mischievous,1.5200
+SFD-110,Fiora - Peerless,0.2100
+SFD-111,Here to Help,0.3200
+SFD-112,Kato the Arm,0.1900
+SFD-113,Lucian - Merciless,0.4400
+SFD-114,Marching Orders,0.2700
+SFD-115,Trinity Force,0.4300
+SFD-116,Yone - Blademaster,0.4000
+SFD-117,Ancient Henge,3.2800
+SFD-118,Boneshiver,13.7000
+SFD-119,Jax - Unrelenting,2.4500
+SFD-120,Sivir - Ambitious,3.1700
+SFD-121,Black Market Broker,0.1000
+SFD-122,Called Shot,0.2600
+SFD-123,Corrupt Enforcer,0.1000
+SFD-124,Doran's Ring,0.2300
+SFD-125,Fae Porter,0.1100
+SFD-126,Loyal Pup,0.1000
+SFD-127,Master Bingwen,0.1200
+SFD-128,Overzealous Fan,0.2200
+SFD-129,Temptation,0.1400
+SFD-130,Treasure Hunter,0.2500
+SFD-131,Ancient Warmonger,0.1300
+SFD-132,Beast Below,0.1200
+SFD-133,Boots of Swiftness,0.5600
+SFD-134,Cull,0.3300
+SFD-135,Factory Recall,0.2300
+SFD-136,Hard Bargain,0.7100
+SFD-137,Harpoon Squad,0.0900
+SFD-138,Windsinger,0.3800
+SFD-139,Edge of Night,0.7200
+SFD-140,Fizz - Trickster,1.7900
+SFD-141,Irelia - Graceful,0.2500
+SFD-142,Jae Medarda,0.1300
+SFD-143,Sivir - Mercenary,0.3000
+SFD-144,Spirit Wheel,0.2500
+SFD-145,Switcheroo,1.4700
+SFD-146,Vex - Cheerless,0.4800
+SFD-147,Downwell,6.3000
+SFD-148,Draven - Audacious,20.9100
+SFD-149,Ezreal - Prodigy,64.1200
+SFD-150,Last Rites,24.5700
+SFD-151,Bonds of Strength,0.0900
+SFD-152,Eminent Benefactor,0.0700
+SFD-153,Eye of the Herald,0.1800
+SFD-154,Guards!,0.1300
+SFD-155,Honest Broker,0.2300
+SFD-156,Laurent Duelist,0.0700
+SFD-157,Royal Guard,0.0700
+SFD-158,Sandshifter,0.0900
+SFD-159,Trusty Ramhound,0.1000
+SFD-160,Zaun Punk,0.1100
+SFD-161,B.F. Sword,0.6300
+SFD-162,Blood Money,0.5700
+SFD-163,Deathgrip,0.5900
+SFD-164,Drag Under,0.4000
+SFD-165,Glasc Mixologist,0.3200
+SFD-166,Rally the Troops,0.4100
+SFD-167,Unsung Hero,0.3700
+SFD-168,Vanguard Armory,0.6400
+SFD-169,Altar of Memories,0.2400
+SFD-170,Rek'Sai - Swarm Queen,0.1800
+SFD-171,Renata Glasc - Industrialist,0.2400
+SFD-173,Soraka - Wanderer,0.5600
+SFD-175,Undertitan,0.3800
+SFD-176,Xin Zhao - Vigilant,0.9700
+SFD-177,Azir - Sovereign,6.6800
+SFD-178,Blade of the Ruined King,5.5300
+SFD-179,Corina Veraza,2.8600
+SFD-180,Fiora - Worthy,2.9700
+SFD-181,Rumble - Mechanized Menace,0.1200
+SFD-182,Danger Zone,1.5300
+SFD-183,Lucian - Purifier,0.1400
+SFD-184,Relentless Pursuit,7.8800
+SFD-185,Draven - Glorious Executioner,0.4300
+SFD-186,Spinning Axe,37.1000
+SFD-187,Rek'Sai - Void Burrower,0.1200
+SFD-188,Void Rush,10.3300
+SFD-189,Ornn - Fire Below the Mountain,0.1200
+SFD-190,Forgefire Cape,3.0300
+SFD-191,Rabadon's Deathcrown,1.4800
+SFD-192,Shurelya's Requiem,2.1500
+SFD-193,Jax - Grandmaster at Arms,0.1400
+SFD-194,Counter Strike,7.6300
+SFD-195,Irelia - Blade Dancer,0.1900
+SFD-196,Defiant Dance,46.1700
+SFD-197,Azir - Emperor of the Sands,0.2300
+SFD-198,Arise!,30.3900
+SFD-199,Ezreal - Prodigal Explorer,0.4200
+SFD-200,Arcane Shift,9.4200
+SFD-201,Renata Glasc - Chem-Baroness,0.1400
+SFD-202,Hostile Takeover,4.1300
+SFD-203,Sivir - Battle Mistress,0.2300
+SFD-204,On the Hunt,3.0800
+SFD-205,Fiora - Grand Duelist,0.2400
+SFD-206,Riposte,7.1900
+SFD-222,Seal of Rage,67.3100
+SFD-223,Vayne - Hunter,118.6500
+SFD-224,Aphelios - Exalted,156.1600
+SFD-225,Irelia - Fervent,196.5500
+SFD-226,Seal of Focus,54.7400
+SFD-227,Ahri - Inquisitive,311.1700
+SFD-228,Bard - Mercurial,58.3900
+SFD-229,Seal of Insight,40.9100
+SFD-230,Teemo - Strategist,116.5000
+SFD-231,Seal of Strength,49.8900
+SFD-232,Sett - Brawler,100.6600
+SFD-233,Yone - Blademaster,121.8700
+SFD-234,Seal of Discord,156.1600
+SFD-235,Yasuo - Windrider,100.6400
+SFD-236,Darius - Executioner,58.2700
+SFD-237,Karma - Channeler,66.0700
+SFD-238,Seal of Unity,60.5800
+SFD-239,Soraka - Wanderer,88.5200
+SFD-240,Rumble - Mechanized Menace,80.1200
+SFD-241,Lucian - Purifier,68.6100
+SFD-242,Draven - Glorious Executioner,169.1700
+SFD-243,Rek'Sai - Void Burrower,100.1300
+SFD-244,Ornn - Fire Below the Mountain,83.8900
+SFD-245,Jax - Grandmaster at Arms,103.3800
+SFD-246,Irelia - Blade Dancer,188.2000
+SFD-247,Azir - Emperor of the Sands,131.9700
+SFD-248,Ezreal - Prodigal Explorer,140.1500
+SFD-249,Renata Glasc - Chem-Baroness,121.6500
+SFD-250,Sivir - Battle Mistress,119.7800
+SFD-251,Fiora - Grand Duelist,123.7200
