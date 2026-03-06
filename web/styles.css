@@ -320,6 +320,24 @@ body.workspace-discover-active #inspector-panel {
   gap: 10px;
 }
 
+.auth-footer {
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.auth-link {
+  color: #e8c97a;
+  text-decoration: underline;
+}
+
+.auth-link:hover {
+  color: #f4dfb8;
+}
+
+.account-setup-complete .auth-actions {
+  margin-top: 12px;
+}
+
 .account-shell {
   display: inline-flex;
   align-items: center;

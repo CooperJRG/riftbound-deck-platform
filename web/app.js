@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   const ASSET_BASE = "assets/skeuo";
   const CARD_BACK_DEFAULT = `${ASSET_BASE}/card-backs/card_back_clean_768x1024.png`;
   const CARD_BACK_VARIANTS = Array.from({ length: 16 }).map((_, idx) => {
@@ -266,20 +266,65 @@
     if (metaRefreshBtn) metaRefreshBtn.hidden = !isAdmin || state.ui.discoverTab !== "meta";
   }
 
+  function isSetupRoute() {
+    return /^#\/setup$/i.test(String(window.location && window.location.hash || "").trim());
+  }
+
+  function renderSetupGateView(showComplete, statusText, statusError) {
+    const intro = document.getElementById("account-setup-intro");
+    const complete = document.getElementById("account-setup-complete");
+    const statusEl = document.getElementById("account-setup-status");
+    if (intro) intro.hidden = !!showComplete;
+    if (complete) complete.hidden = !showComplete;
+    if (statusEl) {
+      statusEl.hidden = !statusText;
+      statusEl.textContent = statusText || "";
+      statusEl.style.color = statusError ? "#ffd6d8" : "#f4dfb8";
+    }
+  }
+
   function renderAuthShell() {
     const authGate = document.getElementById("auth-gate");
+    const setupGate = document.getElementById("account-setup-gate");
     const appShell = document.getElementById("app-shell");
     const authenticated = state.auth.status === "authenticated";
-    if (authGate) authGate.hidden = authenticated;
-    if (appShell) appShell.hidden = !authenticated;
-    renderAccountShell();
-    renderFeatureFlags();
-    if (authenticated) return;
-    if (state.auth.status === "configuration-error") {
-      setAuthMessage("Supabase auth is not configured for this environment.", true);
+    const onSetup = isSetupRoute();
+
+    if (authenticated) {
+      if (authGate) authGate.hidden = true;
+      renderAccountShell();
+      renderFeatureFlags();
+      if (onSetup) {
+        if (setupGate) {
+          setupGate.hidden = false;
+          renderSetupGateView(true, "", false);
+        }
+        if (appShell) appShell.hidden = true;
+      } else {
+        if (setupGate) setupGate.hidden = true;
+        if (appShell) appShell.hidden = false;
+      }
       return;
     }
-    setAuthMessage(state.auth.message || "Awaiting sign-in.", state.auth.status === "error");
+
+    if (appShell) appShell.hidden = true;
+    if (onSetup) {
+      if (authGate) authGate.hidden = true;
+      if (setupGate) setupGate.hidden = false;
+      const errMsg = (state.auth.message && state.auth.message.trim()) ? state.auth.message.trim() : "";
+      renderSetupGateView(false, errMsg, !!errMsg);
+    } else {
+      if (authGate) authGate.hidden = false;
+      if (setupGate) setupGate.hidden = true;
+    }
+
+    if (!onSetup) {
+      if (state.auth.status === "configuration-error") {
+        setAuthMessage("Supabase auth is not configured for this environment.", true);
+        return;
+      }
+      setAuthMessage(state.auth.message || "Awaiting sign-in.", state.auth.status === "error");
+    }
   }
 
   function applyMePayload(payload) {
@@ -6830,6 +6875,38 @@
         }
       });
     }
+
+    const authSetupLink = document.getElementById("auth-setup-link");
+    if (authSetupLink) {
+      authSetupLink.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        window.location.hash = "#/setup";
+        renderAuthShell();
+      });
+    }
+
+    const accountSetupSigninLink = document.getElementById("account-setup-signin-link");
+    if (accountSetupSigninLink) {
+      accountSetupSigninLink.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        window.location.hash = "";
+        renderAuthShell();
+      });
+    }
+
+    const accountSetupGoBtn = document.getElementById("account-setup-go-btn");
+    if (accountSetupGoBtn) {
+      accountSetupGoBtn.addEventListener("click", () => {
+        window.location.hash = "";
+        renderAuthShell();
+      });
+    }
+
+    window.addEventListener("hashchange", () => {
+      if (!state.auth.client) return;
+      if (state.auth.status === "authenticated" && !isSetupRoute()) return;
+      renderAuthShell();
+    });
 
     const accountSignoutBtn = document.getElementById("account-signout-btn");
     if (accountSignoutBtn) {

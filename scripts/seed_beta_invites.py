@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from run import load_dotenv_defaults
+
 from app.core.config import load_config
 from app.infra.storage import SqliteStorage
 
@@ -66,7 +68,10 @@ def send_supabase_invite(*, supabase_url: str, service_role_key: str, email: str
                 raise RuntimeError(f"Invite request failed for {email}: HTTP {response.status}")
     except HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"Invite request failed for {email}: HTTP {exc.code} {detail}") from exc
+        msg = f"Invite request failed for {email}: HTTP {exc.code} {detail}"
+        if exc.code == 500 and "invite email" in detail.lower():
+            msg += "\n(Usually means Supabase could not send the email: check Project Settings → Auth → SMTP Settings and your Resend domain/API key.)"
+        raise RuntimeError(msg) from exc
     except URLError as exc:
         raise RuntimeError(f"Invite request failed for {email}: {exc}") from exc
 
@@ -83,6 +88,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    load_dotenv_defaults(ROOT / ".env")
     args = parse_args()
     emails = list(iter_emails(args))
     if not emails:

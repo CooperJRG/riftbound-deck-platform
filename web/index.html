@@ -30,7 +30,30 @@
           <button id="auth-reset-btn" type="button" class="card-action-btn secondary">Send Reset Link</button>
         </div>
         <p id="auth-status" class="library-note">Awaiting sign-in.</p>
+        <p class="auth-footer">
+          <a id="auth-setup-link" href="#/setup" class="auth-link">Set up your account</a> <span class="muted">(invite-only)</span>
+        </p>
       </form>
+    </div>
+  </div>
+
+  <div id="account-setup-gate" class="auth-gate account-setup-gate" hidden>
+    <div class="auth-card">
+      <div id="account-setup-intro" class="auth-copy account-setup-intro">
+        <p class="eyebrow">Closed Beta</p>
+        <h1>Set up your account</h1>
+        <p class="subtitle">Account creation is invite-only. If you received an invite, use the link in that email to accept it and create your account. After you’ve accepted, sign in below to continue.</p>
+        <div class="auth-actions" style="margin-top: 12px;">
+          <a id="account-setup-signin-link" href="#" class="card-action-btn secondary" style="display: inline-flex;">Sign in</a>
+        </div>
+      </div>
+      <div id="account-setup-complete" class="auth-copy account-setup-complete" hidden>
+        <p class="eyebrow">You’re all set</p>
+        <h1>Account ready</h1>
+        <p class="subtitle">Your account is set up. Go to Riftdesk to start building decks.</p>
+        <button id="account-setup-go-btn" type="button">Go to Riftdesk</button>
+      </div>
+      <p id="account-setup-status" class="library-note account-setup-status" hidden></p>
     </div>
   </div>
 
