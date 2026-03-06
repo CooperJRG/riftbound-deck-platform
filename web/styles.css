@@ -258,24 +258,22 @@ h2 {
   color: #d9ffeb;
 }
 
+/* Inspector panel is discover-only — layout is full-width by default */
 .layout {
   flex: 1;
   min-width: 0;
   min-height: 0;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 1fr) 380px;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
   padding: 10px 12px 12px 10px;
   overflow: hidden;
 }
 
-body.workspace-discover-active .layout {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-body.workspace-model-observation-active .layout {
-  grid-template-columns: minmax(0, 1fr);
+/* Inspector hidden on all non-discover workspaces */
+#inspector-panel {
+  display: none;
 }
 
 body.workspace-discover-active #workspace-panel {
@@ -283,6 +281,7 @@ body.workspace-discover-active #workspace-panel {
 }
 
 body.workspace-discover-active #inspector-panel {
+  display: block;
   grid-column: 1;
 }
 
@@ -5107,9 +5106,32 @@ code {
 }
 
 @media (max-width: 980px) {
+  /* Switch to page-level scroll on tablet/phone — panels stack, user scrolls the page */
+  .app-shell {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .app-body {
+    overflow: visible;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    overflow: visible;
+  }
+
+  /* Workspace takes priority — ensure it fills most of the screen */
+  #workspace-panel {
+    overflow: visible;
+    min-height: 55vh;
+  }
+
+  /* Inspector flows below; tile grids within still handle their own scroll */
+  #inspector-panel {
+    overflow: visible;
   }
 
   /* Sidebar: icon-only, narrowed */
@@ -5358,10 +5380,18 @@ code {
     display: none !important;
   }
 
-  /* ── Spacing ──────────────────────────────────────────────── */
+  /* ── Topbar: sticky so it stays visible while page scrolls ── */
   .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 70;
     padding: 8px 10px;
     gap: 8px;
+  }
+
+  /* ── Workspace takes more vertical prominence on phone ─────── */
+  #workspace-panel {
+    min-height: 70vh;
   }
 
   /* ── Typography ───────────────────────────────────────────── */
