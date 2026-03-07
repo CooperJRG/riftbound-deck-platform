@@ -20,7 +20,7 @@ _INVITE_INVITED = "invited"
 _INVITE_REVOKED = "revoked"
 _PROFILE_ACTIVE = "active"
 _PROFILE_DISABLED = "disabled"
-_SCHEMA_VERSION = 5
+_SCHEMA_VERSION = 6
 
 
 def _utc_now_iso() -> str:

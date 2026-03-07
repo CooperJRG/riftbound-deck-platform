@@ -134,10 +134,11 @@ class MetaDeckIndexEntry:
 
 
 class MetaDeckRepository:
-    def __init__(self, path: Path, catalog: CardCatalog, rules: FormatRules):
+    def __init__(self, path: Path, catalog: CardCatalog, rules: FormatRules, *, pool: object | None = None):
         self._path = path
         self._catalog = catalog
         self._rules = rules
+        self._pool = pool
         self._entries: list[MetaDeckIndexEntry] = []
         self._query_cache: dict[str, tuple[int, ...]] = {}
         self._raw_row_count = 0
@@ -147,6 +148,16 @@ class MetaDeckRepository:
         self.refresh()
 
     def _load_rows(self) -> list[dict]:
+        if self._pool is not None:
+            try:
+                from app.infra.postgres_storage import PostgresStorage
+                tmp = PostgresStorage.__new__(PostgresStorage)
+                tmp._pool = self._pool  # type: ignore[attr-defined]
+                rows = tmp.load_meta_deck_rows()
+                if rows:
+                    return rows
+            except Exception:
+                pass
         if not self._path.is_file():
             return []
         raw = json.loads(self._path.read_text(encoding="utf-8"))

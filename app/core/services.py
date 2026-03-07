@@ -69,7 +69,8 @@ def build_services() -> AppServices:
     else:
         storage = SqliteStorage(config.db_path)
     storage.init_schema()
-    meta = MetaDeckRepository(config.meta_index_path, cards, rules)
+    meta_pool = storage._pool if config.storage_backend == "postgres" else None  # type: ignore[attr-defined]
+    meta = MetaDeckRepository(config.meta_index_path, cards, rules, pool=meta_pool)
     prices = BaseCardPriceRepository(config.base_card_prices_json_path)
     auto_builder = AutoBuilderRepository(
         config.auto_builder_dir,

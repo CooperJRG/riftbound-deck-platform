@@ -175,6 +175,25 @@ class PostgresStorage:
             cur.execute("CREATE INDEX IF NOT EXISTS idx_deck_likes_deck_id ON deck_likes (deck_id)")
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS meta_deck_index (
+                    id text PRIMARY KEY,
+                    name text NOT NULL DEFAULT '',
+                    source text NOT NULL DEFAULT '',
+                    url text NOT NULL DEFAULT '',
+                    cards jsonb NOT NULL DEFAULT '{}',
+                    meta_score real,
+                    deck_price real,
+                    views real,
+                    likes integer,
+                    age_days real,
+                    leader_title text NOT NULL DEFAULT '',
+                    leader_image_url text NOT NULL DEFAULT '',
+                    duplicate_source_count integer NOT NULL DEFAULT 1
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS schema_meta (
                     id integer PRIMARY KEY,
                     schema_version integer NOT NULL,
@@ -708,6 +727,85 @@ class PostgresStorage:
             )
             conn.commit()
         return self.get_deck(user_id=user_id, deck_id=deck_id)
+
+    def load_meta_deck_rows(self) -> list[dict[str, Any]]:
+        with self._pool.connection() as conn, conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, name, source, url, cards, meta_score, deck_price, views, likes,
+                       age_days, leader_title, leader_image_url, duplicate_source_count
+                FROM meta_deck_index
+                ORDER BY id
+                """
+            )
+            rows = cur.fetchall()
+        out: list[dict[str, Any]] = []
+        for row in rows:
+            cards = row["cards"] if isinstance(row["cards"], dict) else json.loads(str(row["cards"] or "{}"))
+            out.append({
+                "id": str(row["id"]),
+                "name": str(row["name"] or ""),
+                "source": str(row["source"] or ""),
+                "url": str(row["url"] or ""),
+                "cards": cards,
+                "metaScore": row["meta_score"],
+                "deckPrice": row["deck_price"],
+                "views": row["views"],
+                "likes": row["likes"],
+                "ageDays": row["age_days"],
+                "leaderTitle": str(row["leader_title"] or ""),
+                "leaderImageUrl": str(row["leader_image_url"] or ""),
+                "duplicateSourceCount": int(row["duplicate_source_count"] or 1),
+            })
+        return out
+
+    def upsert_meta_deck_rows(self, rows: list[dict[str, Any]]) -> int:
+        count = 0
+        with self._pool.connection() as conn, conn.cursor() as cur:
+            for row in rows:
+                deck_id = str(row.get("id") or row.get("deckId") or "").strip()
+                if not deck_id:
+                    continue
+                cards = row.get("cards") or {}
+                cur.execute(
+                    """
+                    INSERT INTO meta_deck_index (
+                        id, name, source, url, cards, meta_score, deck_price, views, likes,
+                        age_days, leader_title, leader_image_url, duplicate_source_count
+                    ) VALUES (%s, %s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT(id) DO UPDATE SET
+                        name = EXCLUDED.name,
+                        source = EXCLUDED.source,
+                        url = EXCLUDED.url,
+                        cards = EXCLUDED.cards,
+                        meta_score = EXCLUDED.meta_score,
+                        deck_price = EXCLUDED.deck_price,
+                        views = EXCLUDED.views,
+                        likes = EXCLUDED.likes,
+                        age_days = EXCLUDED.age_days,
+                        leader_title = EXCLUDED.leader_title,
+                        leader_image_url = EXCLUDED.leader_image_url,
+                        duplicate_source_count = EXCLUDED.duplicate_source_count
+                    """,
+                    (
+                        deck_id,
+                        str(row.get("name") or row.get("deckName") or "").strip(),
+                        str(row.get("source") or "").strip(),
+                        str(row.get("url") or row.get("deckUrl") or "").strip(),
+                        json.dumps(cards),
+                        row.get("metaScore") or row.get("meta_score"),
+                        row.get("deckPrice") or row.get("deck_price"),
+                        row.get("views"),
+                        row.get("likes"),
+                        row.get("ageDays") or row.get("age_days"),
+                        str(row.get("leaderTitle") or row.get("leader_title") or "").strip(),
+                        str(row.get("leaderImageUrl") or row.get("leader_image_url") or "").strip(),
+                        int(row.get("duplicateSourceCount") or row.get("duplicate_source_count") or 1),
+                    ),
+                )
+                count += 1
+            conn.commit()
+        return count
 
     def delete_deck(self, *, user_id: str, deck_id: str) -> bool:
         with self._pool.connection() as conn, conn.cursor() as cur:
