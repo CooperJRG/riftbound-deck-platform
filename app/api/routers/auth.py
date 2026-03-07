@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import urllib.error
 import urllib.request
-from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
@@ -11,11 +10,6 @@ from app.core.rate_limits import limiter
 from app.core.services import AppServices, get_services
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-
-
-class AccountSetupRequest(BaseModel):
-    email: str
-    password: str
 
 
 def _supabase_admin_headers(service_role_key: str) -> dict[str, str]:
@@ -74,13 +68,16 @@ def _set_supabase_password(supabase_url: str, service_role_key: str, user_id: st
 
 @router.post("/setup")
 @limiter.limit("5/hour")
-def account_setup(
+async def account_setup(
     request: Request,
-    body: AccountSetupRequest,
     services: AppServices = Depends(get_services),
 ) -> dict:
-    email = str(body.email or "").strip().lower()
-    password = str(body.password or "").strip()
+    try:
+        raw = await request.json()
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid JSON body.")
+    email = str(raw.get("email") or "").strip().lower()
+    password = str(raw.get("password") or "").strip()
 
     if not email or not password:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email and password are required.")
