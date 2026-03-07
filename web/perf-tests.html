@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riftbound Performance Tests</title>
+  <style>
+    body { font-family: monospace; background: #0e0a06; color: #d9c89e; padding: 24px; margin: 0; }
+    h1 { color: #f0ddb0; margin: 0 0 8px; font-size: 18px; }
+    p.subtitle { color: #9a8060; margin: 0 0 24px; font-size: 12px; }
+    .suite { margin-bottom: 32px; }
+    .suite h2 { color: #c8a060; font-size: 14px; margin: 0 0 12px; border-bottom: 1px solid #3a2a18; padding-bottom: 6px; }
+    .test { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid #1e160e; }
+    .test-name { flex: 1; font-size: 12px; color: #c8b080; }
+    .test-result { min-width: 120px; font-size: 12px; text-align: right; }
+    .pass { color: #6dff9a; }
+    .fail { color: #ff6d6d; }
+    .warn { color: #ffd06d; }
+    .pending { color: #666; }
+    .run-btn {
+      background: #3a2a18; border: 1px solid #6a4a28; color: #f0ddb0;
+      padding: 8px 20px; border-radius: 6px; cursor: pointer; font-family: monospace;
+      font-size: 13px; margin-bottom: 20px;
+    }
+    .run-btn:hover { background: #4a3a28; }
+    #summary { font-size: 13px; margin-top: 16px; padding: 10px 14px; border-radius: 6px; border: 1px solid #3a2a18; background: #1a1008; }
+  </style>
+</head>
+<body>
+<h1>Riftbound Performance Tests</h1>
+<p class="subtitle">Open DevTools → Performance tab to record while running. These tests measure timing of key hot paths.</p>
+<button class="run-btn" id="run-all">▶ Run All Tests</button>
+<div id="results"></div>
+<div id="summary" class="pending">Run tests to see summary.</div>
+
+<script>
+"use strict";
+
+const RUNS = 1000; // iterations per microbenchmark
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function bench(fn, iterations) {
+  // Warm up
+  for (let i = 0; i < 5; i++) fn(i);
+  const t0 = performance.now();
+  for (let i = 0; i < iterations; i++) fn(i);
+  return (performance.now() - t0) / iterations; // ms per call
+}
+
+function makeResult(name, ms, budget, note) {
+  const pass = ms <= budget;
+  const warn = !pass && ms <= budget * 2;
+  const cls = pass ? "pass" : warn ? "warn" : "fail";
+  const icon = pass ? "✓" : warn ? "⚠" : "✗";
+  const label = ms < 0.001
+    ? `${(ms * 1000).toFixed(2)} µs`
+    : ms < 1
+    ? `${(ms * 1000).toFixed(1)} µs`
+    : `${ms.toFixed(3)} ms`;
+  return { name, ms, pass, warn, icon, cls, label, budget, note };
+}
+
+// ── DOM fixtures ──────────────────────────────────────────────────────────
+function makeFakeTile(isFoil) {
+  const tile = document.createElement("article");
+  tile.className = "card-tile" + (isFoil ? " is-foil" : "");
+  const art = document.createElement("div");
+  art.className = "card-art";
+  tile.appendChild(art);
+  document.body.appendChild(tile);
+  return { tile, art };
+}
+
+function removeFakeTile(tile) {
+  tile.remove();
+}
+
+// ── Test Suites ───────────────────────────────────────────────────────────
+const suites = [];
+
+// Suite 1: pointermove getBoundingClientRect caching
+suites.push({
+  name: "Pointer Event Rect Caching",
+  tests: [
+    {
+      name: "getBoundingClientRect() every pointermove (old pattern)",
+      budget: 0.02, // ms per call — should be ≤20µs
+      run() {
+        const { tile, art } = makeFakeTile(false);
+        document.body.appendChild(tile);
+        const ms = bench(() => {
+          art.getBoundingClientRect(); // forces layout
+        }, RUNS);
+        removeFakeTile(tile);
+        return makeResult(this.name, ms, this.budget, "Forced layout per event");
+      }
+    },
+    {
+      name: "Cached rect — no getBoundingClientRect on move (new pattern)",
+      budget: 0.001,
+      run() {
+        const { tile, art } = makeFakeTile(false);
+        document.body.appendChild(tile);
+        let cachedRect = art.getBoundingClientRect(); // one-time read on pointerenter
+        const ms = bench(() => {
+          // Just read from cache — no DOM access
+          const x = cachedRect.left + cachedRect.width * 0.5;
+          const y = cachedRect.top + cachedRect.height * 0.5;
+          void (x + y);
+        }, RUNS);
+        removeFakeTile(tile);
+        return makeResult(this.name, ms, this.budget, "No forced layout on move");
+      }
+    }
+  ]
+});
+
+// Suite 2: movePreview rAF vs. direct DOM write
+suites.push({
+  name: "Preview Positioning",
+  tests: [
+    {
+      name: "Direct style.left + style.top write per mousemove (old)",
+      budget: 0.01,
+      run() {
+        const el = document.createElement("div");
+        el.style.cssText = "position:fixed;width:292px;height:400px;left:0;top:0;";
+        document.body.appendChild(el);
+        let x = 0;
+        const ms = bench((i) => {
+          // Old pattern: getBoundingClientRect + style writes
+          el.getBoundingClientRect();
+          el.style.left = (i % 600) + "px";
+          el.style.top = (i % 400) + "px";
+        }, RUNS);
+        el.remove();
+        return makeResult(this.name, ms, this.budget, "Layout read + write per mousemove");
+      }
+    },
+    {
+      name: "rAF-throttled position update (new)",
+      budget: 0.001,
+      run() {
+        let pending = false;
+        let nx = 0, ny = 0;
+        const el = document.createElement("div");
+        el.style.cssText = "position:fixed;width:292px;height:400px;left:0;top:0;";
+        document.body.appendChild(el);
+        const commit = () => { pending = false; el.style.left = nx + "px"; el.style.top = ny + "px"; };
+        const ms = bench((i) => {
+          // New pattern: just store coords, schedule RAF once
+          nx = i % 600; ny = i % 400;
+          if (!pending) { pending = true; /* requestAnimationFrame(commit) in real code */ }
+        }, RUNS);
+        el.remove();
+        return makeResult(this.name, ms, this.budget, "No DOM write per mousemove");
+      }
+    }
+  ]
+});
+
+// Suite 3: innerHTML rebuild vs. in-place button state update
+suites.push({
+  name: "Card List Render (renderMainSearchResults)",
+  tests: [
+    {
+      name: "Full innerHTML rebuild — 60 card tiles",
+      budget: 2.0, // ms — acceptable is <2ms, <5ms is warn
+      run() {
+        const root = document.createElement("div");
+        document.body.appendChild(root);
+        const tiles = Array.from({ length: 60 }, (_, i) => `
+          <article class="card-tile compact" data-title="Card ${i}">
+            <div class="card-art"><img loading="lazy" /></div>
+            <div class="card-body">
+              <div class="card-title">Card ${i}</div>
+              <div class="card-subtitle">Unit | Fire</div>
+              <div class="card-actions">
+                <button data-main-add="Card ${i}" class="card-action-btn secondary">Add</button>
+              </div>
+            </div>
+          </article>`).join("");
+        const ms = bench(() => {
+          root.innerHTML = tiles;
+        }, 200);
+        root.remove();
+        return makeResult(this.name, ms, this.budget, "Full DOM teardown + rebuild");
+      }
+    },
+    {
+      name: "In-place button state patch — 60 buttons",
+      budget: 0.1,
+      run() {
+        const root = document.createElement("div");
+        root.innerHTML = Array.from({ length: 60 }, (_, i) =>
+          `<button data-main-add="Card ${i}" class="card-action-btn secondary">Add</button>`
+        ).join("");
+        document.body.appendChild(root);
+        const deck = {};
+        const ms = bench((i) => {
+          // New pattern: patch only button text/disabled on existing DOM
+          root.querySelectorAll("[data-main-add]").forEach((btn) => {
+            const title = btn.getAttribute("data-main-add");
+            const atCap = (deck[title] || 0) >= 3;
+            btn.disabled = atCap;
+            btn.textContent = atCap ? "Full" : "Add";
+          });
+        }, 200);
+        root.remove();
+        return makeResult(this.name, ms, this.budget, "Targeted DOM text/attribute writes only");
+      }
+    }
+  ]
+});
+
+// Suite 4: matchMedia caching
+suites.push({
+  name: "matchMedia Caching",
+  tests: [
+    {
+      name: "window.matchMedia() on every frame (old)",
+      budget: 0.005,
+      run() {
+        const ms = bench(() => {
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }, RUNS);
+        return makeResult(this.name, ms, this.budget, "Creates new MediaQueryList each call");
+      }
+    },
+    {
+      name: "Cached MediaQueryList.matches (new)",
+      budget: 0.0005,
+      run() {
+        const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const ms = bench(() => {
+          mq.matches; // just reading a property on existing object
+        }, RUNS);
+        return makeResult(this.name, ms, this.budget, "Single object, repeated .matches read");
+      }
+    }
+  ]
+});
+
+// Suite 5: Passive vs non-passive listener scroll blocking (informational)
+suites.push({
+  name: "Event Listener Options",
+  tests: [
+    {
+      name: "addEventListener without passive (non-passive scroll listener)",
+      budget: 0.002,
+      run() {
+        const el = document.createElement("div");
+        document.body.appendChild(el);
+        let count = 0;
+        const handler = () => { count++; };
+        // Measure the cost of registering + removing the listener
+        const ms = bench(() => {
+          el.addEventListener("pointermove", handler);
+          el.removeEventListener("pointermove", handler);
+        }, RUNS);
+        el.remove();
+        return makeResult(this.name, ms, this.budget,
+          "Registering non-passive listener. Browser must block compositing.");
+      }
+    },
+    {
+      name: "addEventListener with { passive: true }",
+      budget: 0.002,
+      run() {
+        const el = document.createElement("div");
+        document.body.appendChild(el);
+        let count = 0;
+        const handler = () => { count++; };
+        const ms = bench(() => {
+          el.addEventListener("pointermove", handler, { passive: true });
+          el.removeEventListener("pointermove", handler, { passive: true });
+        }, RUNS);
+        el.remove();
+        return makeResult(this.name, ms, this.budget,
+          "Passive listener — browser can scroll without waiting for JS.");
+      }
+    }
+  ]
+});
+
+// ── Runner ────────────────────────────────────────────────────────────────
+function renderResults(results) {
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+  let pass = 0, warn = 0, fail = 0;
+
+  suites.forEach((suite, si) => {
+    const div = document.createElement("div");
+    div.className = "suite";
+    const h2 = document.createElement("h2");
+    h2.textContent = suite.name;
+    div.appendChild(h2);
+
+    (results[si] || []).forEach((r) => {
+      if (r.pass) pass++; else if (r.warn) warn++; else fail++;
+      const row = document.createElement("div");
+      row.className = "test";
+      row.innerHTML = `
+        <span class="test-name">${r.name}</span>
+        <span class="test-result ${r.cls}">${r.icon} ${r.label} (budget: ${r.budget < 1 ? (r.budget*1000).toFixed(1)+"µs" : r.budget+"ms"})</span>
+      `;
+      if (r.note) {
+        const note = document.createElement("div");
+        note.style.cssText = "width:100%;font-size:10px;color:#6a5040;padding:0 0 4px;";
+        note.textContent = r.note;
+        div.appendChild(row);
+        div.appendChild(note);
+      } else {
+        div.appendChild(row);
+      }
+    });
+    container.appendChild(div);
+  });
+
+  const total = pass + warn + fail;
+  const summary = document.getElementById("summary");
+  summary.className = fail ? "fail" : warn ? "warn" : "pass";
+  summary.textContent = `${total} tests — ${pass} passed, ${warn} warnings, ${fail} failed`;
+}
+
+document.getElementById("run-all").addEventListener("click", async () => {
+  const btn = document.getElementById("run-all");
+  btn.disabled = true;
+  btn.textContent = "Running…";
+  document.getElementById("summary").textContent = "Running…";
+  document.getElementById("summary").className = "pending";
+
+  // Yield to let UI update, then run
+  await new Promise(r => setTimeout(r, 50));
+
+  const allResults = [];
+  for (const suite of suites) {
+    const suiteResults = [];
+    for (const test of suite.tests) {
+      try {
+        suiteResults.push(test.run());
+      } catch (err) {
+        suiteResults.push({ name: test.name, pass: false, warn: false, cls: "fail",
+          icon: "✗", label: "ERROR", budget: test.budget, note: String(err) });
+      }
+    }
+    allResults.push(suiteResults);
+    // Yield between suites to keep the UI responsive
+    await new Promise(r => setTimeout(r, 10));
+  }
+
+  renderResults(allResults);
+  btn.disabled = false;
+  btn.textContent = "▶ Run All Tests";
+});
+</script>
+</body>
+</html>

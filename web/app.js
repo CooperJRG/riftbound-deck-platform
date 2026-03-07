@@ -1724,18 +1724,12 @@
   function movePreview(clientX, clientY) {
     const preview = document.getElementById("card-preview");
     if (!preview || preview.hidden) return;
-    const offset = 16;
-    const rect = preview.getBoundingClientRect();
-    let left = clientX + offset;
-    let top = clientY + offset;
-    if (left + rect.width > window.innerWidth - 10) {
-      left = clientX - rect.width - offset;
+    _previewNextX = clientX;
+    _previewNextY = clientY;
+    if (!_previewRafPending) {
+      _previewRafPending = true;
+      requestAnimationFrame(_commitPreviewPosition);
     }
-    if (top + rect.height > window.innerHeight - 10) {
-      top = clientY - rect.height - offset;
-    }
-    preview.style.left = `${clamp(left, 10, window.innerWidth - rect.width - 10)}px`;
-    preview.style.top = `${clamp(top, 10, window.innerHeight - rect.height - 10)}px`;
   }
 
   function hidePreview() {
@@ -1855,6 +1849,7 @@
       fallbackEl.textContent = fallback;
       fallbackEl.hidden = false;
     }
+    _previewDims = null; // invalidate cached dims — content changed, size may differ
     preview.hidden = false;
     movePreview(clientX, clientY);
   }
@@ -1866,13 +1861,13 @@
       tile.dataset.previewBound = "1";
       tile.addEventListener("mouseenter", (ev) => {
         showPreviewForTile(tile, ev.clientX, ev.clientY);
-      });
+      }, { passive: true });
       tile.addEventListener("mousemove", (ev) => {
         movePreview(ev.clientX, ev.clientY);
-      });
+      }, { passive: true });
       tile.addEventListener("mouseleave", () => {
         hidePreview();
-      });
+      }, { passive: true });
     });
   }
 
@@ -1880,8 +1875,33 @@
   const foilActiveStates = new Set();
   let foilMotionRaf = 0;
 
+  // Cached matchMedia query — avoids re-creating on every frame / bindFoilInteractions call.
+  const _reduceMotionMq = typeof window !== "undefined" && window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+
+  // RAF-throttled preview positioning state.
+  let _previewRafPending = false;
+  let _previewNextX = 0;
+  let _previewNextY = 0;
+  let _previewDims = null; // { width, height } — cached when preview is shown
+
+  function _commitPreviewPosition() {
+    _previewRafPending = false;
+    const preview = document.getElementById("card-preview");
+    if (!preview || preview.hidden) return;
+    const dims = _previewDims || (_previewDims = { width: preview.offsetWidth, height: preview.offsetHeight });
+    const offset = 16;
+    let left = _previewNextX + offset;
+    let top = _previewNextY + offset;
+    if (left + dims.width > window.innerWidth - 10) left = _previewNextX - dims.width - offset;
+    if (top + dims.height > window.innerHeight - 10) top = _previewNextY - dims.height - offset;
+    preview.style.left = `${clamp(left, 10, window.innerWidth - dims.width - 10)}px`;
+    preview.style.top = `${clamp(top, 10, window.innerHeight - dims.height - 10)}px`;
+  }
+
   function runFoilMotionFrame(time) {
-    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = _reduceMotionMq ? _reduceMotionMq.matches : false;
     if (!foilActiveStates.size) {
       foilMotionRaf = 0;
       return;
@@ -1975,7 +1995,7 @@
 
   function bindFoilInteractions(root) {
     if (!root) return;
-    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = _reduceMotionMq ? _reduceMotionMq.matches : false;
     Array.from(root.querySelectorAll(".card-tile .card-art")).forEach((art) => {
       if (art.dataset.foilBound === "1") return;
       const tile = art.closest(".card-tile");
@@ -2011,14 +2031,16 @@
       };
       foilMotionStates.set(art, state);
 
+      // Cache the bounding rect per-element to avoid forced layout on every pointermove.
+      let _foilRect = null;
       const setTargetFromPointer = (ev) => {
-        const rect = art.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
-        state.targetX = clamp(((ev.clientX - rect.left) / rect.width) * 100, 0, 100);
-        state.targetY = clamp(((ev.clientY - rect.top) / rect.height) * 100, 0, 100);
+        if (!_foilRect || !_foilRect.width) return;
+        state.targetX = clamp(((ev.clientX - _foilRect.left) / _foilRect.width) * 100, 0, 100);
+        state.targetY = clamp(((ev.clientY - _foilRect.top) / _foilRect.height) * 100, 0, 100);
       };
 
       art.addEventListener("pointerenter", (ev) => {
+        _foilRect = art.getBoundingClientRect(); // read once on enter
         state.hover = true;
         setTargetFromPointer(ev);
         if (reduceMotion) {
@@ -2032,7 +2054,7 @@
         }
         foilActiveStates.add(art);
         ensureFoilMotionLoop();
-      });
+      }, { passive: true });
 
       art.addEventListener("pointermove", (ev) => {
         setTargetFromPointer(ev);
@@ -2045,9 +2067,10 @@
           foilActiveStates.add(art);
           ensureFoilMotionLoop();
         }
-      });
+      }, { passive: true });
 
       const reset = () => {
+        _foilRect = null;
         state.hover = false;
         state.targetX = 50;
         state.targetY = 50;
@@ -2064,9 +2087,9 @@
         }
       };
 
-      art.addEventListener("pointerleave", reset);
-      art.addEventListener("pointercancel", reset);
-      art.addEventListener("pointerup", reset);
+      art.addEventListener("pointerleave", reset, { passive: true });
+      art.addEventListener("pointercancel", reset, { passive: true });
+      art.addEventListener("pointerup", reset, { passive: true });
     });
 
     if (!reduceMotion && foilActiveStates.size) ensureFoilMotionLoop();
@@ -3188,6 +3211,7 @@
     return ((input && input.value) || "").trim();
   }
 
+  let _lastMainSearchListKey = "";
   function renderMainSearchResults() {
     const root = document.getElementById("main-search-results");
     if (!root) return;
@@ -3199,9 +3223,28 @@
       libraryBadge.textContent = query ? `${rows.length} / ${total} cards` : `${rows.length} cards`;
     }
     if (!rows.length) {
+      _lastMainSearchListKey = "";
       root.innerHTML = '<div class="deck-card-empty">No cards match the current filters.</div>';
       return;
     }
+
+    // Key on the ordered card list. If only deck quantities changed (not which cards are shown),
+    // skip the expensive full innerHTML rebuild and just patch button states in-place.
+    const listKey = rows.map((c) => c.title).join("\0");
+    if (listKey === _lastMainSearchListKey && root.firstChild) {
+      root.querySelectorAll("[data-main-add]").forEach((btn) => {
+        const title = btn.getAttribute("data-main-add") || "";
+        if (!title) return;
+        const cap = Math.max(1, mainCopyCapForTitle(title));
+        const qty = Math.max(0, Number(state.deck.main[title] || 0) || 0);
+        const atCap = qty >= cap;
+        btn.disabled = atCap;
+        btn.textContent = atCap ? "Full" : "Add";
+      });
+      return;
+    }
+    _lastMainSearchListKey = listKey;
+
     root.innerHTML = rows
       .map((card) => {
         const cap = Math.max(1, mainCopyCapForTitle(card.title));
@@ -3545,12 +3588,13 @@
         if (!motion.raf) motion.raf = requestAnimationFrame(animate);
       };
 
+      // Cache the bounding rect to avoid forced layout on every pointermove.
+      let _physRect = null;
       const driveFromPointer = (ev) => {
-        const rect = art.getBoundingClientRect();
-        if (!rect.width || !rect.height) return;
+        if (!_physRect || !_physRect.width || !_physRect.height) return;
         // Map pointer location in card bounds to rotation/lift vectors.
-        const px = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
-        const py = ((ev.clientY - rect.top) / rect.height) * 2 - 1;
+        const px = ((ev.clientX - _physRect.left) / _physRect.width) * 2 - 1;
+        const py = ((ev.clientY - _physRect.top) / _physRect.height) * 2 - 1;
         const nx = Math.max(-1, Math.min(1, px));
         const ny = Math.max(-1, Math.min(1, py));
         const center = 1 - Math.min(1, Math.hypot(nx, ny));
@@ -3567,6 +3611,7 @@
       };
 
       const reset = () => {
+        _physRect = null;
         motion.tx = 0;
         motion.ty = 0;
         motion.lift = 0;
@@ -3576,11 +3621,14 @@
         requestAnimation();
       };
 
-      tile.addEventListener("pointerenter", driveFromPointer);
-      tile.addEventListener("pointermove", driveFromPointer);
-      tile.addEventListener("pointerleave", reset);
-      tile.addEventListener("pointercancel", reset);
-      tile.addEventListener("pointerup", reset);
+      tile.addEventListener("pointerenter", (ev) => {
+        _physRect = art.getBoundingClientRect(); // read once on enter
+        driveFromPointer(ev);
+      }, { passive: true });
+      tile.addEventListener("pointermove", driveFromPointer, { passive: true });
+      tile.addEventListener("pointerleave", reset, { passive: true });
+      tile.addEventListener("pointercancel", reset, { passive: true });
+      tile.addEventListener("pointerup", reset, { passive: true });
     });
   }
 
@@ -7068,7 +7116,11 @@
           });
           const data = await resp.json().catch(() => ({}));
           if (!resp.ok) {
-            showSetupStatus(data.detail || "Account setup failed.", true);
+            const rawDetail = data.detail;
+            const detail = typeof rawDetail === "string" ? rawDetail
+              : Array.isArray(rawDetail) ? rawDetail.map((e) => (e && e.msg) || JSON.stringify(e)).join("; ")
+              : "Account setup failed.";
+            showSetupStatus(detail || "Account setup failed.", true);
             return;
           }
           showSetupStatus("Account created! Signing you in…", false);

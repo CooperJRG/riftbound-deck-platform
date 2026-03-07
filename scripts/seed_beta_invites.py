@@ -83,7 +83,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--role", choices=("user", "admin"), default="user", help="Role to assign in beta_invites.")
     parser.add_argument("--status", choices=("invited", "accepted", "revoked"), default="invited", help="Invite status to store.")
     parser.add_argument("--send-supabase-invites", action="store_true", help="Also send Supabase invite emails using the service-role key.")
-    parser.add_argument("--redirect-to", default="", help="Optional redirect URL included in the Supabase invite email.")
+    parser.add_argument("--redirect-to", default="https://riftdesk.com", help="Redirect URL included in the Supabase invite email (default: https://riftdesk.com).")
     return parser.parse_args()
 
 

@@ -1841,6 +1841,7 @@ body.workspace-model-observation-active .inspector-zone {
 
 .main-deck-shelf .card-tile.shelf-card.is-phys-active .card-art {
   filter: saturate(1.05) brightness(1.04);
+  will-change: transform;
 }
 
 .main-shelf-grid:not(.main-deck-shelf) [data-main-drag] {
@@ -2760,6 +2761,8 @@ button.danger {
     0 8px 14px rgba(0, 0, 0, 0.35);
   transform: rotate(var(--card-tilt));
   transition: transform 140ms ease, box-shadow 160ms ease;
+  /* Isolate layout — prevents per-tile changes from triggering full-document reflow */
+  contain: layout style;
 }
 
 .card-tile:hover {
@@ -3376,6 +3379,7 @@ code {
   pointer-events: none;
   border-radius: 14px;
   border: 1px solid rgba(135, 112, 84, 0.94);
+  will-change: left, top; /* own composited layer — moving it never triggers content repaints */
   background-image:
     linear-gradient(166deg, rgba(255, 248, 231, 0.88), rgba(169, 133, 88, 0.64)),
     var(--asset-aluminum);

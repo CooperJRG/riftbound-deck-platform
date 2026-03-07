@@ -28,13 +28,19 @@ def _supabase_admin_headers(service_role_key: str) -> dict[str, str]:
 
 def _find_supabase_user(supabase_url: str, service_role_key: str, email: str) -> dict | None:
     """Return the Supabase user record for the given email, or None."""
-    url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users?email={urllib.request.quote(email, safe='')}&page=1&per_page=1"
+    # GoTrue admin API uses `filter` for text search; do exact client-side match to avoid
+    # returning the wrong user when `email=` query param is ignored by older GoTrue versions.
+    email_lower = email.strip().lower()
+    url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users?page=1&per_page=50&filter={urllib.request.quote(email_lower, safe='')}"
     req = urllib.request.Request(url, headers=_supabase_admin_headers(service_role_key))
     try:
         with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read())
             users = data.get("users") or []
-            return users[0] if users else None
+            for user in users:
+                if str(user.get("email") or "").strip().lower() == email_lower:
+                    return user
+            return None
     except Exception:
         return None
 
@@ -54,9 +60,9 @@ def _create_supabase_user(supabase_url: str, service_role_key: str, email: str, 
 
 
 def _set_supabase_password(supabase_url: str, service_role_key: str, user_id: str, password: str) -> None:
-    """Update an existing Supabase user's password."""
+    """Update an existing Supabase user's password and confirm their email."""
     url = f"{supabase_url.rstrip('/')}/auth/v1/admin/users/{user_id}"
-    payload = json.dumps({"password": password}).encode()
+    payload = json.dumps({"password": password, "email_confirm": True}).encode()
     req = urllib.request.Request(url, data=payload, headers=_supabase_admin_headers(service_role_key), method="PUT")
     try:
         with urllib.request.urlopen(req, timeout=15) as _resp:
