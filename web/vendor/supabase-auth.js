@@ -75,8 +75,9 @@
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const message = body && (body.msg || body.error_description || body.error || body.message);
-        return { data: null, error: { message: String(message || response.statusText || "Supabase auth request failed.") } };
+        const raw = body && (body.msg || body.error_description || body.error || body.message);
+        const message = typeof raw === "string" ? raw : raw ? JSON.stringify(raw) : (response.statusText || "Supabase auth request failed.");
+        return { data: null, error: { message } };
       }
       return { data: body, error: null };
     }

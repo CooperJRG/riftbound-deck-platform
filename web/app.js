@@ -7129,7 +7129,9 @@
           await loadInitialWorkspace();
           setStatus("Signed in.", false);
         } catch (err) {
-          showSetupStatus(err.message || "Something went wrong.", true);
+          const errMsg = err instanceof Error ? err.message
+            : (err && typeof err === "object" ? JSON.stringify(err) : String(err || ""));
+          showSetupStatus(errMsg || "Something went wrong.", true);
         } finally {
           formEls.forEach((el) => { el.disabled = false; });
           if (submitBtn) { submitBtn.textContent = "Create Account"; submitBtn.classList.remove("is-loading"); }
