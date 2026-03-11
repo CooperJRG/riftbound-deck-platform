@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import logging
 import urllib.error
 import urllib.request
+
+_log = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
@@ -35,7 +38,8 @@ def _find_supabase_user(supabase_url: str, service_role_key: str, email: str) ->
                 if str(user.get("email") or "").strip().lower() == email_lower:
                     return user
             return None
-    except Exception:
+    except (urllib.error.URLError, json.JSONDecodeError, KeyError, ValueError) as exc:
+        _log.warning("Supabase user lookup failed (%s): %s", type(exc).__name__, exc)
         return None
 
 

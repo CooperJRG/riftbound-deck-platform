@@ -96,6 +96,10 @@
           <button id="account-signout-btn" type="button" class="card-action-btn secondary">Sign Out</button>
         </div>
       </div>
+      <button id="fab-deck-library-btn" type="button" class="fab-deck-library-btn" aria-label="Open deck library" title="Deck Library">
+        <span aria-hidden="true">⊟</span>
+        <span class="fab-deck-library-label">Library</span>
+      </button>
       <div id="deck-legality-wrap" class="status-wrap">
         <span id="deck-legality-led" class="status-led" aria-hidden="true"></span>
         <span id="app-status" class="status">Ready</span>
@@ -678,7 +682,6 @@
       </div>
       <textarea
         id="deck-import-text"
-        rows="10"
         placeholder="Paste deck JSON here (raw deck object or { deck: ... })"
       ></textarea>
       <div class="deck-import-actions">

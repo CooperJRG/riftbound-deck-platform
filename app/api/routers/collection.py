@@ -50,13 +50,14 @@ def _snapshot(*, user_id: str) -> CollectionSnapshot:
     )
 
 
-def _parse_collection_csv(text: str) -> dict[str, int]:
+def _parse_collection_csv(text: str) -> tuple[dict[str, int], list[str]]:
     out: dict[str, int] = {}
+    errors: list[str] = []
     stream = StringIO(text)
     reader = csv.DictReader(stream)
     if not reader.fieldnames:
-        return out
-    for row in reader:
+        return out, errors
+    for row_num, row in enumerate(reader, start=2):
         if not isinstance(row, dict):
             continue
         title = str(
@@ -75,10 +76,12 @@ def _parse_collection_csv(text: str) -> dict[str, int]:
         )
         if title and qty > 0:
             out[title] = out.get(title, 0) + qty
-    return out
+        else:
+            errors.append(f"Row {row_num}: skipped (title={title!r}, qty={qty})")
+    return out, errors
 
 
-def _parse_collection_json(text: str) -> dict[str, int]:
+def _parse_collection_json(text: str) -> tuple[dict[str, int], list[str]]:
     try:
         raw = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -93,12 +96,15 @@ def _parse_collection_json(text: str) -> dict[str, int]:
         raise HTTPException(status_code=400, detail="Collection JSON must be an object.")
 
     out: dict[str, int] = {}
+    errors: list[str] = []
     for title, qty in src.items():
         clean = str(title or "").strip()
         count = coerce_quantity(qty)
         if clean and count > 0:
             out[clean] = out.get(clean, 0) + count
-    return out
+        else:
+            errors.append(f"Skipped entry: title={clean!r}, qty={qty!r}")
+    return out, errors
 
 
 def _snapshot_export_payload(snapshot: CollectionSnapshot) -> dict:
@@ -131,22 +137,36 @@ def upsert_collection_item(request: Request, body: CollectionItemRequest, auth: 
     return _snapshot(user_id=auth.user_id)
 
 
-@router.post("/import-csv", response_model=CollectionSnapshot)
+@router.post("/import-csv")
 @limiter.limit("10/minute")
-def import_collection_csv(request: Request, body: CollectionCsvImportRequest, auth: AuthContext = Depends(require_user)) -> CollectionSnapshot:
+def import_collection_csv(request: Request, body: CollectionCsvImportRequest, auth: AuthContext = Depends(require_user)) -> dict:
     svc = get_services()
-    parsed = _parse_collection_csv(body.csv_text)
+    parsed, import_errors = _parse_collection_csv(body.csv_text)
     svc.storage.upsert_collection(auth.user_id, parsed, replace_existing=body.replace_existing)
-    return _snapshot(user_id=auth.user_id)
+    snapshot = _snapshot(user_id=auth.user_id)
+    result = snapshot.model_dump(by_alias=True)
+    result["importSummary"] = {
+        "imported": len(parsed),
+        "failed": len(import_errors),
+        "errors": import_errors[:10],
+    }
+    return result
 
 
-@router.post("/import-json", response_model=CollectionSnapshot)
+@router.post("/import-json")
 @limiter.limit("10/minute")
-def import_collection_json(request: Request, body: CollectionJsonImportRequest, auth: AuthContext = Depends(require_user)) -> CollectionSnapshot:
+def import_collection_json(request: Request, body: CollectionJsonImportRequest, auth: AuthContext = Depends(require_user)) -> dict:
     svc = get_services()
-    parsed = _parse_collection_json(body.json_text)
+    parsed, import_errors = _parse_collection_json(body.json_text)
     svc.storage.upsert_collection(auth.user_id, parsed, replace_existing=body.replace_existing)
-    return _snapshot(user_id=auth.user_id)
+    snapshot = _snapshot(user_id=auth.user_id)
+    result = snapshot.model_dump(by_alias=True)
+    result["importSummary"] = {
+        "imported": len(parsed),
+        "failed": len(import_errors),
+        "errors": import_errors[:10],
+    }
+    return result
 
 
 @router.get("/export")

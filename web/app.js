@@ -1868,6 +1868,20 @@
       tile.addEventListener("mouseleave", () => {
         hidePreview();
       }, { passive: true });
+      // Touch: show preview centered on tile (tablet/phone)
+      tile.addEventListener("touchstart", (ev) => {
+        const touch = ev.touches[0];
+        if (touch) {
+          const rect = tile.getBoundingClientRect();
+          showPreviewForTile(tile, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
+      }, { passive: true });
+      tile.addEventListener("touchend", () => {
+        hidePreview();
+      }, { passive: true });
+      tile.addEventListener("touchcancel", () => {
+        hidePreview();
+      }, { passive: true });
     });
   }
 
@@ -1896,8 +1910,8 @@
     let top = _previewNextY + offset;
     if (left + dims.width > window.innerWidth - 10) left = _previewNextX - dims.width - offset;
     if (top + dims.height > window.innerHeight - 10) top = _previewNextY - dims.height - offset;
-    preview.style.left = `${clamp(left, 10, window.innerWidth - dims.width - 10)}px`;
-    preview.style.top = `${clamp(top, 10, window.innerHeight - dims.height - 10)}px`;
+    preview.style.left = `${clamp(left, 8, Math.max(8, window.innerWidth - dims.width - 8))}px`;
+    preview.style.top = `${clamp(top, 8, Math.max(8, window.innerHeight - dims.height - 8))}px`;
   }
 
   function runFoilMotionFrame(time) {
@@ -4212,6 +4226,14 @@
     renderFormatSelector();
   }
 
+  function toggleDeckLibraryDrawer(open) {
+    const sidebar = document.getElementById("deck-library-sidebar");
+    if (!sidebar) return;
+    const isOpen = open !== undefined ? Boolean(open) : !sidebar.classList.contains("is-drawer-open");
+    sidebar.classList.toggle("is-drawer-open", isOpen);
+    document.body.classList.toggle("deck-drawer-open", isOpen);
+  }
+
   async function loadLibrary() {
     const builtRoot = document.getElementById("library-built-gallery");
     const savedRoot = document.getElementById("library-saved-gallery");
@@ -4305,6 +4327,7 @@
   function autoBuilderSelectedRecommendation() {
     const idx = Number(state.autoBuilder.selectedIndex || 0);
     const rows = Array.isArray(state.autoBuilder.recommendations) ? state.autoBuilder.recommendations : [];
+    if (idx < 0 || idx >= rows.length) return null;
     return rows[idx] || null;
   }
 
@@ -6756,6 +6779,7 @@
       body
     });
     renderCollection(payload);
+    return payload;
   }
 
   async function exportCollection(formatName) {
@@ -6922,7 +6946,13 @@
     }
   }
 
+  let _deckSaveAbortCtrl = null;
+
   async function saveCurrentDeckToLibrary() {
+    // Cancel any in-flight save to prevent race conditions
+    if (_deckSaveAbortCtrl) _deckSaveAbortCtrl.abort();
+    _deckSaveAbortCtrl = new AbortController();
+    const signal = _deckSaveAbortCtrl.signal;
     const deck = currentDeckFromForm();
     const body = {
       name: deck.name,
@@ -6936,7 +6966,8 @@
       deckId ? `/api/decks/library/${encodeURIComponent(deckId)}` : "/api/decks/library",
       {
         method: deckId ? "PUT" : "POST",
-        body
+        body,
+        signal
       }
     );
     markDeckSaved(saved);
@@ -7143,6 +7174,19 @@
       if (!state.auth.client) return;
       if (state.auth.status === "authenticated" && !isSetupRoute()) return;
       renderAuthShell();
+    });
+
+    // FAB: deck library drawer toggle (tablet/phone)
+    const fabDeckLibraryBtn = document.getElementById("fab-deck-library-btn");
+    if (fabDeckLibraryBtn) {
+      fabDeckLibraryBtn.addEventListener("click", () => toggleDeckLibraryDrawer());
+    }
+    // Close drawer when clicking outside it
+    document.addEventListener("click", (ev) => {
+      const sidebar = document.getElementById("deck-library-sidebar");
+      if (sidebar && sidebar.classList.contains("is-drawer-open") && !sidebar.contains(ev.target) && ev.target !== fabDeckLibraryBtn) {
+        toggleDeckLibraryDrawer(false);
+      }
     });
 
     const accountSignoutBtn = document.getElementById("account-signout-btn");
@@ -7492,9 +7536,17 @@
       collectionFileInput.addEventListener("change", async () => {
         if (!collectionFileInput.files || !collectionFileInput.files.length) return;
         try {
-          await importCollectionCsv();
+          const importPayload = await importCollectionCsv();
           await refreshMetaSearchResults();
-          setStatus("Collection file imported.", false);
+          const summary = importPayload && importPayload.importSummary;
+          if (summary) {
+            const msg = `Imported ${summary.imported} card${summary.imported !== 1 ? "s" : ""}` +
+              (summary.failed ? `, ${summary.failed} skipped` : "") +
+              (Array.isArray(summary.errors) && summary.errors.length ? `. Issues: ${summary.errors.slice(0, 2).join("; ")}` : "");
+            setStatus(msg, summary.failed > 0);
+          } else {
+            setStatus("Collection file imported.", false);
+          }
         } catch (err) {
           setStatus(err.message || "Collection import failed.", true);
         } finally {

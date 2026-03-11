@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import json
+import logging
 from pathlib import Path
 import sqlite3
 from uuid import uuid4
+
+_log = logging.getLogger(__name__)
 
 from app.domain.models import BetaInviteSummary, DeckLibraryRow, DeckPayload, UserProfileSummary
 from app.domain.normalization import normalize_card_key
@@ -326,7 +329,8 @@ class SqliteStorage:
             raise RuntimeError("This beta invite is already linked to another account.")
 
         now = _utc_now_iso()
-        with self._connect() as conn:
+        try:
+          with self._connect() as conn:
             by_user = conn.execute(
                 """
                 SELECT user_id, email, display_name, role, status, created_at, updated_at, last_login_at
@@ -391,6 +395,8 @@ class SqliteStorage:
                 """,
                 (clean_user_id,),
             ).fetchone()
+        except sqlite3.IntegrityError as exc:
+            raise RuntimeError("Profile bootstrap failed due to a data conflict.") from exc
 
         profile = self._profile_from_row(row)
         if profile is None:
@@ -454,6 +460,12 @@ class SqliteStorage:
         qty = max(0, int(quantity))
         clean_user_id = str(user_id or "").strip()
         if not clean_user_id or not title or not key:
+            _log.warning(
+                "set_collection_item: skipping invalid input (user_id=%r, title=%r, key=%r)",
+                clean_user_id or "<empty>",
+                title or "<empty>",
+                key or "<empty>",
+            )
             return
         now = _utc_now_iso()
         with self._connect() as conn:
@@ -564,7 +576,14 @@ class SqliteStorage:
     def _deck_row_to_model(self, row: sqlite3.Row | None, *, viewer_user_id: str) -> DeckLibraryRow | None:
         if row is None:
             return None
-        payload_raw = json.loads(str(row["payload_json"]))
+        try:
+            payload_raw = json.loads(str(row["payload_json"]))
+        except json.JSONDecodeError:
+            _log.warning(
+                "Corrupted payload_json for deck id=%s; skipping row.",
+                row["id"] if "id" in row.keys() else "?",
+            )
+            return None
         keys = row.keys()
         like_count = int(row["like_count"]) if "like_count" in keys else 0
         liked_by_me = bool(row["liked_by_me"]) if "liked_by_me" in keys else False
