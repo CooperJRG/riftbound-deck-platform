@@ -307,6 +307,47 @@ def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) 
             "signature_limit",
         )
 
+    # Ban list check
+    banned_cards_profile = rules.list_constraint("banned_cards")
+    if banned_cards_profile:
+        banned_list = set(cards.resolve_title(title) for title in banned_cards_profile)
+    else:
+        banned_list = {
+            "Called Shot",
+            "Draven - Vanquisher",
+            "Fight or Flight",
+            "Scrapheap",
+            "Obelisk of Power",
+            "Reaver's Row",
+            "The Dreaming Tree"
+        }
+
+    banned_in_deck = []
+    if legend_title and cards.resolve_title(legend_title) in banned_list:
+        banned_in_deck.append((legend_title, "legendTitle"))
+    if chosen_title and cards.resolve_title(chosen_title) in banned_list:
+        banned_in_deck.append((chosen_title, "chosenChampionTitle"))
+    for title in sorted(main.keys()):
+        if cards.resolve_title(title) in banned_list:
+            banned_in_deck.append((title, "main"))
+    for title in sorted(sideboard.keys()):
+        if cards.resolve_title(title) in banned_list:
+            banned_in_deck.append((title, "sideboard"))
+    for title in sorted(runes.keys()):
+        if cards.resolve_title(title) in banned_list:
+            banned_in_deck.append((title, "runes"))
+    for title in sorted(battlefields):
+        if cards.resolve_title(title) in banned_list:
+            banned_in_deck.append((title, "battlefields"))
+
+    for card_title, field in banned_in_deck:
+        add_issue(
+            "BANNED_CARD",
+            field,
+            f"Card '{card_title}' is banned.",
+            "banned_list",
+        )
+
     return DeckValidationResult(
         is_valid=len(issues) == 0,
         issues=issues,

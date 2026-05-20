@@ -642,23 +642,24 @@ class SqliteStorage:
         sort_by: str = "updated",
     ) -> list[DeckLibraryRow]:
         needle = str(query or "").strip().lower()
+        query_params: list[object] = [viewer_user_id]
         where = ["d.visibility = ?"]
-        params: list[object] = [_VISIBILITY_PUBLIC]
+        where_params: list[object] = [_VISIBILITY_PUBLIC]
         if needle:
             where.append("(lower(d.name) LIKE ? ESCAPE '\\' OR lower(d.source) LIKE ? ESCAPE '\\' OR lower(d.legend_title) LIKE ? ESCAPE '\\' OR lower(p.display_name) LIKE ? ESCAPE '\\')")
             escaped = needle.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
             like = f"%{escaped}%"
-            params.extend([like, like, like, like])
+            where_params.extend([like, like, like, like])
         clean_format = str(format_name or "").strip().lower()
         if clean_format:
             where.append("lower(d.format) = ?")
-            params.append(clean_format)
+            where_params.append(clean_format)
         order_by = "d.updated_at DESC"
         if sort_by == "likes":
             order_by = "like_count DESC, d.updated_at DESC"
         elif sort_by == "name":
             order_by = "lower(d.name) ASC"
-        params.extend([viewer_user_id, max(1, int(limit)), max(0, int(offset))])
+        params = query_params + where_params + [max(1, int(limit)), max(0, int(offset))]
         with self._connect() as conn:
             rows = conn.execute(
                 f"""

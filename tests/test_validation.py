@@ -171,3 +171,21 @@ def test_unique_card_limit_fails_across_main_and_sideboard() -> None:
     result = validate_deck(deck, rules=_rules(), cards=_catalog())
     assert result.is_valid is False
     assert any(issue.code == "UNIQUE_CARD_LIMIT" for issue in result.issues)
+
+
+def test_banned_card_fails() -> None:
+    deck = _valid_deck()
+    # Add a banned card to main (and adjust main size)
+    deck.main["Called Shot"] = 1
+    deck.main["Arcane Relay"] = 2
+    catalog = _catalog()
+    # Ensure Called Shot is in the catalog for the test
+    cards_list = list(catalog.cards) + [_card("Called Shot", "Spell")]
+    custom_catalog = CardCatalog(
+        cards=tuple(cards_list),
+        by_title={c.title: c for c in cards_list},
+        by_key={normalize_card_key(c.title): c for c in cards_list}
+    )
+    result = validate_deck(deck, rules=_rules(), cards=custom_catalog)
+    assert result.is_valid is False
+    assert any(issue.code == "BANNED_CARD" and "Called Shot" in issue.message for issue in result.issues)

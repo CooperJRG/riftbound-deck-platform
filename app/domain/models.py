@@ -409,6 +409,10 @@ class SyntheticCollectionConfig(StrictInputModel):
 class ModelObservationTrainingRequest(StrictInputModel):
     label: str = ""
     epochs: int | None = None
+    torch_device: str | None = Field(default=None, alias="torchDevice")
+    min_win_condition_count: int | None = Field(default=None, alias="minWinConditionCount")
+    synthetic_collection: SyntheticCollectionConfig | None = Field(default=None, alias="syntheticCollection")
+
 
 
 class ModelVersionActionRequest(StrictInputModel):

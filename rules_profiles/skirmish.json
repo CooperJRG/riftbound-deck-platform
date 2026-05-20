@@ -45,6 +45,15 @@
       "Unit",
       "Gear",
       "Spell"
+    ],
+    "banned_cards": [
+      "Called Shot",
+      "Draven - Vanquisher",
+      "Fight or Flight",
+      "Scrapheap",
+      "Obelisk of Power",
+      "Reaver's Row",
+      "The Dreaming Tree"
     ]
   },
   "rule_refs": {
@@ -73,6 +82,9 @@
     "combined_copy_limit": [
       "TR 403.3",
       "TR 601.1.c.3"
+    ],
+    "banned_list": [
+      "TR Banned List"
     ]
   }
 }

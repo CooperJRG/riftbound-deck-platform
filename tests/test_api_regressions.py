@@ -510,6 +510,10 @@ def test_public_private_deck_visibility_is_scoped_by_user(app_client) -> None:
 
     public_listing = client.get("/api/decks/public", headers=viewer_headers)
     assert public_listing.status_code == 200
+    with services.storage._connect() as conn:
+        print("DECKS IN DB:", [dict(r) for r in conn.execute("SELECT id, user_id, name, visibility FROM user_decks").fetchall()])
+        print("PROFILES IN DB:", [dict(r) for r in conn.execute("SELECT user_id, email, display_name FROM user_profiles").fetchall()])
+    print("PUBLIC LISTING:", public_listing.json())
     listed_ids = {row["id"] for row in public_listing.json()}
     assert public_id in listed_ids
     assert private_id not in listed_ids
@@ -817,6 +821,8 @@ def test_auto_builder_ranking_mode_semantics() -> None:
 
 def test_auto_builder_win_conditions_endpoint_shape(app_client) -> None:
     client = app_client["client"]
+    services = services_module.get_services()
+    services.auto_builder.refresh(force=True)
     response = client.get("/api/auto-builder/win-conditions")
     assert response.status_code == 200
     body = response.json()

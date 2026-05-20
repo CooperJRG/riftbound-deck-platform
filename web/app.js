@@ -664,6 +664,33 @@
     return String(value || "").trim().toLowerCase() === "built" ? "built" : "saved";
   }
 
+  const BANNED_CARDS = new Set([
+    "Called Shot",
+    "Draven - Vanquisher",
+    "Fight or Flight",
+    "Scrapheap",
+    "Obelisk of Power",
+    "Reaver's Row",
+    "The Dreaming Tree"
+  ]);
+
+  function isDeckIllegal(deck) {
+    if (!deck) return false;
+    const check = (title) => {
+      if (!title) return false;
+      const canonical = canonicalTitle(title);
+      return BANNED_CARDS.has(canonical);
+    };
+    if (check(deck.legendTitle)) return true;
+    if (check(deck.chosenChampionTitle)) return true;
+    if (deck.main && Object.keys(deck.main).some(check)) return true;
+    if (deck.sideboard && Object.keys(deck.sideboard).some(check)) return true;
+    if (deck.runes && Object.keys(deck.runes).some(check)) return true;
+    if (deck.battlefields && deck.battlefields.some(check)) return true;
+    return false;
+  }
+
+
   function normalizeDeckVisibility(value) {
     return String(value || "").trim().toLowerCase() === "public" ? "public" : "private";
   }
@@ -2217,21 +2244,29 @@
     state.ui.libraryDragSourceBucket = "";
     const built = document.getElementById("library-built-gallery");
     const saved = document.getElementById("library-saved-gallery");
+    const illegal = document.getElementById("library-illegal-gallery");
     if (built) built.classList.remove("is-drop-target");
     if (saved) saved.classList.remove("is-drop-target");
+    if (illegal) illegal.classList.remove("is-drop-target");
   }
 
   function renderLibrary() {
     const builtGallery = document.getElementById("library-built-gallery");
     const savedGallery = document.getElementById("library-saved-gallery");
+    const illegalGallery = document.getElementById("library-illegal-gallery");
     if (!builtGallery || !savedGallery) return;
 
     const builtRows = [];
     const savedRows = [];
+    const illegalRows = [];
     (state.library || []).forEach((row) => {
-      const bucket = String((row && row.bucket) || "saved").trim().toLowerCase();
-      if (bucket === "built") builtRows.push(row);
-      else savedRows.push(row);
+      if (row && row.deck && isDeckIllegal(row.deck)) {
+        illegalRows.push(row);
+      } else {
+        const bucket = String((row && row.bucket) || "saved").trim().toLowerCase();
+        if (bucket === "built") builtRows.push(row);
+        else savedRows.push(row);
+      }
     });
 
     const bindDropTarget = (root, targetBucket) => {
@@ -2269,10 +2304,13 @@
     const renderGallery = (root, rows, bucket) => {
       if (!root) return;
       if (!rows.length) {
-        root.innerHTML =
-          bucket === "built"
-            ? '<div class="card-tile"><div class="card-body"><div class="card-title">No built decks yet.</div><div class="card-subtitle">Drag saved decks here to reserve cards.</div></div></div>'
-            : '<div class="card-tile"><div class="card-body"><div class="card-title">No saved decks yet.</div><div class="card-subtitle">Drag built decks here to release reserved cards.</div></div></div>';
+        if (bucket === "built") {
+          root.innerHTML = '<div class="card-tile"><div class="card-body"><div class="card-title">No built decks yet.</div><div class="card-subtitle">Drag saved decks here to reserve cards.</div></div></div>';
+        } else if (bucket === "saved") {
+          root.innerHTML = '<div class="card-tile"><div class="card-body"><div class="card-title">No saved decks yet.</div><div class="card-subtitle">Drag built decks here to release reserved cards.</div></div></div>';
+        } else {
+          root.innerHTML = '<div class="card-tile"><div class="card-body"><div class="card-title">No illegal decks yet.</div><div class="card-subtitle">Decks containing banned cards will appear here.</div></div></div>';
+        }
         return;
       }
       root.innerHTML = rows
@@ -2295,7 +2333,7 @@
             imageUrl: info && info.imageUrl ? info.imageUrl : "",
             subtitle,
             meta: subtitle,
-            stats: `${bucket === "built" ? "Built" : "Saved"} | ${visibility === "public" ? "Public" : "Private"}`,
+            stats: `${bucket === "illegal" ? "Illegal" : (bucket === "built" ? "Built" : "Saved")} | ${visibility === "public" ? "Public" : "Private"}`,
             actions,
             extraClass: `library-deck-tile${expanded ? " is-expanded" : ""}`,
             extraAttrs:
@@ -2404,6 +2442,7 @@
 
     renderGallery(builtGallery, builtRows, "built");
     renderGallery(savedGallery, savedRows, "saved");
+    if (illegalGallery) renderGallery(illegalGallery, illegalRows, "illegal");
     bindDropTarget(builtGallery, "built");
     bindDropTarget(savedGallery, "saved");
   }
@@ -4237,8 +4276,10 @@
   async function loadLibrary() {
     const builtRoot = document.getElementById("library-built-gallery");
     const savedRoot = document.getElementById("library-saved-gallery");
+    const illegalRoot = document.getElementById("library-illegal-gallery");
     if (builtRoot) builtRoot.innerHTML = skeletonTiles(2);
     if (savedRoot) savedRoot.innerHTML = skeletonTiles(2);
+    if (illegalRoot) illegalRoot.innerHTML = skeletonTiles(2);
     const query = String(((document.getElementById("library-search") || {}).value || "")).trim();
     const path = query ? `/api/decks/library?query=${encodeURIComponent(query)}` : "/api/decks/library";
     state.library = await api(path);
