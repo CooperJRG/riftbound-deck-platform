@@ -43,6 +43,7 @@ class AppConfig:
     sentry_dsn: str
     host: str
     port: int
+    offline_mode: bool
 
 
 def _resolve_path(value: str, *, base: Path) -> Path:
@@ -93,7 +94,12 @@ def load_config() -> AppConfig:
     # On Railway (PORT set), default data paths under app_root so deploy bundle is self-contained.
     file_base = app_root if os.getenv("PORT") else workspace_root
     database_url = str(os.getenv("RB_DATABASE_URL", "") or "").strip()
-    storage_backend = str(os.getenv("RB_STORAGE_BACKEND", "postgres" if database_url else "sqlite") or "sqlite").strip().lower()
+    offline_mode = _env_bool("RB_OFFLINE_MODE", default=False)
+    if not offline_mode and not os.getenv("RB_SUPABASE_URL"):
+        offline_mode = True
+
+    default_backend = "postgres" if (database_url and not offline_mode) else "sqlite"
+    storage_backend = str(os.getenv("RB_STORAGE_BACKEND", default_backend) or "sqlite").strip().lower()
     if storage_backend not in {"sqlite", "postgres"}:
         storage_backend = "sqlite"
     # Cards: default to visible copy in project root (riftbound-cards.json); override with RB_CARDS_PATH.
@@ -213,4 +219,5 @@ def load_config() -> AppConfig:
         sentry_dsn=sentry_dsn,
         host=host,
         port=port,
+        offline_mode=offline_mode,
     )

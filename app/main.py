@@ -153,6 +153,7 @@ def _index_html(*, boot_workspace: str = "") -> HTMLResponse:
             "supabaseUrl": services.config.supabase_url,
             "supabaseAnonKey": services.config.supabase_anon_key,
             "apiBase": "",
+            "offlineMode": services.config.offline_mode,
         },
         boot_workspace=boot_workspace,
     )

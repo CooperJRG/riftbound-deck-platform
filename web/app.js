@@ -340,6 +340,10 @@
   }
 
   async function signOut(message) {
+    const config = runtimeConfig();
+    if (config.offlineMode) {
+      return;
+    }
     const client = authClient();
     if (client && client.auth && typeof client.auth.signOut === "function") {
       await client.auth.signOut();
@@ -387,6 +391,19 @@
   }
 
   async function initializeAuth() {
+    const config = runtimeConfig();
+    if (config.offlineMode) {
+      state.auth.session = {
+        access_token: "local-offline-token",
+        user: {
+          id: "local-user",
+          email: "local@example.com"
+        }
+      };
+      state.auth.status = "authenticated";
+      return bootstrapSession();
+    }
+
     if (!authConfigured()) {
       state.auth.status = "configuration-error";
       renderAuthShell();

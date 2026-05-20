@@ -44,6 +44,8 @@ def _build_verifier(jwks_url: str, audience: str, issuer: str) -> SupabaseJWTVer
 
 def get_token_verifier(services: AppServices = Depends(get_services)) -> SupabaseJWTVerifier:
     cfg: AppConfig = services.config
+    if cfg.offline_mode:
+        return SupabaseJWTVerifier(jwks_url="")
     if not cfg.supabase_jwks_url:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Auth is not configured.")
     issuer = f"{cfg.supabase_url.rstrip('/')}/auth/v1" if cfg.supabase_url else ""
@@ -63,7 +65,21 @@ def _token_from_request(request: Request) -> str:
 def require_valid_token(
     request: Request,
     verifier: SupabaseJWTVerifier = Depends(get_token_verifier),
+    services: AppServices = Depends(get_services),
 ) -> TokenClaims:
+    if services.config.offline_mode:
+        claims = TokenClaims(
+            user_id="local-user",
+            email="local@example.com",
+            raw={
+                "sub": "local-user",
+                "email": "local@example.com",
+                "user_metadata": {"display_name": "Local User"},
+            }
+        )
+        request.state.token_claims = claims
+        return claims
+
     token = _token_from_request(request)
     try:
         claims = verifier.verify(token)
@@ -103,6 +119,10 @@ def require_admin(auth: AuthContext = Depends(require_user)) -> AuthContext:
 
 def bootstrap_profile_from_claims(services: AppServices, claims: TokenClaims):
     display_name = _display_name_from_claims(claims.raw, claims.email)
+    if services.config.offline_mode:
+        invite = services.storage.get_beta_invite(email=claims.email)
+        if invite is None:
+            services.storage.seed_beta_invite(email=claims.email, role="admin", status="invited")
     return services.storage.bootstrap_user_from_invite(
         user_id=claims.user_id,
         email=claims.email,
