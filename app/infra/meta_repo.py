@@ -8,7 +8,7 @@ from pathlib import Path
 from app.domain.models import DeckPayload, MetaDeckSummary
 from app.domain.normalization import coerce_cards_map, normalize_card_key, strip_starter_suffix
 from app.domain.rules import FormatRules
-from app.domain.validator import validate_deck
+from app.domain.validator import validate_deck_for_meta_index
 from app.infra.cards_repo import CardCatalog
 
 
@@ -190,7 +190,11 @@ class MetaDeckRepository:
                 battlefields=battlefields,
                 sideboard={},
             )
-            validation = validate_deck(deck_payload, rules=self._rules, cards=self._catalog)
+            validation = validate_deck_for_meta_index(
+                deck_payload,
+                rules=self._rules,
+                cards=self._catalog,
+            )
             if not validation.is_valid:
                 continue
 

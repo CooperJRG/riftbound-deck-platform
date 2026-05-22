@@ -387,6 +387,76 @@ class SqliteStorage:
                 """,
                 (_INVITE_ACCEPTED, clean_user_id, now, clean_email),
             )
+
+            # If in offline mode, migrate legacy collection and decks to local-user
+            if clean_user_id == "local-user":
+                has_coll = conn.execute(
+                    "SELECT 1 FROM user_collection_cards WHERE user_id = ? LIMIT 1",
+                    (clean_user_id,),
+                ).fetchone()
+                if not has_coll:
+                    # Check if legacy collection_cards table exists and has rows
+                    table_exists = conn.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='collection_cards'"
+                    ).fetchone()
+                    if table_exists:
+                        legacy_coll = conn.execute(
+                            "SELECT card_key, card_title, quantity, updated_at FROM collection_cards"
+                        ).fetchall()
+                        for r in legacy_coll:
+                            conn.execute(
+                                """
+                                INSERT INTO user_collection_cards (user_id, card_key, card_title, quantity, updated_at)
+                                VALUES (?, ?, ?, ?, ?)
+                                """,
+                                (clean_user_id, r["card_key"], r["card_title"], r["quantity"], r["updated_at"]),
+                            )
+                        _log.info("Migrated %d collection cards to user_collection_cards for local-user", len(legacy_coll))
+
+                has_decks = conn.execute(
+                    "SELECT 1 FROM user_decks WHERE user_id = ? LIMIT 1",
+                    (clean_user_id,),
+                ).fetchone()
+                if not has_decks:
+                    table_exists_decks = conn.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='deck_library'"
+                    ).fetchone()
+                    if table_exists_decks:
+                        legacy_decks = conn.execute(
+                            "SELECT id, name, source, format, bucket, payload_json, created_at, updated_at FROM deck_library"
+                        ).fetchall()
+                        for r in legacy_decks:
+                            try:
+                                payload = json.loads(r["payload_json"] or "{}")
+                            except Exception:
+                                payload = {}
+                            legend_title = str(payload.get("legendTitle") or payload.get("legend_title") or "").strip()
+                            chosen_champion_title = str(payload.get("chosenChampionTitle") or payload.get("chosen_champion_title") or "").strip()
+                            conn.execute(
+                                """
+                                INSERT INTO user_decks (
+                                    id, user_id, name, source, format, bucket, visibility,
+                                    legend_title, chosen_champion_title, payload_json,
+                                    published_at, created_at, updated_at
+                                )
+                                VALUES (?, ?, ?, ?, ?, ?, 'private', ?, ?, ?, NULL, ?, ?)
+                                """,
+                                (
+                                    r["id"],
+                                    clean_user_id,
+                                    r["name"],
+                                    r["source"],
+                                    r["format"],
+                                    r["bucket"],
+                                    legend_title,
+                                    chosen_champion_title,
+                                    r["payload_json"],
+                                    r["created_at"],
+                                    r["updated_at"],
+                                ),
+                            )
+                        _log.info("Migrated %d decks from deck_library to user_decks for local-user", len(legacy_decks))
+
             row = conn.execute(
                 """
                 SELECT user_id, email, display_name, role, status, created_at, updated_at, last_login_at

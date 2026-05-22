@@ -1,11 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from fastapi import APIRouter, Depends, Query, Request, Response
+import subprocess
+import sys
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from app.auth.dependencies import AuthContext, require_admin, require_user
 from app.core.rate_limits import limiter
 from app.core.services import get_services
+from app.domain.meta_scoring import (
+    collection_neutral_recommendation_score,
+    deck_competitive_rank_score,
+    deck_legend_meta_rank_score,
+    deck_meta_sort_score,
+    normalize_meta_score,
+    recency_sort_bonus,
+)
 from app.domain.normalization import normalize_card_key
 from app.domain.models import MetaDeckSummary, MetaIndexStatus
 
@@ -43,10 +54,6 @@ def _clamp(value: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, value))
 
 
-def _normalize_meta_score(score: float | None) -> float:
-    return _clamp(float(score or 0.0), 0.0, 40.0)
-
-
 def _recommendation_score(
     *,
     completion_pct: float,
@@ -54,9 +61,10 @@ def _recommendation_score(
     missing_unique_cards: int,
     meta_score: float | None,
     is_buildable: bool,
+    age_days: float | None = None,
 ) -> float:
     # Mirror legacy riftbound/deck_matcher scoring so recommendations stay consistent.
-    meta = _normalize_meta_score(meta_score)
+    meta = normalize_meta_score(meta_score)
     completion = _clamp(float(completion_pct), 0.0, 100.0) / 100.0
     meta_scaled = meta * (0.35 + 0.65 * completion)
     score = (
@@ -65,19 +73,9 @@ def _recommendation_score(
         - 1.7 * float(max(0, int(missing_copies)))
         - 0.55 * float(max(0, int(missing_unique_cards)))
         + (0.75 if is_buildable else 0.0)
+        + recency_sort_bonus(age_days)
     )
     return round(score, 4)
-
-
-def _default_recommendation_without_collection(meta_score: float | None) -> float:
-    # Keep ordering stable when collection context is disabled.
-    return _recommendation_score(
-        completion_pct=50.0,
-        missing_copies=20,
-        missing_unique_cards=8,
-        meta_score=meta_score,
-        is_buildable=False,
-    )
 
 
 def _candidate_pool_limit(requested_limit: int) -> int:
@@ -99,7 +97,8 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
                 key=lambda row: (
                     row.deck_price is None,
                     -float(row.deck_price or 0.0),
-                    -float(row.recommendation_score or 0.0),
+                    -normalize_meta_score(row.meta_score),
+                    -float(row.views or 0.0),
                 ),
             )
         return sorted(
@@ -107,7 +106,8 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
             key=lambda row: (
                 row.deck_price is None,
                 float(row.deck_price or 0.0),
-                -float(row.recommendation_score or 0.0),
+                normalize_meta_score(row.meta_score),
+                float(row.views or 0.0),
             ),
         )
 
@@ -115,19 +115,55 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
         return sorted(
             rows,
             key=lambda row: (
-                _normalize_meta_score(row.meta_score),
-                float(row.recommendation_score or 0.0),
+                deck_legend_meta_rank_score(row.leader_title),
+                normalize_meta_score(row.meta_score),
+                -float(row.age_days if row.age_days is not None else 10_000.0),
                 float(row.views or 0.0),
+                int(row.likes or 0),
+                row.deck_name.lower(),
             ),
             reverse=desc,
+        )
+
+    if key == "recent":
+        if desc:
+            return sorted(
+                rows,
+                key=lambda row: (
+                    row.age_days is None,
+                    float(row.age_days if row.age_days is not None else 10_000.0),
+                    -deck_meta_sort_score(
+                        leader_title=row.leader_title,
+                        meta_score=row.meta_score,
+                        age_days=row.age_days,
+                        views=row.views,
+                    ),
+                    -float(row.views or 0.0),
+                ),
+            )
+        return sorted(
+            rows,
+            key=lambda row: (
+                row.age_days is None,
+                -float(row.age_days if row.age_days is not None else -1.0),
+                deck_meta_sort_score(
+                    leader_title=row.leader_title,
+                    meta_score=row.meta_score,
+                    age_days=row.age_days,
+                    views=row.views,
+                ),
+                float(row.views or 0.0),
+            ),
         )
     if key == "competitive":
         return sorted(
             rows,
             key=lambda row: (
                 float(row.competitive_score or 0.0),
-                _normalize_meta_score(row.meta_score),
-                float(row.recommendation_score or 0.0),
+                normalize_meta_score(row.meta_score),
+                -float(row.age_days if row.age_days is not None else 10_000.0),
+                float(row.views or 0.0),
+                row.deck_name.lower(),
             ),
             reverse=desc,
         )
@@ -166,7 +202,7 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
                 int(row.missing_copies or 0),
                 int(row.missing_unique_cards or 0),
                 -float(row.completion_pct or 0.0),
-                -_normalize_meta_score(row.meta_score),
+                -normalize_meta_score(row.meta_score),
                 -float(row.views or 0.0),
                 -int(row.likes or 0),
                 row.deck_name.lower(),
@@ -179,7 +215,7 @@ def _sort_meta_rows(rows: list, *, sort_by: str, sort_dir: str) -> list:
             -int(row.missing_copies or 0),
             -int(row.missing_unique_cards or 0),
             float(row.completion_pct or 0.0),
-            _normalize_meta_score(row.meta_score),
+            normalize_meta_score(row.meta_score),
             float(row.views or 0.0),
             int(row.likes or 0),
             row.deck_name.lower(),
@@ -249,6 +285,14 @@ def list_meta_decks(
     )
     for entry in entries:
         annotation = svc.auto_builder.annotation_for_entry(entry)
+        profile_competitive = float(annotation.get("competitiveScore") or 0.0) if annotation else None
+        competitive_score = deck_competitive_rank_score(
+            leader_title=entry.leader_title,
+            meta_score=entry.meta_score,
+            age_days=entry.age_days,
+            views=entry.views,
+            profile_competitive=profile_competitive,
+        )
         if include_collection:
             is_buildable, completion_pct, missing_copies, missing_unique_cards = _collection_metrics_for_entry(
                 requirements_by_key=entry.requirements_by_key,
@@ -261,10 +305,16 @@ def list_meta_decks(
                 missing_unique_cards=missing_unique_cards,
                 meta_score=entry.meta_score,
                 is_buildable=is_buildable,
+                age_days=entry.age_days,
             )
         else:
             is_buildable = completion_pct = missing_copies = missing_unique_cards = None
-            rec_score = _default_recommendation_without_collection(entry.meta_score)
+            rec_score = collection_neutral_recommendation_score(
+                leader_title=entry.leader_title,
+                meta_score=entry.meta_score,
+                age_days=entry.age_days,
+                views=entry.views,
+            )
         rows.append(
             _MetaRankRow(
                 source=entry.source,
@@ -283,7 +333,7 @@ def list_meta_decks(
                 missing_copies=missing_copies,
                 missing_unique_cards=missing_unique_cards,
                 recommendation_score=rec_score,
-                competitive_score=float(annotation.get("competitiveScore") or 0.0) if annotation else None,
+                competitive_score=competitive_score,
                 win_condition_id=int(annotation.get("winConditionId") or 0) if annotation else None,
                 win_condition_label=str(annotation.get("winConditionLabel") or "") if annotation else "",
             )
@@ -308,7 +358,7 @@ def list_meta_decks(
             completionPct=row.completion_pct,
             missingCopies=row.missing_copies,
             missingUniqueCards=row.missing_unique_cards,
-            recommendationScore=row.recommendation_score,
+            recommendationScore=row.recommendation_score if include_collection else None,
             competitiveScore=row.competitive_score,
             winConditionId=row.win_condition_id,
             winConditionLabel=row.win_condition_label,
@@ -333,4 +383,57 @@ def meta_index_status(request: Request, response: Response, _auth: AuthContext =
 @limiter.limit("5/hour")
 def refresh_meta_index(request: Request, _auth=Depends(require_admin)) -> MetaIndexStatus:
     svc = get_services()
+    cfg = svc.config
+    script = cfg.meta_refresh_script_path
+    if script.is_file():
+        command = [
+            sys.executable,
+            str(script),
+            "--cards",
+            str(cfg.cards_path),
+            "--cache-dir",
+            str(cfg.deck_sources_cache_dir),
+            "--out-json",
+            str(cfg.meta_index_path),
+            "--out-csv",
+            str(cfg.meta_index_csv_path),
+            "--out-prices-json",
+            str(cfg.base_card_prices_json_path),
+            "--out-prices-csv",
+            str(cfg.base_card_prices_csv_path),
+            "--rules-profile",
+            str(cfg.rules_profile_path),
+            "--auto-builder-dir",
+            str(cfg.auto_builder_dir),
+            "--auto-builder-epochs",
+            str(cfg.auto_builder_epochs),
+            "--skip-auto-builder",
+        ]
+        command.extend(cfg.meta_refresh_extra_args)
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=str(cfg.workspace_root),
+                capture_output=True,
+                text=True,
+                timeout=max(60, int(cfg.meta_auto_refresh_timeout_sec)),
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise HTTPException(status_code=504, detail="Meta ingest timed out.") from exc
+        if completed.returncode != 0:
+            tail = (completed.stderr or completed.stdout or "").strip()[-800:]
+            raise HTTPException(
+                status_code=500,
+                detail=f"Meta ingest failed (exit {completed.returncode}). {tail}",
+            )
+        try:
+            svc.prices.refresh(force=True)
+        except Exception:
+            pass
+        if svc.config.auto_builder_enabled:
+            try:
+                svc.auto_builder.refresh(force=True)
+            except Exception:
+                pass
     return MetaIndexStatus(**svc.meta.refresh())

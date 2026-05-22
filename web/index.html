@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riftbound Deck Platform v2</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=wizard-physical-check-ui-4" />
 </head>
 <body>
   <div class="desk-backdrop"></div>
@@ -123,6 +123,10 @@
         <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="auto-builder-panel" data-workspace-tab="auto-builder" tabindex="-1">
           <span class="sidebar-icon" aria-hidden="true">✦</span>
           <span class="sidebar-label">Auto</span>
+        </button>
+        <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="wizard-panel" data-workspace-tab="wizard" tabindex="-1">
+          <span class="sidebar-icon" aria-hidden="true">🪄</span>
+          <span class="sidebar-label">Wizard</span>
         </button>
         <div class="sidebar-spacer" aria-hidden="true"></div>
         <button type="button" class="sidebar-nav-btn" role="tab" aria-selected="false" aria-controls="model-observation-panel" data-workspace-tab="model-observation" tabindex="-1" id="sidebar-nav-model-observation-btn" hidden>
@@ -370,6 +374,23 @@
           </div>
         </section>
 
+        <section class="module zone wizard-zone workspace-pane" id="wizard-panel" role="tabpanel" aria-label="Deckbuilding Wizard" hidden>
+          <div class="module-head">
+            <div>
+              <h2>Deckbuilding Wizard</h2>
+              <p class="muted">Pick legend and champion, mark what you own, then refine iteratively — the model rebuilds the strongest deck your collection can support and saves upgrade ideas for later.</p>
+            </div>
+            <div class="deck-primary-actions" id="wizard-global-actions" style="display: none;" aria-label="Wizard actions">
+              <button id="wizard-reset-btn" type="button" class="danger">Restart Wizard</button>
+            </div>
+          </div>
+          <div class="divider"></div>
+          
+          <div id="wizard-container" class="wizard-container">
+            <!-- Content will be dynamically inserted here via renderWizard() -->
+          </div>
+        </section>
+
         <section class="module zone model-observation-zone workspace-pane" id="model-observation-panel" role="tabpanel" aria-label="Model Observation" hidden>
           <div class="module-head">
             <div>
@@ -463,10 +484,11 @@
           <div class="row inputs-inline">
             <input id="meta-search" placeholder="Search decks by name, source, legend" />
             <select id="meta-sort-by" aria-label="Meta deck sort">
+              <option value="recent">Newest</option>
               <option value="recommendation">Recommendation</option>
+              <option value="meta">Meta score</option>
               <option value="buildability">Buildability</option>
               <option value="competitive">Competitive</option>
-              <option value="meta">Meta</option>
               <option value="price">Price</option>
             </select>
             <select id="community-sort-by" aria-label="Community deck sort" hidden>
@@ -474,6 +496,10 @@
               <option value="likes">Most Liked</option>
               <option value="name">Name A–Z</option>
             </select>
+            <label id="meta-include-collection-label" class="toggle-inline" for="meta-include-collection">
+              <input id="meta-include-collection" type="checkbox" checked />
+              Include Collection
+            </label>
             <button id="meta-refresh-btn" type="button" class="card-action-btn secondary">Refresh Index</button>
             <button id="meta-load-btn">Load</button>
           </div>
@@ -708,6 +734,6 @@
   </div>
 
   <script src="vendor/supabase-auth.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=wizard-physical-check-ui-4"></script>
 </body>
 </html>

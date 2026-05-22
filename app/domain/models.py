@@ -135,6 +135,10 @@ class CollectionItemRequest(StrictInputModel):
     quantity: int
 
 
+class CollectionPatchRequest(StrictInputModel):
+    cards: dict[str, int] = Field(default_factory=dict)
+
+
 class CollectionCsvImportRequest(StrictInputModel):
     csv_text: str
     replace_existing: bool = False
@@ -334,6 +338,24 @@ class AutoBuilderCompleteRequest(StrictInputModel):
     ranking_mode: str = "collection"
     strategy_mode: str = "hybrid"
     collection_override: dict[str, int] | None = None
+
+
+class WizardSwapRequest(StrictInputModel):
+    from_card: str = Field(alias="from")
+    to_card: str = Field(alias="to")
+
+
+class WizardSolveRequest(StrictInputModel):
+    legend_title: str = Field(default="", alias="legendTitle")
+    chosen_champion_title: str = Field(default="", alias="chosenChampionTitle")
+    format: str = "constructed"
+    owned: dict[str, int] = Field(default_factory=dict)
+    reference_deck: DeckPayload | None = Field(default=None, alias="referenceDeck")
+    current_deck: DeckPayload | None = Field(default=None, alias="currentDeck")
+    locks: list[str] = Field(default_factory=list)
+    swaps: list[WizardSwapRequest] = Field(default_factory=list)
+    mode: str = "owned_only"
+    max_iterations: int = Field(default=1, alias="maxIterations")
 
 
 class AutoBuilderExplanation(BaseModel):

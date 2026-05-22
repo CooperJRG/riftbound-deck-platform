@@ -105,7 +105,8 @@
         collection: false,
         discover: false,
         autoBuilder: false,
-        modelObservation: false
+        modelObservation: false,
+        wizard: false
       },
       collectionFilters: {
         set: "",
@@ -163,7 +164,40 @@
       }
     },
     lastValidation: null,
-    validateTimer: null
+    validateTimer: null,
+    wizard: {
+      step: "start",
+      format: "constructed",
+      collectionAgnostic: false,
+      transientCollection: {},
+      eligibility: null,
+      deck: {
+        name: "Guided Deck",
+        source: "wizard",
+        format: "constructed",
+        legendTitle: "",
+        chosenChampionTitle: "",
+        main: {},
+        runes: {},
+        battlefields: ["", "", ""],
+        sideboard: {}
+      },
+      targetDeck: null,
+      optimalTargetDeck: null,
+      recommendations: [],
+      activeReplacementCard: null,
+      activeReplacementOptions: [],
+      activeReplacementLoading: false,
+      activeReplacementNotice: "",
+      physicalChecklistMode: false,
+      decisions: [],
+      searchQuery: "",
+      iteration: 0,
+      iterationHistory: [],
+      savedRecommendations: [],
+      lastRefinement: null,
+      completeData: null
+    }
   };
   let activeModelGraphRuntime = null;
   let scheduledMetaRefreshTimer = 0;
@@ -362,6 +396,7 @@
     state.collectionInUseByKey = {};
     state.library = [];
     state.metaDecks = [];
+    state.metaIncludeCollection = true;
     state.communityDecks = [];
     state.metaStatus = null;
     state.ui.loadedWorkspaces = {
@@ -454,10 +489,14 @@
   }
 
   function stripStarterSuffix(text) {
-    return String(text == null ? "" : text)
+    let raw = String(text == null ? "" : text)
       .replace(/[\u2013\u2014]/g, "-")
-      .replace(/\s*[-,]\s*starter\s*$/i, "")
       .trim();
+    // First strip trailing parenthetical promo/event suffixes
+    raw = raw.replace(/\s*\([^)]*\)\s*$/, "").trim();
+    // Then strip trailing starter suffixes
+    raw = raw.replace(/\s*[-,]\s*starter\s*$/i, "").trim();
+    return raw;
   }
 
   function normalizeCardKey(text) {
@@ -1005,15 +1044,90 @@
     );
   }
 
-  async function setCollectionQuantity(title, quantity) {
+  let collectionPendingPatch = {};
+  let collectionSaveTimer = null;
+  let collectionSaveInFlight = null;
+
+  function applyCollectionQuantityLocal(title, quantity) {
     const clean = canonicalTitle(title) || String(title || "").trim();
-    if (!clean) return;
+    if (!clean) return "";
     const nextQty = Math.max(0, Number(quantity || 0) || 0);
-    const payload = await api("/api/collection/item", {
-      method: "PUT",
-      body: { card: clean, quantity: nextQty }
-    });
+    if (!state.collection || typeof state.collection !== "object") state.collection = {};
+    if (nextQty <= 0) delete state.collection[clean];
+    else state.collection[clean] = nextQty;
+    state.collectionOwnedByKey = collectionKeyMap(state.collection);
+    refreshCollectionUsageFromLibraryState();
+    return clean;
+  }
+
+  async function reloadCollectionFromServer() {
+    const payload = await api("/api/collection");
     renderCollection(payload);
+    return payload;
+  }
+
+  async function flushCollectionPending() {
+    if (collectionSaveInFlight) {
+      await collectionSaveInFlight;
+    }
+    const pending = { ...collectionPendingPatch };
+    collectionPendingPatch = {};
+    const keys = Object.keys(pending);
+    if (!keys.length) return;
+    collectionSaveInFlight = (async () => {
+      try {
+        const payload = await api("/api/collection", {
+          method: "PATCH",
+          body: { cards: pending }
+        });
+        renderCollection(payload);
+      } catch (err) {
+        try {
+          await reloadCollectionFromServer();
+        } catch (_reloadErr) {
+          // Keep local state if reload fails.
+        }
+        throw err;
+      } finally {
+        collectionSaveInFlight = null;
+      }
+    })();
+    await collectionSaveInFlight;
+    if (Object.keys(collectionPendingPatch).length) {
+      scheduleCollectionSave();
+    }
+  }
+
+  function scheduleCollectionSave() {
+    if (collectionSaveTimer) clearTimeout(collectionSaveTimer);
+    collectionSaveTimer = setTimeout(() => {
+      collectionSaveTimer = null;
+      flushCollectionPending().catch((err) => {
+        const message = String((err && err.message) || err || "");
+        if (/429|too many requests/i.test(message)) {
+          setStatus("Collection save rate-limited. Wait a few seconds and try again.", true);
+        } else {
+          setStatus(message || "Collection update failed.", true);
+        }
+      });
+    }, 400);
+  }
+
+  function queueCollectionQuantity(title, quantity) {
+    const clean = applyCollectionQuantityLocal(title, quantity);
+    if (!clean) return;
+    collectionPendingPatch[clean] = Math.max(0, Number(quantity || 0) || 0);
+    rerenderCollectionFromState();
+    scheduleCollectionSave();
+  }
+
+  async function setCollectionQuantity(title, quantity) {
+    queueCollectionQuantity(title, quantity);
+    if (collectionSaveTimer) {
+      clearTimeout(collectionSaveTimer);
+      collectionSaveTimer = null;
+    }
+    await flushCollectionPending();
   }
 
   async function adjustCollectionQuantity(title, delta) {
@@ -1021,7 +1135,7 @@
     const current = collectionOwnedCopies(title);
     const next = Math.max(0, current + (Number(delta) || 0));
     if (next === current) return;
-    await setCollectionQuantity(title, next);
+    queueCollectionQuantity(title, next);
   }
 
   function collectionSnapshotFromState() {
@@ -1382,13 +1496,14 @@
 
   function applyWorkspaceTab() {
     const raw = String((state.ui && state.ui.workspaceTab) || "deck").trim();
-    const active = raw === "collection" || raw === "auto-builder" || raw === "discover" || raw === "model-observation" ? raw : "deck";
+    const active = raw === "collection" || raw === "auto-builder" || raw === "discover" || raw === "model-observation" || raw === "wizard" ? raw : "deck";
     state.ui.workspaceTab = active;
 
     const collectionPanel = document.getElementById("collection-panel");
     const deckPanel = document.getElementById("deck-panel");
     const autoBuilderPanel = document.getElementById("auto-builder-panel");
     const modelObservationPanel = document.getElementById("model-observation-panel");
+    const wizardPanel = document.getElementById("wizard-panel");
     if (collectionPanel) {
       const on = active === "collection";
       collectionPanel.classList.toggle("is-active", on);
@@ -1409,10 +1524,16 @@
       modelObservationPanel.classList.toggle("is-active", on);
       modelObservationPanel.hidden = !on;
     }
+    if (wizardPanel) {
+      const on = active === "wizard";
+      wizardPanel.classList.toggle("is-active", on);
+      wizardPanel.hidden = !on;
+    }
 
     document.body.classList.toggle("workspace-auto-builder-active", active === "auto-builder");
     document.body.classList.toggle("workspace-discover-active", active === "discover");
     document.body.classList.toggle("workspace-model-observation-active", active === "model-observation");
+    document.body.classList.toggle("workspace-wizard-active", active === "wizard");
 
     // Inspector panel is discover-only — hide/show via hidden attribute (overrides all CSS specificity)
     const inspectorPanel = document.getElementById("inspector-panel");
@@ -1428,6 +1549,9 @@
       btn.setAttribute("tabindex", on ? "0" : "-1");
     });
     syncWorkspaceRoute();
+    if (active === "wizard") {
+      renderWizard();
+    }
   }
 
   function applyDiscoverTab() {
@@ -1439,6 +1563,7 @@
     const sortSelect = document.getElementById("meta-sort-by");
     const communitySortSelect = document.getElementById("community-sort-by");
     const refreshBtn = document.getElementById("meta-refresh-btn");
+    const includeCollectionLabel = document.getElementById("meta-include-collection-label");
     Array.from(document.querySelectorAll("[data-discover-tab]")).forEach((btn) => {
       const on = String(btn.getAttribute("data-discover-tab") || "") === tab;
       btn.classList.toggle("is-active", on);
@@ -1450,12 +1575,13 @@
     if (communitySortSelect) communitySortSelect.hidden = tab !== "community";
     if (refreshBtn) refreshBtn.hidden = tab !== "meta";
     if (freshness) freshness.hidden = tab !== "meta";
+    if (includeCollectionLabel) includeCollectionLabel.hidden = tab !== "meta";
     renderAccountShell();
   }
 
   function setWorkspaceTab(nextTab) {
     const raw = String(nextTab || "").trim();
-    if (raw === "collection" || raw === "auto-builder" || raw === "discover" || raw === "model-observation") {
+    if (raw === "collection" || raw === "auto-builder" || raw === "discover" || raw === "model-observation" || raw === "wizard") {
       state.ui.workspaceTab = raw;
     } else {
       state.ui.workspaceTab = "deck";
@@ -1518,6 +1644,7 @@
     const artOverlay = String(opts.artOverlay || "");
     const providedRarity = String(opts.rarity || "").trim();
     const shelfOnly = Boolean(opts.shelfOnly);
+    const disablePreview = Boolean(opts.disablePreview);
     const info = lookupCard(title);
     const rarity = providedRarity || String((info && info.rarity) || "").trim();
     const foil = Boolean(imageUrl) && isFoilRarity(rarity) && !Boolean(opts.disableFoil);
@@ -1540,15 +1667,18 @@
         : `<div class="card-title" title="${escAttr(title)}">${esc(title)}</div>` +
           (subtitle ? `<div class="card-subtitle">${esc(subtitle)}</div>` : "") +
           (actions ? `<div class="card-actions">${actions}</div>` : "");
+    const previewAttrs = disablePreview
+      ? ""
+      : ` data-preview-title="${escAttr(title)}"` +
+        ` data-preview-image="${escAttr(resolvedImage)}"` +
+        ` data-preview-meta="${escAttr(meta)}"` +
+        ` data-preview-stats="${escAttr(stats)}"` +
+        ` data-preview-fallback="${escAttr(fallback)}"` +
+        ` data-preview-back="${escAttr(backImage || CARD_BACK_DEFAULT)}"`;
     return (
       `<article class="card-tile ${esc(extraClass)}${shelfOnly ? " shelf-card" : ""}${foil ? " is-foil" : ""}"` +
       ` style="--card-tilt:${escAttr(cardTiltFor(title))};"` +
-      ` data-preview-title="${escAttr(title)}"` +
-      ` data-preview-image="${escAttr(resolvedImage)}"` +
-      ` data-preview-meta="${escAttr(meta)}"` +
-      ` data-preview-stats="${escAttr(stats)}"` +
-      ` data-preview-fallback="${escAttr(fallback)}"` +
-      ` data-preview-back="${escAttr(backImage || CARD_BACK_DEFAULT)}"` +
+      previewAttrs +
       ` data-rarity="${escAttr(rarity)}"` +
       (extraAttrs ? ` ${extraAttrs}` : "") +
       `>` +
@@ -2215,25 +2345,17 @@
     bindFoilInteractions(list);
     if (editMode) {
       Array.from(list.querySelectorAll("[data-collection-inc]")).forEach((btn) => {
-        btn.addEventListener("click", async () => {
+        btn.addEventListener("click", () => {
           const title = btn.getAttribute("data-collection-inc") || "";
-          try {
-            await adjustCollectionQuantity(title, 1);
-            setStatus("Collection updated.", false);
-          } catch (err) {
-            setStatus(err.message || "Collection update failed.", true);
-          }
+          adjustCollectionQuantity(title, 1);
+          setStatus("Saving collection…", false);
         });
       });
       Array.from(list.querySelectorAll("[data-collection-dec]")).forEach((btn) => {
-        btn.addEventListener("click", async () => {
+        btn.addEventListener("click", () => {
           const title = btn.getAttribute("data-collection-dec") || "";
-          try {
-            await adjustCollectionQuantity(title, -1);
-            setStatus("Collection updated.", false);
-          } catch (err) {
-            setStatus(err.message || "Collection update failed.", true);
-          }
+          adjustCollectionQuantity(title, -1);
+          setStatus("Saving collection…", false);
         });
       });
     }
@@ -2568,13 +2690,17 @@
         const published = row.publishedAt ? new Date(row.publishedAt).toLocaleString() : "private";
         statsEl.textContent = `Visibility ${row.visibility || "private"} | Bucket ${row.bucket || "saved"} | Published ${published}`;
       } else {
-        const rec = row.recommendationScore == null ? "-" : Number(row.recommendationScore).toFixed(1);
         const meta = row.metaScore == null ? "-" : Number(row.metaScore).toFixed(1);
         const competitive = row.competitiveScore == null ? "-" : Number(row.competitiveScore).toFixed(1);
         const price = row.deckPrice == null ? "-" : formatMoney(row.deckPrice);
-        const build = row.isBuildable == null ? "Build n/a" : row.isBuildable ? "Buildable" : `Missing ${row.missingCopies || 0}`;
         const winCondition = String(row.winConditionLabel || "").trim();
-        statsEl.textContent = `Recommendation ${rec} | Competitive ${competitive} | Meta ${meta} | Price ${price} | ${build}${winCondition ? ` | ${winCondition}` : ""}`;
+        if (state.metaIncludeCollection) {
+          const rec = row.recommendationScore == null ? "-" : Number(row.recommendationScore).toFixed(1);
+          const build = row.isBuildable == null ? "Build n/a" : row.isBuildable ? "Buildable" : `Missing ${row.missingCopies || 0}`;
+          statsEl.textContent = `Recommendation ${rec} | Competitive ${competitive} | Meta ${meta} | Price ${price} | ${build}${winCondition ? ` | ${winCondition}` : ""}`;
+        } else {
+          statsEl.textContent = `Competitive ${competitive} | Meta ${meta} | Price ${price}${winCondition ? ` | ${winCondition}` : ""}`;
+        }
       }
     }
     renderMetaDetailList("meta-detail-legend", [detailRowHtml(deck.legendTitle || "", 1)].filter(Boolean));
@@ -2629,13 +2755,24 @@
         const leaderInfo = lookupCard(row.leaderTitle || "");
         const metaText = row.metaScore == null ? "-" : Number(row.metaScore).toFixed(1);
         const competitiveText = row.competitiveScore == null ? "-" : Number(row.competitiveScore).toFixed(1);
-        const recText = row.recommendationScore == null ? "-" : Number(row.recommendationScore).toFixed(1);
-        const completionText = row.completionPct == null ? "-" : `${Number(row.completionPct).toFixed(1)}%`;
         const priceText = row.deckPrice == null ? "-" : formatMoney(row.deckPrice);
-        const buildText =
-          row.isBuildable == null ? "Build n/a" : row.isBuildable ? "Buildable" : `Missing ${row.missingCopies || 0}`;
-        const subtitleParts = [`Rec ${recText}`, `Competitive ${competitiveText}`, `Meta ${metaText}`, `Price ${priceText}`, buildText];
         const winCondition = String(row.winConditionLabel || "").trim();
+        const includeCollection = state.metaIncludeCollection !== false;
+        let subtitleParts;
+        let statsLine;
+        let badgeText = "";
+        if (includeCollection) {
+          const recText = row.recommendationScore == null ? "-" : Number(row.recommendationScore).toFixed(1);
+          const completionText = row.completionPct == null ? "-" : `${Number(row.completionPct).toFixed(1)}%`;
+          const buildText =
+            row.isBuildable == null ? "Build n/a" : row.isBuildable ? "Buildable" : `Missing ${row.missingCopies || 0}`;
+          subtitleParts = [`Rec ${recText}`, `Competitive ${competitiveText}`, `Meta ${metaText}`, `Price ${priceText}`, buildText];
+          statsLine = `Completion ${completionText}`;
+          badgeText = buildText;
+        } else {
+          subtitleParts = [`Competitive ${competitiveText}`, `Meta ${metaText}`, `Price ${priceText}`];
+          statsLine = "";
+        }
         const actions =
           `<button type="button" class="card-action-btn secondary" data-meta-view="${idx}">View</button>` +
           `<button type="button" class="card-action-btn" data-meta-save="${idx}">Save to My Decks</button>`;
@@ -2644,8 +2781,8 @@
           imageUrl: leaderInfo && leaderInfo.imageUrl ? leaderInfo.imageUrl : "",
           subtitle: subtitleParts.join(" | "),
           meta: `${row.source || "meta"} | ${leaderInfo ? cardMetaLine(leaderInfo) : canonicalTitle(row.leaderTitle || "")}${winCondition ? ` | ${winCondition}` : ""}`,
-          stats: `Completion ${completionText}`,
-          badge: buildText,
+          stats: statsLine,
+          badge: badgeText,
           badgeClass: "is-bottom-right",
           actions
         });
@@ -2761,7 +2898,7 @@
     const select = document.getElementById("meta-sort-by");
     const raw = String((select && select.value) || "recommendation").trim().toLowerCase();
     if (!raw) return "recommendation";
-    if (["recommendation", "meta", "competitive", "price", "buildability"].includes(raw)) return raw;
+    if (["recent", "recommendation", "meta", "competitive", "price", "buildability"].includes(raw)) return raw;
     return "recommendation";
   }
 
@@ -3209,7 +3346,15 @@
       const superType = String((card && card.superType) || "").trim();
       return cardType === "Legend" || superType === "Legend";
     });
-    return legends.sort((a, b) => compareCardsBySetAndNumber(a, a.title, b, b.title));
+    legends.sort((a, b) => compareCardsBySetAndNumber(a, a.title, b, b.title));
+    const seen = new Set();
+    return legends.filter((card) => {
+      const canonical = canonicalTitle(card.title);
+      if (!canonical) return false;
+      if (seen.has(canonical)) return false;
+      seen.add(canonical);
+      return true;
+    });
   }
 
   function fallbackChampionCards() {
@@ -3218,7 +3363,15 @@
       const superType = String((card && card.superType) || "").trim();
       return cardType === "Champion" || superType === "Champion";
     });
-    return champions.sort((a, b) => compareCardsBySetAndNumber(a, a.title, b, b.title));
+    champions.sort((a, b) => compareCardsBySetAndNumber(a, a.title, b, b.title));
+    const seen = new Set();
+    return champions.filter((card) => {
+      const canonical = canonicalTitle(card.title);
+      if (!canonical) return false;
+      if (seen.has(canonical)) return false;
+      seen.add(canonical);
+      return true;
+    });
   }
 
   function autoBuilderLegendCards() {
@@ -4310,10 +4463,13 @@
     const query = ((document.getElementById("meta-search") || {}).value || "").trim();
     const sortBy = metaSortByValue();
     const sortDir = metaSortDirValue(sortBy);
+    const includeCollEl = document.getElementById("meta-include-collection");
+    const includeCollection = includeCollEl ? includeCollEl.checked : true;
+    state.metaIncludeCollection = includeCollection;
     state.metaDecks = await api(
       `/api/meta/decks?limit=120&query=${encodeURIComponent(query)}&sortBy=${encodeURIComponent(sortBy)}&sortDir=${encodeURIComponent(
         sortDir
-      )}&includeCollection=true`
+      )}&includeCollection=${includeCollection}`
     );
     try {
       if (opts.refreshStatus !== false) {
@@ -7053,6 +7209,11 @@
     }
 
     const tab = String(workspace || state.ui.workspaceTab || "deck").trim();
+    if (tab === "wizard") {
+      await loadCollection();
+      state.ui.loadedWorkspaces.wizard = true;
+      return;
+    }
     if (tab === "collection") {
       await loadCollection();
       state.ui.loadedWorkspaces.collection = true;
@@ -7669,8 +7830,14 @@
     const collectionEditToggleBtn = document.getElementById("collection-edit-toggle-btn");
     if (collectionEditToggleBtn) {
       collectionEditToggleBtn.addEventListener("click", () => {
+        const wasEdit = Boolean(state.ui.collectionEditMode);
         state.ui.collectionEditMode = !state.ui.collectionEditMode;
         rerenderCollectionFromState();
+        if (wasEdit && Object.keys(collectionPendingPatch).length) {
+          flushCollectionPending()
+            .then(() => setStatus("Collection saved.", false))
+            .catch((err) => setStatus(err.message || "Collection save failed.", true));
+        }
       });
     }
 
@@ -7889,6 +8056,18 @@
     const metaSortSelect = document.getElementById("meta-sort-by");
     if (metaSortSelect) {
       metaSortSelect.addEventListener("change", async () => {
+        try {
+          await loadMetaDecks();
+          setStatus(`Loaded ${state.metaDecks.length} meta index results.`, false);
+        } catch (err) {
+          setStatus(err.message || "Could not load deck search results.", true);
+        }
+      });
+    }
+
+    const metaIncludeCollection = document.getElementById("meta-include-collection");
+    if (metaIncludeCollection) {
+      metaIncludeCollection.addEventListener("change", async () => {
         try {
           await loadMetaDecks();
           setStatus(`Loaded ${state.metaDecks.length} meta index results.`, false);
@@ -8129,6 +8308,2176 @@
         hidePreview();
       }
     });
+
+    const wizardResetBtn = document.getElementById("wizard-reset-btn");
+    if (wizardResetBtn) {
+      wizardResetBtn.addEventListener("click", () => {
+        resetWizard();
+      });
+    }
+  }
+
+  // ── Deckbuilding Guided Wizard ───────────────────────────────────
+  function getWizardOwnedQty(title, requiredQty) {
+    const clean = canonicalTitle(title);
+    if (!clean) return 0;
+    const required = Math.max(0, Number(requiredQty || 0) || 0);
+    if (state.wizard.transientCollection[clean] !== undefined) {
+      let qty = Math.max(0, Number(state.wizard.transientCollection[clean] || 0) || 0);
+      if (isWizardRuneCardTitle(clean) && required > 0) {
+        qty = Math.max(qty, required);
+      }
+      return qty;
+    }
+    if (state.wizard.collectionAgnostic) {
+      if (isWizardRuneCardTitle(clean) && required > 0) return required;
+      return required > 0 ? required : wizardMainCopyCapForTitle(clean);
+    }
+    if (state.collection && state.collection[clean] !== undefined) {
+      let qty = Math.max(0, Number(state.collection[clean] || 0) || 0);
+      if (isWizardRuneCardTitle(clean) && required > 0) {
+        qty = Math.max(qty, required);
+      }
+      return qty;
+    }
+    return 0;
+  }
+
+  function setWizardOwnedQty(title, qty) {
+    const clean = canonicalTitle(title);
+    if (!clean) return;
+    state.wizard.transientCollection[clean] = Math.max(0, Number(qty || 0) || 0);
+  }
+
+  function wizardCollectionCardsMap(value, opts) {
+    const includeZero = Boolean(opts && opts.includeZero);
+    if (!value || typeof value !== "object") return {};
+    const source = value.cards && typeof value.cards === "object" ? value.cards : value;
+    const out = {};
+    Object.entries(source || {}).forEach(([title, qty]) => {
+      const clean = canonicalTitle(title);
+      const amount = Math.max(0, Number(qty || 0) || 0);
+      if (clean && (amount > 0 || includeZero)) out[clean] = amount;
+    });
+    return out;
+  }
+
+  function wizardAgnosticOwnedPool() {
+    const out = {};
+    (state.cards || []).forEach((card) => {
+      const title = canonicalTitle(card && card.title);
+      if (!title) return;
+      if (isWizardRuneCardTitle(title)) {
+        out[title] = Math.max(out[title] || 0, 12);
+        return;
+      }
+      out[title] = Math.max(out[title] || 0, wizardMainCopyCapForTitle(title));
+    });
+    return out;
+  }
+
+  function wizardEffectiveCollection() {
+    const merged = {};
+    if (state.wizard.collectionAgnostic) {
+      Object.assign(merged, wizardAgnosticOwnedPool());
+    } else if (state.collection) {
+      Object.assign(merged, wizardCollectionCardsMap(state.collection));
+    }
+    Object.assign(merged, wizardCollectionCardsMap(state.wizard.transientCollection, { includeZero: true }));
+    return merged;
+  }
+
+  function wizardVisibleIteration() {
+    return Math.max(1, Number(state.wizard.iteration || 0) || 0);
+  }
+
+  function wizardNextIterationNumber() {
+    return wizardVisibleIteration() + 1;
+  }
+
+  function wizardMainDeckTitles() {
+    const deck = state.wizard.deck || {};
+    const seen = new Set();
+    const out = [];
+    Object.keys(deck.main || {}).forEach((title) => {
+      const clean = canonicalTitle(title);
+      const required = Math.max(0, Number((deck.main || {})[title] || 0) || 0);
+      if (!clean || required <= 0 || seen.has(clean)) return;
+      seen.add(clean);
+      out.push(clean);
+    });
+    const champion = canonicalTitle(deck.chosenChampionTitle || "");
+    if (champion && !seen.has(champion)) out.push(champion);
+    return out;
+  }
+
+  function wizardMainInventoryMetrics() {
+    const deck = state.wizard.deck || {};
+    let required = 0;
+    let owned = 0;
+    let missingCards = 0;
+    wizardMainDeckTitles().forEach((title) => {
+      const needed = Math.max(0, Number((deck.main || {})[title] || (canonicalTitle(deck.chosenChampionTitle) === title ? 1 : 0)) || 0);
+      if (needed <= 0) return;
+      const have = Math.min(needed, getWizardOwnedQty(title, needed));
+      required += needed;
+      owned += have;
+      if (have < needed) missingCards += 1;
+    });
+    return {
+      required,
+      owned,
+      missingCards,
+      completionPct: required > 0 ? (owned / required) * 100 : 100
+    };
+  }
+
+  function wizardBaselineOwnedQty(title, requiredQty) {
+    const clean = canonicalTitle(title);
+    const required = Math.max(0, Number(requiredQty || 0) || 0);
+    if (!clean) return 0;
+    if (state.wizard.collectionAgnostic) return required;
+    const fromCollection = wizardCollectionCardsMap(state.collection || {});
+    return Math.min(required, Math.max(0, Number(fromCollection[clean] || 0) || 0));
+  }
+
+  function applyWizardPhysicalChecklistMode(enabled) {
+    const deck = state.wizard.deck || {};
+    wizardMainDeckTitles().forEach((title) => {
+      const required = Math.max(0, Number((deck.main || {})[title] || (canonicalTitle(deck.chosenChampionTitle) === title ? 1 : 0)) || 0);
+      if (required <= 0) return;
+      setWizardOwnedQty(title, enabled ? 0 : wizardBaselineOwnedQty(title, required));
+    });
+  }
+
+  function beginWizardDeckbuildingIteration() {
+    state.wizard.iteration = 1;
+    state.wizard.iterationHistory = [];
+    state.wizard.lastRefinement = null;
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementNotice = "";
+    state.wizard.physicalChecklistMode = false;
+  }
+
+  function getWizardMissingCount(title, requiredQty) {
+    const required = Math.max(0, Number(requiredQty || 0) || 0);
+    if (isWizardRuneCardTitle(title)) return 0;
+    const owned = getWizardOwnedQty(title, required);
+    return Math.max(0, required - owned);
+  }
+
+  function renderWizardPreservingChecklistScroll() {
+    renderWizard({ preserveChecklistScroll: true });
+  }
+
+  function wizardPlaylistStorageKey() {
+    const legend = canonicalTitle(state.wizard.deck.legendTitle || "");
+    const userId = String((state.auth.me && (state.auth.me.id || state.auth.me.user_id)) || "local").trim() || "local";
+    return `riftbound:wizard-playlist:${userId}:${legend}`;
+  }
+
+  function loadWizardPlaylistFromStorage() {
+    const legend = canonicalTitle(state.wizard.deck.legendTitle || "");
+    if (!legend || typeof localStorage === "undefined") return;
+    try {
+      const raw = localStorage.getItem(wizardPlaylistStorageKey());
+      if (!raw) return;
+      const rows = JSON.parse(raw);
+      if (!Array.isArray(rows)) return;
+      state.wizard.savedRecommendations = rows
+        .filter((row) => row && row.card)
+        .map((row) => ({
+          card: canonicalTitle(row.card),
+          required: Math.max(1, Number(row.required || 1) || 1),
+          reason: String(row.reason || "").trim(),
+          source: String(row.source || "").trim(),
+          score: Number(row.score || 0) || 0,
+          iteration: Number(row.iteration || 0) || 0,
+          addedAt: Number(row.addedAt || 0) || 0
+        }));
+    } catch (err) {
+      console.warn("Could not load wizard playlist:", err);
+    }
+  }
+
+  function saveWizardPlaylistToStorage() {
+    const legend = canonicalTitle(state.wizard.deck.legendTitle || "");
+    if (!legend || typeof localStorage === "undefined") return;
+    try {
+      localStorage.setItem(wizardPlaylistStorageKey(), JSON.stringify(state.wizard.savedRecommendations || []));
+    } catch (err) {
+      console.warn("Could not save wizard playlist:", err);
+    }
+  }
+
+  function wizardEnumerateDeckRequirements(deck) {
+    const rows = [];
+    const push = (title, qty) => {
+      const clean = canonicalTitle(title);
+      const required = Math.max(0, Number(qty || 0) || 0);
+      if (!clean || required <= 0) return;
+      rows.push({ title: clean, required });
+    };
+    if (!deck) return rows;
+    push(deck.legendTitle, 1);
+    push(deck.chosenChampionTitle, 1);
+    Object.entries(deck.main || {}).forEach(([title, qty]) => push(title, qty));
+    Object.entries(deck.runes || {}).forEach(([title, qty]) => push(title, qty));
+    Object.entries(deck.sideboard || {}).forEach(([title, qty]) => push(title, qty));
+    (deck.battlefields || []).forEach((title) => {
+      if (title) push(title, 1);
+    });
+    return rows;
+  }
+
+  function wizardDeckBuildMetrics(deck) {
+    const slots = wizardEnumerateDeckRequirements(deck);
+    let requiredTotal = 0;
+    let ownedTotal = 0;
+    let missingUnique = 0;
+    slots.forEach(({ title, required }) => {
+      requiredTotal += required;
+      const owned = Math.min(required, getWizardOwnedQty(title, required));
+      ownedTotal += owned;
+      if (owned < required) missingUnique += 1;
+    });
+    const completionPct = requiredTotal > 0 ? (ownedTotal / requiredTotal) * 100 : 100;
+    return {
+      requiredTotal,
+      ownedTotal,
+      missingUnique,
+      completionPct,
+      isBuildable: missingUnique === 0
+    };
+  }
+
+  function wizardDecksNearlyEqual(left, right) {
+    const a = normalizeDeckPayload(left || {});
+    const b = normalizeDeckPayload(right || {});
+    const mapsEqual = (m1, m2) => {
+      const keys = new Set([...Object.keys(m1 || {}), ...Object.keys(m2 || {})]);
+      for (const key of keys) {
+        if (Math.max(0, Number(m1[key] || 0) || 0) !== Math.max(0, Number(m2[key] || 0) || 0)) return false;
+      }
+      return true;
+    };
+    return (
+      canonicalTitle(a.legendTitle) === canonicalTitle(b.legendTitle) &&
+      canonicalTitle(a.chosenChampionTitle) === canonicalTitle(b.chosenChampionTitle) &&
+      mapsEqual(a.main, b.main) &&
+      mapsEqual(a.runes, b.runes) &&
+      mapsEqual(a.sideboard, b.sideboard) &&
+      (a.battlefields || []).map(canonicalTitle).join("|") === (b.battlefields || []).map(canonicalTitle).join("|")
+    );
+  }
+
+  function wizardMainCopyCapForTitle(title) {
+    const card = lookupCard(title);
+    const fromWizard = state.wizard.eligibility && state.wizard.eligibility.mainCopyLimit;
+    const base = Math.max(1, Number(fromWizard || state.eligibility.mainCopyLimit || 3) || 3);
+    if (card && card.isUnique) return 1;
+    return base;
+  }
+
+  function capWizardDeckMainCopies(deck) {
+    const src = normalizeDeckPayload(deck || {});
+    const capped = {};
+    Object.entries(src.main || {}).forEach(([title, qty]) => {
+      const clean = canonicalTitle(title);
+      const cap = wizardMainCopyCapForTitle(clean);
+      const amount = Math.min(Math.max(0, Number(qty || 0) || 0), cap);
+      if (clean && amount > 0) capped[clean] = amount;
+    });
+    src.main = capped;
+    return src;
+  }
+
+  async function validateWizardDeckPayload(deck) {
+    return api("/api/decks/validate", {
+      method: "POST",
+      body: { deck: normalizeDeckPayload(deck || {}) }
+    });
+  }
+
+  function buildWizardSwapCandidate(originalCard, replacementCard) {
+    const deck = capWizardDeckMainCopies(state.wizard.deck);
+    const original = canonicalTitle(originalCard);
+    const replacement = canonicalTitle(replacementCard);
+    if (!original || !replacement) return deck;
+
+    const replaceInMap = (map, strictOwned) => {
+      if (!map || map[original] === undefined) return map || {};
+      const next = { ...(map || {}) };
+      const qty = Math.max(0, Number(next[original] || 0) || 0);
+      delete next[original];
+      const cap = strictOwned
+        ? Math.min(wizardMainCopyCapForTitle(replacement), getWizardOwnedQty(replacement, qty))
+        : qty;
+      const replacementQty = Math.min(qty, Math.max(0, Number(cap || 0) || 0));
+      if (replacementQty > 0) next[replacement] = replacementQty;
+      return next;
+    };
+
+    deck.main = replaceInMap(deck.main, true);
+    deck.runes = replaceInMap(deck.runes, false);
+    deck.sideboard = replaceInMap(deck.sideboard, false);
+    deck.battlefields = (deck.battlefields || []).map((title) => canonicalTitle(title) === original ? replacement : title);
+    return capWizardDeckMainCopies(deck);
+  }
+
+  function wizardDiffSummaryHtml(diff) {
+    if (!diff) return "";
+    const rows = [];
+    (diff.added || []).forEach((row) => rows.push(`Added ${row.qty || 0}x ${row.card || ""}`));
+    (diff.removed || []).forEach((row) => rows.push(`Removed ${row.qty || 0}x ${row.card || ""}`));
+    (diff.qtyChanges || diff.qty_changes || []).forEach((row) => rows.push(`${row.card || ""}: ${row.before || 0}x -> ${row.after || 0}x`));
+    if (!rows.length) return "";
+    const shown = rows.slice(0, 12).map((line) => `<li>${esc(line)}</li>`).join("");
+    const more = rows.length > 12 ? `<li class="muted">and ${esc(rows.length - 12)} more</li>` : "";
+    return `<ul class="wizard-diff-list">${shown}${more}</ul>`;
+  }
+
+  function wizardLegalityStripHtml(validation) {
+    if (!validation) return "";
+    const issues = Array.isArray(validation.issues) ? validation.issues : [];
+    const codes = issues.slice(0, 3).map((issue) => issue && issue.code).filter(Boolean).join(", ");
+    const valid = Boolean(validation.is_valid);
+    return (
+      `<div class="wizard-legality-strip ${valid ? "is-legal" : "is-illegal"}">` +
+      `<strong>${valid ? "Legal" : "Illegal"}</strong>` +
+      `<span>${valid ? "Validated deck list" : esc(codes || validation.summary || "Validation failed")}</span>` +
+      `</div>`
+    );
+  }
+
+  function appendWizardPlaylistEntries(entries) {
+    const list = Array.isArray(entries) ? entries : [];
+    const seen = new Set((state.wizard.savedRecommendations || []).map((row) => canonicalTitle(row.card)));
+    list.forEach((entry) => {
+      const card = canonicalTitle(entry && entry.card);
+      const required = Math.max(1, Number((entry && entry.required) || 1) || 1);
+      if (!card || seen.has(card)) return;
+      const owned = getWizardOwnedQty(card, required);
+      if (owned >= required) return;
+      seen.add(card);
+      state.wizard.savedRecommendations.push({
+        card,
+        required,
+        reason: String((entry && entry.reason) || "Future upgrade for this legend").trim(),
+        source: String((entry && entry.source) || "").trim(),
+        score: Number((entry && entry.score) || 0) || 0,
+        iteration: Number(state.wizard.iteration || 0) || 0,
+        addedAt: Date.now()
+      });
+    });
+    state.wizard.savedRecommendations.sort((a, b) => (b.score || 0) - (a.score || 0) || (b.addedAt || 0) - (a.addedAt || 0));
+    saveWizardPlaylistToStorage();
+  }
+
+  function collectWizardPlaylistCandidates(hybridRes, buildableRes) {
+    const entries = [];
+    const pushMissing = (missingCards, reason, source, score) => {
+      (missingCards || []).forEach((row) => {
+        const card = row && (row.card || row.title);
+        if (!card) return;
+        entries.push({
+          card,
+          required: Math.max(1, Number(row.missing || row.missingCopies || 1) || 1),
+          reason,
+          source,
+          score: Number(score || 0) || 0
+        });
+      });
+    };
+
+    (hybridRes && hybridRes.recommendations ? hybridRes.recommendations : []).slice(0, 6).forEach((rec) => {
+      const label = rec.winConditionLabel || rec.archetypeName || "synergy";
+      pushMissing(rec.missingCards, `Improves ${label} package`, "model-upgrade", rec.competitiveScore || rec.rankingScore || 0);
+      (rec.replacementSuggestions || []).slice(0, 4).forEach((swap) => {
+        const card = swap && (swap.card || swap.to || swap.replacement);
+        if (!card) return;
+        entries.push({
+          card,
+          required: 1,
+          reason: swap.reason || "Suggested swap from model",
+          source: "replacement",
+          score: rec.competitiveScore || 0
+        });
+      });
+    });
+
+    (buildableRes && buildableRes.recommendations ? buildableRes.recommendations : []).slice(1, 5).forEach((rec) => {
+      pushMissing(rec.missingCards, "Alternative build path", "buildable-alt", rec.competitiveScore || 0);
+    });
+
+    const optimal = state.wizard.optimalTargetDeck;
+    if (optimal) {
+      wizardEnumerateDeckRequirements(optimal).forEach(({ title, required }) => {
+        const owned = getWizardOwnedQty(title, required);
+        if (owned < required) {
+          entries.push({
+            card: title,
+            required: required - owned,
+            reason: "From original optimal template",
+            source: "optimal-target",
+            score: 0.99
+          });
+        }
+      });
+    }
+
+    appendWizardPlaylistEntries(entries);
+  }
+
+  function canFinalizeWizard() {
+    const metrics = wizardDeckBuildMetrics(state.wizard.deck);
+    if (metrics.isBuildable) return true;
+    const history = state.wizard.iterationHistory || [];
+    if (history.length >= 2) {
+      const last = history[history.length - 1];
+      const prev = history[history.length - 2];
+      if (Math.abs(Number(last.afterCompletionPct || 0) - Number(prev.afterCompletionPct || 0)) < 1) return true;
+    }
+    return Number(state.wizard.iteration || 0) >= 1;
+  }
+
+  function wizardPlaylistPanelHtml() {
+    const rows = Array.isArray(state.wizard.savedRecommendations) ? state.wizard.savedRecommendations : [];
+    if (!rows.length) {
+      return `<p class="muted wizard-playlist-empty">Saved upgrade ideas appear here as you refine — like playlist recommendations for your legend.</p>`;
+    }
+    const items = rows.slice(0, 12).map((row) => {
+      const info = lookupCard(row.card);
+      const owned = getWizardOwnedQty(row.card, row.required);
+      const stillNeed = Math.max(0, row.required - owned);
+      return (
+        `<li class="wizard-playlist-item">` +
+        `<div class="wizard-playlist-item-main">` +
+        `<strong>${esc(row.card)}</strong>` +
+        `<span class="muted">Need ${stillNeed} more · ${esc(row.reason || "Upgrade")}</span>` +
+        `</div>` +
+        `<span class="wizard-playlist-tag">${esc(info ? cardMetaLine(info) : row.source || "upgrade")}</span>` +
+        `</li>`
+      );
+    }).join("");
+    return `<ul class="wizard-playlist-list">${items}</ul>`;
+  }
+
+  function wizardIterationBannerHtml() {
+    const metrics = wizardDeckBuildMetrics(state.wizard.deck);
+    const iteration = wizardVisibleIteration();
+    const last = state.wizard.lastRefinement;
+    const pct = Math.round(metrics.completionPct);
+    const note = last && last.message ? `<p class="muted wizard-iteration-note">${esc(last.message)}</p>` : "";
+    const legality = last && last.validation ? wizardLegalityStripHtml(last.validation) : "";
+    const diff = last && last.diff ? wizardDiffSummaryHtml(last.diff) : "";
+    return (
+      `<div class="wizard-iteration-banner">` +
+      `<div class="wizard-iteration-metrics">` +
+      `<span class="wizard-iteration-round">Iteration ${iteration}</span>` +
+      `<span class="wizard-iteration-pct${metrics.isBuildable ? " is-complete" : ""}">${pct}% collection match</span>` +
+      `${metrics.isBuildable ? `<span class="wizard-iteration-badge">Fully buildable</span>` : ""}` +
+      `</div>` +
+      `${legality}` +
+      `${note}` +
+      `${diff}` +
+      `</div>`
+    );
+  }
+
+  async function runWizardRefinement() {
+    state.wizard.step = "refining";
+    state.wizard.completeData = null;
+    renderWizard();
+
+    const deck = capWizardDeckMainCopies(state.wizard.deck);
+    state.wizard.deck = deck;
+    const legend = String(deck.legendTitle || "").trim();
+    const champion = String(deck.chosenChampionTitle || "").trim();
+    const collection = wizardEffectiveCollection();
+    const beforeMetrics = wizardDeckBuildMetrics(deck);
+
+    try {
+      const response = await api("/api/wizard/solve", {
+        method: "POST",
+        body: {
+          legendTitle: legend,
+          chosenChampionTitle: champion,
+          format: state.wizard.format || deck.format || "constructed",
+          owned: collection,
+          referenceDeck: state.wizard.optimalTargetDeck || state.wizard.targetDeck || deck,
+          currentDeck: deck,
+          mode: "owned_only",
+          maxIterations: 1
+        }
+      });
+
+      appendWizardPlaylistEntries(response.playlist || []);
+
+      let deckChanged = false;
+      const appliedScore = Number((response.metrics && response.metrics.competitiveScore) || 0) || 0;
+      const validation = response.validation || null;
+
+      if (response.deck && validation && validation.is_valid) {
+        const candidateDeck = capWizardDeckMainCopies(response.deck);
+        candidateDeck.name = deck.name || candidateDeck.name;
+        candidateDeck.source = "wizard";
+        candidateDeck.format = state.wizard.format || candidateDeck.format;
+        const candidateMetrics = wizardDeckBuildMetrics(candidateDeck);
+        const shouldApply = candidateMetrics.completionPct >= beforeMetrics.completionPct - 0.25;
+        if (shouldApply && !wizardDecksNearlyEqual(deck, candidateDeck)) {
+          state.wizard.deck = candidateDeck;
+          deckChanged = true;
+        }
+      }
+
+      const afterMetrics = wizardDeckBuildMetrics(state.wizard.deck);
+      let displayedValidation = validation;
+      if (!deckChanged && (!validation || !validation.is_valid)) {
+        try {
+          displayedValidation = await validateWizardDeckPayload(state.wizard.deck);
+        } catch (_err) {
+          displayedValidation = validation;
+        }
+      }
+      const status = String(response.solverStatus || "").trim() || "feasible";
+      const pctGain = afterMetrics.completionPct - beforeMetrics.completionPct;
+      state.wizard.iteration = wizardNextIterationNumber();
+      state.wizard.iterationHistory.push({
+        iteration: state.wizard.iteration,
+        beforeCompletionPct: beforeMetrics.completionPct,
+        afterCompletionPct: afterMetrics.completionPct,
+        deckChanged,
+        isBuildable: afterMetrics.isBuildable,
+        competitiveScore: appliedScore,
+        solverStatus: status
+      });
+
+      let message = "";
+      if (status === "infeasible_owned_only") {
+        message = "Could not find a full 40-card legal build from the owned cards in this collection data; kept your current deck and saved upgrade ideas.";
+      } else if (validation && !validation.is_valid) {
+        const firstIssue = Array.isArray(validation.issues) && validation.issues[0] ? validation.issues[0].code : "VALIDATION";
+        message = `Solver returned an illegal list (${firstIssue}); kept your current deck and saved upgrade ideas.`;
+      } else if (deckChanged) {
+        const clusterCount = Array.isArray(response.replacementClusters) ? response.replacementClusters.length : 0;
+        message = clusterCount
+          ? `Applied a legal owned-card replacement cluster at ${Math.round(afterMetrics.completionPct)}% collection match (iteration ${state.wizard.iteration}).`
+          : `Applied a legal ${Math.round(afterMetrics.completionPct)}% collection match (iteration ${state.wizard.iteration}).`;
+      } else if (Math.abs(pctGain) < 1) {
+        message = `Plateau reached at ${Math.round(afterMetrics.completionPct)}% collection match; no legal owned-only improvement found.`;
+      } else {
+        message = `Kept your legal list at ${Math.round(afterMetrics.completionPct)}% collection match.`;
+      }
+
+      state.wizard.lastRefinement = {
+        deckChanged,
+        buildablePct: afterMetrics.completionPct,
+        isBuildable: afterMetrics.isBuildable,
+        competitiveScore: appliedScore,
+        solverStatus: status,
+        validation: displayedValidation,
+        diff: deckChanged ? response.diff || null : null,
+        replacementClusters: response.replacementClusters || [],
+        message
+      };
+
+      state.wizard.step = "deckbuilding";
+      state.wizard.activeReplacementCard = null;
+      state.wizard.activeReplacementOptions = [];
+      state.wizard.activeReplacementNotice = "";
+      renderWizard();
+      setStatus(state.wizard.lastRefinement.message, Boolean(displayedValidation && !displayedValidation.is_valid));
+    } catch (err) {
+      console.error("Wizard refinement failed:", err);
+      state.wizard.step = "deckbuilding";
+      renderWizard();
+      setStatus(err.message || "Could not refine deck for your collection.", true);
+    }
+  }
+
+  async function runWizardRefinementLegacy() {
+    state.wizard.step = "refining";
+    state.wizard.completeData = null;
+    renderWizard();
+
+    const deck = state.wizard.deck;
+    const legend = String(deck.legendTitle || "").trim();
+    const champion = String(deck.chosenChampionTitle || "").trim();
+    const collection = state.wizard.transientCollection || {};
+    const beforeMetrics = wizardDeckBuildMetrics(deck);
+
+    try {
+      const [buildableRes, hybridRes] = await Promise.all([
+        api("/api/auto-builder/recommendations", {
+          method: "POST",
+          body: {
+            top: 16,
+            rankingMode: "collection",
+            strategyMode: "hybrid",
+            legendTitle: legend,
+            chosenChampionTitle: champion,
+            collectionOverride: collection,
+            onlyBuildable: true,
+            minResults: 8
+          }
+        }),
+        api("/api/auto-builder/recommendations", {
+          method: "POST",
+          body: {
+            top: 8,
+            rankingMode: "hybrid",
+            strategyMode: "hybrid",
+            legendTitle: legend,
+            chosenChampionTitle: champion,
+            collectionOverride: collection,
+            onlyBuildable: false
+          }
+        })
+      ]);
+
+      collectWizardPlaylistCandidates(hybridRes, buildableRes);
+
+      const buildable = Array.isArray(buildableRes.recommendations) && buildableRes.recommendations.length
+        ? buildableRes.recommendations[0]
+        : null;
+      let deckChanged = false;
+      let appliedScore = 0;
+
+      if (buildable && buildable.deck) {
+        const candidateDeck = normalizeDeckPayload(buildable.deck);
+        candidateDeck.name = deck.name || candidateDeck.name;
+        candidateDeck.source = "wizard";
+        candidateDeck.format = state.wizard.format || candidateDeck.format;
+        const candidateMetrics = {
+          completionPct: Number(buildable.completionPct || 0) || 0,
+          isBuildable: Boolean(buildable.isBuildable),
+          competitiveScore: Number(buildable.competitiveScore || 0) || 0
+        };
+        const shouldApply =
+          candidateMetrics.isBuildable ||
+          candidateMetrics.completionPct > beforeMetrics.completionPct + 0.25;
+        if (shouldApply && !wizardDecksNearlyEqual(deck, candidateDeck)) {
+          state.wizard.deck = candidateDeck;
+          deckChanged = true;
+          appliedScore = candidateMetrics.competitiveScore;
+        }
+      }
+
+      const afterMetrics = wizardDeckBuildMetrics(state.wizard.deck);
+      state.wizard.iteration = wizardNextIterationNumber();
+      state.wizard.iterationHistory.push({
+        iteration: state.wizard.iteration,
+        beforeCompletionPct: beforeMetrics.completionPct,
+        afterCompletionPct: afterMetrics.completionPct,
+        deckChanged,
+        isBuildable: afterMetrics.isBuildable,
+        competitiveScore: appliedScore
+      });
+
+      state.wizard.lastRefinement = {
+        deckChanged,
+        buildablePct: afterMetrics.completionPct,
+        isBuildable: afterMetrics.isBuildable,
+        competitiveScore: appliedScore,
+        message: deckChanged
+          ? `Applied a stronger ${Math.round(afterMetrics.completionPct)}% collection match (iteration ${state.wizard.iteration}).`
+          : buildable
+            ? `Kept your list — already near the best ${Math.round(afterMetrics.completionPct)}% match we found (iteration ${state.wizard.iteration}).`
+            : `No better fully-owned list yet; saved upgrade ideas below for iteration ${state.wizard.iteration}.`
+      };
+
+      state.wizard.step = "deckbuilding";
+      state.wizard.activeReplacementCard = null;
+      state.wizard.activeReplacementOptions = [];
+      renderWizard();
+      setStatus(state.wizard.lastRefinement.message, false);
+    } catch (err) {
+      console.error("Wizard refinement failed:", err);
+      state.wizard.step = "deckbuilding";
+      renderWizard();
+      setStatus(err.message || "Could not refine deck for your collection.", true);
+    }
+  }
+
+  function renderWizardRefining() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+    const round = wizardNextIterationNumber();
+    container.innerHTML = `
+      <div class="wizard-refining-pane">
+        <div class="loader wizard-refining-loader"></div>
+        <h4>Finding the strongest deck for your collection</h4>
+        <p class="muted">Iteration ${esc(String(round))}: rerunning the model with the cards you own and saving upgrade ideas for later.</p>
+      </div>
+    `;
+  }
+
+  async function finalizeWizardDeck() {
+    const validation = await validateWizardDeckPayload(state.wizard.deck);
+    if (!validation || !validation.is_valid) {
+      const firstIssue = validation && Array.isArray(validation.issues) && validation.issues[0]
+        ? validation.issues[0].code
+        : "VALIDATION";
+      state.wizard.lastRefinement = {
+        ...(state.wizard.lastRefinement || {}),
+        validation,
+        message: `Finalize blocked because the current deck is illegal (${firstIssue}).`
+      };
+      renderWizardPreservingChecklistScroll();
+      setStatus(state.wizard.lastRefinement.message, true);
+      return;
+    }
+    state.wizard.lastRefinement = {
+      ...(state.wizard.lastRefinement || {}),
+      validation
+    };
+    state.wizard.step = "complete";
+    state.wizard.completeData = null;
+    renderWizard();
+  }
+
+  function wizardLegendChampionTagSet(legendTitle) {
+    const legend = lookupCard(legendTitle || "");
+    const tags = legend && Array.isArray(legend.championTags) ? legend.championTags : [];
+    return new Set(tags.map((tag) => String(tag || "").trim()).filter(Boolean));
+  }
+
+  function isWizardRuneCardTitle(title) {
+    const card = lookupCard(title);
+    if (!card) return false;
+    const cardType = String(card.cardType || "").trim();
+    const superType = String(card.superType || "").trim();
+    return cardType === "Rune" || superType === "Rune";
+  }
+
+  function assumeWizardLegendsOwned() {
+    fallbackLegendCards().forEach((card) => {
+      const title = canonicalTitle(card.title);
+      if (title) state.wizard.transientCollection[title] = 1;
+    });
+  }
+
+  function assumeWizardRunesOwned() {
+    (state.cards || []).forEach((card) => {
+      if (!isWizardRuneCardTitle(card.title)) return;
+      const title = canonicalTitle(card.title);
+      if (title) state.wizard.transientCollection[title] = Math.max(12, Number(state.wizard.transientCollection[title] || 0) || 0);
+    });
+  }
+
+  async function refreshWizardEligibility() {
+    const legendTitle = String(state.wizard.deck.legendTitle || "").trim();
+    if (!legendTitle) {
+      state.wizard.eligibility = null;
+      return null;
+    }
+    const formatName = String(state.wizard.format || "constructed").trim() || "constructed";
+    const payload = await api(
+      `/api/decks/eligibility?format=${encodeURIComponent(formatName)}&legendTitle=${encodeURIComponent(legendTitle)}&limit=1000`
+    );
+    state.wizard.eligibility = payload || null;
+    return payload;
+  }
+
+  function wizardLegalChampionCards() {
+    const rows = Array.isArray(state.wizard.eligibility && state.wizard.eligibility.champions)
+      ? state.wizard.eligibility.champions
+      : [];
+    if (rows.length) {
+      return rows
+        .map((row) => lookupCard(row.title) || row)
+        .filter((card) => card && card.title);
+    }
+    const tags = wizardLegendChampionTagSet(state.wizard.deck.legendTitle);
+    return fallbackChampionCards().filter((card) => {
+      if (!tags.size) return true;
+      const cardTags = cardChampionTagSet(card);
+      for (const tag of tags) {
+        if (cardTags.has(tag)) return true;
+      }
+      return false;
+    });
+  }
+
+  function wizardChecklistRowHtml(title, requiredQty, options) {
+    const opts = options || {};
+    const info = lookupCard(title);
+    const required = Math.max(0, Number(requiredQty || 0) || 0);
+    const assumeFull = Boolean(opts.assumeOwned);
+    const ownedQty = assumeFull ? required : getWizardOwnedQty(title, required);
+    const missing = assumeFull ? 0 : getWizardMissingCount(title, required);
+    const isSelected = canonicalTitle(state.wizard.activeReplacementCard || "") === canonicalTitle(title);
+    const isComplete = missing === 0;
+    const isPartial = missing > 0 && ownedQty > 0;
+    const allowStepper = opts.allowStepper !== false && required > 0 && !assumeFull;
+    const image = info && info.imageUrl ? info.imageUrl : cardBackFor(title);
+    const statusClass = isComplete ? "is-complete" : isPartial ? "is-partial" : "is-short";
+    const statusLabel = `${ownedQty} / ${required} in collection`;
+
+    const stepper = allowStepper
+      ? `<div class="qty-stepper wizard-checklist-stepper">` +
+        `<button type="button" class="step-btn wizard-owned-dec" data-title="${escAttr(title)}"${ownedQty <= 0 ? " disabled" : ""}>-</button>` +
+        `<span class="step-value">${esc(ownedQty)} / ${esc(required)}</span>` +
+        `<button type="button" class="step-btn wizard-owned-inc" data-title="${escAttr(title)}"${ownedQty >= required ? " disabled" : ""}>+</button>` +
+        `</div>`
+      : "";
+
+    const findRepl =
+      missing > 0
+        ? `<button type="button" class="card-action-btn secondary wizard-find-repl-btn" data-title="${escAttr(title)}">Replacements</button>`
+        : "";
+
+    return (
+      `<div class="wizard-card-row wizard-checklist-row ${statusClass}${isSelected ? " active" : ""}" data-title="${escAttr(title)}">` +
+      `<div class="wizard-checklist-row-main">` +
+      `<div class="wizard-checklist-thumb-wrap">` +
+      `<img class="wizard-checklist-thumb${info && info.imageUrl ? "" : " is-fallback"}" src="${escAttr(image)}" alt="${escAttr(title)}" data-fallback-src="${escAttr(cardBackFor(title))}" />` +
+      `</div>` +
+      `<div class="wizard-checklist-copy">` +
+      `<div class="wizard-card-row-left">` +
+      `<span class="wizard-card-row-qty">${esc(required)}x</span>` +
+      `<span class="wizard-card-row-name">${esc(title)}</span>` +
+      `</div>` +
+      `<span class="wizard-checklist-meta">${esc(info ? cardMetaLine(info) : "Unresolved card")}</span>` +
+      `</div>` +
+      `</div>` +
+      `<div class="wizard-checklist-row-actions">` +
+      `<span class="wizard-ownership-pill ${statusClass}">${esc(statusLabel)}</span>` +
+      `${stepper}` +
+      `${findRepl}` +
+      `</div>` +
+      `</div>`
+    );
+  }
+
+  function resetWizard() {
+    state.wizard.step = "start";
+    state.wizard.format = "constructed";
+    state.wizard.collectionAgnostic = false;
+    state.wizard.transientCollection = {};
+    state.wizard.eligibility = null;
+    state.wizard.deck = {
+      name: "Guided Deck",
+      source: "wizard",
+      format: "constructed",
+      legendTitle: "",
+      chosenChampionTitle: "",
+      main: {},
+      runes: {},
+      battlefields: ["", "", ""],
+      sideboard: {}
+    };
+    state.wizard.targetDeck = null;
+    state.wizard.optimalTargetDeck = null;
+    state.wizard.recommendations = [];
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementLoading = false;
+    state.wizard.activeReplacementNotice = "";
+    state.wizard.physicalChecklistMode = false;
+    state.wizard.decisions = [];
+    state.wizard.searchQuery = "";
+    state.wizard.iteration = 0;
+    state.wizard.iterationHistory = [];
+    state.wizard.savedRecommendations = [];
+    state.wizard.lastRefinement = null;
+    state.wizard.completeData = null;
+
+    const actions = document.getElementById("wizard-global-actions");
+    if (actions) actions.style.display = "none";
+
+    renderWizard();
+  }
+
+  function renderWizard(options) {
+    const opts = options && typeof options === "object" ? options : {};
+    const step = state.wizard.step;
+    if (step === "start") {
+      renderWizardStart();
+    } else if (step === "legend") {
+      renderWizardLegend();
+    } else if (step === "champion") {
+      void loadWizardChampionData();
+    } else if (step === "champion-render") {
+      renderWizardChampionRender();
+    } else if (step === "refining") {
+      renderWizardRefining();
+    } else if (step === "deckbuilding") {
+      renderWizardDeckbuilding(opts);
+    } else if (step === "complete") {
+      if (!state.wizard.completeData) {
+        void loadWizardCompleteData();
+      } else {
+        renderWizardComplete();
+      }
+    } else if (step === "complete-render") {
+      renderWizardComplete();
+    }
+  }
+
+  function renderWizardStart() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="wizard-start-pane">
+        <h3>Guided Deck Build</h3>
+        <p class="muted wizard-start-copy">
+          Walk through legend, champion, and list selection like the manual Build tab — with synergy suggestions when you are short copies of a card.
+        </p>
+        <div style="margin-bottom: 1.5rem; text-align: left;">
+          <label style="display: block; font-weight: bold; margin-bottom: 0.5rem;">Select Format:</label>
+          <select id="wizard-format-select" class="form-control" style="width: 100%; padding: 0.75rem; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: 4px;">
+            <option value="constructed">Constructed</option>
+            <option value="skirmish">Skirmish</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 2rem; text-align: left; display: flex; align-items: center; gap: 0.75rem;">
+          <input type="checkbox" id="wizard-agnostic-checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+          <label for="wizard-agnostic-checkbox" style="font-weight: bold; cursor: pointer; color: var(--text-light); margin: 0; user-select: none;">
+            Collection Agnostic (assume full catalog except marked shortages)
+          </label>
+        </div>
+        <button id="wizard-start-begin-btn" type="button" class="primary wizard-start-btn">
+          Begin Guided Build
+        </button>
+      </div>
+    `;
+
+    const actions = document.getElementById("wizard-global-actions");
+    if (actions) actions.style.display = "none";
+
+    document.getElementById("wizard-start-begin-btn").addEventListener("click", async () => {
+      const fmtSelect = document.getElementById("wizard-format-select");
+      const fmt = fmtSelect ? fmtSelect.value : "constructed";
+      state.wizard.format = fmt;
+      state.wizard.deck.format = fmt;
+
+      const agnosticChk = document.getElementById("wizard-agnostic-checkbox");
+      const agnostic = agnosticChk ? agnosticChk.checked : false;
+      state.wizard.collectionAgnostic = agnostic;
+
+      if (!agnostic) {
+        if (!state.collection || Object.keys(state.collection).length === 0) {
+          try {
+            const payload = await api("/api/collection");
+            state.collection = wizardCollectionCardsMap(payload);
+          } catch (e) {
+            console.warn("Could not load collection, starting fresh:", e);
+            state.collection = {};
+          }
+        }
+        state.wizard.transientCollection = wizardCollectionCardsMap(state.collection || {});
+      } else {
+        state.wizard.transientCollection = {};
+      }
+      assumeWizardLegendsOwned();
+      assumeWizardRunesOwned();
+
+      state.wizard.step = "legend";
+      const globalActions = document.getElementById("wizard-global-actions");
+      if (globalActions) globalActions.style.display = "block";
+      renderWizard();
+    });
+  }
+
+  function renderWizardLegend() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+
+    const legends = fallbackLegendCards();
+    const query = (state.wizard.searchQuery || "").trim().toLowerCase();
+    const filtered = legends.filter(c => c.title.toLowerCase().includes(query));
+
+    let cardsHtml = "";
+    if (filtered.length === 0) {
+      cardsHtml = `<div class="wizard-grid-empty muted">No legends found matching "${esc(state.wizard.searchQuery)}".</div>`;
+    } else {
+      filtered.forEach(card => {
+        const title = card.title;
+        const actions = `<button type="button" class="card-action-btn select-legend-btn" data-title="${escAttr(title)}">Select Legend</button>`;
+
+        cardsHtml += tileHtml({
+          title: title,
+          imageUrl: card.imageUrl,
+          meta: cardMetaLine(card),
+          stats: cardStatsLine(card),
+          rarity: card.rarity,
+          actions: actions,
+          extraClass: "wizard-pick-card",
+          disablePreview: true
+        });
+      });
+    }
+
+    container.innerHTML = `
+      <div class="wizard-step-pane">
+        <div class="wizard-step-head">
+          <div>
+            <h3 class="wizard-step-title">Step 1 — Legend</h3>
+            <p class="muted">Pick your legend. All legends are treated as available for this guided build.</p>
+          </div>
+        </div>
+        <div class="wizard-filter-bar">
+          <label class="wizard-filter-label" for="wizard-legend-search">Search legends</label>
+          <input id="wizard-legend-search" class="wizard-search-input" type="search" autocomplete="off" placeholder="Type a legend name…" value="${escAttr(state.wizard.searchQuery || "")}">
+        </div>
+        <div class="wizard-grid tile-grid wizard-pick-grid">${cardsHtml}</div>
+      </div>
+    `;
+
+    bindCardImageFallbacks(container);
+    bindFoilInteractions(container);
+
+    const searchInput = document.getElementById("wizard-legend-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (ev) => {
+        state.wizard.searchQuery = ev.target.value;
+        renderWizardLegend();
+      });
+    }
+
+    container.querySelectorAll(".select-legend-btn").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const title = btn.getAttribute("data-title");
+        setWizardOwnedQty(title, 1);
+        state.wizard.deck.legendTitle = title;
+        state.wizard.searchQuery = "";
+        loadWizardPlaylistFromStorage();
+        state.wizard.step = "champion";
+        renderWizard();
+      });
+    });
+  }
+
+  async function loadWizardChampionData() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+    container.innerHTML = `
+      <div style="text-align: center; padding: 5rem 0;">
+        <div class="loader" style="margin: 0 auto 1.5rem auto; border: 4px solid var(--bg-card); border-top: 4px solid var(--text-gold); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        <h4 style="color: var(--text-gold);">Finding Synergistic Champions...</h4>
+        <p class="muted">Querying machine learning models for top synergy with ${esc(state.wizard.deck.legendTitle)}...</p>
+      </div>
+    `;
+
+    try {
+      await refreshWizardEligibility();
+      const response = await api("/api/auto-builder/recommendations", {
+        method: "POST",
+        body: {
+          top: 24,
+          rankingMode: "collection",
+          strategyMode: "hybrid",
+          legendTitle: state.wizard.deck.legendTitle,
+          collectionOverride: state.wizard.transientCollection
+        }
+      });
+
+      state.wizard.recommendations = Array.isArray(response.recommendations) ? response.recommendations : [];
+      state.wizard.step = "champion-render";
+      renderWizard();
+    } catch (err) {
+      console.error("Error fetching recommendations:", err);
+      state.wizard.recommendations = [];
+      state.wizard.step = "champion-render";
+      renderWizard();
+    }
+  }
+
+  function renderWizardChampionRender() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+
+    const suggestedChampionMap = {};
+    state.wizard.recommendations.forEach((rec) => {
+      const champ = rec.deck && rec.deck.chosenChampionTitle;
+      if (champ) {
+        if (!suggestedChampionMap[champ]) {
+          suggestedChampionMap[champ] = {
+            title: champ,
+            count: 0,
+            bestScore: 0,
+            card: lookupCard(champ)
+          };
+        }
+        suggestedChampionMap[champ].count++;
+        suggestedChampionMap[champ].bestScore = Math.max(suggestedChampionMap[champ].bestScore, rec.competitiveScore || 0);
+      }
+    });
+
+    const legalTitles = new Set(wizardLegalChampionCards().map((c) => canonicalTitle(c.title)));
+    const suggestedChampions = Object.values(suggestedChampionMap)
+      .filter((item) => legalTitles.has(canonicalTitle(item.title)))
+      .sort((a, b) => b.count - a.count || b.bestScore - a.bestScore);
+    const suggestedTitles = new Set(suggestedChampions.map((c) => canonicalTitle(c.title)));
+
+    const otherChampions = wizardLegalChampionCards().filter((c) => !suggestedTitles.has(canonicalTitle(c.title)));
+
+    const query = (state.wizard.searchQuery || "").trim().toLowerCase();
+
+    const filterFn = c => c.title.toLowerCase().includes(query);
+    const filteredSuggested = suggestedChampions.filter(c => c.title.toLowerCase().includes(query));
+    const filteredOthers = otherChampions.filter(filterFn);
+
+    let suggestedHtml = "";
+    if (filteredSuggested.length > 0) {
+      filteredSuggested.forEach(item => {
+        const title = item.title;
+        const card = item.card || lookupCard(title);
+        const actions = `<button type="button" class="card-action-btn select-champion-btn" data-title="${escAttr(title)}">Select Champion</button>`;
+
+        suggestedHtml += tileHtml({
+          title: title,
+          imageUrl: card ? card.imageUrl : "",
+          meta: card ? cardMetaLine(card) : "",
+          stats: card ? cardStatsLine(card) : "",
+          rarity: card ? card.rarity : "",
+          badge: "Synergistic",
+          badgeClass: "badge-gold",
+          actions: actions,
+          extraClass: "wizard-pick-card",
+          disablePreview: true
+        });
+      });
+    }
+
+    let othersHtml = "";
+    if (filteredOthers.length > 0) {
+      filteredOthers.forEach(card => {
+        const title = card.title;
+        const actions = `<button type="button" class="card-action-btn select-champion-btn" data-title="${escAttr(title)}">Select Champion</button>`;
+
+        othersHtml += tileHtml({
+          title: title,
+          imageUrl: card.imageUrl,
+          meta: cardMetaLine(card),
+          stats: cardStatsLine(card),
+          rarity: card.rarity,
+          actions: actions,
+          extraClass: "wizard-pick-card",
+          disablePreview: true
+        });
+      });
+    }
+
+    container.innerHTML = `
+      <div class="wizard-step-pane">
+        <div class="wizard-step-head">
+          <div>
+            <h3 class="wizard-step-title">Step 2 — Chosen Champion</h3>
+            <p class="muted">Only champions legal for ${esc(state.wizard.deck.legendTitle || "this legend")} are listed. ML suggestions appear first.</p>
+          </div>
+        </div>
+        <div class="wizard-filter-bar">
+          <label class="wizard-filter-label" for="wizard-champion-search">Search champions</label>
+          <input id="wizard-champion-search" class="wizard-search-input" type="search" autocomplete="off" placeholder="Type a champion name…" value="${escAttr(state.wizard.searchQuery || "")}">
+        </div>
+
+        ${filteredSuggested.length > 0 ? `
+          <div class="wizard-champion-section">
+            <h4 class="wizard-deck-group-title">Suggested Champions</h4>
+            <div class="wizard-grid tile-grid wizard-pick-grid">${suggestedHtml}</div>
+          </div>
+        ` : ""}
+
+        <div class="wizard-champion-section">
+          <h4 class="wizard-deck-group-title">Legal Champions</h4>
+          <div class="wizard-grid tile-grid wizard-pick-grid">
+            ${othersHtml || `<div class="wizard-grid-empty muted">No other legal champions match "${esc(state.wizard.searchQuery)}".</div>`}
+          </div>
+        </div>
+      </div>
+    `;
+
+    bindCardImageFallbacks(container);
+    bindFoilInteractions(container);
+
+    const searchInput = document.getElementById("wizard-champion-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (ev) => {
+        state.wizard.searchQuery = ev.target.value;
+        renderWizardChampionRender();
+      });
+    }
+
+    container.querySelectorAll(".select-champion-btn").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const title = btn.getAttribute("data-title");
+        setWizardOwnedQty(title, 1);
+        state.wizard.deck.chosenChampionTitle = title;
+
+        let template = null;
+        const match = state.wizard.recommendations.find(rec => rec.deck && rec.deck.chosenChampionTitle === title);
+        if (match) {
+          template = match.deck;
+        }
+
+        if (template) {
+          state.wizard.deck = JSON.parse(JSON.stringify(template));
+          state.wizard.targetDeck = JSON.parse(JSON.stringify(template));
+          state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(template));
+          beginWizardDeckbuildingIteration();
+          loadWizardPlaylistFromStorage();
+          state.wizard.step = "deckbuilding";
+          state.wizard.searchQuery = "";
+          renderWizard();
+        } else {
+          void withBusy(btn, "Loading template...", async () => {
+            try {
+              const resp = await api("/api/auto-builder/recommendations", {
+                method: "POST",
+                body: {
+                  top: 3,
+                  rankingMode: "collection",
+                  strategyMode: "hybrid",
+                  legendTitle: state.wizard.deck.legendTitle,
+                  chosenChampionTitle: title,
+                  collectionOverride: state.wizard.transientCollection
+                }
+              });
+              const recs = Array.isArray(resp.recommendations) ? resp.recommendations : [];
+              const found = recs.find(rec => rec.deck);
+              if (found) {
+                state.wizard.deck = JSON.parse(JSON.stringify(found.deck));
+                state.wizard.targetDeck = JSON.parse(JSON.stringify(found.deck));
+                state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(found.deck));
+              } else {
+                state.wizard.deck.chosenChampionTitle = title;
+                state.wizard.targetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
+                state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
+              }
+              beginWizardDeckbuildingIteration();
+              loadWizardPlaylistFromStorage();
+              state.wizard.step = "deckbuilding";
+              state.wizard.searchQuery = "";
+              renderWizard();
+            } catch (e) {
+              console.error("Failed to load champion template:", e);
+              setStatus("Could not load deck template for this champion.", true);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  function renderWizardDeckbuilding(options) {
+    const opts = options || {};
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+
+    const scrollEl = container.querySelector(".wizard-checklist-groups");
+    const savedScroll = opts.preserveChecklistScroll && scrollEl ? scrollEl.scrollTop : null;
+
+    seedWizardTransientFromDeck();
+    state.wizard.deck = capWizardDeckMainCopies(state.wizard.deck);
+    const deck = state.wizard.deck;
+
+    const appendGroup = (rows, label) => {
+      if (!rows.length) return "";
+      return `<div class="wizard-checklist-group"><h4 class="wizard-deck-group-title">${esc(label)}</h4>${rows.join("")}</div>`;
+    };
+
+    let checklistHtml = "";
+
+    if (deck.legendTitle) {
+      checklistHtml += appendGroup([wizardChecklistRowHtml(deck.legendTitle, 1, { allowStepper: false })], "Legend");
+    }
+
+    if (deck.chosenChampionTitle) {
+      checklistHtml += appendGroup([wizardChecklistRowHtml(deck.chosenChampionTitle, 1)], "Chosen Champion");
+    }
+
+    const runes = deck.runes || {};
+    const runesKeys = Object.keys(runes).filter(Boolean).sort((a, b) => compareTitlesByCatalogOrder(a, b));
+    if (runesKeys.length > 0) {
+      checklistHtml += appendGroup(
+        runesKeys.map((title) => wizardChecklistRowHtml(title, runes[title], { allowStepper: false, assumeOwned: true })),
+        "Runes"
+      );
+    }
+
+    const battlefieldCounts = {};
+    (deck.battlefields || []).forEach((title) => {
+      if (title) battlefieldCounts[title] = (battlefieldCounts[title] || 0) + 1;
+    });
+    const bfKeys = Object.keys(battlefieldCounts).sort((a, b) => compareTitlesByCatalogOrder(a, b));
+    if (bfKeys.length > 0) {
+      checklistHtml += appendGroup(bfKeys.map((title) => wizardChecklistRowHtml(title, battlefieldCounts[title])), "Battlefields");
+    }
+
+    const main = deck.main || {};
+    const mainKeys = Object.keys(main)
+      .filter((title) => {
+        const key = canonicalTitle(title);
+        return key && key !== canonicalTitle(deck.legendTitle) && key !== canonicalTitle(deck.chosenChampionTitle);
+      })
+      .sort((a, b) => compareTitlesByCatalogOrder(a, b));
+    if (mainKeys.length > 0) {
+      checklistHtml += appendGroup(mainKeys.map((title) => wizardChecklistRowHtml(title, main[title])), "Main Deck");
+    }
+
+    const sideboard = deck.sideboard || {};
+    const sbKeys = Object.keys(sideboard).filter(Boolean).sort((a, b) => compareTitlesByCatalogOrder(a, b));
+    if (sbKeys.length > 0) {
+      checklistHtml += appendGroup(sbKeys.map((title) => wizardChecklistRowHtml(title, sideboard[title])), "Sideboard");
+    }
+
+    let replacementsHtml = "";
+    if (state.wizard.activeReplacementLoading) {
+      replacementsHtml = `
+        <div style="text-align: center; padding: 2rem 0;">
+          <div class="loader" style="margin: 0 auto 1rem auto; border: 3px solid var(--bg-card); border-top: 3px solid var(--text-gold); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite;"></div>
+          <p class="muted" style="font-size: 0.9rem;">Analyzing replacement candidates...</p>
+        </div>
+      `;
+    } else if (!state.wizard.activeReplacementOptions || state.wizard.activeReplacementOptions.length === 0) {
+      const notice = state.wizard.activeReplacementNotice || "No legal owned-card replacements found for this card.";
+      replacementsHtml = `<div class="muted" style="padding: 1rem 0; text-align: center;">${esc(notice)}</div>`;
+    } else {
+      state.wizard.activeReplacementOptions.slice(0, 5).forEach((opt, optionIndex) => {
+        if (opt && opt.cluster) {
+          const addedRows = (opt.added || []).map((row) => `${row.qty || 0}x ${row.card || ""}`).filter(Boolean).join(", ");
+          const removedRows = (opt.removed || []).map((row) => `${row.qty || 0}x ${row.card || ""}`).filter(Boolean).join(", ");
+          const matchScore = opt.score ? `${Math.round(opt.score * 100)}% owned` : "";
+          const reason = opt.reason ? String(opt.reason) : "Legal owned-card replacement cluster";
+          replacementsHtml += `
+            <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                <span style="font-weight: bold; color: var(--text-gold);">Replacement cluster</span>
+                <span style="font-size: 0.8rem; background: rgba(74, 222, 128, 0.15); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); padding: 0.1rem 0.3rem; border-radius: 3px;">Legal</span>
+              </div>
+              <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+                <span style="color: var(--text-gold); font-weight: 500;">${esc(matchScore)}</span>
+                <span class="muted" style="font-size: 0.75rem;">Source: ${esc(opt.source || "owned-solver")}</span>
+              </div>
+              <div style="font-size: 0.8rem; line-height: 1.35;" class="muted">${esc(reason)}</div>
+              ${removedRows ? `<div style="font-size: 0.78rem;" class="muted">Out: ${esc(removedRows)}</div>` : ""}
+              ${addedRows ? `<div style="font-size: 0.78rem;">In: ${esc(addedRows)}</div>` : ""}
+              <button type="button" class="wizard-apply-cluster-btn primary" data-cluster-index="${escAttr(optionIndex)}" style="padding: 0.35rem; font-size: 0.8rem; width: 100%;">
+                Apply Cluster
+              </button>
+            </div>
+          `;
+          return;
+        }
+        const title = opt.card;
+        const info = lookupCard(title);
+        const owned = getWizardOwnedQty(title);
+        const hasIt = owned > 0;
+        const matchScore = opt.score ? `${Math.round(opt.score * 100)}% match` : "";
+        const reason = opt.reason ? String(opt.reason) : "";
+
+        const previewAttrs = info ? `
+          data-preview-title="${escAttr(title)}"
+          data-preview-image="${escAttr(info.imageUrl || "")}"
+          data-preview-meta="${escAttr(cardMetaLine(info))}"
+          data-preview-stats="${escAttr(cardStatsLine(info))}"
+          data-preview-fallback="${escAttr(initials(title))}"
+        ` : "";
+
+        replacementsHtml += `
+          <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+              <span class="wizard-card-link" ${previewAttrs} style="font-weight: bold; text-decoration: underline; cursor: help; color: var(--text-gold);">${esc(title)}</span>
+              <span style="font-size: 0.8rem; background: ${hasIt ? 'rgba(74, 222, 128, 0.15)' : 'rgba(234, 179, 8, 0.15)'}; color: ${hasIt ? '#4ade80' : '#eab308'}; border: 1px solid ${hasIt ? 'rgba(74, 222, 128, 0.3)' : 'rgba(234, 179, 8, 0.3)'}; padding: 0.1rem 0.3rem; border-radius: 3px;">
+                ${hasIt ? 'Owned' : 'Need'}
+              </span>
+            </div>
+            <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem; justify-content: space-between;">
+              <span style="color: var(--text-gold); font-weight: 500;">${esc(matchScore)}</span>
+              <span class="muted" style="font-size: 0.75rem;">Source: ${esc(opt.source || 'hybrid')}</span>
+            </div>
+            ${reason ? `<div style="font-size: 0.8rem; line-height: 1.3;" class="muted">${esc(reason)}</div>` : ""}
+            <button type="button" class="wizard-swap-btn primary" data-original="${escAttr(state.wizard.activeReplacementCard)}" data-replace="${escAttr(title)}" style="padding: 0.35rem; font-size: 0.8rem; width: 100%;">
+              Swap Card 🪄
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    const finalizeReady = canFinalizeWizard();
+    const mainInventory = wizardMainInventoryMetrics();
+    const mainInventoryPct = Math.round(mainInventory.completionPct);
+    const physicalMode = Boolean(state.wizard.physicalChecklistMode);
+    let inspectorHtml = "";
+    if (!state.wizard.activeReplacementCard) {
+      inspectorHtml = `
+        <div class="wizard-inspector-empty wizard-inspector-refine">
+          <div class="wizard-inspector-empty-icon">◇</div>
+          <h4>Iterative build</h4>
+          <p class="muted">
+            Mark what you own, then refine. The model rebuilds toward the strongest legal deck your collection can support and saves upgrade ideas for later.
+          </p>
+          <div class="wizard-inspector-actions">
+            <button id="wizard-refine-deck-btn" type="button" class="card-action-btn primary">Refine for my collection</button>
+            ${finalizeReady ? `<button id="wizard-finalize-deck-btn" type="button" class="card-action-btn">Finalize strongest deck</button>` : ""}
+          </div>
+          <div class="wizard-playlist-panel">
+            <h4 class="wizard-playlist-title">Saved upgrade ideas</h4>
+            ${wizardPlaylistPanelHtml()}
+          </div>
+        </div>
+      `;
+    } else {
+      const activeCard = state.wizard.activeReplacementCard;
+      const info = lookupCard(activeCard);
+      const activeCardMeta = info ? cardMetaLine(info) : "Unknown Card Type";
+      const activeCardEffect = info ? info.effect || "No effect text." : "No description available.";
+
+      inspectorHtml = `
+        <div class="wizard-active-inspector">
+          <div class="wizard-inspector-title-row">
+            <h4 class="wizard-inspector-name">Replacements</h4>
+            <button id="wizard-clear-inspector-btn" type="button" class="card-action-btn secondary">Close</button>
+          </div>
+          <div class="wizard-inspector-card-detail">
+            <div class="wizard-inspector-name">${esc(activeCard)}</div>
+            <div class="wizard-inspector-meta">${esc(activeCardMeta)}</div>
+            <p class="wizard-inspector-text">${esc(activeCardEffect)}</p>
+          </div>
+          <div class="wizard-replacements-section">
+            <h4>Synergistic options</h4>
+            <div class="wizard-replacements-list">${replacementsHtml}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="wizard-workspace-layout wizard-deckbuilding-layout">
+        <div class="wizard-deck-column wizard-deck-checklist">
+          <div class="worktable-row-head">
+            <h3>Guided Deck Checklist</h3>
+          </div>
+          ${wizardIterationBannerHtml()}
+          <div class="wizard-checklist-toolbar">
+            <div class="wizard-checklist-progress">
+              <span class="wizard-checklist-progress-label">Main deck found</span>
+              <strong>${esc(mainInventory.owned)} / ${esc(mainInventory.required)}</strong>
+              <span class="wizard-checklist-progress-pct">${esc(mainInventoryPct)}%</span>
+            </div>
+            <label class="wizard-physical-toggle">
+              <input id="wizard-physical-check-toggle" type="checkbox"${physicalMode ? " checked" : ""}>
+              <span class="wizard-physical-toggle-ui" aria-hidden="true"></span>
+              <span class="wizard-physical-toggle-copy">
+                <strong>Physical check</strong>
+                <small>Set main deck to zero, then add cards as you find them.</small>
+              </span>
+            </label>
+          </div>
+          <div class="wizard-checklist-groups">${checklistHtml}</div>
+        </div>
+        <div class="wizard-help-column wizard-inspector-panel">${inspectorHtml}</div>
+      </div>
+    `;
+
+    bindPreviewInteractions(container);
+    bindCardImageFallbacks(container);
+
+    if (savedScroll !== null) {
+      requestAnimationFrame(() => {
+        const el = container.querySelector(".wizard-checklist-groups");
+        if (el) el.scrollTop = savedScroll;
+      });
+    }
+
+    const physicalToggle = document.getElementById("wizard-physical-check-toggle");
+    if (physicalToggle) {
+      physicalToggle.addEventListener("change", () => {
+        const enabled = Boolean(physicalToggle.checked);
+        state.wizard.physicalChecklistMode = enabled;
+        applyWizardPhysicalChecklistMode(enabled);
+        state.wizard.activeReplacementCard = null;
+        state.wizard.activeReplacementOptions = [];
+        state.wizard.activeReplacementNotice = "";
+        renderWizardPreservingChecklistScroll();
+        setStatus(enabled ? "Main deck marked missing for physical checking." : "Main deck ownership restored.", false);
+      });
+    }
+
+    const requiredQtyForTitle = (title) => {
+      const key = canonicalTitle(title);
+      const d = state.wizard.deck;
+      if (key === canonicalTitle(d.legendTitle)) return 1;
+      if (key === canonicalTitle(d.chosenChampionTitle)) return 1;
+      if (d.main && d.main[title] !== undefined) return Math.max(0, Number(d.main[title] || 0) || 0);
+      if (d.runes && d.runes[title] !== undefined) return Math.max(0, Number(d.runes[title] || 0) || 0);
+      if (d.sideboard && d.sideboard[title] !== undefined) return Math.max(0, Number(d.sideboard[title] || 0) || 0);
+      let bfCount = 0;
+      (d.battlefields || []).forEach((bf) => {
+        if (canonicalTitle(bf) === key) bfCount += 1;
+      });
+      return bfCount;
+    };
+
+    container.querySelectorAll(".wizard-owned-inc").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const title = btn.getAttribute("data-title");
+        const required = requiredQtyForTitle(title);
+        const next = Math.min(required, getWizardOwnedQty(title, required) + 1);
+        setWizardOwnedQty(title, next);
+        if (getWizardMissingCount(title, required) > 0 && !state.wizard.activeReplacementCard) {
+          void selectWizardCardForInspector(title);
+        } else {
+          renderWizardPreservingChecklistScroll();
+        }
+      });
+    });
+
+    container.querySelectorAll(".wizard-owned-dec").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const title = btn.getAttribute("data-title");
+        const required = requiredQtyForTitle(title);
+        const next = Math.max(0, getWizardOwnedQty(title, required) - 1);
+        setWizardOwnedQty(title, next);
+        if (getWizardMissingCount(title, required) > 0) {
+          void selectWizardCardForInspector(title);
+        } else if (canonicalTitle(state.wizard.activeReplacementCard || "") === canonicalTitle(title)) {
+          state.wizard.activeReplacementCard = null;
+          state.wizard.activeReplacementOptions = [];
+          state.wizard.activeReplacementNotice = "";
+          renderWizardPreservingChecklistScroll();
+        } else {
+          renderWizardPreservingChecklistScroll();
+        }
+      });
+    });
+
+    container.querySelectorAll(".wizard-find-repl-btn").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        void selectWizardCardForInspector(btn.getAttribute("data-title"));
+      });
+    });
+
+    container.querySelectorAll(".wizard-checklist-row").forEach((row) => {
+      row.addEventListener("click", (ev) => {
+        if (ev.target.closest("button")) return;
+        const title = row.getAttribute("data-title");
+        const required = requiredQtyForTitle(title);
+        if (getWizardMissingCount(title, required) > 0) {
+          void selectWizardCardForInspector(title);
+        }
+      });
+    });
+
+    const clearBtn = document.getElementById("wizard-clear-inspector-btn");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        state.wizard.activeReplacementCard = null;
+        state.wizard.activeReplacementOptions = [];
+        state.wizard.activeReplacementNotice = "";
+        renderWizardPreservingChecklistScroll();
+      });
+    }
+
+    container.querySelectorAll(".wizard-swap-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const original = btn.getAttribute("data-original");
+        const replace = btn.getAttribute("data-replace");
+        void performWizardSwap(original, replace);
+      });
+    });
+
+    container.querySelectorAll(".wizard-apply-cluster-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const index = Math.max(0, Number(btn.getAttribute("data-cluster-index") || 0) || 0);
+        void performWizardClusterApply(index);
+      });
+    });
+
+    const refineBtn = document.getElementById("wizard-refine-deck-btn");
+    if (refineBtn) {
+      refineBtn.addEventListener("click", () => {
+        void withBusy(refineBtn, "Refining...", () => runWizardRefinement());
+      });
+    }
+
+    const finalizeBtn = document.getElementById("wizard-finalize-deck-btn");
+    if (finalizeBtn) {
+      finalizeBtn.addEventListener("click", () => {
+        void finalizeWizardDeck();
+      });
+    }
+  }
+
+  function seedWizardTransientFromDeck() {
+    const deck = state.wizard.deck;
+    const seed = (title, required) => {
+      const clean = canonicalTitle(title);
+      if (!clean || required <= 0) return;
+      if (state.wizard.transientCollection[clean] !== undefined) return;
+      if (!state.wizard.collectionAgnostic && state.collection && state.collection[clean] !== undefined) {
+        state.wizard.transientCollection[clean] = Math.max(0, Number(state.collection[clean] || 0) || 0);
+      } else if (state.wizard.collectionAgnostic) {
+        state.wizard.transientCollection[clean] = Math.max(0, Number(required || 0) || 0);
+      } else {
+        state.wizard.transientCollection[clean] = 0;
+      }
+    };
+    seed(deck.legendTitle, 1);
+    seed(deck.chosenChampionTitle, 1);
+    Object.entries(deck.main || {}).forEach(([title, qty]) => seed(title, qty));
+    Object.entries(deck.runes || {}).forEach(([title, qty]) => {
+      const clean = canonicalTitle(title);
+      if (!clean || qty <= 0) return;
+      const required = Math.max(0, Number(qty || 0) || 0);
+      state.wizard.transientCollection[clean] = Math.max(
+        required,
+        Number(state.wizard.transientCollection[clean] || 0) || 0,
+        12
+      );
+    });
+    Object.entries(deck.sideboard || {}).forEach(([title, qty]) => seed(title, qty));
+    const bfCounts = {};
+    (deck.battlefields || []).forEach((title) => {
+      if (!title) return;
+      bfCounts[title] = (bfCounts[title] || 0) + 1;
+    });
+    Object.entries(bfCounts).forEach(([title, qty]) => seed(title, qty));
+  }
+
+  async function selectWizardCardForInspector(cardTitle) {
+    state.wizard.activeReplacementCard = cardTitle;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementLoading = true;
+    state.wizard.activeReplacementNotice = "";
+    renderWizardPreservingChecklistScroll();
+
+    try {
+      const tempCollection = wizardEffectiveCollection();
+      tempCollection[canonicalTitle(cardTitle)] = getWizardOwnedQty(cardTitle);
+
+      const deck = capWizardDeckMainCopies(state.wizard.deck);
+      const legend = String(deck.legendTitle || "").trim();
+      const champion = String(deck.chosenChampionTitle || "").trim();
+      const [completeResult, solveResult] = await Promise.allSettled([
+        api("/api/auto-builder/complete", {
+          method: "POST",
+          body: {
+            deck,
+            rankingMode: "collection",
+            strategyMode: "hybrid",
+            collectionOverride: tempCollection
+          }
+        }),
+        api("/api/wizard/solve", {
+          method: "POST",
+          body: {
+            legendTitle: legend,
+            chosenChampionTitle: champion,
+            format: state.wizard.format || deck.format || "constructed",
+            owned: tempCollection,
+            referenceDeck: state.wizard.optimalTargetDeck || state.wizard.targetDeck || deck,
+            currentDeck: deck,
+            mode: "owned_only",
+            maxIterations: 1
+          }
+        })
+      ]);
+
+      const response = completeResult.status === "fulfilled" ? completeResult.value : {};
+      if (completeResult.status === "rejected") {
+        console.warn("Single-card replacement plan failed:", completeResult.reason);
+      }
+
+      const plan = Array.isArray(response.replacementPlan) ? response.replacementPlan : [];
+      const match = plan.find(p => canonicalTitle(p.card) === canonicalTitle(cardTitle));
+      const options = match && Array.isArray(match.options) ? match.options : [];
+      const validOptions = await Promise.all(options.slice(0, 8).map(async (opt) => {
+        const replacement = canonicalTitle(opt && opt.card);
+        if (!replacement) return null;
+        const original = canonicalTitle(cardTitle);
+        const qty = Math.max(0, Number((state.wizard.deck.main || {})[original] || 0) || 0);
+        if (qty > 0) {
+          const afterQty = Math.min(qty, getWizardOwnedQty(replacement, qty), wizardMainCopyCapForTitle(replacement));
+          if (afterQty < qty) return null;
+        }
+        const candidate = buildWizardSwapCandidate(original, replacement);
+        const validation = await validateWizardDeckPayload(candidate);
+        return validation && validation.is_valid ? opt : null;
+      }));
+
+      const solveResponse = solveResult.status === "fulfilled" ? solveResult.value : null;
+      if (solveResult.status === "rejected") {
+        console.warn("Owned-card replacement cluster failed:", solveResult.reason);
+      }
+      const cardKey = canonicalTitle(cardTitle);
+      const clusters = solveResponse && Array.isArray(solveResponse.replacementClusters)
+        ? solveResponse.replacementClusters
+        : [];
+      const clusterOptions = clusters
+        .filter((cluster) => {
+          if (!cluster || cluster.legal === false || !solveResponse.deck) return false;
+          return (cluster.removed || []).some((row) => canonicalTitle(row && row.card) === cardKey);
+        })
+        .map((cluster) => ({
+          cluster: true,
+          card: "Replacement cluster",
+          source: cluster.source || "owned-solver",
+          reason: cluster.reason || "Legal owned-card replacement cluster",
+          score: Number(cluster.score || ((solveResponse.metrics && solveResponse.metrics.completionPct) || 0) / 100) || 0,
+          removed: cluster.removed || [],
+          added: cluster.added || [],
+          diff: cluster.diff || solveResponse.diff || null,
+          deck: solveResponse.deck,
+          validation: solveResponse.validation || null,
+          solverStatus: solveResponse.solverStatus || ""
+        }));
+
+      state.wizard.activeReplacementOptions = validOptions.filter(Boolean).concat(clusterOptions);
+      if (!state.wizard.activeReplacementOptions.length) {
+        const status = solveResponse && String(solveResponse.solverStatus || "").trim();
+        state.wizard.activeReplacementNotice = status === "infeasible_owned_only"
+          ? "No legal owned-card cluster is available from the collection data the wizard has. Add owned cards to your collection or save the missing cards as upgrade ideas."
+          : "No legal single-card or owned-card cluster replacement found for this card.";
+      }
+    } catch (e) {
+      console.error("Failed to load replacements:", e);
+      state.wizard.activeReplacementOptions = [];
+      state.wizard.activeReplacementNotice = "Could not load legal replacements for this card.";
+    } finally {
+      state.wizard.activeReplacementLoading = false;
+      renderWizardPreservingChecklistScroll();
+    }
+  }
+
+  async function performWizardSwap(originalCard, replacementCard) {
+    const candidate = buildWizardSwapCandidate(originalCard, replacementCard);
+    const validation = await validateWizardDeckPayload(candidate);
+    if (!validation || !validation.is_valid) {
+      const firstIssue = validation && Array.isArray(validation.issues) && validation.issues[0]
+        ? validation.issues[0].code
+        : "VALIDATION";
+      setStatus(`Swap blocked: ${firstIssue}.`, true);
+      state.wizard.lastRefinement = {
+        ...(state.wizard.lastRefinement || {}),
+        validation,
+        message: `Swap blocked because it would make the deck illegal (${firstIssue}).`
+      };
+      renderWizardPreservingChecklistScroll();
+      return;
+    }
+
+    state.wizard.deck = candidate;
+    state.wizard.decisions.push({
+      original: canonicalTitle(originalCard),
+      replacedWith: canonicalTitle(replacementCard)
+    });
+    state.wizard.lastRefinement = {
+      ...(state.wizard.lastRefinement || {}),
+      validation,
+      diff: null,
+      message: `Swapped "${canonicalTitle(originalCard)}" with "${canonicalTitle(replacementCard)}" and kept the deck legal.`
+    };
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementNotice = "";
+
+    renderWizardPreservingChecklistScroll();
+    setStatus(`Swapped "${canonicalTitle(originalCard)}" with "${canonicalTitle(replacementCard)}".`, false);
+  }
+
+  async function performWizardClusterApply(optionIndex) {
+    const option = (state.wizard.activeReplacementOptions || [])[optionIndex];
+    if (!option || !option.cluster || !option.deck) {
+      setStatus("Replacement cluster is no longer available.", true);
+      return;
+    }
+
+    const candidate = capWizardDeckMainCopies(option.deck);
+    candidate.name = state.wizard.deck.name || candidate.name;
+    candidate.source = "wizard";
+    candidate.format = state.wizard.format || candidate.format || "constructed";
+    const validation = await validateWizardDeckPayload(candidate);
+    if (!validation || !validation.is_valid) {
+      const firstIssue = validation && Array.isArray(validation.issues) && validation.issues[0]
+        ? validation.issues[0].code
+        : "VALIDATION";
+      setStatus(`Replacement cluster blocked: ${firstIssue}.`, true);
+      state.wizard.lastRefinement = {
+        ...(state.wizard.lastRefinement || {}),
+        validation,
+        message: `Replacement cluster blocked because it would make the deck illegal (${firstIssue}).`
+      };
+      renderWizardPreservingChecklistScroll();
+      return;
+    }
+
+    const beforeMetrics = wizardDeckBuildMetrics(state.wizard.deck);
+    state.wizard.deck = candidate;
+    const afterMetrics = wizardDeckBuildMetrics(candidate);
+    state.wizard.iteration = wizardNextIterationNumber();
+    state.wizard.decisions.push({
+      original: canonicalTitle(state.wizard.activeReplacementCard || ""),
+      replacementCluster: (option.added || []).map((row) => ({ card: canonicalTitle(row.card), qty: Math.max(0, Number(row.qty || 0) || 0) }))
+    });
+    state.wizard.lastRefinement = {
+      ...(state.wizard.lastRefinement || {}),
+      deckChanged: true,
+      buildablePct: afterMetrics.completionPct,
+      isBuildable: afterMetrics.isBuildable,
+      solverStatus: option.solverStatus || "feasible",
+      validation,
+      diff: option.diff || null,
+      replacementClusters: [option],
+      message: `Applied a legal owned-card replacement cluster at ${Math.round(afterMetrics.completionPct)}% collection match.`
+    };
+    state.wizard.iterationHistory.push({
+      iteration: state.wizard.iteration,
+      beforeCompletionPct: beforeMetrics.completionPct,
+      afterCompletionPct: afterMetrics.completionPct,
+      deckChanged: true,
+      isBuildable: afterMetrics.isBuildable,
+      solverStatus: option.solverStatus || "feasible"
+    });
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementNotice = "";
+
+    renderWizardPreservingChecklistScroll();
+    setStatus(state.wizard.lastRefinement.message, false);
+  }
+
+  function performWizardSwapLegacy(originalCard, replacementCard) {
+    void performWizardSwap(originalCard, replacementCard);
+  }
+
+  async function loadWizardCompleteData() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+    container.innerHTML = `
+      <div style="text-align: center; padding: 5rem 0;">
+        <div class="loader" style="margin: 0 auto 1.5rem auto; border: 4px solid var(--bg-card); border-top: 4px solid var(--text-gold); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
+        <h4 style="color: var(--text-gold);">Wrapping up your strongest build...</h4>
+        <p class="muted">Scoring your deck and preparing save options.</p>
+      </div>
+    `;
+
+    try {
+      const currentAnalysis = await api("/api/decks/analyze", {
+        method: "POST",
+        body: {
+          deck: state.wizard.deck,
+          collectionOverride: state.wizard.transientCollection
+        }
+      });
+
+      const completeRes = await api("/api/auto-builder/complete", {
+        method: "POST",
+        body: {
+          deck: state.wizard.deck,
+          rankingMode: "collection",
+          strategyMode: "hybrid",
+          collectionOverride: state.wizard.transientCollection
+        }
+      });
+
+      let targetScore = 0.85;
+      if (state.wizard.targetDeck) {
+        const match = state.wizard.recommendations.find(rec => rec.deck && rec.deck.chosenChampionTitle === state.wizard.targetDeck.chosenChampionTitle);
+        if (match) {
+          targetScore = match.competitiveScore || 0.85;
+        }
+      }
+
+      const currentScore = (completeRes.bestCandidate && completeRes.bestCandidate.competitiveScore) || targetScore - 0.1;
+
+      const buildMetrics = wizardDeckBuildMetrics(state.wizard.deck);
+      state.wizard.completeData = {
+        analysis: currentAnalysis.analysis || {},
+        targetScore: targetScore,
+        currentScore: currentScore,
+        iteration: state.wizard.iteration,
+        iterationHistory: state.wizard.iterationHistory || [],
+        buildMetrics,
+        playlist: state.wizard.savedRecommendations || []
+      };
+
+      state.wizard.step = "complete-render";
+      renderWizard();
+    } catch (err) {
+      console.error("Error loading complete step data:", err);
+      setStatus("Could not load acquisition details.", true);
+      state.wizard.completeData = {
+        analysis: {},
+        targetScore: 0.85,
+        currentScore: 0.80
+      };
+      state.wizard.step = "complete-render";
+      renderWizard();
+    }
+  }
+
+  function renderWizardComplete() {
+    const container = document.getElementById("wizard-container");
+    if (!container) return;
+
+    const data = state.wizard.completeData;
+    const analysis = data.analysis || {};
+    const missing = analysis.missing_cards || [];
+    const estCost = analysis.estimated_completion_cost;
+    const currentScore = data.currentScore || 0.8;
+    const targetScore = data.targetScore || 0.85;
+    const buildMetrics = data.buildMetrics || wizardDeckBuildMetrics(state.wizard.deck);
+    const passCount = Array.isArray(data.iterationHistory) ? data.iterationHistory.length : Math.max(0, wizardVisibleIteration() - 1);
+
+    let iterationSummaryHtml = `
+      <div class="wizard-complete-summary">
+        <h4>Build summary</h4>
+        <p class="muted">Completed after <strong>${esc(String(passCount))}</strong> refinement pass${passCount === 1 ? "" : "es"} for <strong>${esc(state.wizard.deck.legendTitle || "your legend")}</strong>.</p>
+        <p><span class="wizard-iteration-pct${buildMetrics.isBuildable ? " is-complete" : ""}">${Math.round(buildMetrics.completionPct)}% collection match</span>${buildMetrics.isBuildable ? " · fully buildable from owned cards" : ""}</p>
+      </div>
+    `;
+
+    let playlistHtml = `
+      <div class="wizard-complete-playlist">
+        <h4 style="color: var(--text-gold); margin-top: 0;">Saved upgrade ideas</h4>
+        <p class="muted" style="font-size: 0.9rem; line-height: 1.45;">Kept for future refinement — acquire these over time to push closer to the original optimal list.</p>
+        ${wizardPlaylistPanelHtml()}
+      </div>
+    `;
+
+    let shoppingListHtml = "";
+    if (missing.length === 0) {
+      shoppingListHtml = `
+        <div style="background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); padding: 1.5rem; border-radius: 6px; text-align: center; margin-bottom: 1.5rem;">
+          <h4 style="color: #4ade80; margin-top: 0; margin-bottom: 0.5rem;">Fully owned list</h4>
+          <p class="muted" style="margin: 0;">Every card in this deck is already in your collection.</p>
+        </div>
+      `;
+    } else {
+      let itemsHtml = "";
+      missing.forEach(row => {
+        const title = row.card;
+        const info = lookupCard(title);
+        const unit = row.estimated_unit_price == null ? 0 : Number(row.estimated_unit_price);
+        const cost = row.estimated_missing_cost == null ? 0 : Number(row.estimated_missing_cost);
+        const tcgUrl = row.tcgplayer_url || "";
+
+        const previewAttrs = info ? `
+          data-preview-title="${escAttr(title)}"
+          data-preview-image="${escAttr(info.imageUrl || "")}"
+          data-preview-meta="${escAttr(cardMetaLine(info))}"
+          data-preview-stats="${escAttr(cardStatsLine(info))}"
+          data-preview-fallback="${escAttr(initials(title))}"
+        ` : "";
+
+        itemsHtml += `
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-gold); padding: 0.75rem 0; gap: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <span class="wizard-card-link" ${previewAttrs} style="font-weight: bold; text-decoration: underline; cursor: help; color: var(--text-gold);">${esc(title)}</span>
+              <span class="muted" style="font-size: 0.8rem;">Need ${row.missing} of ${row.required} (Owned ${row.owned})</span>
+            </div>
+            <div style="text-align: right; display: flex; align-items: center; gap: 1rem;">
+              <span style="font-weight: 500;">Est: $${cost.toFixed(2)} ${unit > 0 ? `($${unit.toFixed(2)} ea)` : ''}</span>
+              ${tcgUrl ? `<a class="card-action-btn primary" href="${escAttr(tcgUrl)}" target="_blank" rel="noopener noreferrer" style="padding: 0.35rem 0.75rem; text-decoration: none; font-size: 0.8rem;">Buy</a>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      shoppingListHtml = `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 1rem;">Optional acquisitions</h4>
+          <p class="muted" style="font-size: 0.9rem; margin-bottom: 1rem;">Cards still short in this finalized list (not required to keep refining).</p>
+          <div style="max-height: 300px; overflow-y: auto; padding-right: 0.5rem; margin-bottom: 1.5rem;">
+            ${itemsHtml}
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-gold); padding-top: 1rem; font-weight: bold; font-size: 1.1rem; color: var(--text-gold);">
+            <span>Estimated Total Purchase Cost:</span>
+            <span>$${(estCost || 0).toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    let tradeSuggestionsHtml = "";
+    if (state.wizard.decisions && state.wizard.decisions.length > 0) {
+      let rowsHtml = "";
+      state.wizard.decisions.forEach(dec => {
+        rowsHtml += `
+          <div style="padding: 0.5rem 0; border-bottom: 1px dashed var(--border-gold); font-size: 0.9rem; line-height: 1.4;">
+            Replaced <strong>${esc(dec.original)}</strong> with <strong>${esc(dec.replacedWith)}</strong>.
+          </div>
+        `;
+      });
+      tradeSuggestionsHtml = `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 1rem;">Trade Suggestions</h4>
+          <p class="muted" style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.4;">
+            To optimize your deck toward the original synergy template, consider trading away or trading for the following:
+          </p>
+          <div style="margin-bottom: 1rem; max-height: 200px; overflow-y: auto;">
+            ${rowsHtml}
+          </div>
+          <div style="font-size: 0.85rem; background: rgba(212, 175, 55, 0.05); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--text-gold); line-height: 1.4;">
+            <strong>Local Trade Tips:</strong> Seek local trade groups. Champions and Legends are high-value trade targets. 
+            Typical store trade-in values are 60-70% of market price, but trading directly with local players often yields 100% value-for-value swaps.
+          </div>
+        </div>
+      `;
+    } else {
+      tradeSuggestionsHtml = `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 0.5rem;">Trade Suggestions</h4>
+          <p class="muted" style="margin: 0; font-size: 0.9rem; line-height: 1.4;">
+            No card replacements were made! Your deck matches the synergy model. Trade options are not necessary unless you need to acquire the base cards in the shopping list.
+          </p>
+        </div>
+      `;
+    }
+
+    let synergyUpgradeHtml = "";
+    if (state.wizard.decisions && state.wizard.decisions.length > 0) {
+      const upgradeRows = state.wizard.decisions.map(dec => {
+        const orig = dec.original;
+        const repl = dec.replacedWith;
+        const origInfo = lookupCard(orig);
+
+        const previewAttrs = origInfo ? `
+          data-preview-title="${escAttr(orig)}"
+          data-preview-image="${escAttr(origInfo.imageUrl || "")}"
+          data-preview-meta="${escAttr(cardMetaLine(origInfo))}"
+          data-preview-stats="${escAttr(cardStatsLine(origInfo))}"
+          data-preview-fallback="${escAttr(initials(orig))}"
+        ` : "";
+
+        return `
+          <li style="margin-bottom: 0.75rem; line-height: 1.4;">
+            Revert <strong>${esc(repl)}</strong> to <span class="wizard-card-link" ${previewAttrs} style="font-weight: bold; text-decoration: underline; cursor: help; color: var(--text-gold);">${esc(orig)}</span>
+          </li>
+        `;
+      }).join("");
+
+      const improvement = Math.max(0, targetScore - currentScore);
+      const improvementText = improvement > 0
+        ? `<div style="margin-top: 1rem; color: #4ade80; font-weight: 500; font-size: 0.95rem;">🔥 Reverting swaps will boost competitive score by +${Math.round(improvement * 100)}%!</div>`
+        : "";
+
+      synergyUpgradeHtml = `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 0.5rem;">Synergy Upgrade Guide</h4>
+          <p class="muted" style="font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.4;">
+            Your custom replacements perform well, but upgrading to the original cards increases predicted deck quality.
+          </p>
+          <div style="display: flex; gap: 1rem; align-items: center; background: rgba(0, 0, 0, 0.2); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
+            <div style="flex: 1; text-align: center; border-right: 1px solid var(--border-gold);">
+              <div class="muted" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Current Custom Deck</div>
+              <div style="font-size: 1.3rem; font-weight: bold; color: var(--text-gold);">${Math.round(currentScore * 100)}%</div>
+            </div>
+            <div style="flex: 1; text-align: center;">
+              <div class="muted" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Original Target Deck</div>
+              <div style="font-size: 1.3rem; font-weight: bold; color: var(--text-gold);">${Math.round(targetScore * 100)}%</div>
+            </div>
+          </div>
+          <ul style="padding-left: 1.25rem; margin: 0;">
+            ${upgradeRows}
+          </ul>
+          ${improvementText}
+        </div>
+      `;
+    } else {
+      synergyUpgradeHtml = `
+        <div style="background: var(--bg-card); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 0.5rem;">Synergy Upgrade Guide</h4>
+          <p class="muted" style="margin: 0; font-size: 0.9rem; line-height: 1.4;">
+            Your deck is 100% matched to the synergistic target deck (Competitive rating: ${Math.round(targetScore * 100)}%). No synergy upgrades are needed!
+          </p>
+        </div>
+      `;
+    }
+
+    const defaultDeckName = `Guided ${state.wizard.deck.legendTitle || 'Wizard'} Deck`;
+    const rightPaneHtml = `
+      <div style="background: var(--bg-paper); border: 1px solid var(--border-gold); padding: 1.5rem; border-radius: 8px;">
+        <h4 style="color: var(--text-gold); margin-top: 0; margin-bottom: 1rem;">Save Deck to Library</h4>
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem;">Deck Name:</label>
+          <input id="wizard-save-name" type="text" value="${escAttr(defaultDeckName)}" style="width: 100%; padding: 0.6rem; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: 4px;">
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem;">Visibility:</label>
+          <select id="wizard-save-visibility" style="width: 100%; padding: 0.6rem; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-gold); border-radius: 4px;">
+            <option value="private">Private (Only You)</option>
+            <option value="public">Public (Meta Index)</option>
+          </select>
+        </div>
+        <button id="wizard-save-deck-btn" type="button" class="primary" style="width: 100%; padding: 1rem; font-size: 1.05rem; font-weight: bold;">
+          Save Deck 💾
+        </button>
+      </div>
+    `;
+
+    container.innerHTML = `
+      <div class="wizard-complete-pane">
+        <div style="margin-bottom: 2rem;">
+          <h3 style="color: var(--text-gold); margin-top: 0; margin-bottom: 0.5rem;">Strongest deck ready</h3>
+          <p class="muted" style="margin: 0;">Your best build for this legend with your collection. Save it to your library; upgrade ideas stay for future passes.</p>
+        </div>
+
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+          <div style="flex: 1 1 500px;">
+            ${iterationSummaryHtml}
+            ${playlistHtml}
+            ${shoppingListHtml}
+            ${tradeSuggestionsHtml}
+            ${synergyUpgradeHtml}
+          </div>
+          <div style="flex: 1 1 300px; align-self: flex-start; position: sticky; top: 1rem;">
+            ${rightPaneHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    bindPreviewInteractions(container);
+
+    const saveBtn = document.getElementById("wizard-save-deck-btn");
+    if (saveBtn) {
+      saveBtn.addEventListener("click", () => {
+        const nameInput = document.getElementById("wizard-save-name");
+        const name = nameInput ? nameInput.value.trim() : defaultDeckName;
+        const visSelect = document.getElementById("wizard-save-visibility");
+        const visibility = visSelect ? visSelect.value : "private";
+
+        void withBusy(saveBtn, "Saving Deck...", async () => {
+          try {
+            const validation = await validateWizardDeckPayload(state.wizard.deck);
+            if (!validation || !validation.is_valid) {
+              const firstIssue = validation && Array.isArray(validation.issues) && validation.issues[0]
+                ? validation.issues[0].code
+                : "VALIDATION";
+              setStatus(`Save blocked: current wizard deck is illegal (${firstIssue}).`, true);
+              return;
+            }
+            await api("/api/decks/library", {
+              method: "POST",
+              body: {
+                name: name || defaultDeckName,
+                source: "wizard",
+                bucket: "saved",
+                visibility: visibility,
+                deck: state.wizard.deck
+              }
+            });
+            await loadLibrary();
+            setStatus(`Saved guided deck: ${name || defaultDeckName}`, false);
+            setWorkspaceTab("deck");
+          } catch (e) {
+            console.error("Failed to save wizard deck:", e);
+            setStatus(e.message || "Could not save deck to library.", true);
+          }
+        });
+      });
+    }
   }
 
   async function init() {

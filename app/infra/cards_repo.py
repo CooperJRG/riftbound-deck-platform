@@ -124,6 +124,19 @@ class CardCatalog:
         card = self.get(clean)
         if card is not None:
             return card.title
+        code_key = normalize_card_key(clean)
+        if code_key:
+            coded = self.by_key.get(code_key)
+            if coded is not None:
+                return coded.title
+            import re
+
+            match = re.fullmatch(r"([a-z]{3})-r(\d{2})[a-z]?", code_key.replace(" ", ""))
+            if match:
+                prefix = normalize_card_key(f"{match.group(1).upper()}-R{match.group(2)}")
+                for key, card in self.by_key.items():
+                    if key.startswith(prefix):
+                        return card.title
         return clean
 
     def search(self, query: str, *, limit: int = 50) -> list[CardRecord]:
@@ -163,9 +176,7 @@ def load_card_catalog(path: Path) -> CardCatalog:
     known_legend_tags = list(dict.fromkeys(known_legend_tags))
     known_legend_tuple = tuple(known_legend_tags)
 
-    cards: list[CardRecord] = []
-    by_title: dict[str, CardRecord] = {}
-    by_key: dict[str, CardRecord] = {}
+    all_parsed_cards: list[CardRecord] = []
     for row in raw:
         if not isinstance(row, dict):
             continue
@@ -196,14 +207,67 @@ def load_card_catalog(path: Path) -> CardCatalog:
             flavor=str(row.get("flavor") or "").strip(),
             promo=_parse_bool(row.get("promo")),
         )
-        cards.append(card)
-        if title not in by_title:
-            by_title[title] = card
-        key = normalize_card_key(title)
-        if key and key not in by_key:
-            by_key[key] = card
+        all_parsed_cards.append(card)
 
-    return CardCatalog(cards=tuple(cards), by_title=by_title, by_key=by_key)
+    from collections import defaultdict
+    groups = defaultdict(list)
+    order = []
+    for card in all_parsed_cards:
+        key = normalize_card_key(card.title)
+        if not key:
+            continue
+        if key not in groups:
+            order.append(key)
+        groups[key].append(card)
+
+    def _select_representative_card(candidates: list[CardRecord]) -> CardRecord:
+        def sort_key(c: CardRecord):
+            promo_val = 1 if c.promo else 0
+            showcase_val = 1 if c.rarity == "Showcase" else 0
+            has_alpha = 1 if any(ch.isalpha() for ch in c.card_number) else 0
+            set_name = c.set_name or ""
+            digits = "".join(ch for ch in c.card_number if ch.isdigit())
+            num_val = int(digits) if digits else 999999
+            card_num_str = c.card_number or ""
+            return (promo_val, showcase_val, has_alpha, set_name, num_val, card_num_str)
+        return sorted(candidates, key=sort_key)[0]
+
+    reps = {}
+    for key in order:
+        reps[key] = _select_representative_card(groups[key])
+
+    cards = tuple(reps[key] for key in order)
+
+    by_title: dict[str, CardRecord] = {}
+    for key, cand_list in groups.items():
+        rep = reps[key]
+        for c in cand_list:
+            by_title[c.title] = rep
+
+    by_key: dict[str, CardRecord] = {key: reps[key] for key in order}
+    for row in raw:
+        if not isinstance(row, dict):
+            continue
+        title = str(row.get("title") or "").strip()
+        if not title:
+            continue
+        key = normalize_card_key(title)
+        if not key or key not in reps:
+            continue
+        rep = reps[key]
+        set_code = str(row.get("set") or "").split()[0].upper() if str(row.get("set") or "").strip() else ""
+        number = str(row.get("cardNumber") or row.get("card_number") or "").strip()
+        if set_code and number:
+            code_key = normalize_card_key(f"{set_code}-{number}")
+            if code_key and code_key not in by_key:
+                by_key[code_key] = rep
+        slug = str(row.get("slug") or "").strip().lower()
+        if slug:
+            slug_key = normalize_card_key(slug.replace("-", " "))
+            if slug_key and slug_key not in by_key:
+                by_key[slug_key] = rep
+
+    return CardCatalog(cards=cards, by_title=by_title, by_key=by_key)
 
 
 def card_art_url(card: CardRecord) -> str:

@@ -353,3 +353,48 @@ def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) 
         issues=issues,
         summary="Deck is valid." if not issues else f"{len(issues)} issue(s) found.",
     )
+
+
+def validate_deck_for_meta_index(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) -> DeckValidationResult:
+    """Lenient validation for imported community/meta lists (browse-only, not tournament registration)."""
+    issues: list[ValidationIssue] = []
+
+    def add_issue(code: str, field: str, message: str) -> None:
+        issues.append(ValidationIssue(code=code, field=field, message=message, rule_refs=()))
+
+    resolve_title = cards.resolve_title
+    legend_title = resolve_title(deck.legend_title)
+    main = canonicalize_titles(coerce_cards_map(deck.main), resolve_title=resolve_title)
+    runes = canonicalize_titles(coerce_cards_map(deck.runes), resolve_title=resolve_title)
+    battlefields = [resolve_title(title) for title in deck.battlefields if str(title).strip()]
+
+    main_total = sum(main.values())
+    runes_total = sum(runes.values())
+    if main_total < 30:
+        add_issue("META_MAIN_TOO_SMALL", "main", f"Main deck has too few cards ({main_total}).")
+    if main_total > 56:
+        add_issue("META_MAIN_TOO_LARGE", "main", f"Main deck has too many cards ({main_total}).")
+    if runes_total > 12:
+        add_issue("META_RUNE_TOO_LARGE", "runes", f"Rune section exceeds 12 cards ({runes_total}).")
+
+    unknown_main = 0
+    for title, qty in main.items():
+        if int(qty) <= 0:
+            continue
+        if cards.get(title) is None:
+            unknown_main += int(qty)
+    if main_total > 0 and unknown_main > max(12, int(main_total * 0.35)):
+        add_issue(
+            "META_TOO_MANY_UNKNOWN",
+            "main",
+            f"Too many unrecognized main-deck cards ({unknown_main}/{main_total}).",
+        )
+
+    if not legend_title:
+        add_issue("META_LEGEND_MISSING", "legendTitle", "Deck is missing a recognizable legend.")
+
+    return DeckValidationResult(
+        is_valid=len(issues) == 0,
+        issues=issues,
+        summary="Deck is valid for meta browse." if not issues else f"{len(issues)} issue(s) found.",
+    )

@@ -4,6 +4,7 @@ You are taking over a partially working Main Deck shelf UI that must be rebuilt 
 
 ## Read First
 - `planning/main-deck-shelf-redo-handoff.md`
+- `planning/main-deck-mockup.html`
 - `web/index.html` (`#main-deck-list`)
 - `web/app.js` (`renderMainDeckList`, `bindMainDeckShelfPhysics`, `adjustMainCard`)
 - `web/styles.css` Main Deck shelf selectors

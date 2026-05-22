@@ -127,6 +127,12 @@ def test_starter_suffix_is_ignored_for_key_normalization() -> None:
     assert strip_starter_suffix("Annie - Dark Child - Starter") == "Annie - Dark Child"
 
 
+def test_promo_suffix_is_ignored_for_key_normalization() -> None:
+    assert normalize_card_key("Blazing Scorcher") == normalize_card_key("Blazing Scorcher (Origins Nexus Night Promo)")
+    assert strip_starter_suffix("Blazing Scorcher (Origins Nexus Night Promo)") == "Blazing Scorcher"
+    assert strip_starter_suffix("Garen - Might of Demacia - Starter (Spiritforged Nexus Night Promo)") == "Garen - Might of Demacia"
+
+
 def test_invalid_main_size_fails() -> None:
     deck = _valid_deck()
     deck.main["Arcane Relay"] = 2

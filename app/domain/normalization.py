@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from collections import Counter
 from html import unescape
@@ -10,6 +10,9 @@ def strip_starter_suffix(text: str) -> str:
     if not raw:
         return ""
     raw = raw.replace("\u2013", "-").replace("\u2014", "-")
+    # First strip trailing parenthetical promo/event suffixes
+    raw = re.sub(r"\s*\([^)]*\)\s*$", "", raw)
+    # Then strip trailing starter suffixes
     raw = re.sub(r"\s*[-,]\s*starter\s*$", "", raw, flags=re.IGNORECASE)
     return raw.strip()
 

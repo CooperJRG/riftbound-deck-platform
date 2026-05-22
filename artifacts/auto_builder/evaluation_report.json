@@ -1,45 +1,85 @@
 {
-  "nextCardTop10Recall": 0.4062,
+  "nextCardTop10Recall": 0.5156,
   "maskedDeckReconstructionExactCardRecall": 0.0469,
-  "winConditionClusterSilhouette": 0.2698,
-  "competitiveScoreSpearman": 0.8012,
-  "moeLoadBalanceLoss": 2.002875,
-  "collectionFirstRecommendationHitRate": 0.9963,
-  "strictBuildableRecommendationHitRate": 0.5476,
-  "strictBuildableCandidateCountP50": 2.0,
-  "strictBuildableCandidateCountP90": 40.0,
-  "strictBuildableEmptyResultRate": 0.3624,
+  "winConditionClusterSilhouette": -0.0074,
+  "competitiveScoreSpearman": 0.6456,
+  "moeLoadBalanceLoss": 2.003342,
+  "collectionFirstRecommendationHitRate": 0.7688,
+  "strictBuildableRecommendationHitRate": 0.0701,
+  "strictBuildableCandidateCountP50": 0.0,
+  "strictBuildableCandidateCountP90": 0.0,
+  "strictBuildableEmptyResultRate": 0.9273,
   "winConditionSelectionTable": {
     "20": {
-      "recommendationHitRate": 0.9963,
-      "strictBuildableHitRate": 0.5476,
-      "reconstructionRecall": 0.247,
-      "topicCoherence": 0.3591,
-      "shellCoverageBalance": 0.1276,
-      "silhouette": 0.2698,
-      "strictBuildableCandidateCountP50": 2.0,
-      "strictBuildableCandidateCountP90": 40.0,
-      "strictBuildableEmptyResultRate": 0.3624,
-      "strictBuildableCandidateDensity": 1.0,
-      "compositeScore": 0.5127
+      "recommendationHitRate": 0.7688,
+      "strictBuildableHitRate": 0.0701,
+      "reconstructionRecall": 0.1481,
+      "topicCoherence": 0.3699,
+      "shellCoverageBalance": 0.1046,
+      "silhouette": -0.0074,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 0.0,
+      "strictBuildableEmptyResultRate": 0.9273,
+      "strictBuildableCandidateDensity": 0.0,
+      "compositeScore": 0.0799
+    },
+    "88": {
+      "recommendationHitRate": 0.7675,
+      "strictBuildableHitRate": 0.0753,
+      "reconstructionRecall": 0.2701,
+      "topicCoherence": 0.2624,
+      "shellCoverageBalance": 0.0354,
+      "silhouette": 0.0078,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 0.0,
+      "strictBuildableEmptyResultRate": 0.9247,
+      "strictBuildableCandidateDensity": 0.0,
+      "compositeScore": 0.0739
     }
   },
   "synergySelectionTable": {
     "24": {
-      "replacementQuality": 0.8854,
-      "modularityProxy": 0.3005,
-      "coverageScore": 0.8582,
-      "buildableRepairSuccess": 0.6789,
-      "silhouette": 0.0922,
+      "replacementQuality": 0.8913,
+      "modularityProxy": 0.2759,
+      "coverageScore": 0.869,
+      "buildableRepairSuccess": 0.643,
+      "silhouette": 0.1069,
       "clusterSizeRegularization": 1.0,
-      "compositeScore": 0.6906
+      "compositeScore": 0.6846
+    },
+    "28": {
+      "replacementQuality": 0.8959,
+      "modularityProxy": 0.305,
+      "coverageScore": 0.8707,
+      "buildableRepairSuccess": 0.6207,
+      "silhouette": 0.1171,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.686
+    },
+    "48": {
+      "replacementQuality": 0.8348,
+      "modularityProxy": 0.3733,
+      "coverageScore": 0.6099,
+      "buildableRepairSuccess": 0.5384,
+      "silhouette": 0.0938,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.607
+    },
+    "192": {
+      "replacementQuality": 0.7664,
+      "modularityProxy": 0.0315,
+      "coverageScore": 0.6731,
+      "buildableRepairSuccess": 0.5983,
+      "silhouette": -0.1818,
+      "clusterSizeRegularization": 0.2552,
+      "compositeScore": 0.4693
     }
   },
   "sourceCountsByAdapter": {
-    "piltoverarchive": 943,
-    "riftboundgg": 517,
+    "riftboundgg": 687,
+    "piltoverarchive": 993,
     "riot-bologna": 27,
-    "mobalytics-tournament": 43
+    "mobalytics-tournament": 49
   },
   "sourceFailuresByAdapter": {}
 }

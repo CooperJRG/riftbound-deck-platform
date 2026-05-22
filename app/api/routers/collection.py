@@ -13,17 +13,19 @@ from app.domain.models import (
     CollectionCsvImportRequest,
     CollectionItemRequest,
     CollectionJsonImportRequest,
+    CollectionPatchRequest,
     CollectionResetRequest,
     CollectionSnapshot,
 )
-from app.domain.normalization import coerce_quantity, normalize_card_key
+from app.domain.normalization import coerce_quantity, normalize_card_key, canonicalize_titles
 
 router = APIRouter(prefix="/api/collection", tags=["collection"])
 
 
 def _snapshot(*, user_id: str) -> CollectionSnapshot:
     svc = get_services()
-    owned = svc.storage.get_collection(user_id=user_id)
+    owned_raw = svc.storage.get_collection(user_id=user_id)
+    owned = canonicalize_titles(owned_raw, resolve_title=svc.cards.resolve_title)
     in_use_by_key = svc.storage.get_built_cards_in_use(user_id=user_id)
     # Derive in_use and available in a single pass — avoids 3 redundant get_collection() calls.
     in_use: dict[str, int] = {}
@@ -130,10 +132,30 @@ def get_collection(request: Request, auth: AuthContext = Depends(require_user)) 
 
 
 @router.put("/item", response_model=CollectionSnapshot)
-@limiter.limit("30/minute")
+@limiter.limit("120/minute")
 def upsert_collection_item(request: Request, body: CollectionItemRequest, auth: AuthContext = Depends(require_user)) -> CollectionSnapshot:
     svc = get_services()
-    svc.storage.set_collection_item(user_id=auth.user_id, card_title=body.card, quantity=body.quantity)
+    canonical_title = svc.cards.resolve_title(body.card)
+    svc.storage.set_collection_item(user_id=auth.user_id, card_title=canonical_title, quantity=body.quantity)
+    return _snapshot(user_id=auth.user_id)
+
+
+@router.patch("", response_model=CollectionSnapshot)
+@limiter.limit("120/minute")
+def patch_collection(request: Request, body: CollectionPatchRequest, auth: AuthContext = Depends(require_user)) -> CollectionSnapshot:
+    if len(body.cards) > 300:
+        raise HTTPException(status_code=400, detail="Patch too large (max 300 cards per request).")
+    svc = get_services()
+    for raw_title, raw_qty in body.cards.items():
+        clean = str(raw_title or "").strip()
+        if not clean:
+            continue
+        canonical_title = svc.cards.resolve_title(clean)
+        svc.storage.set_collection_item(
+            user_id=auth.user_id,
+            card_title=canonical_title,
+            quantity=coerce_quantity(raw_qty),
+        )
     return _snapshot(user_id=auth.user_id)
 
 
@@ -142,7 +164,8 @@ def upsert_collection_item(request: Request, body: CollectionItemRequest, auth: 
 def import_collection_csv(request: Request, body: CollectionCsvImportRequest, auth: AuthContext = Depends(require_user)) -> dict:
     svc = get_services()
     parsed, import_errors = _parse_collection_csv(body.csv_text)
-    svc.storage.upsert_collection(auth.user_id, parsed, replace_existing=body.replace_existing)
+    canonical_parsed = canonicalize_titles(parsed, resolve_title=svc.cards.resolve_title)
+    svc.storage.upsert_collection(auth.user_id, canonical_parsed, replace_existing=body.replace_existing)
     snapshot = _snapshot(user_id=auth.user_id)
     result = snapshot.model_dump(by_alias=True)
     result["importSummary"] = {
@@ -158,7 +181,8 @@ def import_collection_csv(request: Request, body: CollectionCsvImportRequest, au
 def import_collection_json(request: Request, body: CollectionJsonImportRequest, auth: AuthContext = Depends(require_user)) -> dict:
     svc = get_services()
     parsed, import_errors = _parse_collection_json(body.json_text)
-    svc.storage.upsert_collection(auth.user_id, parsed, replace_existing=body.replace_existing)
+    canonical_parsed = canonicalize_titles(parsed, resolve_title=svc.cards.resolve_title)
+    svc.storage.upsert_collection(auth.user_id, canonical_parsed, replace_existing=body.replace_existing)
     snapshot = _snapshot(user_id=auth.user_id)
     result = snapshot.model_dump(by_alias=True)
     result["importSummary"] = {

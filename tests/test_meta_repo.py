@@ -38,6 +38,8 @@ def _catalog() -> CardCatalog:
         _card("Mind Spell", "Spell", domains=("Mind",)),
         _card("Mind Rune", "Rune", domains=("Mind",)),
         _card("Mind Field", "Battlefield", domains=("Mind",)),
+        _card("Mind Field Two", "Battlefield", domains=("Mind",)),
+        _card("Mind Field Three", "Battlefield", domains=("Mind",)),
     ]
     by_title = {c.title: c for c in cards}
     by_key = {normalize_card_key(c.title): c for c in cards}
@@ -73,6 +75,7 @@ def _rules() -> FormatRules:
 
 
 def _write_meta(path: Path) -> None:
+    main_cards = {"Champion A": 1, "Mind Spell": 29}
     rows = [
         {
             "source": "ogs",
@@ -80,10 +83,11 @@ def _write_meta(path: Path) -> None:
             "name": "Valid Meta Deck",
             "leaderTitle": "Legend A - Starter",
             "cards": {
-                "Champion A": 1,
-                "Mind Spell": 1,
-                "Mind Rune": 1,
+                **main_cards,
+                "Mind Rune": 12,
                 "Mind Field": 1,
+                "Mind Field Two": 1,
+                "Mind Field Three": 1,
             },
         },
         {
