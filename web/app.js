@@ -8420,16 +8420,16 @@
     const clean = canonicalTitle(title);
     if (!clean) return 0;
     const required = Math.max(0, Number(requiredQty || 0) || 0);
-    if (state.wizard.collectionAgnostic) {
-      if (isWizardRuneCardTitle(clean) && required > 0) return required;
-      return required > 0 ? required : wizardMainCopyCapForTitle(clean);
-    }
     if (state.wizard.transientCollection[clean] !== undefined) {
       let qty = Math.max(0, Number(state.wizard.transientCollection[clean] || 0) || 0);
       if (isWizardRuneCardTitle(clean) && required > 0) {
         qty = Math.max(qty, required);
       }
       return qty;
+    }
+    if (state.wizard.collectionAgnostic) {
+      if (isWizardRuneCardTitle(clean) && required > 0) return required;
+      return required > 0 ? required : wizardMainCopyCapForTitle(clean);
     }
     if (state.collection && state.collection[clean] !== undefined) {
       let qty = Math.max(0, Number(state.collection[clean] || 0) || 0);
@@ -8480,8 +8480,8 @@
       Object.assign(merged, wizardAgnosticOwnedPool());
     } else if (state.collection) {
       Object.assign(merged, wizardCollectionCardsMap(state.collection));
-      Object.assign(merged, wizardCollectionCardsMap(state.wizard.transientCollection, { includeZero: true }));
     }
+    Object.assign(merged, wizardCollectionCardsMap(state.wizard.transientCollection, { includeZero: true }));
     return merged;
   }
 
@@ -9221,7 +9221,7 @@
     const isSelected = canonicalTitle(state.wizard.activeReplacementCard || "") === canonicalTitle(title);
     const isComplete = missing === 0;
     const isPartial = missing > 0 && ownedQty > 0;
-    const allowStepper = opts.allowStepper !== false && required > 0 && !assumeFull && !state.wizard.collectionAgnostic;
+    const allowStepper = opts.allowStepper !== false && required > 0 && !assumeFull;
     const image = info && info.imageUrl ? info.imageUrl : cardBackFor(title);
     const statusClass = isComplete ? "is-complete" : isPartial ? "is-partial" : "is-short";
     const statusLabel = state.wizard.collectionAgnostic
