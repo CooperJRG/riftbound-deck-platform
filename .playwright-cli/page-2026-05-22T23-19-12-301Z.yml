@@ -1,0 +1,251 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - button "Open account settings" [ref=e8] [cursor=pointer]:
+        - strong [ref=e9]: Local User
+        - generic [ref=e10]: local@example.com
+      - generic [ref=e11]: Admin
+      - generic [ref=e12]:
+        - button "Model" [ref=e13] [cursor=pointer]
+        - button "Sign Out" [ref=e14] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 40 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 12 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 3 battlefields (found 0)." [ref=e141]:
+      - generic [ref=e17]: Ready
+  - generic [ref=e18]:
+    - tablist "Workspace" [ref=e19]:
+      - tab "Cards" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: ⊞
+        - generic [ref=e22]: Cards
+      - tab "Build" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: ⚔
+        - generic [ref=e25]: Build
+      - tab "Explore" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: ◎
+        - generic [ref=e28]: Explore
+      - tab "Auto" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: ✦
+        - generic [ref=e31]: Auto
+      - tab "Wizard" [selected] [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: 🪄
+        - generic [ref=e34]: Wizard
+      - tab "Model" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]: ⬡
+        - generic [ref=e38]: Model
+    - main [ref=e39]:
+      - tabpanel "Deckbuilding Wizard" [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - heading "Deckbuilding Wizard" [level=2] [ref=e145]
+            - paragraph [ref=e146]: Pick legend and champion, mark what you own, then refine iteratively — the model rebuilds the strongest deck your collection can support and saves upgrade ideas for later.
+          - generic "Wizard actions" [ref=e159]:
+            - button "Restart Wizard" [ref=e160] [cursor=pointer]
+        - generic [ref=e161]:
+          - generic [ref=e163]:
+            - heading "Step 1 — Legend" [level=3] [ref=e164]
+            - paragraph [ref=e165]: Pick your legend. All legends are treated as available for this guided build.
+          - generic [ref=e166]:
+            - generic [ref=e167]: Search legends
+            - searchbox "Search legends" [ref=e168]
+          - generic [ref=e169]:
+            - article [ref=e170]:
+              - img "Kai'Sa - Daughter of the Void artwork" [ref=e172]
+              - generic [ref=e173]:
+                - generic "Kai'Sa - Daughter of the Void" [ref=e174]
+                - button "Select Legend" [ref=e176] [cursor=pointer]
+            - article [ref=e177]:
+              - img "Volibear - Relentless Storm artwork" [ref=e179]
+              - generic [ref=e180]:
+                - generic "Volibear - Relentless Storm" [ref=e181]
+                - button "Select Legend" [ref=e183] [cursor=pointer]
+            - article [ref=e184]:
+              - img "Jinx - Loose Cannon artwork" [ref=e186]
+              - generic [ref=e187]:
+                - generic "Jinx - Loose Cannon" [ref=e188]
+                - button "Select Legend" [ref=e190] [cursor=pointer]
+            - article [ref=e191]:
+              - img "Darius - Hand of Noxus artwork" [ref=e193]
+              - generic [ref=e194]:
+                - generic "Darius - Hand of Noxus" [ref=e195]
+                - button "Select Legend" [ref=e197] [cursor=pointer]
+            - article [ref=e198]:
+              - img "Ahri - Nine-Tailed Fox artwork" [ref=e200]
+              - generic [ref=e201]:
+                - generic "Ahri - Nine-Tailed Fox" [ref=e202]
+                - button "Select Legend" [ref=e204] [cursor=pointer]
+            - article [ref=e205]:
+              - img "Lee Sin - Blind Monk artwork" [ref=e207]
+              - generic [ref=e208]:
+                - generic "Lee Sin - Blind Monk" [ref=e209]
+                - button "Select Legend" [ref=e211] [cursor=pointer]
+            - article [ref=e212]:
+              - img "Yasuo - Unforgiven artwork" [ref=e214]
+              - generic [ref=e215]:
+                - generic "Yasuo - Unforgiven" [ref=e216]
+                - button "Select Legend" [ref=e218] [cursor=pointer]
+            - article [ref=e219]:
+              - img "Leona - Radiant Dawn artwork" [ref=e221]
+              - generic [ref=e222]:
+                - generic "Leona - Radiant Dawn" [ref=e223]
+                - button "Select Legend" [ref=e225] [cursor=pointer]
+            - article [ref=e226]:
+              - img "Teemo - Swift Scout artwork" [ref=e228]
+              - generic [ref=e229]:
+                - generic "Teemo - Swift Scout" [ref=e230]
+                - button "Select Legend" [ref=e232] [cursor=pointer]
+            - article [ref=e233]:
+              - img "Viktor - Herald of the Arcane artwork" [ref=e235]
+              - generic [ref=e236]:
+                - generic "Viktor - Herald of the Arcane" [ref=e237]
+                - button "Select Legend" [ref=e239] [cursor=pointer]
+            - article [ref=e240]:
+              - img "Miss Fortune - Bounty Hunter artwork" [ref=e242]
+              - generic [ref=e243]:
+                - generic "Miss Fortune - Bounty Hunter" [ref=e244]
+                - button "Select Legend" [ref=e246] [cursor=pointer]
+            - article [ref=e247]:
+              - img "Sett - The Boss artwork" [ref=e249]
+              - generic [ref=e250]:
+                - generic "Sett - The Boss" [ref=e251]
+                - button "Select Legend" [ref=e253] [cursor=pointer]
+            - article [ref=e254]:
+              - img "Annie - Dark Child artwork" [ref=e256]
+              - generic [ref=e257]:
+                - generic "Annie - Dark Child" [ref=e258]
+                - button "Select Legend" [ref=e260] [cursor=pointer]
+            - article [ref=e261]:
+              - img "Master Yi - Wuju Bladesman artwork" [ref=e263]
+              - generic [ref=e264]:
+                - generic "Master Yi - Wuju Bladesman" [ref=e265]
+                - button "Select Legend" [ref=e267] [cursor=pointer]
+            - article [ref=e268]:
+              - img "Lux - Lady of Luminosity artwork" [ref=e270]
+              - generic [ref=e271]:
+                - generic "Lux - Lady of Luminosity" [ref=e272]
+                - button "Select Legend" [ref=e274] [cursor=pointer]
+            - article [ref=e275]:
+              - img "Garen - Might of Demacia artwork" [ref=e277]
+              - generic [ref=e278]:
+                - generic "Garen - Might of Demacia" [ref=e279]
+                - button "Select Legend" [ref=e281] [cursor=pointer]
+            - article [ref=e282]:
+              - img "Rumble - Mechanized Menace artwork" [ref=e284]
+              - generic [ref=e285]:
+                - generic "Rumble - Mechanized Menace" [ref=e286]
+                - button "Select Legend" [ref=e288] [cursor=pointer]
+            - article [ref=e289]:
+              - img "Lucian - Purifier artwork" [ref=e291]
+              - generic [ref=e292]:
+                - generic "Lucian - Purifier" [ref=e293]
+                - button "Select Legend" [ref=e295] [cursor=pointer]
+            - article [ref=e296]:
+              - img "Draven - Glorious Executioner artwork" [ref=e298]
+              - generic [ref=e299]:
+                - generic "Draven - Glorious Executioner" [ref=e300]
+                - button "Select Legend" [ref=e302] [cursor=pointer]
+            - article [ref=e303]:
+              - img "Rek'Sai - Void Burrower artwork" [ref=e305]
+              - generic [ref=e306]:
+                - generic "Rek'Sai - Void Burrower" [ref=e307]
+                - button "Select Legend" [ref=e309] [cursor=pointer]
+            - article [ref=e310]:
+              - img "Ornn - Fire Below the Mountain artwork" [ref=e312]
+              - generic [ref=e313]:
+                - generic "Ornn - Fire Below the Mountain" [ref=e314]
+                - button "Select Legend" [ref=e316] [cursor=pointer]
+            - article [ref=e317]:
+              - img "Jax - Grandmaster at Arms artwork" [ref=e319]
+              - generic [ref=e320]:
+                - generic "Jax - Grandmaster at Arms" [ref=e321]
+                - button "Select Legend" [ref=e323] [cursor=pointer]
+            - article [ref=e324]:
+              - img "Irelia - Blade Dancer artwork" [ref=e326]
+              - generic [ref=e327]:
+                - generic "Irelia - Blade Dancer" [ref=e328]
+                - button "Select Legend" [ref=e330] [cursor=pointer]
+            - article [ref=e331]:
+              - img "Azir - Emperor of the Sands artwork" [ref=e333]
+              - generic [ref=e334]:
+                - generic "Azir - Emperor of the Sands" [ref=e335]
+                - button "Select Legend" [ref=e337] [cursor=pointer]
+            - article [ref=e338]:
+              - img "Ezreal - Prodigal Explorer artwork" [ref=e340]
+              - generic [ref=e341]:
+                - generic "Ezreal - Prodigal Explorer" [ref=e342]
+                - button "Select Legend" [ref=e344] [cursor=pointer]
+            - article [ref=e345]:
+              - img "Renata Glasc - Chem-Baroness artwork" [ref=e347]
+              - generic [ref=e348]:
+                - generic "Renata Glasc - Chem-Baroness" [ref=e349]
+                - button "Select Legend" [ref=e351] [cursor=pointer]
+            - article [ref=e352]:
+              - img "Sivir - Battle Mistress artwork" [ref=e354]
+              - generic [ref=e355]:
+                - generic "Sivir - Battle Mistress" [ref=e356]
+                - button "Select Legend" [ref=e358] [cursor=pointer]
+            - article [ref=e359]:
+              - img "Fiora - Grand Duelist artwork" [ref=e361]
+              - generic [ref=e362]:
+                - generic "Fiora - Grand Duelist" [ref=e363]
+                - button "Select Legend" [ref=e365] [cursor=pointer]
+            - article [ref=e366]:
+              - img "Jhin - Virtuoso artwork" [ref=e368]
+              - generic [ref=e369]:
+                - generic "Jhin - Virtuoso" [ref=e370]
+                - button "Select Legend" [ref=e372] [cursor=pointer]
+            - article [ref=e373]:
+              - img "Rengar - Pridestalker artwork" [ref=e375]
+              - generic [ref=e376]:
+                - generic "Rengar - Pridestalker" [ref=e377]
+                - button "Select Legend" [ref=e379] [cursor=pointer]
+            - article [ref=e380]:
+              - img "Pyke - Bloodharbor Ripper artwork" [ref=e382]
+              - generic [ref=e383]:
+                - generic "Pyke - Bloodharbor Ripper" [ref=e384]
+                - button "Select Legend" [ref=e386] [cursor=pointer]
+            - article [ref=e387]:
+              - img "Vi - Piltover Enforcer artwork" [ref=e389]
+              - generic [ref=e390]:
+                - generic "Vi - Piltover Enforcer" [ref=e391]
+                - button "Select Legend" [ref=e393] [cursor=pointer]
+            - article [ref=e394]:
+              - img "Lillia - Bashful Bloom artwork" [ref=e396]
+              - generic [ref=e397]:
+                - generic "Lillia - Bashful Bloom" [ref=e398]
+                - button "Select Legend" [ref=e400] [cursor=pointer]
+            - article [ref=e401]:
+              - img "Master Yi - Wuju Master artwork" [ref=e403]
+              - generic [ref=e404]:
+                - generic "Master Yi - Wuju Master" [ref=e405]
+                - button "Select Legend" [ref=e407] [cursor=pointer]
+            - article [ref=e408]:
+              - img "Vex - Gloomist artwork" [ref=e410]
+              - generic [ref=e411]:
+                - generic "Vex - Gloomist" [ref=e412]
+                - button "Select Legend" [ref=e414] [cursor=pointer]
+            - article [ref=e415]:
+              - img "Ivern - Green Father artwork" [ref=e417]
+              - generic [ref=e418]:
+                - generic "Ivern - Green Father" [ref=e419]
+                - button "Select Legend" [ref=e421] [cursor=pointer]
+            - article [ref=e422]:
+              - img "Diana - Scorn of the Moon artwork" [ref=e424]
+              - generic [ref=e425]:
+                - generic "Diana - Scorn of the Moon" [ref=e426]
+                - button "Select Legend" [ref=e428] [cursor=pointer]
+            - article [ref=e429]:
+              - img "LeBlanc - Deceiver artwork" [ref=e431]
+              - generic [ref=e432]:
+                - generic "LeBlanc - Deceiver" [ref=e433]
+                - button "Select Legend" [ref=e435] [cursor=pointer]
+            - article [ref=e436]:
+              - img "Kha'Zix - Voidreaver artwork" [ref=e438]
+              - generic [ref=e439]:
+                - generic "Kha'Zix - Voidreaver" [ref=e440]
+                - button "Select Legend" [ref=e442] [cursor=pointer]
+            - article [ref=e443]:
+              - img "Poppy - Keeper of the Hammer artwork" [ref=e445]
+              - generic [ref=e446]:
+                - generic "Poppy - Keeper of the Hammer" [ref=e447]
+                - button "Select Legend" [ref=e449] [cursor=pointer]

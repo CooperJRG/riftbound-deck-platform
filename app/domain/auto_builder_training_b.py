@@ -1528,8 +1528,8 @@ def train_auto_builder_b_artifacts(
     step += 1
 
     # -- Legend / champion indices -------------------------------------------
-    legend_titles = sorted({row.leader_title for row in all_rows})
-    champion_titles = sorted({row.chosen_champion_title for row in all_rows})
+    legend_titles = sorted({card.title for card in cards.cards if card.card_type == "Legend"})
+    champion_titles = sorted({card.title for card in cards.cards if card.super_type == "Champion"})
     legend_to_idx = {t: i + 1 for i, t in enumerate(legend_titles)}   # 1-based
     champion_to_idx = {t: i + 1 for i, t in enumerate(champion_titles)}
 

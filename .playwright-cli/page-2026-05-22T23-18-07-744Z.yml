@@ -1,0 +1,66 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - button "Open account settings" [ref=e8] [cursor=pointer]:
+        - strong [ref=e9]: Local User
+        - generic [ref=e10]: local@example.com
+      - generic [ref=e11]: Admin
+      - generic [ref=e12]:
+        - button "Model" [ref=e13] [cursor=pointer]
+        - button "Sign Out" [ref=e14] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 40 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 12 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 3 battlefields (found 0)." [ref=e12818]:
+      - generic [ref=e17]: Ready
+  - generic [ref=e18]:
+    - tablist "Workspace" [ref=e19]:
+      - tab "Cards" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: ⊞
+        - generic [ref=e22]: Cards
+      - tab "Build" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: ⚔
+        - generic [ref=e25]: Build
+      - tab "Explore" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: ◎
+        - generic [ref=e28]: Explore
+      - tab "Auto" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: ✦
+        - generic [ref=e31]: Auto
+      - tab "Wizard" [selected] [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: 🪄
+        - generic [ref=e34]: Wizard
+      - tab "Model" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]: ⬡
+        - generic [ref=e38]: Model
+    - main [ref=e39]:
+      - tabpanel "Deckbuilding Wizard" [ref=e20251]:
+        - generic [ref=e20252]:
+          - generic [ref=e20253]:
+            - heading "Deckbuilding Wizard" [level=2] [ref=e20254]
+            - paragraph [ref=e20255]: Pick legend and champion, mark what you own, then refine iteratively — the model rebuilds the strongest deck your collection can support and saves upgrade ideas for later.
+          - generic "Wizard actions" [ref=e20268]:
+            - button "Restart Wizard" [ref=e20269] [cursor=pointer]
+        - generic [ref=e20575]:
+          - generic [ref=e20577]:
+            - heading "Step 2 — Chosen Champion" [level=3] [ref=e20578]
+            - paragraph [ref=e20579]: Only champions legal for Lillia - Bashful Bloom are listed. ML suggestions appear first.
+          - generic [ref=e20580]:
+            - generic [ref=e20581]: Search champions
+            - searchbox "Search champions" [ref=e20582]
+          - generic [ref=e20583]:
+            - heading "Suggested Champions" [level=4] [ref=e20584]
+            - article [ref=e20586]:
+              - generic [ref=e20587]:
+                - generic [ref=e20588]: Synergistic
+                - img "Lillia - Fae Fawn artwork" [ref=e20589]
+              - generic [ref=e20590]:
+                - generic "Lillia - Fae Fawn" [ref=e20591]
+                - button "Select Champion" [ref=e20593] [cursor=pointer]
+          - generic [ref=e20594]:
+            - heading "Legal Champions" [level=4] [ref=e20595]
+            - article [ref=e20597]:
+              - img "Lillia - Protector of Dreams artwork" [ref=e20599]
+              - generic [ref=e20600]:
+                - generic "Lillia - Protector of Dreams" [ref=e20601]
+                - button "Select Champion" [ref=e20603] [cursor=pointer]

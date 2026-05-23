@@ -356,6 +356,7 @@ class WizardSolveRequest(StrictInputModel):
     swaps: list[WizardSwapRequest] = Field(default_factory=list)
     mode: str = "owned_only"
     max_iterations: int = Field(default=1, alias="maxIterations")
+    collection_agnostic: bool = Field(default=False, alias="collectionAgnostic")
 
 
 class AutoBuilderExplanation(BaseModel):

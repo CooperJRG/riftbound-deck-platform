@@ -16,6 +16,10 @@ def _subset_of_identity(card: CardRecord, legend_domains: set[str]) -> bool:
     return set(card.domains).issubset(legend_domains)
 
 
+def _is_token_card(card: CardRecord) -> bool:
+    return card.card_type == "Token" or card.super_type == "Token"
+
+
 def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) -> DeckValidationResult:
     issues: list[ValidationIssue] = []
 
@@ -163,6 +167,13 @@ def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) 
         if card is None:
             add_issue("MAIN_UNKNOWN_CARD", "main", f"Unknown card '{title}'.", "main_card_types")
             continue
+        if _is_token_card(card):
+            add_issue(
+                "MAIN_TOKEN_CARD",
+                "main",
+                f"Token card '{title}' cannot be included in a deck list.",
+                "main_card_types",
+            )
         if allowed_main_types and card.card_type not in allowed_main_types:
             add_issue(
                 "MAIN_CARD_TYPE",
@@ -193,6 +204,13 @@ def validate_deck(deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) 
         if card is None:
             add_issue("SIDEBOARD_UNKNOWN_CARD", "sideboard", f"Unknown card '{title}'.", "sideboard_card_types")
             continue
+        if _is_token_card(card):
+            add_issue(
+                "SIDEBOARD_TOKEN_CARD",
+                "sideboard",
+                f"Token card '{title}' cannot be included in a sideboard.",
+                "sideboard_card_types",
+            )
         if allowed_sideboard_types and card.card_type not in allowed_sideboard_types:
             add_issue(
                 "SIDEBOARD_CARD_TYPE",

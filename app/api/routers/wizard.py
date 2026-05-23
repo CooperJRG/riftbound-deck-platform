@@ -29,6 +29,8 @@ def wizard_solve(
         reference_deck=body.reference_deck,
         current_deck=body.current_deck,
         swaps=[swap.model_dump() for swap in body.swaps],
+        auto_builder=svc.auto_builder,
+        collection_agnostic=body.collection_agnostic,
     )
     return {
         "deck": result.deck.model_dump(by_alias=True),

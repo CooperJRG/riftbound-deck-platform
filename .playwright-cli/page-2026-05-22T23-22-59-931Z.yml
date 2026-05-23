@@ -1,0 +1,403 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - button "Open account settings" [ref=e8] [cursor=pointer]:
+        - strong [ref=e9]: Local User
+        - generic [ref=e10]: local@example.com
+      - generic [ref=e11]: Admin
+      - generic [ref=e12]:
+        - button "Model" [ref=e13] [cursor=pointer]
+        - button "Sign Out" [ref=e14] [cursor=pointer]
+    - generic "[LEGEND_REQUIRED] Legend is required. [CHAMPION_REQUIRED] Chosen Champion is required for this format. [MAIN_DECK_SIZE] Main deck must contain exactly 40 cards (found 0). [RUNE_DECK_SIZE] Rune deck must contain exactly 12 cards (found 0). [BATTLEFIELD_COUNT] Deck must contain exactly 3 battlefields (found 0)." [ref=e141]:
+      - generic [ref=e17]: Main deck marked missing for physical checking.
+  - generic [ref=e18]:
+    - tablist "Workspace" [ref=e19]:
+      - tab "Cards" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: ⊞
+        - generic [ref=e22]: Cards
+      - tab "Build" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: ⚔
+        - generic [ref=e25]: Build
+      - tab "Explore" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: ◎
+        - generic [ref=e28]: Explore
+      - tab "Auto" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: ✦
+        - generic [ref=e31]: Auto
+      - tab "Wizard" [selected] [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: 🪄
+        - generic [ref=e34]: Wizard
+      - tab "Model" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]: ⬡
+        - generic [ref=e38]: Model
+    - main [ref=e39]:
+      - tabpanel "Deckbuilding Wizard" [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - heading "Deckbuilding Wizard" [level=2] [ref=e145]
+            - paragraph [ref=e146]: Pick legend and champion, mark what you own, then refine iteratively — the model rebuilds the strongest deck your collection can support and saves upgrade ideas for later.
+          - generic "Wizard actions" [ref=e159]:
+            - button "Restart Wizard" [ref=e160] [cursor=pointer]
+        - generic [ref=e890]:
+          - generic [ref=e891]:
+            - heading "Guided Deck Checklist" [level=3] [ref=e893]
+            - generic [ref=e895]:
+              - generic [ref=e896]: Iteration 1
+              - generic [ref=e897]: 28% collection match
+            - generic [ref=e898]:
+              - generic [ref=e899]:
+                - generic [ref=e900]: Main deck found
+                - strong [ref=e901]: 0 / 40
+                - generic [ref=e902]: 0%
+              - generic [ref=e903] [cursor=pointer]:
+                - checkbox "Physical check Set main deck to zero, then add cards as you find them." [checked]
+                - generic [ref=e905]:
+                  - strong [ref=e906]: Physical check
+                  - generic [ref=e907]: Set main deck to zero, then add cards as you find them.
+            - generic [ref=e908]:
+              - generic [ref=e909]:
+                - heading "Legend" [level=4] [ref=e910]
+                - generic [ref=e911]:
+                  - generic [ref=e912]:
+                    - img "Lillia - Bashful Bloom" [ref=e914]
+                    - generic [ref=e915]:
+                      - generic [ref=e916]:
+                        - generic [ref=e917]: 1x
+                        - generic [ref=e918]: Lillia - Bashful Bloom
+                      - generic [ref=e919]: Legend | Calm, Mind
+                  - generic [ref=e921]: 1 / 1 in collection
+              - generic [ref=e922]:
+                - heading "Chosen Champion" [level=4] [ref=e923]
+                - generic [ref=e924]:
+                  - generic [ref=e925]:
+                    - img "Lillia - Fae Fawn" [ref=e927]
+                    - generic [ref=e928]:
+                      - generic [ref=e929]:
+                        - generic [ref=e930]: 1x
+                        - generic [ref=e931]: Lillia - Fae Fawn
+                      - generic [ref=e932]: Unit / Champion | Mind
+                  - generic [ref=e933]:
+                    - generic [ref=e934]: 0 / 1 in collection
+                    - generic [ref=e935]:
+                      - button "-" [disabled] [ref=e936]
+                      - generic [ref=e937]: 0 / 1
+                      - button "+" [ref=e938] [cursor=pointer]
+                    - button "Replacements" [ref=e939] [cursor=pointer]
+              - generic [ref=e940]:
+                - heading "Runes" [level=4] [ref=e941]
+                - generic [ref=e942]:
+                  - generic [ref=e943]:
+                    - img "Calm Rune" [ref=e945]
+                    - generic [ref=e946]:
+                      - generic [ref=e947]:
+                        - generic [ref=e948]: 6x
+                        - generic [ref=e949]: Calm Rune
+                      - generic [ref=e950]: Rune / Basic | Calm
+                  - generic [ref=e952]: 6 / 6 in collection
+                - generic [ref=e953]:
+                  - generic [ref=e954]:
+                    - img "Mind Rune" [ref=e956]
+                    - generic [ref=e957]:
+                      - generic [ref=e958]:
+                        - generic [ref=e959]: 6x
+                        - generic [ref=e960]: Mind Rune
+                      - generic [ref=e961]: Rune / Basic | Mind
+                  - generic [ref=e963]: 6 / 6 in collection
+              - generic [ref=e964]:
+                - heading "Battlefields" [level=4] [ref=e965]
+                - generic [ref=e966]:
+                  - generic [ref=e967]:
+                    - img "Black Flame Altar" [ref=e969]
+                    - generic [ref=e970]:
+                      - generic [ref=e971]:
+                        - generic [ref=e972]: 1x
+                        - generic [ref=e973]: Black Flame Altar
+                      - generic [ref=e974]: Battlefield
+                  - generic [ref=e975]:
+                    - generic [ref=e976]: 1 / 1 in collection
+                    - generic [ref=e977]:
+                      - button "-" [ref=e978] [cursor=pointer]
+                      - generic [ref=e979]: 1 / 1
+                      - button "+" [disabled] [ref=e980]
+                - generic [ref=e981]:
+                  - generic [ref=e982]:
+                    - img "Dusk Rose Lab" [ref=e984]
+                    - generic [ref=e985]:
+                      - generic [ref=e986]:
+                        - generic [ref=e987]: 1x
+                        - generic [ref=e988]: Dusk Rose Lab
+                      - generic [ref=e989]: Battlefield
+                  - generic [ref=e990]:
+                    - generic [ref=e991]: 1 / 1 in collection
+                    - generic [ref=e992]:
+                      - button "-" [ref=e993] [cursor=pointer]
+                      - generic [ref=e994]: 1 / 1
+                      - button "+" [disabled] [ref=e995]
+                - generic [ref=e996]:
+                  - generic [ref=e997]:
+                    - img "Forbidding Waste" [ref=e999]
+                    - generic [ref=e1000]:
+                      - generic [ref=e1001]:
+                        - generic [ref=e1002]: 1x
+                        - generic [ref=e1003]: Forbidding Waste
+                      - generic [ref=e1004]: Battlefield
+                  - generic [ref=e1005]:
+                    - generic [ref=e1006]: 1 / 1 in collection
+                    - generic [ref=e1007]:
+                      - button "-" [ref=e1008] [cursor=pointer]
+                      - generic [ref=e1009]: 1 / 1
+                      - button "+" [disabled] [ref=e1010]
+              - generic [ref=e1011]:
+                - heading "Main Deck" [level=4] [ref=e1012]
+                - generic [ref=e1013]:
+                  - generic [ref=e1014]:
+                    - img "Charm" [ref=e1016]
+                    - generic [ref=e1017]:
+                      - generic [ref=e1018]:
+                        - generic [ref=e1019]: 3x
+                        - generic [ref=e1020]: Charm
+                      - generic [ref=e1021]: Spell | Calm
+                  - generic [ref=e1022]:
+                    - generic [ref=e1023]: 0 / 3 in collection
+                    - generic [ref=e1024]:
+                      - button "-" [disabled] [ref=e1025]
+                      - generic [ref=e1026]: 0 / 3
+                      - button "+" [ref=e1027] [cursor=pointer]
+                    - button "Replacements" [ref=e1028] [cursor=pointer]
+                - generic [ref=e1029]:
+                  - generic [ref=e1030]:
+                    - img "Defy" [ref=e1032]
+                    - generic [ref=e1033]:
+                      - generic [ref=e1034]:
+                        - generic [ref=e1035]: 3x
+                        - generic [ref=e1036]: Defy
+                      - generic [ref=e1037]: Spell | Calm
+                  - generic [ref=e1038]:
+                    - generic [ref=e1039]: 0 / 3 in collection
+                    - generic [ref=e1040]:
+                      - button "-" [disabled] [ref=e1041]
+                      - generic [ref=e1042]: 0 / 3
+                      - button "+" [ref=e1043] [cursor=pointer]
+                    - button "Replacements" [ref=e1044] [cursor=pointer]
+                - generic [ref=e1045]:
+                  - generic [ref=e1046]:
+                    - img "Discipline" [ref=e1048]
+                    - generic [ref=e1049]:
+                      - generic [ref=e1050]:
+                        - generic [ref=e1051]: 3x
+                        - generic [ref=e1052]: Discipline
+                      - generic [ref=e1053]: Spell | Calm
+                  - generic [ref=e1054]:
+                    - generic [ref=e1055]: 0 / 3 in collection
+                    - generic [ref=e1056]:
+                      - button "-" [disabled] [ref=e1057]
+                      - generic [ref=e1058]: 0 / 3
+                      - button "+" [ref=e1059] [cursor=pointer]
+                    - button "Replacements" [ref=e1060] [cursor=pointer]
+                - generic [ref=e1061]:
+                  - generic [ref=e1062]:
+                    - img "Stupefy" [ref=e1064]
+                    - generic [ref=e1065]:
+                      - generic [ref=e1066]:
+                        - generic [ref=e1067]: 3x
+                        - generic [ref=e1068]: Stupefy
+                      - generic [ref=e1069]: Spell | Mind
+                  - generic [ref=e1070]:
+                    - generic [ref=e1071]: 0 / 3 in collection
+                    - generic [ref=e1072]:
+                      - button "-" [disabled] [ref=e1073]
+                      - generic [ref=e1074]: 0 / 3
+                      - button "+" [ref=e1075] [cursor=pointer]
+                    - button "Replacements" [ref=e1076] [cursor=pointer]
+                - generic [ref=e1077]:
+                  - generic [ref=e1078]:
+                    - img "Ravenbloom Student" [ref=e1080]
+                    - generic [ref=e1081]:
+                      - generic [ref=e1082]:
+                        - generic [ref=e1083]: 3x
+                        - generic [ref=e1084]: Ravenbloom Student
+                      - generic [ref=e1085]: Unit | Mind
+                  - generic [ref=e1086]:
+                    - generic [ref=e1087]: 0 / 3 in collection
+                    - generic [ref=e1088]:
+                      - button "-" [disabled] [ref=e1089]
+                      - generic [ref=e1090]: 0 / 3
+                      - button "+" [ref=e1091] [cursor=pointer]
+                    - button "Replacements" [ref=e1092] [cursor=pointer]
+                - generic [ref=e1093]:
+                  - generic [ref=e1094]:
+                    - img "Thousand-Tailed Watcher" [ref=e1096]
+                    - generic [ref=e1097]:
+                      - generic [ref=e1098]:
+                        - generic [ref=e1099]: 2x
+                        - generic [ref=e1100]: Thousand-Tailed Watcher
+                      - generic [ref=e1101]: Unit | Mind
+                  - generic [ref=e1102]:
+                    - generic [ref=e1103]: 0 / 2 in collection
+                    - generic [ref=e1104]:
+                      - button "-" [disabled] [ref=e1105]
+                      - generic [ref=e1106]: 0 / 2
+                      - button "+" [ref=e1107] [cursor=pointer]
+                    - button "Replacements" [ref=e1108] [cursor=pointer]
+                - generic [ref=e1109]:
+                  - generic [ref=e1110]:
+                    - img "Disarming Rake" [ref=e1112]
+                    - generic [ref=e1113]:
+                      - generic [ref=e1114]:
+                        - generic [ref=e1115]: 1x
+                        - generic [ref=e1116]: Disarming Rake
+                      - generic [ref=e1117]: Unit | Calm
+                  - generic [ref=e1118]:
+                    - generic [ref=e1119]: 0 / 1 in collection
+                    - generic [ref=e1120]:
+                      - button "-" [disabled] [ref=e1121]
+                      - generic [ref=e1122]: 0 / 1
+                      - button "+" [ref=e1123] [cursor=pointer]
+                    - button "Replacements" [ref=e1124] [cursor=pointer]
+                - generic [ref=e1125]:
+                  - generic [ref=e1126]:
+                    - img "Heart of Dark Ice" [ref=e1128]
+                    - generic [ref=e1129]:
+                      - generic [ref=e1130]:
+                        - generic [ref=e1131]: 3x
+                        - generic [ref=e1132]: Heart of Dark Ice
+                      - generic [ref=e1133]: Gear | Calm
+                  - generic [ref=e1134]:
+                    - generic [ref=e1135]: 0 / 3 in collection
+                    - generic [ref=e1136]:
+                      - button "-" [disabled] [ref=e1137]
+                      - generic [ref=e1138]: 0 / 3
+                      - button "+" [ref=e1139] [cursor=pointer]
+                    - button "Replacements" [ref=e1140] [cursor=pointer]
+                - generic [ref=e1141]:
+                  - generic [ref=e1142]:
+                    - img "Plundering Poro" [ref=e1144]
+                    - generic [ref=e1145]:
+                      - generic [ref=e1146]:
+                        - generic [ref=e1147]: 3x
+                        - generic [ref=e1148]: Plundering Poro
+                      - generic [ref=e1149]: Unit | Mind
+                  - generic [ref=e1150]:
+                    - generic [ref=e1151]: 0 / 3 in collection
+                    - generic [ref=e1152]:
+                      - button "-" [disabled] [ref=e1153]
+                      - generic [ref=e1154]: 0 / 3
+                      - button "+" [ref=e1155] [cursor=pointer]
+                    - button "Replacements" [ref=e1156] [cursor=pointer]
+                - generic [ref=e1157]:
+                  - generic [ref=e1158]:
+                    - img "Back Off" [ref=e1160]
+                    - generic [ref=e1161]:
+                      - generic [ref=e1162]:
+                        - generic [ref=e1163]: 1x
+                        - generic [ref=e1164]: Back Off
+                      - generic [ref=e1165]: Spell | Calm
+                  - generic [ref=e1166]:
+                    - generic [ref=e1167]: 0 / 1 in collection
+                    - generic [ref=e1168]:
+                      - button "-" [disabled] [ref=e1169]
+                      - generic [ref=e1170]: 0 / 1
+                      - button "+" [ref=e1171] [cursor=pointer]
+                    - button "Replacements" [ref=e1172] [cursor=pointer]
+                - generic [ref=e1173]:
+                  - generic [ref=e1174]:
+                    - img "Sprite Burst" [ref=e1176]
+                    - generic [ref=e1177]:
+                      - generic [ref=e1178]:
+                        - generic [ref=e1179]: 3x
+                        - generic [ref=e1180]: Sprite Burst
+                      - generic [ref=e1181]: Spell | Mind
+                  - generic [ref=e1182]:
+                    - generic [ref=e1183]: 0 / 3 in collection
+                    - generic [ref=e1184]:
+                      - button "-" [disabled] [ref=e1185]
+                      - generic [ref=e1186]: 0 / 3
+                      - button "+" [ref=e1187] [cursor=pointer]
+                    - button "Replacements" [ref=e1188] [cursor=pointer]
+                - generic [ref=e1189]:
+                  - generic [ref=e1190]:
+                    - img "Turn to Dust" [ref=e1192]
+                    - generic [ref=e1193]:
+                      - generic [ref=e1194]:
+                        - generic [ref=e1195]: 2x
+                        - generic [ref=e1196]: Turn to Dust
+                      - generic [ref=e1197]: Spell | Mind
+                  - generic [ref=e1198]:
+                    - generic [ref=e1199]: 0 / 2 in collection
+                    - generic [ref=e1200]:
+                      - button "-" [disabled] [ref=e1201]
+                      - generic [ref=e1202]: 0 / 2
+                      - button "+" [ref=e1203] [cursor=pointer]
+                    - button "Replacements" [ref=e1204] [cursor=pointer]
+                - generic [ref=e1205]:
+                  - generic [ref=e1206]:
+                    - img "Sprite Fountain" [ref=e1208]
+                    - generic [ref=e1209]:
+                      - generic [ref=e1210]:
+                        - generic [ref=e1211]: 3x
+                        - generic [ref=e1212]: Sprite Fountain
+                      - generic [ref=e1213]: Gear | Mind
+                  - generic [ref=e1214]:
+                    - generic [ref=e1215]: 0 / 3 in collection
+                    - generic [ref=e1216]:
+                      - button "-" [disabled] [ref=e1217]
+                      - generic [ref=e1218]: 0 / 3
+                      - button "+" [ref=e1219] [cursor=pointer]
+                    - button "Replacements" [ref=e1220] [cursor=pointer]
+                - generic [ref=e1221]:
+                  - generic [ref=e1222]:
+                    - img "Smoke and Mirrors" [ref=e1224]
+                    - generic [ref=e1225]:
+                      - generic [ref=e1226]:
+                        - generic [ref=e1227]: 3x
+                        - generic [ref=e1228]: Smoke and Mirrors
+                      - generic [ref=e1229]: Spell | Mind
+                  - generic [ref=e1230]:
+                    - generic [ref=e1231]: 0 / 3 in collection
+                    - generic [ref=e1232]:
+                      - button "-" [disabled] [ref=e1233]
+                      - generic [ref=e1234]: 0 / 3
+                      - button "+" [ref=e1235] [cursor=pointer]
+                    - button "Replacements" [ref=e1236] [cursor=pointer]
+                - generic [ref=e1237]:
+                  - generic [ref=e1238]:
+                    - img "Sprite Queen" [ref=e1240]
+                    - generic [ref=e1241]:
+                      - generic [ref=e1242]:
+                        - generic [ref=e1243]: 2x
+                        - generic [ref=e1244]: Sprite Queen
+                      - generic [ref=e1245]: Unit | Mind
+                  - generic [ref=e1246]:
+                    - generic [ref=e1247]: 0 / 2 in collection
+                    - generic [ref=e1248]:
+                      - button "-" [disabled] [ref=e1249]
+                      - generic [ref=e1250]: 0 / 2
+                      - button "+" [ref=e1251] [cursor=pointer]
+                    - button "Replacements" [ref=e1252] [cursor=pointer]
+                - generic [ref=e1253]:
+                  - generic [ref=e1254]:
+                    - img "Lilting Lullaby" [ref=e1256]
+                    - generic [ref=e1257]:
+                      - generic [ref=e1258]:
+                        - generic [ref=e1259]: 1x
+                        - generic [ref=e1260]: Lilting Lullaby
+                      - generic [ref=e1261]: Spell / Signature | Calm, Mind
+                  - generic [ref=e1262]:
+                    - generic [ref=e1263]: 0 / 1 in collection
+                    - generic [ref=e1264]:
+                      - button "-" [disabled] [ref=e1265]
+                      - generic [ref=e1266]: 0 / 1
+                      - button "+" [ref=e1267] [cursor=pointer]
+                    - button "Replacements" [ref=e1268] [cursor=pointer]
+          - generic [ref=e1270]:
+            - heading "Iterative build" [level=4] [ref=e1271]
+            - paragraph [ref=e1272]: Mark what you own, then refine. The model rebuilds toward the strongest legal deck your collection can support and saves upgrade ideas for later.
+            - generic [ref=e1273]:
+              - button "Refine for my collection" [ref=e1274] [cursor=pointer]
+              - button "Finalize strongest deck" [ref=e1275] [cursor=pointer]
+            - generic [ref=e1276]:
+              - heading "Saved upgrade ideas" [level=4] [ref=e1277]
+              - paragraph [ref=e1278]: Saved upgrade ideas appear here as you refine — like playlist recommendations for your legend.

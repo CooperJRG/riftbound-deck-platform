@@ -1569,6 +1569,7 @@ def train_generator_moe(
     cluster_by_card: dict[str, int],
     epochs: int,
     total_main_slots: int,
+    cards: CardCatalog | None = None,
     legend_to_domains: dict[str, tuple[str, ...]] | None = None,
     card_text_embeddings: dict[str, np.ndarray] | None = None,
     text_emb_dim: int = _TEXT_EMB_DIM,
@@ -1577,8 +1578,12 @@ def train_generator_moe(
     progress_step: int | None = None,
     progress_total_steps: int | None = None,
 ) -> dict[str, Any]:
-    legends = sorted({row.leader_title for row in rows if row.leader_title})
-    champions = sorted({row.chosen_champion_title for row in rows if row.chosen_champion_title})
+    if cards is not None:
+        legends = sorted({card.title for card in cards.cards if card.card_type == "Legend"})
+        champions = sorted({card.title for card in cards.cards if card.super_type == "Champion"})
+    else:
+        legends = sorted({row.leader_title for row in rows if row.leader_title})
+        champions = sorted({row.chosen_champion_title for row in rows if row.chosen_champion_title})
     legend_to_idx = {title: idx for idx, title in enumerate(legends)}
     champion_to_idx = {title: idx for idx, title in enumerate(champions)}
     cluster_count = max(1, max(cluster_by_card.values(), default=0) + 1)
@@ -2389,6 +2394,7 @@ def train_auto_builder_artifacts(
         cluster_by_card=cluster_by_card,
         epochs=epochs,
         total_main_slots=main_deck_size,
+        cards=cards,
         legend_to_domains=legend_to_domains,
         card_text_embeddings=card_text_embeddings,
         torch_device=resolved_torch_device.type,

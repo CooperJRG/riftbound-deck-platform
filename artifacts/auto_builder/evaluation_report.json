@@ -1,15 +1,54 @@
 {
-  "nextCardTop10Recall": 0.5938,
-  "maskedDeckReconstructionExactCardRecall": 0.1406,
-  "winConditionClusterSilhouette": -0.0257,
-  "competitiveScoreSpearman": 0.6025,
-  "moeLoadBalanceLoss": 3.002642,
-  "collectionFirstRecommendationHitRate": 0.8986,
-  "strictBuildableRecommendationHitRate": 0.1774,
+  "nextCardTop10Recall": 0.6719,
+  "maskedDeckReconstructionExactCardRecall": 0.125,
+  "winConditionClusterSilhouette": 0.0264,
+  "competitiveScoreSpearman": 0.611,
+  "moeLoadBalanceLoss": 3.002435,
+  "collectionFirstRecommendationHitRate": 0.8957,
+  "strictBuildableRecommendationHitRate": 0.1797,
   "strictBuildableCandidateCountP50": 0.0,
   "strictBuildableCandidateCountP90": 1.0,
-  "strictBuildableEmptyResultRate": 0.8197,
+  "strictBuildableEmptyResultRate": 0.8139,
   "winConditionSelectionTable": {
+    "24": {
+      "recommendationHitRate": 0.8957,
+      "strictBuildableHitRate": 0.1797,
+      "reconstructionRecall": 0.2097,
+      "topicCoherence": 0.335,
+      "shellCoverageBalance": 0.0852,
+      "silhouette": 0.0264,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.8139,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1792
+    },
+    "48": {
+      "recommendationHitRate": 0.8963,
+      "strictBuildableHitRate": 0.1768,
+      "reconstructionRecall": 0.2512,
+      "topicCoherence": 0.2717,
+      "shellCoverageBalance": 0.0548,
+      "silhouette": -0.0147,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.8168,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1681
+    },
+    "64": {
+      "recommendationHitRate": 0.8952,
+      "strictBuildableHitRate": 0.1728,
+      "reconstructionRecall": 0.3871,
+      "topicCoherence": 0.2689,
+      "shellCoverageBalance": 0.0466,
+      "silhouette": -0.0042,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.822,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1765
+    },
     "88": {
       "recommendationHitRate": 0.8986,
       "strictBuildableHitRate": 0.1774,
@@ -35,9 +74,40 @@
       "strictBuildableEmptyResultRate": 0.8185,
       "strictBuildableCandidateDensity": 0.15,
       "compositeScore": 0.1602
+    },
+    "112": {
+      "recommendationHitRate": 0.898,
+      "strictBuildableHitRate": 0.1786,
+      "reconstructionRecall": 0.3341,
+      "topicCoherence": 0.223,
+      "shellCoverageBalance": 0.0347,
+      "silhouette": -0.0821,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.8157,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1629
     }
   },
   "synergySelectionTable": {
+    "40": {
+      "replacementQuality": 0.8628,
+      "modularityProxy": 0.37,
+      "coverageScore": 0.7276,
+      "buildableRepairSuccess": 0.6031,
+      "silhouette": 0.0534,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.6473
+    },
+    "48": {
+      "replacementQuality": 0.8373,
+      "modularityProxy": 0.3795,
+      "coverageScore": 0.6554,
+      "buildableRepairSuccess": 0.5791,
+      "silhouette": 0.0524,
+      "clusterSizeRegularization": 1.0,
+      "compositeScore": 0.6224
+    },
     "96": {
       "replacementQuality": 0.761,
       "modularityProxy": 0.4102,

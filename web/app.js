@@ -2622,6 +2622,63 @@
     setStatus(`Saved ${source === "community" ? "community" : "meta"} deck: ${row.deckName || row.name || "Deck"}`, false);
   }
 
+  async function loadDeckIntoWizard(deckInput, statusName) {
+    const name = statusName || (deckInput && deckInput.name) || "Deck";
+    const deck = normalizeDeckPayload({
+      ...(deckInput || {}),
+      name,
+      source: "wizard",
+      format: (deckInput && deckInput.format) || state.wizard.format || "constructed"
+    });
+    if (!deck.legendTitle) throw new Error("This deck is missing a legend.");
+    if (!deck.chosenChampionTitle) throw new Error("This deck is missing a chosen champion.");
+
+    state.wizard.step = "deckbuilding";
+    state.wizard.format = deck.format || "constructed";
+    state.wizard.collectionAgnostic = false;
+    state.wizard.transientCollection = {};
+    state.wizard.eligibility = null;
+    state.wizard.recommendations = [];
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementLoading = false;
+    state.wizard.activeReplacementNotice = "";
+    state.wizard.decisions = [];
+    state.wizard.searchQuery = "";
+    state.wizard.savedRecommendations = [];
+    state.wizard.completeData = null;
+
+    state.wizard.deck = deck;
+    await refreshWizardEligibility();
+    state.wizard.deck = capWizardDeckMainCopies(deck);
+    state.wizard.targetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
+    state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
+    beginWizardDeckbuildingIteration();
+    loadWizardPlaylistFromStorage();
+
+    closeMetaDetailModal();
+    state.ui.workspaceTab = "wizard";
+    applyWorkspaceTab();
+    applyDiscoverTab();
+    await ensureWorkspaceLoaded("wizard");
+    renderWizard();
+    setStatus(`Brought ${name} into the wizard. Mark missing cards, then refine.`, false);
+  }
+
+  async function bringDiscoverDeckToWizard(source, idx) {
+    const rows = source === "community" ? state.communityDecks : state.metaDecks;
+    const row = rows[idx];
+    if (!row || !row.deck) throw new Error("Deck is unavailable.");
+
+    const name = row.deckName || row.name || (row.deck && row.deck.name) || "Deck";
+    await loadDeckIntoWizard(row.deck, name);
+  }
+
+  async function bringBuilderDeckToWizard() {
+    const deck = currentDeckFromForm();
+    await loadDeckIntoWizard(deck, deck.name || "Current Deck");
+  }
+
   function renderMetaStatus() {
     const root = document.getElementById("meta-freshness");
     if (!root) return;
@@ -2775,6 +2832,7 @@
         }
         const actions =
           `<button type="button" class="card-action-btn secondary" data-meta-view="${idx}">View</button>` +
+          `<button type="button" class="card-action-btn" data-meta-wizard="${idx}">Bring to Wizard</button>` +
           `<button type="button" class="card-action-btn" data-meta-save="${idx}">Save to My Decks</button>`;
         return tileHtml({
           title: row.deckName || "Deck",
@@ -2811,6 +2869,15 @@
         }
       }));
     });
+    Array.from(root.querySelectorAll("[data-meta-wizard]")).forEach((btn) => {
+      btn.addEventListener("click", () => withBusy(btn, "Opening...", async () => {
+        try {
+          await bringDiscoverDeckToWizard("meta", Number(btn.getAttribute("data-meta-wizard")));
+        } catch (err) {
+          setStatus(err.message || "Could not bring deck to wizard.", true);
+        }
+      }));
+    });
     renderMetaStatus();
   }
 
@@ -2833,6 +2900,7 @@
         const likeClass = likedByMe ? "card-action-btn is-liked" : "card-action-btn secondary";
         const actions =
           `<button type="button" class="card-action-btn secondary" data-community-view="${idx}">View</button>` +
+          `<button type="button" class="card-action-btn" data-community-wizard="${idx}">Bring to Wizard</button>` +
           `<button type="button" class="${likeClass}" data-community-like="${idx}" data-deck-id="${escAttr(row.id)}" data-liked="${likedByMe ? "1" : "0"}">${likeLabel}</button>` +
           (!row.isOwner ? `<button type="button" class="card-action-btn" data-community-save="${idx}">Save to Library</button>` : "");
         return tileHtml({
@@ -2889,6 +2957,15 @@
           setStatus("Deck saved to library.", false);
         } catch (err) {
           setStatus(err.message || "Could not save community deck.", true);
+        }
+      }));
+    });
+    Array.from(root.querySelectorAll("[data-community-wizard]")).forEach((btn) => {
+      btn.addEventListener("click", () => withBusy(btn, "Opening...", async () => {
+        try {
+          await bringDiscoverDeckToWizard("community", Number(btn.getAttribute("data-community-wizard")));
+        } catch (err) {
+          setStatus(err.message || "Could not bring community deck to wizard.", true);
         }
       }));
     });
@@ -7734,6 +7811,16 @@
         }
       }));
     }
+    const metaDetailWizard = document.getElementById("meta-detail-wizard-btn");
+    if (metaDetailWizard) {
+      metaDetailWizard.addEventListener("click", () => withBusy(metaDetailWizard, "Opening...", async () => {
+        try {
+          await bringDiscoverDeckToWizard(state.ui.metaDetailSource, state.ui.metaDetailIndex);
+        } catch (err) {
+          setStatus(err.message || "Could not bring deck to wizard.", true);
+        }
+      }));
+    }
     const metaDetailSave = document.getElementById("meta-detail-save-btn");
     if (metaDetailSave) {
       metaDetailSave.addEventListener("click", () => withBusy(metaDetailSave, "Saving…", async () => {
@@ -7914,6 +8001,17 @@
           }
         } catch (err) {
           setStatus(err.message || "Could not save deck.", true);
+        }
+      }));
+    }
+
+    const deckToWizardBtn = document.getElementById("deck-to-wizard-btn");
+    if (deckToWizardBtn) {
+      deckToWizardBtn.addEventListener("click", () => withBusy(deckToWizardBtn, "Opening...", async () => {
+        try {
+          await bringBuilderDeckToWizard();
+        } catch (err) {
+          setStatus(err.message || "Could not bring deck to wizard.", true);
         }
       }));
     }
@@ -8809,7 +8907,8 @@
           referenceDeck: state.wizard.optimalTargetDeck || state.wizard.targetDeck || deck,
           currentDeck: deck,
           mode: "owned_only",
-          maxIterations: 1
+          maxIterations: 1,
+          collectionAgnostic: state.wizard.collectionAgnostic || false
         }
       });
 
@@ -9546,6 +9645,27 @@
                 state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(found.deck));
               } else {
                 state.wizard.deck.chosenChampionTitle = title;
+                try {
+                  const solveResp = await api("/api/wizard/solve", {
+                    method: "POST",
+                    body: {
+                      legendTitle: state.wizard.deck.legendTitle,
+                      chosenChampionTitle: title,
+                      format: state.wizard.format || "constructed",
+                      owned: state.wizard.collectionAgnostic ? {} : state.wizard.transientCollection,
+                      referenceDeck: null,
+                      currentDeck: state.wizard.deck,
+                      mode: "owned_only",
+                      maxIterations: 1,
+                      collectionAgnostic: state.wizard.collectionAgnostic || false
+                    }
+                  });
+                  if (solveResp && solveResp.deck) {
+                    state.wizard.deck = capWizardDeckMainCopies(solveResp.deck);
+                  }
+                } catch (solveErr) {
+                  console.error("Failed to solve initial empty deck:", solveErr);
+                }
                 state.wizard.targetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
                 state.wizard.optimalTargetDeck = JSON.parse(JSON.stringify(state.wizard.deck));
               }
@@ -9978,7 +10098,8 @@
             referenceDeck: state.wizard.optimalTargetDeck || state.wizard.targetDeck || deck,
             currentDeck: deck,
             mode: "owned_only",
-            maxIterations: 1
+            maxIterations: 1,
+            collectionAgnostic: state.wizard.collectionAgnostic || false
           }
         })
       ]);

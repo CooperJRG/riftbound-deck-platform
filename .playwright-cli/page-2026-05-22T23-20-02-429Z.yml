@@ -1,0 +1,129 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - paragraph [ref=e5]: Riftbound Deck Platform
+      - heading "Riftdesk" [level=1] [ref=e6]
+    - generic [ref=e7]:
+      - button "Open account settings" [ref=e8] [cursor=pointer]:
+        - strong [ref=e9]: Local User
+        - generic [ref=e10]: local@example.com
+      - generic [ref=e11]: Admin
+      - generic [ref=e12]:
+        - button "Model" [ref=e13] [cursor=pointer]
+        - button "Sign Out" [ref=e14] [cursor=pointer]
+    - generic [ref=e17]: Ready
+  - generic [ref=e18]:
+    - tablist "Workspace" [ref=e19]:
+      - tab "Cards" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: ⊞
+        - generic [ref=e22]: Cards
+      - tab "Build" [selected] [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: ⚔
+        - generic [ref=e25]: Build
+      - tab "Explore" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: ◎
+        - generic [ref=e28]: Explore
+      - tab "Auto" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: ✦
+        - generic [ref=e31]: Auto
+      - tab "Wizard" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: 🪄
+        - generic [ref=e34]: Wizard
+      - tab "Model" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]: ⬡
+        - generic [ref=e38]: Model
+    - main [ref=e39]:
+      - tabpanel [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - heading "Builder" [level=2] [ref=e44]
+            - paragraph [ref=e45]: Private and public deck editing with legality checks, collection analysis, and ML replacement support.
+          - generic "Deck actions" [ref=e46]:
+            - button "Save Deck" [ref=e47] [cursor=pointer]
+            - button "Export JSON" [ref=e48] [cursor=pointer]
+            - button "Upload / Import" [ref=e49] [cursor=pointer]
+            - button "Clear Deck" [ref=e50] [cursor=pointer]
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - text: Deck Name
+              - textbox "Deck Name" [ref=e55]:
+                - /placeholder: My Deck
+            - generic [ref=e56]:
+              - text: Format
+              - combobox "Deck format" [ref=e57]
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - text: Bucket
+              - combobox "Deck bucket" [ref=e60]:
+                - option "Saved" [selected]
+                - option "Built"
+            - generic [ref=e61]:
+              - text: Visibility
+              - combobox "Deck visibility" [ref=e62]:
+                - option "Private" [selected]
+                - option "Public"
+            - paragraph [ref=e63]: Unsaved changes
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - heading "Legend" [level=3] [ref=e66]
+              - button "Choose Legend" [ref=e67] [cursor=pointer]:
+                - generic [ref=e69]: Choose Legend
+            - generic [ref=e70]:
+              - heading "Chosen Champion" [level=3] [ref=e71]
+              - button "Choose Champion" [ref=e72] [cursor=pointer]:
+                - generic [ref=e74]: Choose Champion
+              - generic [ref=e75]:
+                - button "-" [ref=e76] [cursor=pointer]
+                - generic [ref=e77]: "0"
+                - button "+" [ref=e78] [cursor=pointer]
+            - heading "Runes 0 / 12" [level=3] [ref=e80]:
+              - text: Runes
+              - generic [ref=e81]: 0 / 12
+          - heading "Battlefields" [level=3] [ref=e84]
+          - generic [ref=e86]:
+            - heading "Main Deck 0 / 40" [level=3] [ref=e87]:
+              - text: Main Deck
+              - generic [ref=e88]: 0 / 40
+            - generic [ref=e89]:
+              - button "Analyze vs Collection" [ref=e90] [cursor=pointer]
+              - button "Auto Complete Deck" [ref=e91] [cursor=pointer]
+              - button "Best Replacement Plan" [ref=e92] [cursor=pointer]
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - heading "Sideboard 0 / 8" [level=3] [ref=e97]:
+                - text: Sideboard
+                - generic [ref=e98]: 0 / 8
+              - generic [ref=e99]:
+                - textbox "Sideboard card search" [ref=e100]:
+                  - /placeholder: Filter sideboard-legal cards
+                - button "Clear" [ref=e101] [cursor=pointer]
+                - button "Add Card" [ref=e102] [cursor=pointer]
+            - paragraph
+          - generic [ref=e104]:
+            - heading "Builder Library 0 cards" [level=3] [ref=e106]:
+              - text: Builder Library
+              - generic [ref=e107]: 0 cards
+            - generic [ref=e109]:
+              - textbox "Filter cards in library" [ref=e110]
+              - button "Clear" [ref=e111] [cursor=pointer]
+          - generic [ref=e113]:
+            - heading "Validation and Analysis" [level=3] [ref=e115]
+            - generic [ref=e116]:
+              - heading "Rule Validation" [level=3] [ref=e118]
+              - heading "Collection Analysis" [level=3] [ref=e121]
+    - complementary "Deck Library" [ref=e123]:
+      - heading "Deck Library" [level=2] [ref=e124]
+      - generic [ref=e125]:
+        - textbox "Search decks by name, source, or legend" [ref=e126]
+        - button "Clear" [ref=e127] [cursor=pointer]
+      - generic [ref=e128]:
+        - generic [ref=e129]:
+          - heading "Built Decks" [level=3] [ref=e130]
+          - paragraph [ref=e131]: Double-click to open. Drag to Saved to release reserved cards.
+        - generic [ref=e133]:
+          - heading "Saved Decks" [level=3] [ref=e134]
+          - paragraph [ref=e135]: Double-click to open. Drag to Built to reserve cards.
+        - generic [ref=e137]:
+          - heading "Illegal Decks" [level=3] [ref=e138]
+          - paragraph [ref=e139]: Double-click to open. Contains banned cards.

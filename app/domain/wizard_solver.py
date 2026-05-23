@@ -2,13 +2,16 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.infra.auto_builder_repo import AutoBuilderRepository
 
 from app.domain.models import DeckPayload, DeckValidationResult
-from app.domain.normalization import canonicalize_titles, coerce_cards_map
+from app.domain.normalization import canonicalize_titles, coerce_cards_map, normalize_card_key
 from app.domain.rules import FormatRules
 from app.domain.validator import validate_deck
-from app.infra.cards_repo import CardCatalog, CardRecord
+from app.infra.cards_repo import BASE_DOMAINS, CardCatalog, CardRecord
 
 
 @dataclass(frozen=True)
@@ -67,7 +70,12 @@ def _domain_legal(card: CardRecord, domains: set[str]) -> bool:
         return True
     if not card.domain_parse_ok:
         return True
-    return bool(card.domains) and set(card.domains).issubset(domains)
+    return set(card.domains).issubset(domains)
+
+
+def _is_token_card(card: CardRecord) -> bool:
+    return card.card_type == "Token" or card.super_type == "Token"
+
 
 
 def _banned_titles(*, rules: FormatRules, cards: CardCatalog) -> set[str]:
@@ -85,15 +93,24 @@ def _banned_titles(*, rules: FormatRules, cards: CardCatalog) -> set[str]:
 
 
 def _is_legal_main_candidate(card: CardRecord, deck: DeckPayload, *, rules: FormatRules, cards: CardCatalog) -> bool:
+    if _is_token_card(card):
+        return False
     allowed_types = set(rules.list_constraint("allowed_main_card_types"))
     if allowed_types and card.card_type not in allowed_types:
         return False
     if card.title in _banned_titles(rules=rules, cards=cards):
         return False
+    if card.super_type == "Signature":
+        legend_card = cards.get(deck.legend_title)
+        if legend_card is not None and legend_card.champion_tags:
+            legend_tags = set(legend_card.champion_tags)
+            if not (legend_tags & set(card.champion_tags)):
+                return False
     return _domain_legal(card, _legend_domains(deck, cards=cards))
 
 
-def _support_from_seed(seed: DeckPayload, *, rules: FormatRules, cards: CardCatalog) -> tuple[dict[str, int], list[str]]:
+
+def _support_from_seed(seed: DeckPayload, *, rules: FormatRules, cards: CardCatalog, main: dict[str, int] | None = None) -> tuple[dict[str, int], list[str]]:
     runes = dict(seed.runes or {})
     battlefields = [title for title in list(seed.battlefields or []) if str(title).strip()]
     legend_domains = _legend_domains(seed, cards=cards)
@@ -101,14 +118,7 @@ def _support_from_seed(seed: DeckPayload, *, rules: FormatRules, cards: CardCata
 
     rune_exact = rules.int_constraint("rune_count_exact", 12)
     if sum(runes.values()) != rune_exact:
-        runes = {}
-        for card in cards.cards:
-            if card.card_type != str(rules.constraints.get("rune_card_type") or "Rune").strip():
-                continue
-            if card.title in banned or not _domain_legal(card, legend_domains):
-                continue
-            runes[card.title] = rune_exact
-            break
+        runes = _runes_for_main(seed, main=dict(main or {}), rules=rules, cards=cards, banned=banned)
 
     battlefield_exact = rules.int_constraint("battlefield_count_exact", 3)
     unique_required = rules.bool_constraint("battlefield_unique_required", False)
@@ -125,6 +135,62 @@ def _support_from_seed(seed: DeckPayload, *, rules: FormatRules, cards: CardCata
             if len(battlefields) >= battlefield_exact:
                 break
     return runes, battlefields
+
+
+def _runes_for_main(
+    seed: DeckPayload,
+    *,
+    main: dict[str, int],
+    rules: FormatRules,
+    cards: CardCatalog,
+    banned: set[str],
+) -> dict[str, int]:
+    rune_exact = rules.int_constraint("rune_count_exact", 12)
+    rune_type = str(rules.constraints.get("rune_card_type") or "Rune").strip()
+    legend_domains = _legend_domains(seed, cards=cards)
+    rune_by_domain: dict[str, str] = {}
+    for card in cards.cards:
+        if card.card_type != rune_type:
+            continue
+        if card.title in banned or not _domain_legal(card, legend_domains):
+            continue
+        if len(card.domains) == 1:
+            rune_by_domain[card.domains[0]] = card.title
+
+    if not rune_by_domain:
+        return {}
+
+    weights: Counter[str] = Counter()
+    for title, qty in dict(main or {}).items():
+        card = cards.get(title)
+        if card is None or not card.domains:
+            continue
+        domains = [domain for domain in card.domains if domain in rune_by_domain]
+        if not domains:
+            continue
+        weight = max(1, int(card.cost or 1)) * max(0, int(qty or 0))
+        for domain in domains:
+            weights[domain] += float(weight) / float(len(domains))
+
+    if not weights:
+        preferred = next((domain for domain in BASE_DOMAINS if domain in rune_by_domain), next(iter(rune_by_domain)))
+        return {rune_by_domain[preferred]: rune_exact}
+
+    total = float(sum(weights.values()))
+    raw = {domain: (float(weight) / total) * float(rune_exact) for domain, weight in weights.items()}
+    rounded = {domain: int(value) for domain, value in raw.items()}
+    remaining = rune_exact - sum(rounded.values())
+    for domain, _value in sorted(raw.items(), key=lambda row: (-(row[1] - int(row[1])), row[0])):
+        if remaining <= 0:
+            break
+        rounded[domain] = rounded.get(domain, 0) + 1
+        remaining -= 1
+
+    return {
+        rune_by_domain[domain]: qty
+        for domain, qty in sorted(rounded.items(), key=lambda row: BASE_DOMAINS.index(row[0]) if row[0] in BASE_DOMAINS else 999)
+        if qty > 0 and domain in rune_by_domain
+    }
 
 
 def _diff_main(before: dict[str, int], after: dict[str, int]) -> dict[str, list[dict[str, Any]]]:
@@ -296,8 +362,59 @@ def solve_wizard_deck(
     reference_deck: DeckPayload | None = None,
     current_deck: DeckPayload | None = None,
     swaps: list[dict[str, str]] | None = None,
+    auto_builder: AutoBuilderRepository | None = None,
+    collection_agnostic: bool = False,
 ) -> WizardSolveResult:
-    canonical_owned = _canonical_owned(owned, cards=cards)
+    if collection_agnostic:
+        canonical_owned = {card.title: 3 for card in cards.cards}
+        if owned:
+            for k, v in owned.items():
+                clean = cards.resolve_title(k)
+                if clean:
+                    canonical_owned[clean] = max(0, int(v or 0))
+        lacking_cards = {cards.resolve_title(k) for k, v in (owned or {}).items() if int(v or 0) <= 0}
+        lacking_cards = {x for x in lacking_cards if x is not None}
+    else:
+        canonical_owned = _canonical_owned(owned, cards=cards)
+        lacking_cards = {cards.resolve_title(k) for k, v in (owned or {}).items() if int(v or 0) <= 0}
+        lacking_cards = {x for x in lacking_cards if x is not None}
+
+    seed = reference_deck or current_deck or DeckPayload()
+    seed = _canonical_deck(seed, cards=cards, format_name=format_name)
+    legend = cards.resolve_title(legend_title or seed.legend_title)
+    champion = cards.resolve_title(chosen_champion_title or seed.chosen_champion_title)
+
+    # 1. Archetype lookup if collection_agnostic and auto_builder is available
+    if collection_agnostic and auto_builder is not None and auto_builder._loaded is not None:
+        bundle = auto_builder._loaded.bundle
+        archetypes = bundle.get("archetypes") or []
+        matching = []
+        for arch in archetypes:
+            arch_legend = cards.resolve_title(arch.get("legendTitle") or arch.get("legend_title") or "")
+            arch_champ = cards.resolve_title(arch.get("chosenChampionTitle") or arch.get("chosen_champion_title") or "")
+            if arch_legend == legend and arch_champ == champion:
+                matching.append(arch)
+        if matching:
+            # Sort by confidence and competitivePrior descending
+            matching.sort(key=lambda x: (
+                -float(x.get("confidence", 0.0) or 0.0),
+                -float(x.get("competitivePrior", x.get("competitive_prior", 0.0)) or 0.0)
+            ))
+            best_archetype = matching[0]
+            proto_main = best_archetype.get("prototypeMain") or best_archetype.get("prototype_main") or {}
+            reference_deck = DeckPayload(
+                name=best_archetype.get("archetypeName") or best_archetype.get("archetype_name") or "Archetype Template",
+                source="archetype",
+                format=format_name,
+                legendTitle=legend,
+                chosenChampionTitle=champion,
+                main={cards.resolve_title(k): int(v) for k, v in proto_main.items() if cards.resolve_title(k)},
+                runes={},
+                battlefields=[],
+                sideboard={}
+            )
+
+    # Re-evaluate seed, reference, and current if reference_deck was loaded/updated
     seed = reference_deck or current_deck or DeckPayload()
     seed = _canonical_deck(seed, cards=cards, format_name=format_name)
     legend = cards.resolve_title(legend_title or seed.legend_title)
@@ -315,6 +432,29 @@ def solve_wizard_deck(
     )
     reference = _canonical_deck(reference_deck, cards=cards, format_name=seed.format) if reference_deck is not None else None
     current = _canonical_deck(current_deck, cards=cards, format_name=seed.format) if current_deck is not None else seed
+    seedless_main = not dict(reference.main or {}) if reference is not None else not dict(current.main or {})
+    explicit_owned_titles = {
+        cards.resolve_title(title)
+        for title in (owned or {}).keys()
+        if str(title or "").strip()
+    }
+    partial_reference_shortages: set[str] = set()
+    if reference is not None:
+        for title, qty in dict(reference.main or {}).items():
+            clean = cards.resolve_title(title)
+            card = cards.get(clean)
+            requested = max(0, int(qty or 0))
+            owned_qty = max(0, int(canonical_owned.get(clean, 0) or 0))
+            if (
+                clean
+                and clean in explicit_owned_titles
+                and card is not None
+                and requested >= 2
+                and 0 < owned_qty < requested
+                and not bool(card.is_unique)
+                and card.super_type != "Champion"
+            ):
+                partial_reference_shortages.add(clean)
 
     main_size = rules.int_constraint("main_deck_size_exact", 40)
     main: Counter[str] = Counter()
@@ -334,9 +474,86 @@ def solve_wizard_deck(
         room = max(0, cap - int(main.get(clean, 0) or 0))
         deck_room = max(0, main_size - sum(main.values()))
         add = min(max(0, int(requested)), room, deck_room)
+        if card.super_type == "Signature":
+            sig_limit = rules.int_constraint("signature_max_total", 0)
+            if sig_limit > 0:
+                current_sigs = sum(v for k, v in main.items() if (cards.get(k) and cards.get(k).super_type == "Signature"))
+                sig_room = max(0, sig_limit - current_sigs)
+                add = min(add, sig_room)
         if add > 0:
             main[clean] += add
         return add
+
+    def add_unowned_card(title: str, requested: int) -> int:
+        clean = cards.resolve_title(title)
+        card = cards.get(clean)
+        if card is None or requested <= 0:
+            return 0
+        if clean in lacking_cards or clean in partial_reference_shortages:
+            return 0
+        if not _is_legal_main_candidate(card, seed, rules=rules, cards=cards):
+            return 0
+        cap = _main_copy_cap(card, rules=rules)
+        room = max(0, cap - int(main.get(clean, 0) or 0))
+        deck_room = max(0, main_size - sum(main.values()))
+        add = min(max(0, int(requested)), room, deck_room)
+        if card.super_type == "Signature":
+            sig_limit = rules.int_constraint("signature_max_total", 0)
+            if sig_limit > 0:
+                current_sigs = sum(v for k, v in main.items() if (cards.get(k) and cards.get(k).super_type == "Signature"))
+                sig_room = max(0, sig_limit - current_sigs)
+                add = min(add, sig_room)
+        if add > 0:
+            main[clean] += add
+        return add
+
+    def seedless_card_score(card: CardRecord) -> tuple[int, int, int, int, int, str]:
+        champion_card = cards.get(champion)
+        primary_domains = set(champion_card.domains) if champion_card is not None and champion_card.domains else set()
+        legend_domain_set = _legend_domains(seed, cards=cards)
+        card_domains = set(card.domains)
+        if primary_domains and card_domains and card_domains.issubset(primary_domains):
+            domain_score = 6
+        elif primary_domains and card_domains & primary_domains:
+            domain_score = 5
+        elif legend_domain_set and card_domains and card_domains.issubset(legend_domain_set):
+            domain_score = 3
+        else:
+            domain_score = 0
+        type_score = 2 if card.card_type == "Unit" else 1 if card.card_type == "Gear" else 0
+        cost = int(card.cost or 0)
+        curve_score = 4 - min(4, abs(cost - 3)) if cost > 0 else 0
+        owned_score = min(_main_copy_cap(card, rules=rules), max(0, int(canonical_owned.get(card.title, 0) or 0)))
+        non_champion_score = 0 if card.super_type == "Champion" else 1
+        return (domain_score, non_champion_score, owned_score, type_score, curve_score, card.title.lower())
+
+    def fill_seedless_main_from_focused_pool() -> bool:
+        candidates = [
+            card
+            for card in cards.cards
+            if card.title != champion
+            and card.super_type != "Champion"
+            and max(0, int(canonical_owned.get(card.title, 0) or 0)) > 0
+            and _is_legal_main_candidate(card, seed, rules=rules, cards=cards)
+        ]
+        candidates.sort(key=seedless_card_score, reverse=True)
+        for card in candidates:
+            if sum(main.values()) >= main_size:
+                break
+            cap = min(_main_copy_cap(card, rules=rules), max(0, int(canonical_owned.get(card.title, 0) or 0)))
+            if cap <= 0:
+                continue
+            add_card(card.title, cap)
+        return sum(main.values()) >= main_size
+
+
+    # Calculate total available owned copies of legal cards
+    total_available_owned = 0
+    dropped_wholecloth: set[str] = set()
+    for c in cards.cards:
+        if _is_legal_main_candidate(c, seed, rules=rules, cards=cards):
+            cap = min(_main_copy_cap(c, rules=rules), max(0, int(canonical_owned.get(c.title, 0) or 0)))
+            total_available_owned += cap
 
     if champion:
         if add_card(champion, 1) <= 0:
@@ -346,41 +563,408 @@ def solve_wizard_deck(
         if source is None:
             continue
         for title, qty in sorted(dict(source.main or {}).items(), key=lambda row: (row[0] != champion, row[0].lower())):
+            clean = cards.resolve_title(title)
+            card = cards.get(clean)
+            owned_qty = max(0, int(canonical_owned.get(clean, 0) or 0))
+            ref_qty = reference.main.get(clean, 0) if reference is not None else 0
+            if (
+                clean in dropped_wholecloth
+                or (
+                    card is not None
+                    and clean != champion
+                    and not bool(card.is_unique)
+                    and owned_qty == 1
+                    and ref_qty >= 2
+                    and (total_available_owned - 1) >= main_size
+                )
+            ):
+                if clean not in dropped_wholecloth:
+                    total_available_owned -= 1
+                    dropped_wholecloth.add(clean)
+                continue
             add_card(title, int(qty or 0))
             if sum(main.values()) >= main_size:
                 break
         if sum(main.values()) >= main_size:
             break
 
-    reference_counts = dict(reference.main or {}) if reference is not None else {}
-    current_counts = dict(current.main or {}) if current is not None else {}
+    if seedless_main and sum(main.values()) < main_size:
+        fill_seedless_main_from_focused_pool()
 
-    def fill_score(card: CardRecord) -> tuple[int, int, int, str]:
-        return (
-            int(reference_counts.get(card.title, 0) or 0),
-            int(current_counts.get(card.title, 0) or 0),
-            int(canonical_owned.get(card.title, 0) or 0),
-            card.title.lower(),
+    # -- Model B / Model A Refinement and Gap Filling --------------------------
+    # Try Model B (Transformer) first
+    model_b_success = False
+    if auto_builder is not None and getattr(auto_builder, "_model_b", None) is not None and getattr(auto_builder, "_artifact_b", None) is not None:
+        model_b = auto_builder._model_b
+        artifact_b = auto_builder._artifact_b
+        device = next(model_b.parameters()).device
+        vocab_to_idx = artifact_b.vocab_to_idx
+        index_to_key = artifact_b.index_to_key
+        card_feat_t = artifact_b.card_feat_matrix_tensor
+        all_cand_ids = artifact_b.all_cand_ids_tensor
+        freq_by_legend = artifact_b.card_freq_by_legend
+        card_cluster_labels = getattr(artifact_b, "card_cluster_labels", None)
+        
+        legend_to_idx = artifact_b.legend_to_idx
+        champion_to_idx = artifact_b.champion_to_idx
+        legend_idx_val = legend_to_idx.get(legend, 0)
+        champion_idx_val = champion_to_idx.get(champion, 0)
+        
+        import torch
+        legend_idx_t = torch.tensor([legend_idx_val], dtype=torch.long, device=device)
+        champion_idx_t = torch.tensor([champion_idx_val], dtype=torch.long, device=device)
+        
+        from app.domain.auto_builder_model_b import deck_to_tensors, _deck_archetype_idx, _prior_score, _sigmoid
+        
+        try:
+            while sum(main.values()) < main_size:
+                remaining = main_size - sum(main.values())
+                card_ids_t, feats_t, qty_t, pad_mask_t = deck_to_tensors(
+                    dict(main), vocab_to_idx, artifact_b.card_feat_matrix, artifact_b.model_params["max_deck"], device
+                )
+                rem_frac_t = torch.tensor([remaining / main_size], dtype=torch.float32, device=device)
+                
+                arch_idx_val = 0
+                if card_cluster_labels is not None:
+                    arch_idx_val = _deck_archetype_idx(dict(main), vocab_to_idx, card_cluster_labels)
+                arch_idx_t = torch.tensor([arch_idx_val], dtype=torch.long, device=device)
+                
+                logits = model_b.score_candidates_batch(
+                    card_ids_t, feats_t, qty_t, legend_idx_t, champion_idx_t,
+                    pad_mask_t, rem_frac_t, arch_idx_t, all_cand_ids, card_feat_t,
+                ).cpu().numpy()
+                
+                scored_candidates = []
+                for vocab_pos, logit in enumerate(logits):
+                    key = index_to_key[vocab_pos] if vocab_pos < len(index_to_key) else ""
+                    if not key or key in dropped_wholecloth:
+                        continue
+                    card = cards.get(key)
+                    if card is None:
+                        continue
+                    if not _is_legal_main_candidate(card, seed, rules=rules, cards=cards):
+                        continue
+                    cap = min(
+                        _main_copy_cap(card, rules=rules),
+                        max(0, int(canonical_owned.get(key, 0) or 0)),
+                    )
+                    room = max(0, cap - int(main.get(key, 0) or 0))
+                    if room <= 0:
+                        continue
+                    prior = _prior_score(key, legend, freq_by_legend)
+                    score = 0.75 * _sigmoid(float(logit)) + 0.25 * min(1.0, prior)
+                    scored_candidates.append((score, key))
+                
+                scored_candidates.sort(key=lambda x: (-x[0], x[1]))
+                added_any = False
+                for score, key in scored_candidates:
+                    if add_card(key, 1) > 0:
+                        added_any = True
+                        break
+                if not added_any:
+                    break
+            model_b_success = True
+        except Exception as b_exc:
+            # Fall back to Model A or original solver
+            pass
+
+    # Try Model A (MoE model) if Model B is not available or failed
+    if not model_b_success and auto_builder is not None and auto_builder._loaded is not None:
+        bundle = auto_builder._loaded.bundle
+        generator_state = auto_builder._loaded.generator_state
+        
+        from app.domain.auto_builder_types import GenerationPlan
+        shell_id = f"{normalize_card_key(legend)}::{normalize_card_key(champion)}"
+        shell_label = f"{legend} / {champion}"
+        plan = GenerationPlan(
+            shell_id=shell_id,
+            shell_label=shell_label,
+            archetype_id=f"{shell_id}::default",
+            archetype_name=f"{champion} Default Archetype",
+            archetype_confidence=0.5,
+            win_condition_id=0,
+            win_condition_label="WC01",
+            legend_title=legend,
+            chosen_champion_title=champion,
+            synergy_cluster_ids=(),
+            synergy_cluster_labels=(),
+            win_condition_vector=(),
+            source_breakdown={},
+            seed_decks=(),
         )
 
-    fill_cards = [
-        card
-        for card in cards.cards
-        if canonical_owned.get(card.title, 0) > 0 and _is_legal_main_candidate(card, seed, rules=rules, cards=cards)
-    ]
-    fill_cards.sort(key=fill_score, reverse=True)
-    while sum(main.values()) < main_size:
-        progressed = False
-        for card in fill_cards:
-            if sum(main.values()) >= main_size:
+        from app.domain.auto_builder_generation import (
+            _load_generator_model,
+            _bundle_runtime,
+            _score_candidate_keys,
+        )
+        
+        try:
+            model_a = _load_generator_model(generator_state)
+            runtime_cache = _bundle_runtime(bundle, cards)
+            embeddings = runtime_cache["embeddings"]
+            
+            while sum(main.values()) < main_size:
+                eligible_keys = []
+                for card in cards.cards:
+                    key = card.title
+                    if key in dropped_wholecloth:
+                        continue
+                    if not _is_legal_main_candidate(card, seed, rules=rules, cards=cards):
+                        continue
+                    cap = min(
+                        _main_copy_cap(card, rules=rules),
+                        max(0, int(canonical_owned.get(key, 0) or 0)),
+                    )
+                    room = max(0, cap - int(main.get(key, 0) or 0))
+                    if room > 0:
+                        eligible_keys.append(key)
+                
+                if not eligible_keys:
+                    break
+                
+                scored = _score_candidate_keys(
+                    model=model_a,
+                    generator_state=generator_state,
+                    plan=plan,
+                    partial_main=dict(main),
+                    candidate_keys=eligible_keys,
+                    bundle=bundle,
+                    cards=cards,
+                    embeddings=embeddings,
+                    static_features=runtime_cache["staticFeatures"],
+                    cluster_by_card=runtime_cache["clusterByCard"],
+                    collection_by_key={normalize_card_key(k): int(v) for k, v in canonical_owned.items()},
+                    runtime_cache=runtime_cache,
+                )
+                
+                scored.sort(key=lambda row: (-row[0], row[1]))
+                added_any = False
+                for score, key in scored:
+                    if add_card(key, 1) > 0:
+                        added_any = True
+                        break
+                if not added_any:
+                    break
+        except Exception as moe_exc:
+            pass
+
+    # Fall back to original greedy alphabetical solver if there is still room
+    if sum(main.values()) < main_size:
+        reference_counts = dict(reference.main or {}) if reference is not None else {}
+        current_counts = dict(current.main or {}) if current is not None else {}
+
+        def fill_score(card: CardRecord) -> tuple[int, int, int, str]:
+            return (
+                int(reference_counts.get(card.title, 0) or 0),
+                int(current_counts.get(card.title, 0) or 0),
+                int(canonical_owned.get(card.title, 0) or 0),
+                card.title.lower(),
+            )
+
+        fill_cards = [
+            card
+            for card in cards.cards
+            if card.title not in dropped_wholecloth and canonical_owned.get(card.title, 0) > 0 and _is_legal_main_candidate(card, seed, rules=rules, cards=cards)
+        ]
+        fill_cards.sort(key=fill_score, reverse=True)
+        while sum(main.values()) < main_size:
+            progressed = False
+            for card in fill_cards:
+                if sum(main.values()) >= main_size:
+                    break
+                if add_card(card.title, 1) > 0:
+                    progressed = True
+            if not progressed:
                 break
-            if add_card(card.title, 1) > 0:
-                progressed = True
-        if not progressed:
-            break
+
+    # -- Pass 2: Unowned gap-filling pass (only if deck is still under main_size)
+    if sum(main.values()) < main_size:
+        # Try Model B first for unowned filling
+        model_b_success = False
+        if auto_builder is not None and getattr(auto_builder, "_model_b", None) is not None and getattr(auto_builder, "_artifact_b", None) is not None:
+            model_b = auto_builder._model_b
+            artifact_b = auto_builder._artifact_b
+            device = next(model_b.parameters()).device
+            vocab_to_idx = artifact_b.vocab_to_idx
+            index_to_key = artifact_b.index_to_key
+            card_feat_t = artifact_b.card_feat_matrix_tensor
+            all_cand_ids = artifact_b.all_cand_ids_tensor
+            freq_by_legend = artifact_b.card_freq_by_legend
+            card_cluster_labels = getattr(artifact_b, "card_cluster_labels", None)
+            
+            legend_to_idx = artifact_b.legend_to_idx
+            champion_to_idx = artifact_b.champion_to_idx
+            legend_idx_val = legend_to_idx.get(legend, 0)
+            champion_idx_val = champion_to_idx.get(champion, 0)
+            
+            import torch
+            legend_idx_t = torch.tensor([legend_idx_val], dtype=torch.long, device=device)
+            champion_idx_t = torch.tensor([champion_idx_val], dtype=torch.long, device=device)
+            
+            from app.domain.auto_builder_model_b import deck_to_tensors, _deck_archetype_idx, _prior_score, _sigmoid
+            
+            try:
+                while sum(main.values()) < main_size:
+                    remaining = main_size - sum(main.values())
+                    card_ids_t, feats_t, qty_t, pad_mask_t = deck_to_tensors(
+                        dict(main), vocab_to_idx, artifact_b.card_feat_matrix, artifact_b.model_params["max_deck"], device
+                    )
+                    rem_frac_t = torch.tensor([remaining / main_size], dtype=torch.float32, device=device)
+                    
+                    arch_idx_val = 0
+                    if card_cluster_labels is not None:
+                        arch_idx_val = _deck_archetype_idx(dict(main), vocab_to_idx, card_cluster_labels)
+                    arch_idx_t = torch.tensor([arch_idx_val], dtype=torch.long, device=device)
+                    
+                    logits = model_b.score_candidates_batch(
+                        card_ids_t, feats_t, qty_t, legend_idx_t, champion_idx_t,
+                        pad_mask_t, rem_frac_t, arch_idx_t, all_cand_ids, card_feat_t,
+                    ).cpu().numpy()
+                    
+                    scored_candidates = []
+                    for vocab_pos, logit in enumerate(logits):
+                        key = index_to_key[vocab_pos] if vocab_pos < len(index_to_key) else ""
+                        if not key or key in lacking_cards or key in partial_reference_shortages or key in dropped_wholecloth:
+                            continue
+                        card = cards.get(key)
+                        if card is None:
+                            continue
+                        if not _is_legal_main_candidate(card, seed, rules=rules, cards=cards):
+                            continue
+                        cap = _main_copy_cap(card, rules=rules)
+                        room = max(0, cap - int(main.get(key, 0) or 0))
+                        if room <= 0:
+                            continue
+                        prior = _prior_score(key, legend, freq_by_legend)
+                        score = 0.75 * _sigmoid(float(logit)) + 0.25 * min(1.0, prior)
+                        scored_candidates.append((score, key))
+                    
+                    scored_candidates.sort(key=lambda x: (-x[0], x[1]))
+                    added_any = False
+                    for score, key in scored_candidates:
+                        if add_unowned_card(key, 1) > 0:
+                            added_any = True
+                            break
+                    if not added_any:
+                        break
+                model_b_success = True
+            except Exception as b_exc:
+                pass
+
+        # Try Model A next for unowned filling
+        if not model_b_success and auto_builder is not None and auto_builder._loaded is not None:
+            bundle = auto_builder._loaded.bundle
+            generator_state = auto_builder._loaded.generator_state
+            
+            from app.domain.auto_builder_types import GenerationPlan
+            shell_id = f"{normalize_card_key(legend)}::{normalize_card_key(champion)}"
+            shell_label = f"{legend} / {champion}"
+            plan = GenerationPlan(
+                shell_id=shell_id,
+                shell_label=shell_label,
+                archetype_id=f"{shell_id}::default",
+                archetype_name=f"{champion} Default Archetype",
+                archetype_confidence=0.5,
+                win_condition_id=0,
+                win_condition_label="WC01",
+                legend_title=legend,
+                chosen_champion_title=champion,
+                synergy_cluster_ids=(),
+                synergy_cluster_labels=(),
+                win_condition_vector=(),
+                source_breakdown={},
+                seed_decks=(),
+            )
+
+            from app.domain.auto_builder_generation import (
+                _load_generator_model,
+                _bundle_runtime,
+                _score_candidate_keys,
+            )
+            
+            try:
+                model_a = _load_generator_model(generator_state)
+                runtime_cache = _bundle_runtime(bundle, cards)
+                embeddings = runtime_cache["embeddings"]
+                
+                while sum(main.values()) < main_size:
+                    eligible_keys = []
+                    for card in cards.cards:
+                        key = card.title
+                        if key in lacking_cards or key in partial_reference_shortages or key in dropped_wholecloth:
+                            continue
+                        if not _is_legal_main_candidate(card, seed, rules=rules, cards=cards):
+                            continue
+                        cap = _main_copy_cap(card, rules=rules)
+                        room = max(0, cap - int(main.get(key, 0) or 0))
+                        if room > 0:
+                            eligible_keys.append(key)
+                    
+                    if not eligible_keys:
+                        break
+                    
+                    full_owned_by_key = {normalize_card_key(card.title): 3 for card in cards.cards}
+                    scored = _score_candidate_keys(
+                        model=model_a,
+                        generator_state=generator_state,
+                        plan=plan,
+                        partial_main=dict(main),
+                        candidate_keys=eligible_keys,
+                        bundle=bundle,
+                        cards=cards,
+                        embeddings=embeddings,
+                        static_features=runtime_cache["staticFeatures"],
+                        cluster_by_card=runtime_cache["clusterByCard"],
+                        collection_by_key=full_owned_by_key,
+                        runtime_cache=runtime_cache,
+                    )
+                    
+                    scored.sort(key=lambda row: (-row[0], row[1]))
+                    added_any = False
+                    for score, key in scored:
+                        if add_unowned_card(key, 1) > 0:
+                            added_any = True
+                            break
+                    if not added_any:
+                        break
+            except Exception as moe_exc:
+                pass
+
+        # Fall back to original greedy alphabetical solver (unowned)
+        if sum(main.values()) < main_size:
+            reference_counts = dict(reference.main or {}) if reference is not None else {}
+            current_counts = dict(current.main or {}) if current is not None else {}
+
+            def fill_score_unowned(card: CardRecord) -> tuple[int, int, int, str]:
+                return (
+                    int(reference_counts.get(card.title, 0) or 0),
+                    int(current_counts.get(card.title, 0) or 0),
+                    1,
+                    card.title.lower(),
+                )
+
+            fill_cards = [
+                card
+                for card in cards.cards
+                if card.title not in lacking_cards
+                and card.title not in partial_reference_shortages
+                and card.title not in dropped_wholecloth
+                and _is_legal_main_candidate(card, seed, rules=rules, cards=cards)
+            ]
+            fill_cards.sort(key=fill_score_unowned, reverse=True)
+            while sum(main.values()) < main_size:
+                progressed = False
+                for card in fill_cards:
+                    if sum(main.values()) >= main_size:
+                        break
+                    if add_unowned_card(card.title, 1) > 0:
+                        progressed = True
+                if not progressed:
+                    break
 
     solved_main = dict(sorted((title, qty) for title, qty in main.items() if qty > 0))
-    runes, battlefields = _support_from_seed(seed, rules=rules, cards=cards)
+    runes, battlefields = _support_from_seed(seed, rules=rules, cards=cards, main=solved_main)
     solved = DeckPayload(
         name=current.name or seed.name or "Guided Deck",
         source="wizard",

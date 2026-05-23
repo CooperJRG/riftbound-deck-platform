@@ -75,6 +75,10 @@ def _main_deck_target_size(rules) -> int:
         return 40
 
 
+def _is_token_card(card) -> bool:
+    return getattr(card, "card_type", "") == "Token" or getattr(card, "super_type", "") == "Token"
+
+
 def _safe_model_predict(model, row: np.ndarray, *, default: float = 0.0) -> float:
     if model is None or not hasattr(model, "predict"):
         return float(default)
@@ -467,13 +471,34 @@ def build_generation_plans(*, bundle: dict[str, Any], collection_by_key: dict[st
                     prior_score=round(float(shell_score + archetype_score), 4),
                 )
             )
+    if not plans and legend_title and chosen_champion_title:
+        shell_id = f"{normalize_card_key(legend_title)}::{normalize_card_key(chosen_champion_title)}"
+        shell_label = f"{legend_title} / {chosen_champion_title}"
+        plans.append(
+            GenerationPlan(
+                shell_id=shell_id,
+                shell_label=shell_label,
+                archetype_id=f"{shell_id}::default",
+                archetype_name=f"{chosen_champion_title} Default Archetype",
+                archetype_confidence=0.5,
+                win_condition_id=0,
+                win_condition_label="WC01",
+                legend_title=legend_title,
+                chosen_champion_title=chosen_champion_title,
+                synergy_cluster_ids=(),
+                synergy_cluster_labels=(),
+                win_condition_vector=(),
+                source_breakdown={},
+                seed_decks=(),
+            )
+        )
     plans.sort(key=lambda row: (-row.prior_score, row.shell_label.lower(), row.archetype_name.lower()))
     return plans
 
 
 def _can_add_card(*, main_by_key: dict[str, int], candidate_key: str, cards, legend_title: str, collection_by_key: dict[str, int] | None = None, strict_buildable: bool = False) -> bool:
     card = cards.by_key.get(candidate_key)
-    if card is None or card.card_type not in _MAIN_CARD_TYPES:
+    if card is None or _is_token_card(card) or card.card_type not in _MAIN_CARD_TYPES:
         return False
     legend = cards.get(legend_title) if legend_title else None
     legend_domains = set(legend.domains) if legend is not None else set()
@@ -501,6 +526,18 @@ def _candidate_card_pool(*, plan: GenerationPlan, partial_main: dict[str, int], 
         pool.update(str(key) for key in dict(seed_row.get("mainByKey") or {}).keys())
     if collection_by_key:
         pool.update(key for key, qty in collection_by_key.items() if int(qty) > 0)
+    
+    # For unseen/default shells (like Ahri), ensure all legal cards in the catalog are in the pool
+    # so we don't end up with an empty candidate pool
+    legend = cards.get(plan.legend_title) if plan.legend_title else None
+    legend_domains = set(legend.domains) if legend is not None else set()
+    for card in cards.cards:
+        if _is_token_card(card) or card.card_type not in _MAIN_CARD_TYPES:
+            continue
+        if legend_domains and (not card.domains or not set(card.domains).issubset(legend_domains)):
+            continue
+        pool.add(normalize_card_key(card.title))
+
     if partial_main:
         embedding_vectors = embedding_vectors if embedding_vectors is not None else runtime_cache["embeddings"]
         embedding_neighbors = runtime_cache["embeddingNeighbors"]

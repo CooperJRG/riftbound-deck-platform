@@ -66,6 +66,7 @@ def _catalog() -> CardCatalog:
         cards.append(_card(name, card_type))
     cards.append(_card("Forgefire Cape", "Gear", is_unique=True))
     cards.append(_card("Colorless Relic", "Gear", domains=tuple()))
+    cards.append(_card("Recruit (DE)", "Unit", super_type="Token", domains=tuple()))
 
     by_title = {c.title: c for c in cards}
     by_key = {normalize_card_key(c.title): c for c in cards}
@@ -195,3 +196,14 @@ def test_banned_card_fails() -> None:
     result = validate_deck(deck, rules=_rules(), cards=custom_catalog)
     assert result.is_valid is False
     assert any(issue.code == "BANNED_CARD" and "Called Shot" in issue.message for issue in result.issues)
+
+
+def test_token_card_fails_main_deck_validation() -> None:
+    deck = _valid_deck()
+    deck.main["Recruit (DE)"] = 1
+    deck.main["Arcane Relay"] = 2
+
+    result = validate_deck(deck, rules=_rules(), cards=_catalog())
+
+    assert result.is_valid is False
+    assert any(issue.code == "MAIN_TOKEN_CARD" for issue in result.issues)

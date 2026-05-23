@@ -53,6 +53,8 @@ class AutoBuilderRepository:
         self._runtime_warnings: list[str] = []
         self._profiles_by_ref: dict[tuple[str, str], dict[str, Any]] = {}
         self._profiles_by_signature: dict[str, dict[str, Any]] = {}
+        self._model_b = None
+        self._artifact_b = None
         # Load bundle in background so app startup is fast; first recommend may wait for load.
         t = threading.Thread(target=self.refresh, kwargs={"force": True}, name="auto-builder-load", daemon=True)
         t.start()
@@ -132,6 +134,30 @@ class AutoBuilderRepository:
             self._runtime_warnings = runtime_warnings[:6]
             self._profiles_by_ref = profiles_by_ref
             self._profiles_by_signature = profiles_by_signature
+
+            # Load Model B if present
+            generator_b_path = self._path / "generator_b.pt"
+            metadata_b_path = self._path / "model_b_metadata.json"
+            if generator_b_path.is_file() and metadata_b_path.is_file():
+                try:
+                    from app.domain.auto_builder_model_b import load_model_b_artifact
+                    device = _resolve_torch_device(None)
+                    model_b, artifact_b = load_model_b_artifact(
+                        generator_b_path,
+                        metadata_b_path,
+                        device=device,
+                    )
+                    self._model_b = model_b
+                    self._artifact_b = artifact_b
+                    logger.info("Successfully loaded Model B artifacts.")
+                except Exception as b_exc:
+                    logger.warning("Failed to load Model B artifacts: %s", b_exc)
+                    self._model_b = None
+                    self._artifact_b = None
+            else:
+                self._model_b = None
+                self._artifact_b = None
+
             try:
                 prewarm_auto_builder_runtime(bundle=loaded.bundle, generator_state=loaded.generator_state, cards=self._cards)
             except Exception as prewarm_exc:
@@ -141,6 +167,8 @@ class AutoBuilderRepository:
         except Exception as exc:
             self._last_error = str(exc)
             self._runtime_warnings = []
+            self._model_b = None
+            self._artifact_b = None
 
     def status(self) -> dict[str, object]:
         meta = self._loaded.metadata if self._loaded is not None else {}

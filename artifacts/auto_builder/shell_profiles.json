@@ -10,9 +10,9 @@
     ],
     "training_deck_count": 42,
     "archetype_count": 33,
-    "competitive_prior": 23.3649,
-    "buildability_prior": 0.9468,
-    "buildable_conversion": 0.9407,
+    "competitive_prior": 23.3474,
+    "buildability_prior": 0.9484,
+    "buildable_conversion": 0.9457,
     "source_breakdown": {
       "riftboundgg": 12,
       "riot-bologna": 2,
@@ -63,7 +63,7 @@
     ],
     "training_deck_count": 68,
     "archetype_count": 54,
-    "competitive_prior": 23.0663,
+    "competitive_prior": 23.1003,
     "buildability_prior": 0.9539,
     "buildable_conversion": 0.9618,
     "source_breakdown": {
@@ -111,9 +111,9 @@
     ],
     "training_deck_count": 55,
     "archetype_count": 39,
-    "competitive_prior": 22.4948,
-    "buildability_prior": 0.9428,
-    "buildable_conversion": 0.9328,
+    "competitive_prior": 22.4878,
+    "buildability_prior": 0.9447,
+    "buildable_conversion": 0.9392,
     "source_breakdown": {
       "piltoverarchive": 36,
       "riftboundgg": 7,
@@ -158,7 +158,7 @@
     ],
     "training_deck_count": 5,
     "archetype_count": 5,
-    "competitive_prior": 22.4151,
+    "competitive_prior": 22.4738,
     "buildability_prior": 0.9595,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -192,7 +192,7 @@
     ],
     "training_deck_count": 7,
     "archetype_count": 7,
-    "competitive_prior": 20.7129,
+    "competitive_prior": 20.1612,
     "buildability_prior": 0.9542,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -231,7 +231,7 @@
     ],
     "training_deck_count": 2,
     "archetype_count": 2,
-    "competitive_prior": 20.0722,
+    "competitive_prior": 20.1292,
     "buildability_prior": 0.9541,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -251,6 +251,25 @@
     }
   },
   {
+    "shell_id": "ezrealprodigy|ezrealprodigy|chaos",
+    "shell_label": "Ezreal - Prodigy / Ezreal - Prodigy",
+    "legend_title": "Ezreal - Prodigy",
+    "chosen_champion_title": "Ezreal - Prodigy",
+    "legend_domains": [
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 18.9616,
+    "buildability_prior": 0.9429,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {}
+  },
+  {
     "shell_id": "anniedarkchild|dariustrifarian|chaos,fury",
     "shell_label": "Annie - Dark Child / Darius - Trifarian",
     "legend_title": "Annie - Dark Child",
@@ -261,7 +280,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 19.3491,
+    "competitive_prior": 18.9452,
     "buildability_prior": 0.9538,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -288,27 +307,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 18.61,
+    "competitive_prior": 18.7915,
     "buildability_prior": 0.925,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "ezrealprodigy|ezrealprodigy|chaos",
-    "shell_label": "Ezreal - Prodigy / Ezreal - Prodigy",
-    "legend_title": "Ezreal - Prodigy",
-    "chosen_champion_title": "Ezreal - Prodigy",
-    "legend_domains": [
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 18.37,
-    "buildability_prior": 0.9429,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
@@ -327,7 +327,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 18.3031,
+    "competitive_prior": 18.1769,
     "buildability_prior": 0.9494,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -351,9 +351,9 @@
     ],
     "training_deck_count": 61,
     "archetype_count": 31,
-    "competitive_prior": 17.651,
-    "buildability_prior": 0.9362,
-    "buildable_conversion": 0.9153,
+    "competitive_prior": 17.583,
+    "buildability_prior": 0.94,
+    "buildable_conversion": 0.9267,
     "source_breakdown": {
       "riftboundgg": 17,
       "piltoverarchive": 32,
@@ -399,7 +399,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 17.4189,
+    "competitive_prior": 17.2771,
     "buildability_prior": 0.9512,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -422,7 +422,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 16.7524,
+    "competitive_prior": 16.5952,
     "buildability_prior": 0.9685,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -439,6 +439,32 @@
     }
   },
   {
+    "shell_id": "anniedarkchild|nocturnehorrifying|chaos,fury",
+    "shell_label": "Annie - Dark Child / Nocturne - Horrifying",
+    "legend_title": "Annie - Dark Child",
+    "chosen_champion_title": "Nocturne - Horrifying",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 16.423,
+    "buildability_prior": 0.954,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Chaos Rune": 5.0
+    },
+    "battlefield_weights": {
+      "The Candlelit Sanctum": 1.0,
+      "Zaun Warrens": 1.0,
+      "Frozen Fortress": 1.0
+    }
+  },
+  {
     "shell_id": "fioragrandduelist|fioravictorious|body,order",
     "shell_label": "Fiora - Grand Duelist / Fiora - Victorious",
     "legend_title": "Fiora - Grand Duelist",
@@ -449,7 +475,7 @@
     ],
     "training_deck_count": 38,
     "archetype_count": 28,
-    "competitive_prior": 16.2402,
+    "competitive_prior": 16.2711,
     "buildability_prior": 0.9538,
     "buildable_conversion": 0.9658,
     "source_breakdown": {
@@ -489,32 +515,6 @@
     }
   },
   {
-    "shell_id": "anniedarkchild|nocturnehorrifying|chaos,fury",
-    "shell_label": "Annie - Dark Child / Nocturne - Horrifying",
-    "legend_title": "Annie - Dark Child",
-    "chosen_champion_title": "Nocturne - Horrifying",
-    "legend_domains": [
-      "Chaos",
-      "Fury"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 16.2348,
-    "buildability_prior": 0.954,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Chaos Rune": 5.0
-    },
-    "battlefield_weights": {
-      "The Candlelit Sanctum": 1.0,
-      "Zaun Warrens": 1.0,
-      "Frozen Fortress": 1.0
-    }
-  },
-  {
     "shell_id": "fioragrandduelist|fioraworthy|body,order",
     "shell_label": "Fiora - Grand Duelist / Fiora - Worthy",
     "legend_title": "Fiora - Grand Duelist",
@@ -525,7 +525,7 @@
     ],
     "training_deck_count": 5,
     "archetype_count": 5,
-    "competitive_prior": 15.9649,
+    "competitive_prior": 15.9775,
     "buildability_prior": 0.9621,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -559,7 +559,7 @@
     ],
     "training_deck_count": 38,
     "archetype_count": 28,
-    "competitive_prior": 15.8761,
+    "competitive_prior": 15.8239,
     "buildability_prior": 0.9506,
     "buildable_conversion": 0.9583,
     "source_breakdown": {
@@ -601,9 +601,9 @@
     ],
     "training_deck_count": 107,
     "archetype_count": 41,
-    "competitive_prior": 15.7744,
-    "buildability_prior": 0.9211,
-    "buildable_conversion": 0.854,
+    "competitive_prior": 15.7454,
+    "buildability_prior": 0.9234,
+    "buildable_conversion": 0.8602,
     "source_breakdown": {
       "riftboundgg": 42,
       "piltoverarchive": 55,
@@ -646,7 +646,7 @@
     ],
     "training_deck_count": 6,
     "archetype_count": 5,
-    "competitive_prior": 15.6653,
+    "competitive_prior": 15.6865,
     "buildability_prior": 0.9576,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -679,9 +679,9 @@
     ],
     "training_deck_count": 68,
     "archetype_count": 43,
-    "competitive_prior": 15.6068,
-    "buildability_prior": 0.9402,
-    "buildable_conversion": 0.9237,
+    "competitive_prior": 15.62,
+    "buildability_prior": 0.941,
+    "buildable_conversion": 0.9257,
     "source_breakdown": {
       "riftboundgg": 37,
       "mobalytics-tournament": 3,
@@ -728,7 +728,7 @@
     ],
     "training_deck_count": 28,
     "archetype_count": 28,
-    "competitive_prior": 15.3247,
+    "competitive_prior": 15.4714,
     "buildability_prior": 0.9613,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -772,9 +772,9 @@
     ],
     "training_deck_count": 93,
     "archetype_count": 73,
-    "competitive_prior": 15.1462,
-    "buildability_prior": 0.9501,
-    "buildable_conversion": 0.9532,
+    "competitive_prior": 15.1647,
+    "buildability_prior": 0.9511,
+    "buildable_conversion": 0.9549,
     "source_breakdown": {
       "riftboundgg": 31,
       "piltoverarchive": 61,
@@ -820,7 +820,7 @@
     ],
     "training_deck_count": 13,
     "archetype_count": 13,
-    "competitive_prior": 15.0253,
+    "competitive_prior": 15.0708,
     "buildability_prior": 0.9591,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -852,33 +852,6 @@
     }
   },
   {
-    "shell_id": "khazixvoidreaver|dariustrifarian|body,chaos",
-    "shell_label": "Kha'Zix - Voidreaver / Darius - Trifarian",
-    "legend_title": "Kha'Zix - Voidreaver",
-    "chosen_champion_title": "Darius - Trifarian",
-    "legend_domains": [
-      "Body",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 14.6841,
-    "buildability_prior": 0.9438,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "piltoverarchive": 1
-    },
-    "rune_weights": {
-      "Fury Rune": 8.0,
-      "Chaos Rune": 4.0
-    },
-    "battlefield_weights": {
-      "Targon's Peak": 1.0,
-      "Obelisk of Power": 1.0,
-      "Reaver's Row": 1.0
-    }
-  },
-  {
     "shell_id": "anniedarkchild|anniefiery|chaos,fury",
     "shell_label": "Annie - Dark Child / Annie - Fiery",
     "legend_title": "Annie - Dark Child",
@@ -889,9 +862,9 @@
     ],
     "training_deck_count": 19,
     "archetype_count": 17,
-    "competitive_prior": 14.5206,
-    "buildability_prior": 0.9457,
-    "buildable_conversion": 0.9632,
+    "competitive_prior": 14.7208,
+    "buildability_prior": 0.9555,
+    "buildable_conversion": 0.9926,
     "source_breakdown": {
       "riftboundgg": 18,
       "piltoverarchive": 1
@@ -929,7 +902,7 @@
     ],
     "training_deck_count": 5,
     "archetype_count": 5,
-    "competitive_prior": 14.5058,
+    "competitive_prior": 14.6183,
     "buildability_prior": 0.9573,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -954,6 +927,60 @@
     }
   },
   {
+    "shell_id": "masteryiwujubladesman|volibearimposing|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Volibear - Imposing",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Volibear - Imposing",
+    "legend_domains": [
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 14.3687,
+    "buildability_prior": 0.9538,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "mobalytics-tournament": 1
+    },
+    "rune_weights": {
+      "Body Rune": 6.0,
+      "Calm Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 1.0,
+      "Obelisk of Power": 1.0,
+      "Vilemaw's Lair": 1.0
+    }
+  },
+  {
+    "shell_id": "khazixvoidreaver|dariustrifarian|body,chaos",
+    "shell_label": "Kha'Zix - Voidreaver / Darius - Trifarian",
+    "legend_title": "Kha'Zix - Voidreaver",
+    "chosen_champion_title": "Darius - Trifarian",
+    "legend_domains": [
+      "Body",
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 14.2527,
+    "buildability_prior": 0.9438,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 1
+    },
+    "rune_weights": {
+      "Fury Rune": 8.0,
+      "Chaos Rune": 4.0
+    },
+    "battlefield_weights": {
+      "Targon's Peak": 1.0,
+      "Obelisk of Power": 1.0,
+      "Reaver's Row": 1.0
+    }
+  },
+  {
     "shell_id": "jaxgrandmasteratarms|jaxunmatched|body,calm",
     "shell_label": "Jax - Grandmaster at Arms / Jax - Unmatched",
     "legend_title": "Jax - Grandmaster at Arms",
@@ -964,7 +991,7 @@
     ],
     "training_deck_count": 14,
     "archetype_count": 12,
-    "competitive_prior": 14.2552,
+    "competitive_prior": 14.163,
     "buildability_prior": 0.9506,
     "buildable_conversion": 0.9514,
     "source_breakdown": {
@@ -997,58 +1024,6 @@
     }
   },
   {
-    "shell_id": "reksaiswarmqueen|reksaiswarmqueen|order",
-    "shell_label": "Rek'Sai - Swarm Queen / Rek'Sai - Swarm Queen",
-    "legend_title": "Rek'Sai - Swarm Queen",
-    "chosen_champion_title": "Rek'Sai - Swarm Queen",
-    "legend_domains": [
-      "Order"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 14.1865,
-    "buildability_prior": 0.9344,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Order Rune": 12.0
-    },
-    "battlefield_weights": {
-      "The Arena's Greatest": 1.0,
-      "The Candlelit Sanctum": 1.0,
-      "Trifarian War Camp": 1.0
-    }
-  },
-  {
-    "shell_id": "masteryiwujubladesman|volibearimposing|body,calm",
-    "shell_label": "Master Yi - Wuju Bladesman / Volibear - Imposing",
-    "legend_title": "Master Yi - Wuju Bladesman",
-    "chosen_champion_title": "Volibear - Imposing",
-    "legend_domains": [
-      "Body",
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 13.9407,
-    "buildability_prior": 0.9538,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "mobalytics-tournament": 1
-    },
-    "rune_weights": {
-      "Body Rune": 6.0,
-      "Calm Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Aspirant's Climb": 1.0,
-      "Obelisk of Power": 1.0,
-      "Vilemaw's Lair": 1.0
-    }
-  },
-  {
     "shell_id": "setttheboss|settkingpin|body,order",
     "shell_label": "Sett - The Boss / Sett - Kingpin",
     "legend_title": "Sett - The Boss",
@@ -1059,7 +1034,7 @@
     ],
     "training_deck_count": 25,
     "archetype_count": 20,
-    "competitive_prior": 13.8865,
+    "competitive_prior": 13.9848,
     "buildability_prior": 0.9576,
     "buildable_conversion": 0.9792,
     "source_breakdown": {
@@ -1093,63 +1068,94 @@
     }
   },
   {
-    "shell_id": "jaxunrelenting|jaxunrelenting|body",
-    "shell_label": "Jax - Unrelenting / Jax - Unrelenting",
-    "legend_title": "Jax - Unrelenting",
-    "chosen_champion_title": "Jax - Unrelenting",
+    "shell_id": "reksaiswarmqueen|reksaiswarmqueen|order",
+    "shell_label": "Rek'Sai - Swarm Queen / Rek'Sai - Swarm Queen",
+    "legend_title": "Rek'Sai - Swarm Queen",
+    "chosen_champion_title": "Rek'Sai - Swarm Queen",
     "legend_domains": [
-      "Body"
+      "Order"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 13.5615,
-    "buildability_prior": 0.9363,
+    "competitive_prior": 13.5697,
+    "buildability_prior": 0.9344,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {},
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "jaxgrandmasteratarms|jaxunrelenting|body,calm",
-    "shell_label": "Jax - Grandmaster at Arms / Jax - Unrelenting",
-    "legend_title": "Jax - Grandmaster at Arms",
-    "chosen_champion_title": "Jax - Unrelenting",
-    "legend_domains": [
-      "Body",
-      "Calm"
-    ],
-    "training_deck_count": 12,
-    "archetype_count": 12,
-    "competitive_prior": 13.4233,
-    "buildability_prior": 0.9613,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "piltoverarchive": 10,
-      "riftboundgg": 2
-    },
     "rune_weights": {
-      "Calm Rune": 64.0,
-      "Body Rune": 80.0
+      "Order Rune": 12.0
     },
     "battlefield_weights": {
-      "Sigil of the Storm": 2.0,
-      "Power Nexus": 1.0,
-      "Ornn's Forge": 5.0,
-      "Windswept Hillock": 3.0,
-      "The Dreaming Tree": 5.0,
-      "Sunken Temple": 6.0,
-      "Obelisk of Power": 3.0,
-      "The Papertree": 1.0,
-      "Reaver's Row": 2.0,
-      "Reckoner's Arena": 1.0,
-      "Hall of Legends": 1.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Zaun Warrens": 1.0,
-      "Fortified Position": 1.0,
+      "The Arena's Greatest": 1.0,
       "The Candlelit Sanctum": 1.0,
-      "Grove of the God-Willow": 1.0,
+      "Trifarian War Camp": 1.0
+    }
+  },
+  {
+    "shell_id": "lucianpurifier|luciangunslinger|body,fury",
+    "shell_label": "Lucian - Purifier / Lucian - Gunslinger",
+    "legend_title": "Lucian - Purifier",
+    "chosen_champion_title": "Lucian - Gunslinger",
+    "legend_domains": [
+      "Body",
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 13.459,
+    "buildability_prior": 0.9325,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 1
+    },
+    "rune_weights": {
+      "Fury Rune": 6.0,
+      "Body Rune": 6.0
+    },
+    "battlefield_weights": {
+      "The Arena's Greatest": 1.0,
+      "The Papertree": 1.0,
+      "Treasure Hoard": 1.0
+    }
+  },
+  {
+    "shell_id": "lucianpurifier|lucianmerciless|body,fury",
+    "shell_label": "Lucian - Purifier / Lucian - Merciless",
+    "legend_title": "Lucian - Purifier",
+    "chosen_champion_title": "Lucian - Merciless",
+    "legend_domains": [
+      "Body",
+      "Fury"
+    ],
+    "training_deck_count": 25,
+    "archetype_count": 22,
+    "competitive_prior": 13.3343,
+    "buildability_prior": 0.9584,
+    "buildable_conversion": 0.9886,
+    "source_breakdown": {
+      "riftboundgg": 10,
+      "piltoverarchive": 15
+    },
+    "rune_weights": {
+      "Fury Rune": 116.0,
+      "Body Rune": 166.0
+    },
+    "battlefield_weights": {
+      "The Candlelit Sanctum": 2.0,
+      "Forge of the Fluft": 18.0,
+      "Sunken Temple": 15.0,
+      "The Arena's Greatest": 3.0,
+      "Ornn's Forge": 7.0,
+      "Vilemaw's Lair": 1.0,
+      "Zaun Warrens": 4.0,
+      "Power Nexus": 1.0,
+      "Emperor's Dais": 1.0,
+      "Reaver's Row": 4.0,
+      "Windswept Hillock": 9.0,
+      "Obelisk of Power": 7.0,
+      "Aspirant's Climb": 1.0,
+      "The Papertree": 1.0,
       "Targon's Peak": 1.0
     }
   },
@@ -1164,7 +1170,7 @@
     ],
     "training_deck_count": 30,
     "archetype_count": 21,
-    "competitive_prior": 13.3923,
+    "competitive_prior": 13.2771,
     "buildability_prior": 0.9459,
     "buildable_conversion": 0.9395,
     "source_breakdown": {
@@ -1200,6 +1206,67 @@
     }
   },
   {
+    "shell_id": "jaxunrelenting|jaxunrelenting|body",
+    "shell_label": "Jax - Unrelenting / Jax - Unrelenting",
+    "legend_title": "Jax - Unrelenting",
+    "chosen_champion_title": "Jax - Unrelenting",
+    "legend_domains": [
+      "Body"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 13.2543,
+    "buildability_prior": 0.9363,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {}
+  },
+  {
+    "shell_id": "jaxgrandmasteratarms|jaxunrelenting|body,calm",
+    "shell_label": "Jax - Grandmaster at Arms / Jax - Unrelenting",
+    "legend_title": "Jax - Grandmaster at Arms",
+    "chosen_champion_title": "Jax - Unrelenting",
+    "legend_domains": [
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 12,
+    "archetype_count": 12,
+    "competitive_prior": 13.1352,
+    "buildability_prior": 0.9613,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 10,
+      "riftboundgg": 2
+    },
+    "rune_weights": {
+      "Calm Rune": 64.0,
+      "Body Rune": 80.0
+    },
+    "battlefield_weights": {
+      "Sigil of the Storm": 2.0,
+      "Power Nexus": 1.0,
+      "Ornn's Forge": 5.0,
+      "Windswept Hillock": 3.0,
+      "The Dreaming Tree": 5.0,
+      "Sunken Temple": 6.0,
+      "Obelisk of Power": 3.0,
+      "The Papertree": 1.0,
+      "Reaver's Row": 2.0,
+      "Reckoner's Arena": 1.0,
+      "Hall of Legends": 1.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Zaun Warrens": 1.0,
+      "Fortified Position": 1.0,
+      "The Candlelit Sanctum": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Targon's Peak": 1.0
+    }
+  },
+  {
     "shell_id": "sivirbattlemistress|sivirmercenary|body,chaos",
     "shell_label": "Sivir - Battle Mistress / Sivir - Mercenary",
     "legend_title": "Sivir - Battle Mistress",
@@ -1210,7 +1277,7 @@
     ],
     "training_deck_count": 31,
     "archetype_count": 24,
-    "competitive_prior": 13.2961,
+    "competitive_prior": 13.1328,
     "buildability_prior": 0.9472,
     "buildable_conversion": 0.9573,
     "source_breakdown": {
@@ -1247,43 +1314,65 @@
     }
   },
   {
-    "shell_id": "lucianpurifier|lucianmerciless|body,fury",
-    "shell_label": "Lucian - Purifier / Lucian - Merciless",
-    "legend_title": "Lucian - Purifier",
-    "chosen_champion_title": "Lucian - Merciless",
+    "shell_id": "masteryiwujumaster|nilahjoyfulascetic|body,calm",
+    "shell_label": "Master Yi - Wuju Master / Nilah - Joyful Ascetic",
+    "legend_title": "Master Yi - Wuju Master",
+    "chosen_champion_title": "Nilah - Joyful Ascetic",
     "legend_domains": [
       "Body",
-      "Fury"
+      "Calm"
     ],
-    "training_deck_count": 25,
-    "archetype_count": 22,
-    "competitive_prior": 13.2574,
-    "buildability_prior": 0.9563,
-    "buildable_conversion": 0.983,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 13.0351,
+    "buildability_prior": 0.9344,
+    "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 10,
-      "piltoverarchive": 15
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Startipped Peak": 1.0,
+      "Vilemaw's Lair": 1.0,
+      "Star Spring": 1.0
+    }
+  },
+  {
+    "shell_id": "leonaradiantdawn|leonazealot|calm,order",
+    "shell_label": "Leona - Radiant Dawn / Leona - Zealot",
+    "legend_title": "Leona - Radiant Dawn",
+    "chosen_champion_title": "Leona - Zealot",
+    "legend_domains": [
+      "Calm",
+      "Order"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 13.0347,
+    "buildability_prior": 0.9414,
+    "buildable_conversion": 0.925,
+    "source_breakdown": {
+      "riftboundgg": 3,
+      "piltoverarchive": 3
     },
     "rune_weights": {
-      "Fury Rune": 116.0,
-      "Body Rune": 166.0
+      "Calm Rune": 41.0,
+      "Order Rune": 31.0
     },
     "battlefield_weights": {
-      "The Candlelit Sanctum": 2.0,
-      "Forge of the Fluft": 18.0,
-      "Sunken Temple": 15.0,
-      "The Arena's Greatest": 3.0,
-      "Ornn's Forge": 7.0,
+      "Monastery of Hirana": 3.0,
+      "The Arena's Greatest": 2.0,
+      "Sunken Temple": 3.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Grove of the God-Willow": 1.0,
       "Vilemaw's Lair": 1.0,
-      "Zaun Warrens": 4.0,
-      "Power Nexus": 1.0,
-      "Emperor's Dais": 1.0,
-      "Reaver's Row": 4.0,
-      "Windswept Hillock": 9.0,
-      "Obelisk of Power": 7.0,
-      "Aspirant's Climb": 1.0,
-      "The Papertree": 1.0,
-      "Targon's Peak": 1.0
+      "Startipped Peak": 1.0,
+      "Altar to Unity": 1.0,
+      "The Dreaming Tree": 1.0,
+      "Obelisk of Power": 1.0,
+      "Windswept Hillock": 1.0,
+      "Sigil of the Storm": 1.0,
+      "Forgotten Monument": 1.0
     }
   },
   {
@@ -1297,8 +1386,8 @@
     ],
     "training_deck_count": 27,
     "archetype_count": 21,
-    "competitive_prior": 13.0972,
-    "buildability_prior": 0.939,
+    "competitive_prior": 12.93,
+    "buildability_prior": 0.9389,
     "buildable_conversion": 0.9385,
     "source_breakdown": {
       "riftboundgg": 12,
@@ -1331,44 +1420,6 @@
     }
   },
   {
-    "shell_id": "leonaradiantdawn|leonazealot|calm,order",
-    "shell_label": "Leona - Radiant Dawn / Leona - Zealot",
-    "legend_title": "Leona - Radiant Dawn",
-    "chosen_champion_title": "Leona - Zealot",
-    "legend_domains": [
-      "Calm",
-      "Order"
-    ],
-    "training_deck_count": 6,
-    "archetype_count": 5,
-    "competitive_prior": 13.0026,
-    "buildability_prior": 0.9414,
-    "buildable_conversion": 0.925,
-    "source_breakdown": {
-      "riftboundgg": 3,
-      "piltoverarchive": 3
-    },
-    "rune_weights": {
-      "Calm Rune": 41.0,
-      "Order Rune": 31.0
-    },
-    "battlefield_weights": {
-      "Monastery of Hirana": 3.0,
-      "The Arena's Greatest": 2.0,
-      "Sunken Temple": 3.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Vilemaw's Lair": 1.0,
-      "Startipped Peak": 1.0,
-      "Altar to Unity": 1.0,
-      "The Dreaming Tree": 1.0,
-      "Obelisk of Power": 1.0,
-      "Windswept Hillock": 1.0,
-      "Sigil of the Storm": 1.0,
-      "Forgotten Monument": 1.0
-    }
-  },
-  {
     "shell_id": "reksaivoidburrower|reksaibreacher|fury,order",
     "shell_label": "Rek'Sai - Void Burrower / Rek'Sai - Breacher",
     "legend_title": "Rek'Sai - Void Burrower",
@@ -1379,8 +1430,8 @@
     ],
     "training_deck_count": 31,
     "archetype_count": 27,
-    "competitive_prior": 12.9313,
-    "buildability_prior": 0.9515,
+    "competitive_prior": 12.919,
+    "buildability_prior": 0.9514,
     "buildable_conversion": 0.9722,
     "source_breakdown": {
       "riftboundgg": 6,
@@ -1410,23 +1461,26 @@
     }
   },
   {
-    "shell_id": "masteryiwujumaster|nilahjoyfulascetic|body,calm",
-    "shell_label": "Master Yi - Wuju Master / Nilah - Joyful Ascetic",
-    "legend_title": "Master Yi - Wuju Master",
-    "chosen_champion_title": "Nilah - Joyful Ascetic",
+    "shell_id": "masteryiwujubladesman|masteryitempered|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Tempered",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Master Yi - Tempered",
     "legend_domains": [
       "Body",
       "Calm"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.8365,
-    "buildability_prior": 0.9344,
+    "competitive_prior": 12.8318,
+    "buildability_prior": 0.9644,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Calm Rune": 6.0,
+      "Body Rune": 6.0
+    },
     "battlefield_weights": {
       "Startipped Peak": 1.0,
       "Vilemaw's Lair": 1.0,
@@ -1434,30 +1488,56 @@
     }
   },
   {
-    "shell_id": "lucianpurifier|luciangunslinger|body,fury",
-    "shell_label": "Lucian - Purifier / Lucian - Gunslinger",
-    "legend_title": "Lucian - Purifier",
-    "chosen_champion_title": "Lucian - Gunslinger",
+    "shell_id": "jinxloosecannon|kaisasurvivor|chaos,fury",
+    "shell_label": "Jinx - Loose Cannon / Kai'Sa - Survivor",
+    "legend_title": "Jinx - Loose Cannon",
+    "chosen_champion_title": "Kai'Sa - Survivor",
     "legend_domains": [
-      "Body",
+      "Chaos",
       "Fury"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.7944,
-    "buildability_prior": 0.9325,
+    "competitive_prior": 12.8012,
+    "buildability_prior": 0.955,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 1
+      "riftboundgg": 1
     },
     "rune_weights": {
       "Fury Rune": 6.0,
-      "Body Rune": 6.0
+      "Chaos Rune": 6.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 1.0,
-      "The Papertree": 1.0,
-      "Treasure Hoard": 1.0
+      "Hallowed Tomb": 1.0,
+      "Obelisk of Power": 1.0,
+      "Zaun Warrens": 1.0
+    }
+  },
+  {
+    "shell_id": "viktorheraldofthearcane|xinzhaovigilant|mind,order",
+    "shell_label": "Viktor - Herald of the Arcane / Xin Zhao - Vigilant",
+    "legend_title": "Viktor - Herald of the Arcane",
+    "chosen_champion_title": "Xin Zhao - Vigilant",
+    "legend_domains": [
+      "Mind",
+      "Order"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.7901,
+    "buildability_prior": 0.94,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Order Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Altar to Unity": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Sunken Temple": 1.0
     }
   },
   {
@@ -1471,9 +1551,9 @@
     ],
     "training_deck_count": 59,
     "archetype_count": 40,
-    "competitive_prior": 12.7466,
-    "buildability_prior": 0.9456,
-    "buildable_conversion": 0.9443,
+    "competitive_prior": 12.778,
+    "buildability_prior": 0.9441,
+    "buildable_conversion": 0.9402,
     "source_breakdown": {
       "riftboundgg": 23,
       "piltoverarchive": 35,
@@ -1507,31 +1587,23 @@
     }
   },
   {
-    "shell_id": "jinxloosecannon|kaisasurvivor|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon / Kai'Sa - Survivor",
-    "legend_title": "Jinx - Loose Cannon",
-    "chosen_champion_title": "Kai'Sa - Survivor",
+    "shell_id": "ahrialluring|ahrialluring|calm",
+    "shell_label": "Ahri - Alluring / Ahri - Alluring",
+    "legend_title": "Ahri - Alluring",
+    "chosen_champion_title": "Ahri - Alluring",
     "legend_domains": [
-      "Chaos",
-      "Fury"
+      "Calm"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.7461,
-    "buildability_prior": 0.955,
+    "competitive_prior": 12.6478,
+    "buildability_prior": 0.9507,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {
-      "Fury Rune": 6.0,
-      "Chaos Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Hallowed Tomb": 1.0,
-      "Obelisk of Power": 1.0,
-      "Zaun Warrens": 1.0
-    }
+    "rune_weights": {},
+    "battlefield_weights": {}
   },
   {
     "shell_id": "ornnthefirebelowthemountain|azirascendant",
@@ -1541,7 +1613,7 @@
     "legend_domains": [],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.5959,
+    "competitive_prior": 12.6299,
     "buildability_prior": 0.9494,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -1568,7 +1640,7 @@
     ],
     "training_deck_count": 2,
     "archetype_count": 2,
-    "competitive_prior": 12.5247,
+    "competitive_prior": 12.5419,
     "buildability_prior": 0.9531,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -1599,7 +1671,7 @@
     ],
     "training_deck_count": 4,
     "archetype_count": 4,
-    "competitive_prior": 12.414,
+    "competitive_prior": 12.5256,
     "buildability_prior": 0.9447,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -1632,9 +1704,9 @@
     ],
     "training_deck_count": 42,
     "archetype_count": 25,
-    "competitive_prior": 12.3061,
-    "buildability_prior": 0.9245,
-    "buildable_conversion": 0.8875,
+    "competitive_prior": 12.3895,
+    "buildability_prior": 0.9174,
+    "buildable_conversion": 0.8625,
     "source_breakdown": {
       "riftboundgg": 22,
       "piltoverarchive": 20
@@ -1662,37 +1734,36 @@
     }
   },
   {
-    "shell_id": "dariushandofnoxus|dariusexecutioner|fury,order",
-    "shell_label": "Darius - Hand of Noxus / Darius - Executioner",
-    "legend_title": "Darius - Hand of Noxus",
-    "chosen_champion_title": "Darius - Executioner",
+    "shell_id": "ornnfirebelowthemountain|ornnblacksmith|calm,mind",
+    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Blacksmith",
+    "legend_title": "Ornn - Fire Below the Mountain",
+    "chosen_champion_title": "Ornn - Blacksmith",
     "legend_domains": [
-      "Fury",
-      "Order"
+      "Calm",
+      "Mind"
     ],
-    "training_deck_count": 6,
-    "archetype_count": 6,
-    "competitive_prior": 12.2478,
-    "buildability_prior": 0.965,
+    "training_deck_count": 3,
+    "archetype_count": 3,
+    "competitive_prior": 12.302,
+    "buildability_prior": 0.9453,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 3,
-      "riftboundgg": 3
+      "riftboundgg": 2,
+      "piltoverarchive": 1
     },
     "rune_weights": {
-      "Order Rune": 50.0,
-      "Fury Rune": 22.0
+      "Mind Rune": 18.0,
+      "Calm Rune": 13.0
     },
     "battlefield_weights": {
       "Aspirant's Climb": 1.0,
-      "Trifarian War Camp": 6.0,
-      "The Candlelit Sanctum": 2.0,
-      "Vilemaw's Lair": 2.0,
-      "Rockfall Path": 1.0,
-      "The Arena's Greatest": 3.0,
-      "Zaun Warrens": 1.0,
-      "Altar to Unity": 1.0,
-      "The Grand Plaza": 1.0
+      "Ornn's Forge": 2.0,
+      "Veiled Temple": 1.0,
+      "The Arena's Greatest": 1.0,
+      "Treasure Hoard": 1.0,
+      "Back-Alley Bar": 1.0,
+      "Void Gate": 1.0,
+      "Forgotten Monument": 1.0
     }
   },
   {
@@ -1706,7 +1777,7 @@
     ],
     "training_deck_count": 13,
     "archetype_count": 10,
-    "competitive_prior": 12.235,
+    "competitive_prior": 12.262,
     "buildability_prior": 0.9436,
     "buildable_conversion": 0.95,
     "source_breakdown": {
@@ -1733,111 +1804,6 @@
     }
   },
   {
-    "shell_id": "ornnfirebelowthemountain|ornnblacksmith|calm,mind",
-    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Blacksmith",
-    "legend_title": "Ornn - Fire Below the Mountain",
-    "chosen_champion_title": "Ornn - Blacksmith",
-    "legend_domains": [
-      "Calm",
-      "Mind"
-    ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 12.1996,
-    "buildability_prior": 0.9453,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 2,
-      "piltoverarchive": 1
-    },
-    "rune_weights": {
-      "Mind Rune": 18.0,
-      "Calm Rune": 13.0
-    },
-    "battlefield_weights": {
-      "Aspirant's Climb": 1.0,
-      "Ornn's Forge": 2.0,
-      "Veiled Temple": 1.0,
-      "The Arena's Greatest": 1.0,
-      "Treasure Hoard": 1.0,
-      "Back-Alley Bar": 1.0,
-      "Void Gate": 1.0,
-      "Forgotten Monument": 1.0
-    }
-  },
-  {
-    "shell_id": "masteryiwujubladesman|masteryitempered|body,calm",
-    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Tempered",
-    "legend_title": "Master Yi - Wuju Bladesman",
-    "chosen_champion_title": "Master Yi - Tempered",
-    "legend_domains": [
-      "Body",
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 12.195,
-    "buildability_prior": 0.9644,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Calm Rune": 6.0,
-      "Body Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Startipped Peak": 1.0,
-      "Vilemaw's Lair": 1.0,
-      "Star Spring": 1.0
-    }
-  },
-  {
-    "shell_id": "ahrialluring|ahrialluring|calm",
-    "shell_label": "Ahri - Alluring / Ahri - Alluring",
-    "legend_title": "Ahri - Alluring",
-    "chosen_champion_title": "Ahri - Alluring",
-    "legend_domains": [
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 12.1943,
-    "buildability_prior": 0.9507,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "viktorheraldofthearcane|xinzhaovigilant|mind,order",
-    "shell_label": "Viktor - Herald of the Arcane / Xin Zhao - Vigilant",
-    "legend_title": "Viktor - Herald of the Arcane",
-    "chosen_champion_title": "Xin Zhao - Vigilant",
-    "legend_domains": [
-      "Mind",
-      "Order"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 12.1691,
-    "buildability_prior": 0.94,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Order Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Altar to Unity": 1.0,
-      "Trifarian War Camp": 1.0,
-      "Sunken Temple": 1.0
-    }
-  },
-  {
     "shell_id": "ornnfirebelowthemountain|ornnforgegod|calm,mind",
     "shell_label": "Ornn - Fire Below the Mountain / Ornn - Forge God",
     "legend_title": "Ornn - Fire Below the Mountain",
@@ -1848,7 +1814,7 @@
     ],
     "training_deck_count": 34,
     "archetype_count": 32,
-    "competitive_prior": 12.1102,
+    "competitive_prior": 12.1334,
     "buildability_prior": 0.9603,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -1886,6 +1852,40 @@
     }
   },
   {
+    "shell_id": "dariushandofnoxus|dariusexecutioner|fury,order",
+    "shell_label": "Darius - Hand of Noxus / Darius - Executioner",
+    "legend_title": "Darius - Hand of Noxus",
+    "chosen_champion_title": "Darius - Executioner",
+    "legend_domains": [
+      "Fury",
+      "Order"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 6,
+    "competitive_prior": 12.0901,
+    "buildability_prior": 0.965,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 3,
+      "riftboundgg": 3
+    },
+    "rune_weights": {
+      "Order Rune": 50.0,
+      "Fury Rune": 22.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 1.0,
+      "Trifarian War Camp": 6.0,
+      "The Candlelit Sanctum": 2.0,
+      "Vilemaw's Lair": 2.0,
+      "Rockfall Path": 1.0,
+      "The Arena's Greatest": 3.0,
+      "Zaun Warrens": 1.0,
+      "Altar to Unity": 1.0,
+      "The Grand Plaza": 1.0
+    }
+  },
+  {
     "shell_id": "vexgloomist|vexapathetic|calm,chaos",
     "shell_label": "Vex - Gloomist / Vex - Apathetic",
     "legend_title": "Vex - Gloomist",
@@ -1896,7 +1896,7 @@
     ],
     "training_deck_count": 21,
     "archetype_count": 19,
-    "competitive_prior": 11.9208,
+    "competitive_prior": 11.9263,
     "buildability_prior": 0.9551,
     "buildable_conversion": 0.9868,
     "source_breakdown": {
@@ -1928,6 +1928,83 @@
     }
   },
   {
+    "shell_id": "vaynehunter|rengarunseen|fury",
+    "shell_label": "Vayne - Hunter / Rengar - Unseen",
+    "legend_title": "Vayne - Hunter",
+    "chosen_champion_title": "Rengar - Unseen",
+    "legend_domains": [
+      "Fury"
+    ],
+    "training_deck_count": 2,
+    "archetype_count": 1,
+    "competitive_prior": 11.8154,
+    "buildability_prior": 0.9494,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Grove of the God-Willow": 2.0,
+      "Star Spring": 2.0,
+      "Valley of Idols": 2.0
+    }
+  },
+  {
+    "shell_id": "dianascornofthemoon|dianalunari|chaos,mind",
+    "shell_label": "Diana - Scorn of the Moon / Diana - Lunari",
+    "legend_title": "Diana - Scorn of the Moon",
+    "chosen_champion_title": "Diana - Lunari",
+    "legend_domains": [
+      "Chaos",
+      "Mind"
+    ],
+    "training_deck_count": 8,
+    "archetype_count": 7,
+    "competitive_prior": 11.7676,
+    "buildability_prior": 0.9618,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 8
+    },
+    "rune_weights": {
+      "Mind Rune": 27.0,
+      "Chaos Rune": 33.0
+    },
+    "battlefield_weights": {
+      "Startipped Peak": 3.0,
+      "Targon's Peak": 6.0,
+      "Abandoned Hall": 7.0,
+      "The Candlelit Sanctum": 2.0,
+      "Ravenbloom Conservatory": 4.0,
+      "Void Gate": 1.0,
+      "The Academy": 1.0
+    }
+  },
+  {
+    "shell_id": "qiyanavictorious|nidaleecatform|body",
+    "shell_label": "Qiyana - Victorious / Nidalee - Cat Form",
+    "legend_title": "Qiyana - Victorious",
+    "chosen_champion_title": "Nidalee - Cat Form",
+    "legend_domains": [
+      "Body"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 11.7551,
+    "buildability_prior": 0.9344,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Back-Alley Bar": 1.0,
+      "Fortified Position": 1.0,
+      "Treasure Hoard": 1.0
+    }
+  },
+  {
     "shell_id": "yasuounforgiven|yasuowindrider|calm,chaos",
     "shell_label": "Yasuo - Unforgiven / Yasuo - Windrider",
     "legend_title": "Yasuo - Unforgiven",
@@ -1938,7 +2015,7 @@
     ],
     "training_deck_count": 11,
     "archetype_count": 11,
-    "competitive_prior": 11.9007,
+    "competitive_prior": 11.6791,
     "buildability_prior": 0.9632,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -1970,37 +2047,6 @@
     }
   },
   {
-    "shell_id": "dianascornofthemoon|dianalunari|chaos,mind",
-    "shell_label": "Diana - Scorn of the Moon / Diana - Lunari",
-    "legend_title": "Diana - Scorn of the Moon",
-    "chosen_champion_title": "Diana - Lunari",
-    "legend_domains": [
-      "Chaos",
-      "Mind"
-    ],
-    "training_deck_count": 8,
-    "archetype_count": 7,
-    "competitive_prior": 11.8522,
-    "buildability_prior": 0.9393,
-    "buildable_conversion": 0.9286,
-    "source_breakdown": {
-      "riftboundgg": 8
-    },
-    "rune_weights": {
-      "Mind Rune": 27.0,
-      "Chaos Rune": 33.0
-    },
-    "battlefield_weights": {
-      "Startipped Peak": 3.0,
-      "Targon's Peak": 6.0,
-      "Abandoned Hall": 7.0,
-      "The Candlelit Sanctum": 2.0,
-      "Ravenbloom Conservatory": 4.0,
-      "Void Gate": 1.0,
-      "The Academy": 1.0
-    }
-  },
-  {
     "shell_id": "jinxloosecannon|jinxdemolitionist|chaos,fury",
     "shell_label": "Jinx - Loose Cannon / Jinx - Demolitionist",
     "legend_title": "Jinx - Loose Cannon",
@@ -2011,9 +2057,9 @@
     ],
     "training_deck_count": 69,
     "archetype_count": 61,
-    "competitive_prior": 11.7365,
-    "buildability_prior": 0.9529,
-    "buildable_conversion": 0.972,
+    "competitive_prior": 11.6754,
+    "buildability_prior": 0.9523,
+    "buildable_conversion": 0.9699,
     "source_breakdown": {
       "riftboundgg": 31,
       "piltoverarchive": 38
@@ -2046,62 +2092,6 @@
     }
   },
   {
-    "shell_id": "poppykeeperofthehammer|poppyparagon|body,order",
-    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Paragon",
-    "legend_title": "Poppy - Keeper of the Hammer",
-    "chosen_champion_title": "Poppy - Paragon",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 5,
-    "archetype_count": 5,
-    "competitive_prior": 11.7359,
-    "buildability_prior": 0.9554,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 5
-    },
-    "rune_weights": {
-      "Body Rune": 28.0,
-      "Order Rune": 20.0
-    },
-    "battlefield_weights": {
-      "Hall of Legends": 1.0,
-      "The Papertree": 1.0,
-      "Gardens of Becoming": 5.0,
-      "Sunken Temple": 1.0,
-      "Amateur Recital": 1.0,
-      "Reckoner's Arena": 2.0,
-      "Windswept Hillock": 2.0,
-      "Fortified Position": 1.0,
-      "Trifarian War Camp": 1.0
-    }
-  },
-  {
-    "shell_id": "sonaharmonious|evelynnentrancing|calm",
-    "shell_label": "Sona - Harmonious / Evelynn - Entrancing",
-    "legend_title": "Sona - Harmonious",
-    "chosen_champion_title": "Evelynn - Entrancing",
-    "legend_domains": [
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.729,
-    "buildability_prior": 0.9175,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Fortified Position": 1.0,
-      "Hallowed Tomb": 1.0,
-      "Ravenbloom Conservatory": 1.0
-    }
-  },
-  {
     "shell_id": "missfortunebountyhunter|missfortunecaptain|body,chaos",
     "shell_label": "Miss Fortune - Bounty Hunter / Miss Fortune - Captain",
     "legend_title": "Miss Fortune - Bounty Hunter",
@@ -2112,9 +2102,9 @@
     ],
     "training_deck_count": 63,
     "archetype_count": 44,
-    "competitive_prior": 11.7121,
-    "buildability_prior": 0.9334,
-    "buildable_conversion": 0.9125,
+    "competitive_prior": 11.6556,
+    "buildability_prior": 0.9324,
+    "buildable_conversion": 0.9097,
     "source_breakdown": {
       "riftboundgg": 20,
       "piltoverarchive": 39,
@@ -2148,37 +2138,6 @@
     }
   },
   {
-    "shell_id": "khazixvoidreaver|khazixmutatinghorror|body,chaos",
-    "shell_label": "Kha'Zix - Voidreaver / Kha'Zix - Mutating Horror",
-    "legend_title": "Kha'Zix - Voidreaver",
-    "chosen_champion_title": "Kha'Zix - Mutating Horror",
-    "legend_domains": [
-      "Body",
-      "Chaos"
-    ],
-    "training_deck_count": 6,
-    "archetype_count": 6,
-    "competitive_prior": 11.7041,
-    "buildability_prior": 0.9526,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 6
-    },
-    "rune_weights": {
-      "Body Rune": 6.0,
-      "Chaos Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Monastery of Hirana": 4.0,
-      "Forbidding Waste": 3.0,
-      "Star Spring": 4.0,
-      "Back-Alley Bar": 1.0,
-      "Windswept Hillock": 1.0,
-      "Sunken Temple": 1.0,
-      "Gardens of Becoming": 1.0
-    }
-  },
-  {
     "shell_id": "sivirbattlemistress|sivirambitious|body,chaos",
     "shell_label": "Sivir - Battle Mistress / Sivir - Ambitious",
     "legend_title": "Sivir - Battle Mistress",
@@ -2189,7 +2148,7 @@
     ],
     "training_deck_count": 6,
     "archetype_count": 6,
-    "competitive_prior": 11.6675,
+    "competitive_prior": 11.5869,
     "buildability_prior": 0.9562,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2217,6 +2176,60 @@
     }
   },
   {
+    "shell_id": "khazixvoidreaver|khazixmutatinghorror|body,chaos",
+    "shell_label": "Kha'Zix - Voidreaver / Kha'Zix - Mutating Horror",
+    "legend_title": "Kha'Zix - Voidreaver",
+    "chosen_champion_title": "Kha'Zix - Mutating Horror",
+    "legend_domains": [
+      "Body",
+      "Chaos"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 6,
+    "competitive_prior": 11.5784,
+    "buildability_prior": 0.9526,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 6
+    },
+    "rune_weights": {
+      "Body Rune": 6.0,
+      "Chaos Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Monastery of Hirana": 4.0,
+      "Forbidding Waste": 3.0,
+      "Star Spring": 4.0,
+      "Back-Alley Bar": 1.0,
+      "Windswept Hillock": 1.0,
+      "Sunken Temple": 1.0,
+      "Gardens of Becoming": 1.0
+    }
+  },
+  {
+    "shell_id": "sonaharmonious|evelynnentrancing|calm",
+    "shell_label": "Sona - Harmonious / Evelynn - Entrancing",
+    "legend_title": "Sona - Harmonious",
+    "chosen_champion_title": "Evelynn - Entrancing",
+    "legend_domains": [
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 11.5024,
+    "buildability_prior": 0.9175,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Fortified Position": 1.0,
+      "Hallowed Tomb": 1.0,
+      "Ravenbloom Conservatory": 1.0
+    }
+  },
+  {
     "shell_id": "leblancdeceiver|leblancfragmented|mind,order",
     "shell_label": "LeBlanc - Deceiver / LeBlanc - Fragmented",
     "legend_title": "LeBlanc - Deceiver",
@@ -2227,7 +2240,7 @@
     ],
     "training_deck_count": 9,
     "archetype_count": 8,
-    "competitive_prior": 11.4842,
+    "competitive_prior": 11.4621,
     "buildability_prior": 0.9675,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2249,49 +2262,65 @@
     }
   },
   {
-    "shell_id": "vaynehunter|rengarunseen|fury",
-    "shell_label": "Vayne - Hunter / Rengar - Unseen",
-    "legend_title": "Vayne - Hunter",
-    "chosen_champion_title": "Rengar - Unseen",
+    "shell_id": "poppykeeperofthehammer|poppyparagon|body,order",
+    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Paragon",
+    "legend_title": "Poppy - Keeper of the Hammer",
+    "chosen_champion_title": "Poppy - Paragon",
     "legend_domains": [
-      "Fury"
+      "Body",
+      "Order"
     ],
-    "training_deck_count": 2,
-    "archetype_count": 1,
-    "competitive_prior": 11.4583,
-    "buildability_prior": 0.9494,
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 11.4385,
+    "buildability_prior": 0.9554,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 2
+      "riftboundgg": 5
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Body Rune": 28.0,
+      "Order Rune": 20.0
+    },
     "battlefield_weights": {
-      "Grove of the God-Willow": 2.0,
-      "Star Spring": 2.0,
-      "Valley of Idols": 2.0
+      "Hall of Legends": 1.0,
+      "The Papertree": 1.0,
+      "Gardens of Becoming": 5.0,
+      "Sunken Temple": 1.0,
+      "Amateur Recital": 1.0,
+      "Reckoner's Arena": 2.0,
+      "Windswept Hillock": 2.0,
+      "Fortified Position": 1.0,
+      "Trifarian War Camp": 1.0
     }
   },
   {
-    "shell_id": "qiyanavictorious|nidaleecatform|body",
-    "shell_label": "Qiyana - Victorious / Nidalee - Cat Form",
-    "legend_title": "Qiyana - Victorious",
-    "chosen_champion_title": "Nidalee - Cat Form",
+    "shell_id": "masteryiwujubladesman|qiyanavictorious|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Qiyana - Victorious",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Qiyana - Victorious",
     "legend_domains": [
-      "Body"
+      "Body",
+      "Calm"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.4348,
-    "buildability_prior": 0.9344,
+    "training_deck_count": 3,
+    "archetype_count": 3,
+    "competitive_prior": 11.3713,
+    "buildability_prior": 0.9744,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 1
+      "mobalytics-tournament": 3
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Body Rune": 18.0,
+      "Calm Rune": 18.0
+    },
     "battlefield_weights": {
-      "Back-Alley Bar": 1.0,
-      "Fortified Position": 1.0,
-      "Treasure Hoard": 1.0
+      "Grove of the God-Willow": 1.0,
+      "Obelisk of Power": 3.0,
+      "Vilemaw's Lair": 3.0,
+      "The Dreaming Tree": 1.0,
+      "Aspirant's Climb": 1.0
     }
   },
   {
@@ -2305,7 +2334,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 11.4233,
+    "competitive_prior": 11.34,
     "buildability_prior": 0.94,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2329,7 +2358,7 @@
     ],
     "training_deck_count": 2,
     "archetype_count": 2,
-    "competitive_prior": 11.3293,
+    "competitive_prior": 11.3244,
     "buildability_prior": 0.9456,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2357,7 +2386,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 11.2949,
+    "competitive_prior": 11.2394,
     "buildability_prior": 0.95,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2371,57 +2400,36 @@
     }
   },
   {
-    "shell_id": "masteryiwujubladesman|qiyanavictorious|body,calm",
-    "shell_label": "Master Yi - Wuju Bladesman / Qiyana - Victorious",
-    "legend_title": "Master Yi - Wuju Bladesman",
-    "chosen_champion_title": "Qiyana - Victorious",
+    "shell_id": "lilliabashfulbloom|lilliafaefawn|calm,mind",
+    "shell_label": "Lillia - Bashful Bloom / Lillia - Fae Fawn",
+    "legend_title": "Lillia - Bashful Bloom",
+    "chosen_champion_title": "Lillia - Fae Fawn",
     "legend_domains": [
-      "Body",
-      "Calm"
+      "Calm",
+      "Mind"
     ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 11.2389,
-    "buildability_prior": 0.9744,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 13,
+    "archetype_count": 11,
+    "competitive_prior": 11.1962,
+    "buildability_prior": 0.9554,
+    "buildable_conversion": 0.9659,
     "source_breakdown": {
-      "mobalytics-tournament": 3
+      "riftboundgg": 13
     },
     "rune_weights": {
-      "Body Rune": 18.0,
-      "Calm Rune": 18.0
+      "Calm Rune": 30.0,
+      "Mind Rune": 25.0
     },
     "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "Obelisk of Power": 3.0,
-      "Vilemaw's Lair": 3.0,
-      "The Dreaming Tree": 1.0,
-      "Aspirant's Climb": 1.0
-    }
-  },
-  {
-    "shell_id": "vexcheerless|vexapathetic|chaos",
-    "shell_label": "Vex - Cheerless / Vex - Apathetic",
-    "legend_title": "Vex - Cheerless",
-    "chosen_champion_title": "Vex - Apathetic",
-    "legend_domains": [
-      "Chaos"
-    ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 11.1858,
-    "buildability_prior": 0.9548,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 2
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Amateur Recital": 2.0,
-      "Gardens of Becoming": 1.0,
-      "Ripper's Bay": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Targon's Peak": 1.0
+      "Hall of Legends": 1.0,
+      "Black Flame Altar": 10.0,
+      "Dusk Rose Lab": 11.0,
+      "Seat of Power": 5.0,
+      "Frozen Fortress": 1.0,
+      "Targon's Peak": 2.0,
+      "Forbidding Waste": 3.0,
+      "The Arena's Greatest": 2.0,
+      "Ravenbloom Conservatory": 1.0
     }
   },
   {
@@ -2435,7 +2443,7 @@
     ],
     "training_deck_count": 19,
     "archetype_count": 19,
-    "competitive_prior": 11.1736,
+    "competitive_prior": 11.1865,
     "buildability_prior": 0.9544,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2469,65 +2477,6 @@
     }
   },
   {
-    "shell_id": "vexcheerless|vexmocking|chaos",
-    "shell_label": "Vex - Cheerless / Vex - Mocking",
-    "legend_title": "Vex - Cheerless",
-    "chosen_champion_title": "Vex - Mocking",
-    "legend_domains": [
-      "Chaos"
-    ],
-    "training_deck_count": 3,
-    "archetype_count": 2,
-    "competitive_prior": 11.1294,
-    "buildability_prior": 0.9643,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 3
-    },
-    "rune_weights": {
-      "Calm Rune": 12.0,
-      "Chaos Rune": 12.0
-    },
-    "battlefield_weights": {
-      "Amateur Recital": 2.0,
-      "Gardens of Becoming": 2.0,
-      "Ripper's Bay": 2.0
-    }
-  },
-  {
-    "shell_id": "lilliabashfulbloom|lilliafaefawn|calm,mind",
-    "shell_label": "Lillia - Bashful Bloom / Lillia - Fae Fawn",
-    "legend_title": "Lillia - Bashful Bloom",
-    "chosen_champion_title": "Lillia - Fae Fawn",
-    "legend_domains": [
-      "Calm",
-      "Mind"
-    ],
-    "training_deck_count": 13,
-    "archetype_count": 11,
-    "competitive_prior": 11.0939,
-    "buildability_prior": 0.9554,
-    "buildable_conversion": 0.9659,
-    "source_breakdown": {
-      "riftboundgg": 13
-    },
-    "rune_weights": {
-      "Calm Rune": 30.0,
-      "Mind Rune": 25.0
-    },
-    "battlefield_weights": {
-      "Hall of Legends": 1.0,
-      "Black Flame Altar": 10.0,
-      "Dusk Rose Lab": 11.0,
-      "Seat of Power": 5.0,
-      "Frozen Fortress": 1.0,
-      "Targon's Peak": 2.0,
-      "Forbidding Waste": 3.0,
-      "The Arena's Greatest": 2.0,
-      "Ravenbloom Conservatory": 1.0
-    }
-  },
-  {
     "shell_id": "pykebloodharborripper|pykedocksidebutcher|chaos,fury",
     "shell_label": "Pyke - Bloodharbor Ripper / Pyke - Dockside Butcher",
     "legend_title": "Pyke - Bloodharbor Ripper",
@@ -2538,7 +2487,7 @@
     ],
     "training_deck_count": 9,
     "archetype_count": 9,
-    "competitive_prior": 11.0878,
+    "competitive_prior": 11.1748,
     "buildability_prior": 0.9559,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2564,6 +2513,41 @@
     }
   },
   {
+    "shell_id": "volibearrelentlessstorm|volibearimposing|body,fury",
+    "shell_label": "Volibear - Relentless Storm / Volibear - Imposing",
+    "legend_title": "Volibear - Relentless Storm",
+    "chosen_champion_title": "Volibear - Imposing",
+    "legend_domains": [
+      "Body",
+      "Fury"
+    ],
+    "training_deck_count": 12,
+    "archetype_count": 11,
+    "competitive_prior": 11.1704,
+    "buildability_prior": 0.9434,
+    "buildable_conversion": 0.9659,
+    "source_breakdown": {
+      "riftboundgg": 8,
+      "piltoverarchive": 4
+    },
+    "rune_weights": {
+      "Fury Rune": 47.0,
+      "Body Rune": 50.0
+    },
+    "battlefield_weights": {
+      "Sigil of the Storm": 7.0,
+      "Forgotten Monument": 1.0,
+      "The Papertree": 1.0,
+      "Aspirant's Climb": 8.0,
+      "Windswept Hillock": 3.0,
+      "Altar of Blood": 2.0,
+      "Trifarian War Camp": 1.0,
+      "Obelisk of Power": 6.0,
+      "Startipped Peak": 3.0,
+      "Hallowed Tomb": 1.0
+    }
+  },
+  {
     "shell_id": "ahrininetailedfox|ahrialluring|calm,mind",
     "shell_label": "Ahri - Nine-Tailed Fox / Ahri - Alluring",
     "legend_title": "Ahri - Nine-Tailed Fox",
@@ -2574,9 +2558,9 @@
     ],
     "training_deck_count": 52,
     "archetype_count": 44,
-    "competitive_prior": 11.0672,
-    "buildability_prior": 0.948,
-    "buildable_conversion": 0.9574,
+    "competitive_prior": 11.1585,
+    "buildability_prior": 0.95,
+    "buildable_conversion": 0.9631,
     "source_breakdown": {
       "riftboundgg": 20,
       "piltoverarchive": 32
@@ -2609,99 +2593,88 @@
     }
   },
   {
-    "shell_id": "volibearrelentlessstorm|volibearimposing|body,fury",
-    "shell_label": "Volibear - Relentless Storm / Volibear - Imposing",
-    "legend_title": "Volibear - Relentless Storm",
-    "chosen_champion_title": "Volibear - Imposing",
+    "shell_id": "vexcheerless|vexmocking|chaos",
+    "shell_label": "Vex - Cheerless / Vex - Mocking",
+    "legend_title": "Vex - Cheerless",
+    "chosen_champion_title": "Vex - Mocking",
     "legend_domains": [
-      "Body",
-      "Fury"
+      "Chaos"
     ],
-    "training_deck_count": 12,
-    "archetype_count": 11,
-    "competitive_prior": 11.0561,
-    "buildability_prior": 0.9434,
-    "buildable_conversion": 0.9659,
+    "training_deck_count": 3,
+    "archetype_count": 2,
+    "competitive_prior": 11.1502,
+    "buildability_prior": 0.9643,
+    "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 8,
-      "piltoverarchive": 4
+      "riftboundgg": 3
     },
     "rune_weights": {
-      "Fury Rune": 47.0,
-      "Body Rune": 50.0
+      "Calm Rune": 12.0,
+      "Chaos Rune": 12.0
     },
     "battlefield_weights": {
-      "Sigil of the Storm": 7.0,
-      "Forgotten Monument": 1.0,
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 2.0,
+      "Ripper's Bay": 2.0
+    }
+  },
+  {
+    "shell_id": "vexgloomist|vexmocking|calm,chaos",
+    "shell_label": "Vex - Gloomist / Vex - Mocking",
+    "legend_title": "Vex - Gloomist",
+    "chosen_champion_title": "Vex - Mocking",
+    "legend_domains": [
+      "Calm",
+      "Chaos"
+    ],
+    "training_deck_count": 4,
+    "archetype_count": 4,
+    "competitive_prior": 11.1501,
+    "buildability_prior": 0.955,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 4
+    },
+    "rune_weights": {
+      "Calm Rune": 12.0,
+      "Chaos Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 1.0,
+      "Ripper's Bay": 1.0,
+      "Bandle Tree": 1.0,
       "The Papertree": 1.0,
-      "Aspirant's Climb": 8.0,
-      "Windswept Hillock": 3.0,
-      "Altar of Blood": 2.0,
-      "Trifarian War Camp": 1.0,
-      "Obelisk of Power": 6.0,
-      "Startipped Peak": 3.0,
-      "Hallowed Tomb": 1.0
+      "Marai Spire": 1.0,
+      "Abandoned Hall": 2.0,
+      "The Academy": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Ravenbloom Conservatory": 1.0
     }
   },
   {
-    "shell_id": "masteryiwujubladesman|masteryimeditative|body,calm",
-    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Meditative",
-    "legend_title": "Master Yi - Wuju Bladesman",
-    "chosen_champion_title": "Master Yi - Meditative",
+    "shell_id": "vexcheerless|vexapathetic|chaos",
+    "shell_label": "Vex - Cheerless / Vex - Apathetic",
+    "legend_title": "Vex - Cheerless",
+    "chosen_champion_title": "Vex - Apathetic",
     "legend_domains": [
-      "Body",
-      "Calm"
+      "Chaos"
     ],
-    "training_deck_count": 6,
-    "archetype_count": 5,
-    "competitive_prior": 10.9796,
-    "buildability_prior": 0.9605,
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 11.0567,
+    "buildability_prior": 0.9548,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 1,
-      "riftboundgg": 5
+      "riftboundgg": 2
     },
-    "rune_weights": {
-      "Calm Rune": 39.0,
-      "Body Rune": 33.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
-      "Grove of the God-Willow": 2.0,
-      "Vilemaw's Lair": 2.0,
-      "Fortified Position": 2.0,
-      "Obelisk of Power": 3.0,
-      "Startipped Peak": 3.0,
-      "The Dreaming Tree": 1.0,
-      "Targon's Peak": 3.0,
-      "The Candlelit Sanctum": 1.0,
-      "Windswept Hillock": 1.0
-    }
-  },
-  {
-    "shell_id": "poppykeeperofthehammer|poppydefenderofthemeek|body,order",
-    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Defender of the Meek",
-    "legend_title": "Poppy - Keeper of the Hammer",
-    "chosen_champion_title": "Poppy - Defender of the Meek",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.9682,
-    "buildability_prior": 0.9325,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Body Rune": 6.0,
-      "Order Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Reckoner's Arena": 1.0,
-      "Sunken Temple": 1.0,
-      "Gardens of Becoming": 1.0
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 1.0,
+      "Ripper's Bay": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Targon's Peak": 1.0
     }
   },
   {
@@ -2715,7 +2688,7 @@
     ],
     "training_deck_count": 59,
     "archetype_count": 48,
-    "competitive_prior": 10.9443,
+    "competitive_prior": 10.9447,
     "buildability_prior": 0.939,
     "buildable_conversion": 0.9375,
     "source_breakdown": {
@@ -2754,37 +2727,77 @@
     }
   },
   {
-    "shell_id": "vexgloomist|vexmocking|calm,chaos",
-    "shell_label": "Vex - Gloomist / Vex - Mocking",
-    "legend_title": "Vex - Gloomist",
-    "chosen_champion_title": "Vex - Mocking",
+    "shell_id": "poppykeeperofthehammer|poppydefenderofthemeek|body,order",
+    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Defender of the Meek",
+    "legend_title": "Poppy - Keeper of the Hammer",
+    "chosen_champion_title": "Poppy - Defender of the Meek",
     "legend_domains": [
-      "Calm",
-      "Chaos"
+      "Body",
+      "Order"
     ],
-    "training_deck_count": 4,
-    "archetype_count": 4,
-    "competitive_prior": 10.8655,
-    "buildability_prior": 0.955,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.8778,
+    "buildability_prior": 0.9325,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 4
+      "riftboundgg": 1
     },
     "rune_weights": {
-      "Calm Rune": 12.0,
-      "Chaos Rune": 6.0
+      "Body Rune": 6.0,
+      "Order Rune": 6.0
     },
     "battlefield_weights": {
-      "Amateur Recital": 2.0,
-      "Gardens of Becoming": 1.0,
-      "Ripper's Bay": 1.0,
-      "Bandle Tree": 1.0,
-      "The Papertree": 1.0,
-      "Marai Spire": 1.0,
-      "Abandoned Hall": 2.0,
-      "The Academy": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Ravenbloom Conservatory": 1.0
+      "Reckoner's Arena": 1.0,
+      "Sunken Temple": 1.0,
+      "Gardens of Becoming": 1.0
+    }
+  },
+  {
+    "shell_id": "leblancdeceiver|leblanceverywhereatonce|mind,order",
+    "shell_label": "LeBlanc - Deceiver / LeBlanc - Everywhere at Once",
+    "legend_title": "LeBlanc - Deceiver",
+    "chosen_champion_title": "LeBlanc - Everywhere at Once",
+    "legend_domains": [
+      "Mind",
+      "Order"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.7769,
+    "buildability_prior": 0.9231,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Windswept Hillock": 1.0,
+      "Dusk Rose Lab": 1.0,
+      "Star Spring": 1.0
+    }
+  },
+  {
+    "shell_id": "fizztrickster|dianalunari|chaos",
+    "shell_label": "Fizz - Trickster / Diana - Lunari",
+    "legend_title": "Fizz - Trickster",
+    "chosen_champion_title": "Diana - Lunari",
+    "legend_domains": [
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.6918,
+    "buildability_prior": 0.9634,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Targon's Peak": 1.0,
+      "Abandoned Hall": 1.0,
+      "Amateur Recital": 1.0
     }
   },
   {
@@ -2798,7 +2811,7 @@
     ],
     "training_deck_count": 4,
     "archetype_count": 4,
-    "competitive_prior": 10.8079,
+    "competitive_prior": 10.6367,
     "buildability_prior": 0.9686,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2818,59 +2831,6 @@
     }
   },
   {
-    "shell_id": "leblancdeceiver|leblanceverywhereatonce|mind,order",
-    "shell_label": "LeBlanc - Deceiver / LeBlanc - Everywhere at Once",
-    "legend_title": "LeBlanc - Deceiver",
-    "chosen_champion_title": "LeBlanc - Everywhere at Once",
-    "legend_domains": [
-      "Mind",
-      "Order"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.608,
-    "buildability_prior": 0.9231,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Windswept Hillock": 1.0,
-      "Dusk Rose Lab": 1.0,
-      "Star Spring": 1.0
-    }
-  },
-  {
-    "shell_id": "iverngreenfather|ivernfriendtoall|calm,order",
-    "shell_label": "Ivern - Green Father / Ivern - Friend to All",
-    "legend_title": "Ivern - Green Father",
-    "chosen_champion_title": "Ivern - Friend to All",
-    "legend_domains": [
-      "Calm",
-      "Order"
-    ],
-    "training_deck_count": 5,
-    "archetype_count": 5,
-    "competitive_prior": 10.5902,
-    "buildability_prior": 0.964,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 5
-    },
-    "rune_weights": {
-      "Calm Rune": 35.0,
-      "Order Rune": 25.0
-    },
-    "battlefield_weights": {
-      "Forbidding Waste": 4.0,
-      "Frozen Fortress": 1.0,
-      "Vaults of Helia": 5.0,
-      "Vilemaw's Lair": 2.0,
-      "Rockfall Path": 3.0
-    }
-  },
-  {
     "shell_id": "masteryiwujubladesman|masteryihoned|body,calm",
     "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Honed",
     "legend_title": "Master Yi - Wuju Bladesman",
@@ -2881,9 +2841,9 @@
     ],
     "training_deck_count": 92,
     "archetype_count": 47,
-    "competitive_prior": 10.5704,
-    "buildability_prior": 0.9232,
-    "buildable_conversion": 0.8768,
+    "competitive_prior": 10.6321,
+    "buildability_prior": 0.924,
+    "buildable_conversion": 0.8808,
     "source_breakdown": {
       "riftboundgg": 41,
       "riot-bologna": 1,
@@ -2920,6 +2880,160 @@
     }
   },
   {
+    "shell_id": "masteryiwujubladesman|masteryimeditative|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Meditative",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Master Yi - Meditative",
+    "legend_domains": [
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 10.5919,
+    "buildability_prior": 0.9605,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 1,
+      "riftboundgg": 5
+    },
+    "rune_weights": {
+      "Calm Rune": 39.0,
+      "Body Rune": 33.0
+    },
+    "battlefield_weights": {
+      "Grove of the God-Willow": 2.0,
+      "Vilemaw's Lair": 2.0,
+      "Fortified Position": 2.0,
+      "Obelisk of Power": 3.0,
+      "Startipped Peak": 3.0,
+      "The Dreaming Tree": 1.0,
+      "Targon's Peak": 3.0,
+      "The Candlelit Sanctum": 1.0,
+      "Windswept Hillock": 1.0
+    }
+  },
+  {
+    "shell_id": "volibearrelentlessstorm|videstructive|body,fury",
+    "shell_label": "Volibear - Relentless Storm / Vi - Destructive",
+    "legend_title": "Volibear - Relentless Storm",
+    "chosen_champion_title": "Vi - Destructive",
+    "legend_domains": [
+      "Body",
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.5587,
+    "buildability_prior": 0.9269,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Fury Rune": 12.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 1.0,
+      "Obelisk of Power": 1.0,
+      "Startipped Peak": 1.0
+    }
+  },
+  {
+    "shell_id": "iverngreenfather|ivernfriendtoall|calm,order",
+    "shell_label": "Ivern - Green Father / Ivern - Friend to All",
+    "legend_title": "Ivern - Green Father",
+    "chosen_champion_title": "Ivern - Friend to All",
+    "legend_domains": [
+      "Calm",
+      "Order"
+    ],
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 10.5156,
+    "buildability_prior": 0.964,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 5
+    },
+    "rune_weights": {
+      "Calm Rune": 35.0,
+      "Order Rune": 25.0
+    },
+    "battlefield_weights": {
+      "Forbidding Waste": 4.0,
+      "Frozen Fortress": 1.0,
+      "Vaults of Helia": 5.0,
+      "Vilemaw's Lair": 2.0,
+      "Rockfall Path": 3.0
+    }
+  },
+  {
+    "shell_id": "iverngreenfather|ivernnurturer|calm,order",
+    "shell_label": "Ivern - Green Father / Ivern - Nurturer",
+    "legend_title": "Ivern - Green Father",
+    "chosen_champion_title": "Ivern - Nurturer",
+    "legend_domains": [
+      "Calm",
+      "Order"
+    ],
+    "training_deck_count": 7,
+    "archetype_count": 7,
+    "competitive_prior": 10.5,
+    "buildability_prior": 0.9631,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 7
+    },
+    "rune_weights": {
+      "Calm Rune": 16.0,
+      "Order Rune": 8.0
+    },
+    "battlefield_weights": {
+      "Forbidding Waste": 5.0,
+      "Frozen Fortress": 2.0,
+      "Vaults of Helia": 5.0,
+      "Amateur Recital": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Black Flame Altar": 1.0,
+      "Forgotten Library": 1.0,
+      "Sigil of the Storm": 1.0,
+      "Vilemaw's Lair": 2.0,
+      "Rockfall Path": 1.0,
+      "Back-Alley Bar": 1.0
+    }
+  },
+  {
+    "shell_id": "vipiltoverenforcer|videstructive|fury,order",
+    "shell_label": "Vi - Piltover Enforcer / Vi - Destructive",
+    "legend_title": "Vi - Piltover Enforcer",
+    "chosen_champion_title": "Vi - Destructive",
+    "legend_domains": [
+      "Fury",
+      "Order"
+    ],
+    "training_deck_count": 4,
+    "archetype_count": 3,
+    "competitive_prior": 10.4615,
+    "buildability_prior": 0.9302,
+    "buildable_conversion": 0.9167,
+    "source_breakdown": {
+      "riftboundgg": 4
+    },
+    "rune_weights": {
+      "Fury Rune": 22.0,
+      "Order Rune": 8.0
+    },
+    "battlefield_weights": {
+      "Forge of the Fluft": 3.0,
+      "Hall of Legends": 1.0,
+      "Sunken Temple": 4.0,
+      "Rockfall Path": 2.0,
+      "The Arena's Greatest": 1.0,
+      "Vilemaw's Lair": 1.0
+    }
+  },
+  {
     "shell_id": "teemoswiftscout|teemoscout|chaos,mind",
     "shell_label": "Teemo - Swift Scout / Teemo - Scout",
     "legend_title": "Teemo - Swift Scout",
@@ -2930,9 +3044,9 @@
     ],
     "training_deck_count": 78,
     "archetype_count": 52,
-    "competitive_prior": 10.5368,
-    "buildability_prior": 0.9434,
-    "buildable_conversion": 0.9422,
+    "competitive_prior": 10.412,
+    "buildability_prior": 0.945,
+    "buildable_conversion": 0.947,
     "source_breakdown": {
       "riftboundgg": 32,
       "piltoverarchive": 44,
@@ -2972,94 +3086,6 @@
     }
   },
   {
-    "shell_id": "vipiltoverenforcer|videstructive|fury,order",
-    "shell_label": "Vi - Piltover Enforcer / Vi - Destructive",
-    "legend_title": "Vi - Piltover Enforcer",
-    "chosen_champion_title": "Vi - Destructive",
-    "legend_domains": [
-      "Fury",
-      "Order"
-    ],
-    "training_deck_count": 4,
-    "archetype_count": 3,
-    "competitive_prior": 10.4322,
-    "buildability_prior": 0.9573,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 4
-    },
-    "rune_weights": {
-      "Fury Rune": 22.0,
-      "Order Rune": 8.0
-    },
-    "battlefield_weights": {
-      "Forge of the Fluft": 3.0,
-      "Hall of Legends": 1.0,
-      "Sunken Temple": 4.0,
-      "Rockfall Path": 2.0,
-      "The Arena's Greatest": 1.0,
-      "Vilemaw's Lair": 1.0
-    }
-  },
-  {
-    "shell_id": "fizztrickster|dianalunari|chaos",
-    "shell_label": "Fizz - Trickster / Diana - Lunari",
-    "legend_title": "Fizz - Trickster",
-    "chosen_champion_title": "Diana - Lunari",
-    "legend_domains": [
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.4204,
-    "buildability_prior": 0.9634,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Targon's Peak": 1.0,
-      "Abandoned Hall": 1.0,
-      "Amateur Recital": 1.0
-    }
-  },
-  {
-    "shell_id": "iverngreenfather|ivernnurturer|calm,order",
-    "shell_label": "Ivern - Green Father / Ivern - Nurturer",
-    "legend_title": "Ivern - Green Father",
-    "chosen_champion_title": "Ivern - Nurturer",
-    "legend_domains": [
-      "Calm",
-      "Order"
-    ],
-    "training_deck_count": 7,
-    "archetype_count": 7,
-    "competitive_prior": 10.4157,
-    "buildability_prior": 0.9631,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 7
-    },
-    "rune_weights": {
-      "Calm Rune": 16.0,
-      "Order Rune": 8.0
-    },
-    "battlefield_weights": {
-      "Forbidding Waste": 5.0,
-      "Frozen Fortress": 2.0,
-      "Vaults of Helia": 5.0,
-      "Amateur Recital": 1.0,
-      "Trifarian War Camp": 1.0,
-      "Black Flame Altar": 1.0,
-      "Forgotten Library": 1.0,
-      "Sigil of the Storm": 1.0,
-      "Vilemaw's Lair": 2.0,
-      "Rockfall Path": 1.0,
-      "Back-Alley Bar": 1.0
-    }
-  },
-  {
     "shell_id": "leonaradiantdawn|leonadetermined|calm,order",
     "shell_label": "Leona - Radiant Dawn / Leona - Determined",
     "legend_title": "Leona - Radiant Dawn",
@@ -3070,7 +3096,7 @@
     ],
     "training_deck_count": 66,
     "archetype_count": 57,
-    "competitive_prior": 10.3771,
+    "competitive_prior": 10.2817,
     "buildability_prior": 0.961,
     "buildable_conversion": 0.9967,
     "source_breakdown": {
@@ -3111,32 +3137,6 @@
     }
   },
   {
-    "shell_id": "volibearrelentlessstorm|videstructive|body,fury",
-    "shell_label": "Volibear - Relentless Storm / Vi - Destructive",
-    "legend_title": "Volibear - Relentless Storm",
-    "chosen_champion_title": "Vi - Destructive",
-    "legend_domains": [
-      "Body",
-      "Fury"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.3522,
-    "buildability_prior": 0.9269,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Fury Rune": 12.0
-    },
-    "battlefield_weights": {
-      "Aspirant's Climb": 1.0,
-      "Obelisk of Power": 1.0,
-      "Startipped Peak": 1.0
-    }
-  },
-  {
     "shell_id": "volibearrelentlessstorm|volibearfurious|body,fury",
     "shell_label": "Volibear - Relentless Storm / Volibear - Furious",
     "legend_title": "Volibear - Relentless Storm",
@@ -3147,7 +3147,7 @@
     ],
     "training_deck_count": 59,
     "archetype_count": 51,
-    "competitive_prior": 10.1259,
+    "competitive_prior": 10.1056,
     "buildability_prior": 0.9503,
     "buildable_conversion": 0.9788,
     "source_breakdown": {
@@ -3184,6 +3184,57 @@
     }
   },
   {
+    "shell_id": "garenmightofdemacia|volibearimposing|body,order",
+    "shell_label": "Garen - Might of Demacia / Volibear - Imposing",
+    "legend_title": "Garen - Might of Demacia",
+    "chosen_champion_title": "Volibear - Imposing",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 9.9693,
+    "buildability_prior": 0.9346,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Body Rune": 6.0,
+      "Order Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Altar to Unity": 1.0,
+      "Aspirant's Climb": 1.0,
+      "Back-Alley Bar": 1.0
+    }
+  },
+  {
+    "shell_id": "yasuounforgiven|vexapathetic|calm,chaos",
+    "shell_label": "Yasuo - Unforgiven / Vex - Apathetic",
+    "legend_title": "Yasuo - Unforgiven",
+    "chosen_champion_title": "Vex - Apathetic",
+    "legend_domains": [
+      "Calm",
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 9.937,
+    "buildability_prior": 0.9417,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Grove of the God-Willow": 1.0,
+      "The Arena's Greatest": 1.0,
+      "Seat of Power": 1.0
+    }
+  },
+  {
     "shell_id": "luxladyofluminosity|luxilluminated|mind,order",
     "shell_label": "Lux - Lady of Luminosity / Lux - Illuminated",
     "legend_title": "Lux - Lady of Luminosity",
@@ -3194,7 +3245,7 @@
     ],
     "training_deck_count": 4,
     "archetype_count": 4,
-    "competitive_prior": 10.1049,
+    "competitive_prior": 9.8638,
     "buildability_prior": 0.9681,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3218,29 +3269,6 @@
     }
   },
   {
-    "shell_id": "jannasavior|namiheadstrong|calm",
-    "shell_label": "Janna - Savior / Nami - Headstrong",
-    "legend_title": "Janna - Savior",
-    "chosen_champion_title": "Nami - Headstrong",
-    "legend_domains": [
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.0789,
-    "buildability_prior": 0.9453,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Targon's Peak": 1.0,
-      "Trifarian War Camp": 1.0,
-      "Vaults of Helia": 1.0
-    }
-  },
-  {
     "shell_id": "karthuseternal|galioindefatigable|order",
     "shell_label": "Karthus - Eternal / Galio - Indefatigable",
     "legend_title": "Karthus - Eternal",
@@ -3250,7 +3278,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.8675,
+    "competitive_prior": 9.7843,
     "buildability_prior": 0.9569,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3264,6 +3292,29 @@
     }
   },
   {
+    "shell_id": "jannasavior|namiheadstrong|calm",
+    "shell_label": "Janna - Savior / Nami - Headstrong",
+    "legend_title": "Janna - Savior",
+    "chosen_champion_title": "Nami - Headstrong",
+    "legend_domains": [
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 9.7003,
+    "buildability_prior": 0.9453,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Targon's Peak": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Vaults of Helia": 1.0
+    }
+  },
+  {
     "shell_id": "videstructive|vipeacekeeper|fury",
     "shell_label": "Vi - Destructive / Vi - Peacekeeper",
     "legend_title": "Vi - Destructive",
@@ -3273,7 +3324,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.8524,
+    "competitive_prior": 9.661,
     "buildability_prior": 0.9587,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3290,55 +3341,6 @@
     }
   },
   {
-    "shell_id": "yasuounforgiven|vexapathetic|calm,chaos",
-    "shell_label": "Yasuo - Unforgiven / Vex - Apathetic",
-    "legend_title": "Yasuo - Unforgiven",
-    "chosen_champion_title": "Vex - Apathetic",
-    "legend_domains": [
-      "Calm",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 9.7328,
-    "buildability_prior": 0.9417,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "The Arena's Greatest": 1.0,
-      "Seat of Power": 1.0
-    }
-  },
-  {
-    "shell_id": "fizztrickster|fizztrickster|chaos",
-    "shell_label": "Fizz - Trickster / Fizz - Trickster",
-    "legend_title": "Fizz - Trickster",
-    "chosen_champion_title": "Fizz - Trickster",
-    "legend_domains": [
-      "Chaos"
-    ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 9.4928,
-    "buildability_prior": 0.9523,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 2
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Void Gate": 1.0,
-      "Amateur Recital": 1.0,
-      "Ripper's Bay": 2.0,
-      "Abandoned Hall": 1.0,
-      "Forbidding Waste": 1.0
-    }
-  },
-  {
     "shell_id": "ahrininetailedfox|blitzcrankimpassive|calm,mind",
     "shell_label": "Ahri - Nine-Tailed Fox / Blitzcrank - Impassive",
     "legend_title": "Ahri - Nine-Tailed Fox",
@@ -3349,7 +3351,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.4038,
+    "competitive_prior": 9.6202,
     "buildability_prior": 0.9323,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3366,6 +3368,37 @@
     }
   },
   {
+    "shell_id": "jhinvirtuoso|jhinmurderousartist|fury,mind",
+    "shell_label": "Jhin - Virtuoso / Jhin - Murderous Artist",
+    "legend_title": "Jhin - Virtuoso",
+    "chosen_champion_title": "Jhin - Murderous Artist",
+    "legend_domains": [
+      "Fury",
+      "Mind"
+    ],
+    "training_deck_count": 3,
+    "archetype_count": 3,
+    "competitive_prior": 9.3905,
+    "buildability_prior": 0.9531,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 3
+    },
+    "rune_weights": {
+      "Fury Rune": 6.0,
+      "Mind Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Altar to Unity": 2.0,
+      "Power Nexus": 2.0,
+      "Vaults of Helia": 1.0,
+      "Void Gate": 1.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Rockfall Path": 1.0,
+      "The Academy": 1.0
+    }
+  },
+  {
     "shell_id": "yasuounforgiven|yasuoremorseful|calm,chaos",
     "shell_label": "Yasuo - Unforgiven / Yasuo - Remorseful",
     "legend_title": "Yasuo - Unforgiven",
@@ -3376,9 +3409,9 @@
     ],
     "training_deck_count": 71,
     "archetype_count": 49,
-    "competitive_prior": 9.3637,
-    "buildability_prior": 0.94,
-    "buildable_conversion": 0.9439,
+    "competitive_prior": 9.3842,
+    "buildability_prior": 0.9375,
+    "buildable_conversion": 0.9362,
     "source_breakdown": {
       "riftboundgg": 24,
       "piltoverarchive": 47
@@ -3419,61 +3452,28 @@
     }
   },
   {
-    "shell_id": "garenmightofdemacia|volibearimposing|body,order",
-    "shell_label": "Garen - Might of Demacia / Volibear - Imposing",
-    "legend_title": "Garen - Might of Demacia",
-    "chosen_champion_title": "Volibear - Imposing",
+    "shell_id": "fizztrickster|fizztrickster|chaos",
+    "shell_label": "Fizz - Trickster / Fizz - Trickster",
+    "legend_title": "Fizz - Trickster",
+    "chosen_champion_title": "Fizz - Trickster",
     "legend_domains": [
-      "Body",
-      "Order"
+      "Chaos"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 9.2933,
-    "buildability_prior": 0.9346,
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 9.3448,
+    "buildability_prior": 0.9523,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 1
+      "riftboundgg": 2
     },
-    "rune_weights": {
-      "Body Rune": 6.0,
-      "Order Rune": 6.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
-      "Altar to Unity": 1.0,
-      "Aspirant's Climb": 1.0,
-      "Back-Alley Bar": 1.0
-    }
-  },
-  {
-    "shell_id": "jhinvirtuoso|jhinmurderousartist|fury,mind",
-    "shell_label": "Jhin - Virtuoso / Jhin - Murderous Artist",
-    "legend_title": "Jhin - Virtuoso",
-    "chosen_champion_title": "Jhin - Murderous Artist",
-    "legend_domains": [
-      "Fury",
-      "Mind"
-    ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 9.2071,
-    "buildability_prior": 0.9531,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 3
-    },
-    "rune_weights": {
-      "Fury Rune": 6.0,
-      "Mind Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Altar to Unity": 2.0,
-      "Power Nexus": 2.0,
-      "Vaults of Helia": 1.0,
       "Void Gate": 1.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Rockfall Path": 1.0,
-      "The Academy": 1.0
+      "Amateur Recital": 1.0,
+      "Ripper's Bay": 2.0,
+      "Abandoned Hall": 1.0,
+      "Forbidding Waste": 1.0
     }
   },
   {
@@ -3487,7 +3487,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 8.9388,
+    "competitive_prior": 9.172,
     "buildability_prior": 0.9386,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3506,7 +3506,7 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 8.8126,
+    "competitive_prior": 8.9789,
     "buildability_prior": 0.9487,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3530,7 +3530,7 @@
     ],
     "training_deck_count": 28,
     "archetype_count": 26,
-    "competitive_prior": 8.6984,
+    "competitive_prior": 8.7376,
     "buildability_prior": 0.9599,
     "buildable_conversion": 0.9904,
     "source_breakdown": {
@@ -3582,9 +3582,9 @@
     ],
     "training_deck_count": 41,
     "archetype_count": 37,
-    "competitive_prior": 8.3339,
-    "buildability_prior": 0.9576,
-    "buildable_conversion": 0.991,
+    "competitive_prior": 8.2411,
+    "buildability_prior": 0.9545,
+    "buildable_conversion": 0.982,
     "source_breakdown": {
       "riftboundgg": 15,
       "piltoverarchive": 25,
@@ -3620,6 +3620,45 @@
     }
   },
   {
+    "shell_id": "renataglascchembaroness|renataglascindustrialist|mind,order",
+    "shell_label": "Renata Glasc - Chem-Baroness / Renata Glasc - Industrialist",
+    "legend_title": "Renata Glasc - Chem-Baroness",
+    "chosen_champion_title": "Renata Glasc - Industrialist",
+    "legend_domains": [
+      "Mind",
+      "Order"
+    ],
+    "training_deck_count": 9,
+    "archetype_count": 8,
+    "competitive_prior": 8.1048,
+    "buildability_prior": 0.9636,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 3,
+      "piltoverarchive": 6
+    },
+    "rune_weights": {
+      "Order Rune": 42.0,
+      "Mind Rune": 42.0
+    },
+    "battlefield_weights": {
+      "Windswept Hillock": 1.0,
+      "Treasure Hoard": 2.0,
+      "Ripper's Bay": 1.0,
+      "The Arena's Greatest": 4.0,
+      "Vilemaw's Lair": 2.0,
+      "Power Nexus": 5.0,
+      "Grove of the God-Willow": 4.0,
+      "Ravenbloom Conservatory": 1.0,
+      "The Grand Plaza": 1.0,
+      "Trifarian War Camp": 2.0,
+      "Aspirant's Climb": 1.0,
+      "Veiled Temple": 1.0,
+      "Obelisk of Power": 1.0,
+      "Zaun Warrens": 1.0
+    }
+  },
+  {
     "shell_id": "garenmightofdemacia|garencommander|body,order",
     "shell_label": "Garen - Might of Demacia / Garen - Commander",
     "legend_title": "Garen - Might of Demacia",
@@ -3630,7 +3669,7 @@
     ],
     "training_deck_count": 16,
     "archetype_count": 14,
-    "competitive_prior": 8.2553,
+    "competitive_prior": 7.9685,
     "buildability_prior": 0.9415,
     "buildable_conversion": 0.9643,
     "source_breakdown": {
@@ -3660,45 +3699,6 @@
     }
   },
   {
-    "shell_id": "renataglascchembaroness|renataglascindustrialist|mind,order",
-    "shell_label": "Renata Glasc - Chem-Baroness / Renata Glasc - Industrialist",
-    "legend_title": "Renata Glasc - Chem-Baroness",
-    "chosen_champion_title": "Renata Glasc - Industrialist",
-    "legend_domains": [
-      "Mind",
-      "Order"
-    ],
-    "training_deck_count": 9,
-    "archetype_count": 8,
-    "competitive_prior": 8.1008,
-    "buildability_prior": 0.9636,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 3,
-      "piltoverarchive": 6
-    },
-    "rune_weights": {
-      "Order Rune": 42.0,
-      "Mind Rune": 42.0
-    },
-    "battlefield_weights": {
-      "Windswept Hillock": 1.0,
-      "Treasure Hoard": 2.0,
-      "Ripper's Bay": 1.0,
-      "The Arena's Greatest": 4.0,
-      "Vilemaw's Lair": 2.0,
-      "Power Nexus": 5.0,
-      "Grove of the God-Willow": 4.0,
-      "Ravenbloom Conservatory": 1.0,
-      "The Grand Plaza": 1.0,
-      "Trifarian War Camp": 2.0,
-      "Aspirant's Climb": 1.0,
-      "Veiled Temple": 1.0,
-      "Obelisk of Power": 1.0,
-      "Zaun Warrens": 1.0
-    }
-  },
-  {
     "shell_id": "garenmightofdemacia|garenrugged|body,order",
     "shell_label": "Garen - Might of Demacia / Garen - Rugged",
     "legend_title": "Garen - Might of Demacia",
@@ -3709,7 +3709,7 @@
     ],
     "training_deck_count": 6,
     "archetype_count": 5,
-    "competitive_prior": 8.0369,
+    "competitive_prior": 7.9062,
     "buildability_prior": 0.9537,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3742,7 +3742,7 @@
     ],
     "training_deck_count": 8,
     "archetype_count": 8,
-    "competitive_prior": 7.7733,
+    "competitive_prior": 7.7448,
     "buildability_prior": 0.9631,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3779,7 +3779,7 @@
     ],
     "training_deck_count": 18,
     "archetype_count": 16,
-    "competitive_prior": 7.6888,
+    "competitive_prior": 7.5705,
     "buildability_prior": 0.9605,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -3817,7 +3817,7 @@
     ],
     "training_deck_count": 16,
     "archetype_count": 13,
-    "competitive_prior": 7.4345,
+    "competitive_prior": 7.4225,
     "buildability_prior": 0.9565,
     "buildable_conversion": 0.9551,
     "source_breakdown": {
