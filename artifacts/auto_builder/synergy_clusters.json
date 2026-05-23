@@ -1,366 +1,1124 @@
 [
   {
     "cluster_id": 0,
-    "label": "Cluster 1: Seal of Strength, Repulse",
+    "label": "Cluster 1: Lucian",
     "top_cards": [
-      "Seal of Strength",
-      "Repulse",
-      "Rengar - Trophy Hunter",
-      "Nidalee - Cat Form",
-      "Fresh Beans",
-      "Grim Apothecary"
+      "Lucian - Gunslinger"
     ],
-    "avg_competitive_score": 12.5165
+    "avg_competitive_score": 11.6964
   },
   {
     "cluster_id": 1,
-    "label": "Cluster 2: Maddened Marauder, Warwick",
+    "label": "Cluster 2: Portal Rescue, Treasure Hunter",
     "top_cards": [
-      "Maddened Marauder",
-      "Warwick - Hunter (Chinese Arcane Box Set Promo)",
-      "Eager Apprentice",
-      "Disintegrate",
-      "Heimerdinger - Inventor (Chinese Arcane Box Set Promo)",
-      "Icathian Rain"
+      "Portal Rescue",
+      "Treasure Hunter",
+      "Edge of Night",
+      "Hard Bargain",
+      "Switcheroo",
+      "Black Market Broker"
     ],
-    "avg_competitive_score": 14.1172
+    "avg_competitive_score": 17.6942
   },
   {
     "cluster_id": 2,
-    "label": "Cluster 3: Bullet Time, Carnivorous Snapvine",
+    "label": "Cluster 3: Scuttle Crab",
     "top_cards": [
-      "Bullet Time",
-      "Carnivorous Snapvine",
-      "Deadbloom Predator",
-      "Miss Fortune - Captain",
-      "Volibear - Furious",
-      "Mobilize"
+      "Scuttle Crab"
     ],
-    "avg_competitive_score": 11.5159
+    "avg_competitive_score": 14.9035
   },
   {
     "cluster_id": 3,
-    "label": "Cluster 4: Anivia, Elder Dragon",
+    "label": "Cluster 4: Shen, Vanguard Helm",
     "top_cards": [
-      "Anivia - Primal",
-      "Elder Dragon",
-      "Scuttle Crab",
-      "Honeyfruit",
-      "Blood Rose",
-      "Concentrate"
+      "Shen - Kinkou",
+      "Vanguard Helm"
     ],
-    "avg_competitive_score": 11.6994
+    "avg_competitive_score": 11.4741
   },
   {
     "cluster_id": 4,
-    "label": "Cluster 5: Scryer's Bloom, Bone Skewer",
+    "label": "Cluster 5: Carnivorous Snapvine, Challenge",
     "top_cards": [
-      "Scryer's Bloom",
-      "Bone Skewer",
-      "Kha'Zix - Mutating Horror",
-      "Conscription",
-      "Cursed Sarcophagus",
-      "Demacian Diplomat"
+      "Carnivorous Snapvine",
+      "Challenge",
+      "Deadbloom Predator",
+      "Mobilize",
+      "Catalyst of Aeons",
+      "Primal Strength"
     ],
-    "avg_competitive_score": 14.5304
+    "avg_competitive_score": 12.4336
   },
   {
     "cluster_id": 5,
-    "label": "Cluster 6: Kayn, Miss Fortune",
+    "label": "Cluster 6: Defy, Discipline",
     "top_cards": [
-      "Kayn - Unleashed",
-      "Miss Fortune - Buccaneer",
-      "Stealthy Pursuer",
       "Defy",
       "Discipline",
-      "Last Breath"
+      "Whiteflame Protector",
+      "Wind Wall",
+      "Zhonya's Hourglass",
+      "Clockwork Keeper"
     ],
-    "avg_competitive_score": 12.2622
+    "avg_competitive_score": 12.4129
   },
   {
     "cluster_id": 6,
-    "label": "Cluster 7: Trifarian Gloryseeker, Forge of the Future",
+    "label": "Cluster 7: Wraith of Echoes, Hidden Blade",
     "top_cards": [
-      "Trifarian Gloryseeker",
-      "Forge of the Future",
-      "Karma - Channeler",
-      "Baited Hook",
-      "Spectral Matron",
-      "Draven - Showboat"
-    ],
-    "avg_competitive_score": 13.5669
-  },
-  {
-    "cluster_id": 7,
-    "label": "Cluster 8: Teemo, Stupefy",
-    "top_cards": [
-      "Teemo - Scout",
-      "Stupefy",
-      "Watchful Sentry",
-      "Ravenbloom Student",
       "Wraith of Echoes",
-      "Blastcone Fae"
-    ],
-    "avg_competitive_score": 13.3475
-  },
-  {
-    "cluster_id": 8,
-    "label": "Cluster 9: Akshan, Doran's Blade",
-    "top_cards": [
-      "Akshan - Mischievous",
-      "Doran's Blade",
-      "Fiora - Worthy",
-      "Lucian - Merciless",
-      "Punch First",
-      "Riposte"
-    ],
-    "avg_competitive_score": 13.0927
-  },
-  {
-    "cluster_id": 9,
-    "label": "Cluster 10: Noxus Hopeful, Cleave",
-    "top_cards": [
-      "Noxus Hopeful",
-      "Cleave",
-      "Legion Rearguard",
-      "Noxian Guillotine",
-      "Brynhir Thundersong",
-      "Darius - Trifarian"
-    ],
-    "avg_competitive_score": 14.6649
-  },
-  {
-    "cluster_id": 10,
-    "label": "Cluster 11: B.F. Sword, Thwonk!",
-    "top_cards": [
-      "B.F. Sword",
-      "Thwonk!",
-      "Azir - Ascendant",
-      "Doran's Shield",
-      "Renata Glasc - Industrialist",
-      "Brutalizer"
-    ],
-    "avg_competitive_score": 13.6925
-  },
-  {
-    "cluster_id": 11,
-    "label": "Cluster 12: Serrated Dirk, Vi",
-    "top_cards": [
-      "Serrated Dirk",
-      "Vi - Peacekeeper",
-      "Carrion Dredger",
-      "Tactical Retreat",
-      "Xerath - Freed",
-      "Arena Kingpin"
-    ],
-    "avg_competitive_score": 13.1213
-  },
-  {
-    "cluster_id": 12,
-    "label": "Cluster 13: Rebuke, Flash",
-    "top_cards": [
-      "Rebuke",
-      "Flash",
-      "Nocturne - Horrifying",
-      "Fight or Flight",
-      "Mystic Poro",
-      "Yasuo - Windrider"
-    ],
-    "avg_competitive_score": 14.5202
-  },
-  {
-    "cluster_id": 13,
-    "label": "Cluster 14: Unchecked Power, Garen",
-    "top_cards": [
-      "Unchecked Power",
-      "Garen - Rugged",
-      "Discipline (Origins Nexus Night Promo)",
-      "Heart of Dark Ice",
-      "Feral Strength",
-      "Sprite Fountain"
-    ],
-    "avg_competitive_score": 14.6622
-  },
-  {
-    "cluster_id": 14,
-    "label": "Cluster 15: Seal of Focus, Seal of Insight",
-    "top_cards": [
-      "Seal of Focus",
-      "Seal of Insight",
-      "Energy Conduit",
-      "Dropboarder",
-      "Pit Crew",
-      "Ornn - Forge God"
-    ],
-    "avg_competitive_score": 13.3046
-  },
-  {
-    "cluster_id": 15,
-    "label": "Cluster 16: Emperor's Divide, Trusty Ramhound",
-    "top_cards": [
-      "Emperor's Divide",
-      "Trusty Ramhound",
-      "Back Off",
-      "Vilemaw",
-      "Friendship",
-      "Daisy!"
-    ],
-    "avg_competitive_score": 12.8253
-  },
-  {
-    "cluster_id": 16,
-    "label": "Cluster 17: Brazen Buccaneer, Cemetery Attendant",
-    "top_cards": [
-      "Brazen Buccaneer",
-      "Cemetery Attendant",
-      "Chemtech Enforcer",
-      "Flame Chompers",
-      "Get Excited!",
-      "Jinx - Demolitionist"
-    ],
-    "avg_competitive_score": 13.3214
-  },
-  {
-    "cluster_id": 17,
-    "label": "Cluster 18: Garbage Grabber, Promising Future",
-    "top_cards": [
-      "Garbage Grabber",
-      "Promising Future",
-      "Viktor - Innovator",
-      "Heimerdinger - Inventor",
-      "Lux - Crownguard",
-      "Progress Day"
-    ],
-    "avg_competitive_score": 13.4265
-  },
-  {
-    "cluster_id": 18,
-    "label": "Cluster 19: Cull the Weak, Hidden Blade",
-    "top_cards": [
-      "Cull the Weak",
       "Hidden Blade",
       "Seal of Unity",
       "Grand Strategem",
       "Soaring Scout",
       "Cruel Patron"
     ],
-    "avg_competitive_score": 13.009
+    "avg_competitive_score": 12.9688
   },
   {
-    "cluster_id": 19,
-    "label": "Cluster 20: Ekko, Piercing Light",
+    "cluster_id": 7,
+    "label": "Cluster 8: Fading Memories, Diana",
     "top_cards": [
-      "Ekko - Recurrent",
-      "Piercing Light",
-      "Frigid Touch",
-      "Rocket Barrage",
-      "Hextech Anomaly",
-      "Diana - Lunari"
+      "Fading Memories",
+      "Diana - Lunari",
+      "Eclipse",
+      "Hwei - Brooding Painter",
+      "Moonfall",
+      "Frigid Jewel"
     ],
-    "avg_competitive_score": 15.1345
+    "avg_competitive_score": 11.5284
   },
   {
-    "cluster_id": 20,
-    "label": "Cluster 21: Dangerous Duo, Mega-Mech",
+    "cluster_id": 8,
+    "label": "Cluster 9: Stupefy, Heimerdinger",
     "top_cards": [
-      "Dangerous Duo",
+      "Stupefy",
+      "Heimerdinger - Inventor",
+      "Unchecked Power",
+      "Morbid Return",
+      "Thousand-Tailed Watcher",
+      "Time Warp"
+    ],
+    "avg_competitive_score": 13.3148
+  },
+  {
+    "cluster_id": 9,
+    "label": "Cluster 10: Baited Hook, Emperor's Divide",
+    "top_cards": [
+      "Baited Hook",
+      "Emperor's Divide",
+      "Thwonk!",
+      "Desert's Call",
+      "Sacred Shears",
+      "Royal Guard"
+    ],
+    "avg_competitive_score": 13.4255
+  },
+  {
+    "cluster_id": 10,
+    "label": "Cluster 11: Ravenbloom Student, Dr. Mundo",
+    "top_cards": [
+      "Ravenbloom Student",
+      "Dr. Mundo - Expert",
+      "Smoke Screen",
       "Mega-Mech",
-      "Thermo Beam",
-      "Ferrous Forerunner",
-      "Forecaster",
-      "Gem Jammer"
+      "Convergent Mutation",
+      "Jeweled Colossus"
     ],
-    "avg_competitive_score": 13.8547
+    "avg_competitive_score": 13.2094
   },
   {
-    "cluster_id": 21,
-    "label": "Cluster 22: Karthus, Glasc Mixologist",
+    "cluster_id": 11,
+    "label": "Cluster 12: Kai'Sa, Promising Future",
     "top_cards": [
-      "Karthus - Eternal",
-      "Glasc Mixologist",
-      "Deathgrip",
-      "LeBlanc - Fragmented",
-      "Mirror Image",
-      "Ruined Rex"
+      "Kai'Sa - Evolutionary",
+      "Promising Future",
+      "Raging Firebrand",
+      "The Zero Drive",
+      "Fate Weaver"
     ],
-    "avg_competitive_score": 13.872
+    "avg_competitive_score": 12.4391
   },
   {
-    "cluster_id": 22,
-    "label": "Cluster 23: Soulgorger, The Harrowing",
+    "cluster_id": 12,
+    "label": "Cluster 13: Kog'Maw, Iron Ballista",
     "top_cards": [
-      "Soulgorger",
-      "The Harrowing",
-      "Spirit Wheel",
-      "Irelia - Graceful",
+      "Kog'Maw - Caustic",
+      "Iron Ballista",
+      "Blast Corps Cadet",
+      "Monster Harpoon",
+      "Xerath - Freed",
+      "Smite"
+    ],
+    "avg_competitive_score": 12.1008
+  },
+  {
+    "cluster_id": 13,
+    "label": "Cluster 14: Zaunite Bouncer, Sivir",
+    "top_cards": [
+      "Zaunite Bouncer",
+      "Sivir - Mercenary",
+      "On the Hunt",
       "Sivir - Ambitious",
       "Yordle Explorer"
     ],
-    "avg_competitive_score": 12.6754
+    "avg_competitive_score": 13.3612
+  },
+  {
+    "cluster_id": 14,
+    "label": "Cluster 15: Noxus Hopeful, Watchful Sentry",
+    "top_cards": [
+      "Noxus Hopeful",
+      "Watchful Sentry",
+      "Icathian Rain",
+      "Cleave",
+      "Void Seeker",
+      "Falling Star"
+    ],
+    "avg_competitive_score": 13.8881
+  },
+  {
+    "cluster_id": 15,
+    "label": "Cluster 16: Malzahar, Karthus",
+    "top_cards": [
+      "Malzahar - Fanatic",
+      "Karthus - Eternal",
+      "Glasc Mixologist",
+      "Blade of the Ruined King",
+      "LeBlanc - Fragmented"
+    ],
+    "avg_competitive_score": 12.7875
+  },
+  {
+    "cluster_id": 16,
+    "label": "Cluster 17: Salvage, Doran's Shield",
+    "top_cards": [
+      "Salvage",
+      "Doran's Shield",
+      "Brutalizer",
+      "Arise!",
+      "Azir - Sovereign",
+      "Eye of the Herald"
+    ],
+    "avg_competitive_score": 13.4243
+  },
+  {
+    "cluster_id": 17,
+    "label": "Cluster 18: Long Sword, Blood Rush",
+    "top_cards": [
+      "Long Sword",
+      "Blood Rush",
+      "Angle Shot",
+      "Hexdrinker",
+      "Yone - Blademaster",
+      "Recurve Bow"
+    ],
+    "avg_competitive_score": 14.6668
+  },
+  {
+    "cluster_id": 18,
+    "label": "Cluster 19: Cemetery Attendant, Stealthy Pursuer",
+    "top_cards": [
+      "Cemetery Attendant",
+      "Stealthy Pursuer",
+      "Navori Scout",
+      "Ancient Warmonger",
+      "Frisky Hunter",
+      "Loyal Pup"
+    ],
+    "avg_competitive_score": 11.8954
+  },
+  {
+    "cluster_id": 19,
+    "label": "Cluster 20: Maddened Marauder, Sai Scout",
+    "top_cards": [
+      "Maddened Marauder",
+      "Sai Scout",
+      "Whirlwind"
+    ],
+    "avg_competitive_score": 12.5137
+  },
+  {
+    "cluster_id": 20,
+    "label": "Cluster 21: Anivia, Mosstomper",
+    "top_cards": [
+      "Anivia - Primal",
+      "Mosstomper",
+      "Elder Dragon",
+      "Honeyfruit",
+      "Blood Rose",
+      "Concentrate"
+    ],
+    "avg_competitive_score": 11.8544
+  },
+  {
+    "cluster_id": 21,
+    "label": "Cluster 22: Bilgewater Bully, Kraken Hunter",
+    "top_cards": [
+      "Bilgewater Bully",
+      "Kraken Hunter",
+      "Last Stand",
+      "Mistfall",
+      "Udyr - Wildman",
+      "Wildclaw Shaman"
+    ],
+    "avg_competitive_score": 9.9925
+  },
+  {
+    "cluster_id": 22,
+    "label": "Cluster 23: Boneshiver, Marching Orders",
+    "top_cards": [
+      "Boneshiver",
+      "Marching Orders",
+      "Counter Strike",
+      "Jax - Unmatched",
+      "Jax - Unrelenting",
+      "Veteran Poro"
+    ],
+    "avg_competitive_score": 13.7171
   },
   {
     "cluster_id": 23,
-    "label": "Cluster 24: Dune Drake, Disarming Rake",
+    "label": "Cluster 24: Garbage Grabber, Cull the Weak",
     "top_cards": [
-      "Dune Drake",
-      "Disarming Rake",
-      "Pirate's Haven",
-      "Petricite Monument",
-      "Nilah - Joyful Ascetic",
-      "Hunter's Machete"
+      "Garbage Grabber",
+      "Cull the Weak",
+      "Viktor - Innovator",
+      "Darius - Executioner",
+      "Singularity",
+      "Gemcraft Seer"
     ],
-    "avg_competitive_score": 10.2694
+    "avg_competitive_score": 13.0055
   },
   {
     "cluster_id": 24,
-    "label": "Cluster 25: Vex, Abandon",
+    "label": "Cluster 25: Meditation, LeBlanc",
     "top_cards": [
-      "Vex - Cheerless",
-      "Abandon",
-      "Star-Crossed",
-      "Vex - Apathetic",
-      "Existential Dread",
-      "Mutated Mouser"
+      "Meditation",
+      "LeBlanc - Everywhere at Once",
+      "Lillia - Protector of Dreams",
+      "Keeper of Masks",
+      "Petal Pixie",
+      "Soul Shepherd"
     ],
-    "avg_competitive_score": 17.0154
+    "avg_competitive_score": 11.0966
   },
   {
     "cluster_id": 25,
-    "label": "Cluster 26: Challenge, First Mate",
+    "label": "Cluster 26: Cursed Sarcophagus, Maduli the Gatekeeper",
     "top_cards": [
-      "Challenge",
-      "First Mate",
-      "Lee Sin - Ascetic",
-      "Arena Bar",
-      "Bilgewater Bully",
-      "Cithria of Cloudfield"
+      "Cursed Sarcophagus",
+      "Maduli the Gatekeeper"
     ],
-    "avg_competitive_score": 11.7061
+    "avg_competitive_score": 10.7298
   },
   {
     "cluster_id": 26,
-    "label": "Cluster 27: Possession, Gust",
+    "label": "Cluster 27: Lotus Trap, Blighted Battleaxe",
     "top_cards": [
-      "Possession",
-      "Gust",
-      "Seal of Discord",
-      "Invert Timelines",
-      "Pack of Wonders",
-      "Morbid Return"
+      "Lotus Trap",
+      "Blighted Battleaxe"
     ],
-    "avg_competitive_score": 14.7537
+    "avg_competitive_score": 11.7491
   },
   {
     "cluster_id": 27,
-    "label": "Cluster 28: Spirit's Refuge, Leona",
+    "label": "Cluster 28: Mirror Image, Ruined Rex",
     "top_cards": [
-      "Spirit's Refuge",
-      "Leona - Determined",
-      "Solari Chief",
-      "Shen - Kinkou",
-      "Call to Glory",
-      "Eclipse Herald"
+      "Mirror Image",
+      "Ruined Rex",
+      "Sacrifice",
+      "Atakhan",
+      "Shard of Undoing",
+      "Zilean - Time Mage"
     ],
-    "avg_competitive_score": 12.7287
+    "avg_competitive_score": 14.0999
+  },
+  {
+    "cluster_id": 28,
+    "label": "Cluster 29: Arena Bar, Cithria of Cloudfield",
+    "top_cards": [
+      "Arena Bar",
+      "Cithria of Cloudfield",
+      "Pit Rookie",
+      "Sett - Kingpin",
+      "Showstopper",
+      "Qiyana - Victorious"
+    ],
+    "avg_competitive_score": 12.0216
+  },
+  {
+    "cluster_id": 29,
+    "label": "Cluster 30: Mister Root, Nilah",
+    "top_cards": [
+      "Mister Root",
+      "Nilah - Joyful Ascetic",
+      "Irresistible Faefolk",
+      "Determined Sentry",
+      "Insightful Investigator"
+    ],
+    "avg_competitive_score": 13.0824
+  },
+  {
+    "cluster_id": 30,
+    "label": "Cluster 31: Bone Skewer, Kha'Zix",
+    "top_cards": [
+      "Bone Skewer",
+      "Kha'Zix - Mutating Horror",
+      "Conscription",
+      "Kha'Zix - Evolving Hunter",
+      "Void Assault"
+    ],
+    "avg_competitive_score": 12.6255
+  },
+  {
+    "cluster_id": 31,
+    "label": "Cluster 32: Scrapyard Champion, Laurent Duelist",
+    "top_cards": [
+      "Scrapyard Champion",
+      "Laurent Duelist",
+      "Bonds of Strength",
+      "Sandshifter",
+      "Sand Soldier"
+    ],
+    "avg_competitive_score": 11.0403
+  },
+  {
+    "cluster_id": 32,
+    "label": "Cluster 33: Deathgrip, Combat Experience",
+    "top_cards": [
+      "Deathgrip",
+      "Combat Experience",
+      "Crimson Pigeons",
+      "Soul Harvest",
+      "Ivern - Nurturer",
+      "Ashe - Focused"
+    ],
+    "avg_competitive_score": 13.0044
+  },
+  {
+    "cluster_id": 33,
+    "label": "Cluster 34: Ahri, Ahri",
+    "top_cards": [
+      "Ahri - Alluring",
+      "Ahri - Inquisitive",
+      "Eager Apprentice",
+      "Fox-Fire",
+      "Block",
+      "Mushroom Pouch"
+    ],
+    "avg_competitive_score": 11.9771
+  },
+  {
+    "cluster_id": 34,
+    "label": "Cluster 35: Ancient Henge, Dancing Grenade",
+    "top_cards": [
+      "Ancient Henge",
+      "Dancing Grenade"
+    ],
+    "avg_competitive_score": 13.0601
+  },
+  {
+    "cluster_id": 35,
+    "label": "Cluster 36: Rebuke, Seal of Discord",
+    "top_cards": [
+      "Rebuke",
+      "Seal of Discord",
+      "Rhasa the Sunderer",
+      "Called Shot",
+      "Ezreal - Prodigy",
+      "Fizz - Trickster"
+    ],
+    "avg_competitive_score": 15.8495
+  },
+  {
+    "cluster_id": 36,
+    "label": "Cluster 37: Noxian Guillotine, Dangerous Duo",
+    "top_cards": [
+      "Noxian Guillotine",
+      "Dangerous Duo"
+    ],
+    "avg_competitive_score": 10.2687
+  },
+  {
+    "cluster_id": 37,
+    "label": "Cluster 38: Sterak's Gage, Royal Entourage",
+    "top_cards": [
+      "Sterak's Gage",
+      "Royal Entourage",
+      "Ribbon Dancer",
+      "Lunar Boon",
+      "Fae Porter"
+    ],
+    "avg_competitive_score": 13.7046
+  },
+  {
+    "cluster_id": 38,
+    "label": "Cluster 39: Vanguard Attendant, Crackshot Corsair",
+    "top_cards": [
+      "Vanguard Attendant",
+      "Crackshot Corsair",
+      "Vanguard Sergeant",
+      "Petty Officer"
+    ],
+    "avg_competitive_score": 10.2754
+  },
+  {
+    "cluster_id": 39,
+    "label": "Cluster 40: Blazing Scorcher, Tryndamere",
+    "top_cards": [
+      "Blazing Scorcher",
+      "Tryndamere - Barbarian",
+      "Dune Drake",
+      "Herald of Scales",
+      "Direwing",
+      "Show of Strength"
+    ],
+    "avg_competitive_score": 10.7797
+  },
+  {
+    "cluster_id": 40,
+    "label": "Cluster 41: Repulse, Nidalee",
+    "top_cards": [
+      "Repulse",
+      "Nidalee - Cat Form"
+    ],
+    "avg_competitive_score": 12.8745
+  },
+  {
+    "cluster_id": 41,
+    "label": "Cluster 42: Temporal Portal, Curtain Call",
+    "top_cards": [
+      "Temporal Portal",
+      "Curtain Call",
+      "Downstage Dramatics",
+      "Upstage Comedy",
+      "Square Up"
+    ],
+    "avg_competitive_score": 13.2504
+  },
+  {
+    "cluster_id": 42,
+    "label": "Cluster 43: Hostile Takeover, Renata Glasc",
+    "top_cards": [
+      "Hostile Takeover",
+      "Renata Glasc - Mastermind",
+      "Trove Golem",
+      "Eminent Benefactor"
+    ],
+    "avg_competitive_score": 8.2199
+  },
+  {
+    "cluster_id": 43,
+    "label": "Cluster 44: Heart of Dark Ice, Vilemaw",
+    "top_cards": [
+      "Heart of Dark Ice",
+      "Vilemaw",
+      "Sprite Fountain",
+      "Sprite Burst",
+      "Smoke and Mirrors",
+      "Sprite Queen"
+    ],
+    "avg_competitive_score": 14.9987
+  },
+  {
+    "cluster_id": 44,
+    "label": "Cluster 45: Fight or Flight, Ride the Wind",
+    "top_cards": [
+      "Fight or Flight",
+      "Ride the Wind",
+      "The Syren",
+      "Boots of Swiftness",
+      "Defiant Dance",
+      "Draven - Audacious"
+    ],
+    "avg_competitive_score": 14.5401
+  },
+  {
+    "cluster_id": 45,
+    "label": "Cluster 46: Seal of Strength, Brynhir Thundersong",
+    "top_cards": [
+      "Seal of Strength",
+      "Brynhir Thundersong",
+      "Pakaa Cub",
+      "Rengar - Trophy Hunter",
+      "Fresh Beans",
+      "Inferna"
+    ],
+    "avg_competitive_score": 13.3983
+  },
+  {
+    "cluster_id": 46,
+    "label": "Cluster 47: Galio, Demacian Diplomat",
+    "top_cards": [
+      "Galio - Indefatigable",
+      "Demacian Diplomat",
+      "Gemhand Hunter",
+      "Poppy - Paragon",
+      "Keeper's Verdict",
+      "Poppy - Defender of the Meek"
+    ],
+    "avg_competitive_score": 12.4871
+  },
+  {
+    "cluster_id": 47,
+    "label": "Cluster 48: Ekko, Piercing Light",
+    "top_cards": [
+      "Ekko - Recurrent",
+      "Piercing Light",
+      "Rocket Barrage",
+      "Hextech Anomaly",
+      "Deadly Flourish",
+      "Jhin - Meticulous Killer"
+    ],
+    "avg_competitive_score": 13.1979
+  },
+  {
+    "cluster_id": 48,
+    "label": "Cluster 49: Seal of Rage, Immortal Phoenix",
+    "top_cards": [
+      "Seal of Rage",
+      "Immortal Phoenix",
+      "The Harrowing",
+      "Mischievous Marai"
+    ],
+    "avg_competitive_score": 13.4475
+  },
+  {
+    "cluster_id": 49,
+    "label": "Cluster 50: Traveling Merchant, Vi",
+    "top_cards": [
+      "Traveling Merchant",
+      "Vi - Destructive",
+      "Ravenborn Tome",
+      "Sun Disc",
+      "Scrapheap",
+      "Noxus Saboteur"
+    ],
+    "avg_competitive_score": 13.3621
+  },
+  {
+    "cluster_id": 50,
+    "label": "Cluster 51: Blind Fury, Rek'Sai",
+    "top_cards": [
+      "Blind Fury",
+      "Rek'Sai - Breacher",
+      "Undertitan",
+      "Void Rush",
+      "Altar of Memories",
+      "Void Hatchling"
+    ],
+    "avg_competitive_score": 13.0356
+  },
+  {
+    "cluster_id": 51,
+    "label": "Cluster 52: Disarming Rake, Pirate's Haven",
+    "top_cards": [
+      "Disarming Rake",
+      "Pirate's Haven",
+      "Herald of Spring",
+      "Skyward Strike",
+      "Wuju Apprentice",
+      "Petricite Monument"
+    ],
+    "avg_competitive_score": 13.4349
+  },
+  {
+    "cluster_id": 52,
+    "label": "Cluster 53: Vex, Allay",
+    "top_cards": [
+      "Vex - Cheerless",
+      "Allay - Eager Admirer",
+      "Blast Cone",
+      "Enthusiastic Promoter",
+      "Iascylla",
+      "Megatusk"
+    ],
+    "avg_competitive_score": 14.984
+  },
+  {
+    "cluster_id": 53,
+    "label": "Cluster 54: Here to Help",
+    "top_cards": [
+      "Here to Help"
+    ],
+    "avg_competitive_score": 10.1632
+  },
+  {
+    "cluster_id": 54,
+    "label": "Cluster 55: Beast Below, Detonate",
+    "top_cards": [
+      "Beast Below",
+      "Detonate",
+      "Pyke - Dockside Butcher",
+      "Bewitching Spirit",
+      "Death from Below"
+    ],
+    "avg_competitive_score": 15.3685
+  },
+  {
+    "cluster_id": 55,
+    "label": "Cluster 56: Lee Sin, Spirit's Refuge",
+    "top_cards": [
+      "Lee Sin - Ascetic",
+      "Spirit's Refuge"
+    ],
+    "avg_competitive_score": 9.2385
+  },
+  {
+    "cluster_id": 56,
+    "label": "Cluster 57: Leona, Noxian Drummer",
+    "top_cards": [
+      "Leona - Determined",
+      "Noxian Drummer",
+      "Eclipse Herald",
+      "Leona - Zealot",
+      "Rune Prison",
+      "Zenith Blade"
+    ],
+    "avg_competitive_score": 11.7669
+  },
+  {
+    "cluster_id": 57,
+    "label": "Cluster 58: Bullet Time, Miss Fortune",
+    "top_cards": [
+      "Bullet Time",
+      "Miss Fortune - Buccaneer",
+      "Miss Fortune - Captain",
+      "Volibear - Imposing",
+      "Mountain Drake",
+      "Mindsplitter"
+    ],
+    "avg_competitive_score": 12.4495
+  },
+  {
+    "cluster_id": 58,
+    "label": "Cluster 59: Vayne, Shakedown",
+    "top_cards": [
+      "Vayne - Hunter",
+      "Shakedown",
+      "Rengar - Pouncing",
+      "Grim Apothecary",
+      "Arena Kingpin",
+      "Hextech Gauntlets"
+    ],
+    "avg_competitive_score": 13.9789
+  },
+  {
+    "cluster_id": 59,
+    "label": "Cluster 60: Thermo Beam, Ferrous Forerunner",
+    "top_cards": [
+      "Thermo Beam",
+      "Ferrous Forerunner",
+      "Forecaster",
+      "Gem Jammer",
+      "Bubble Bot",
+      "Dunebreaker"
+    ],
+    "avg_competitive_score": 14.3799
+  },
+  {
+    "cluster_id": 60,
+    "label": "Cluster 61: Falling Comet, Final Spark",
+    "top_cards": [
+      "Falling Comet",
+      "Final Spark",
+      "Lux - Crownguard",
+      "Recruit the Vanguard",
+      "Blast of Power",
+      "Lux - Illuminated"
+    ],
+    "avg_competitive_score": 11.6921
+  },
+  {
+    "cluster_id": 61,
+    "label": "Cluster 62: Zephyr Sage, Playful Phantom",
+    "top_cards": [
+      "Zephyr Sage",
+      "Playful Phantom"
+    ],
+    "avg_competitive_score": 10.2794
+  },
+  {
+    "cluster_id": 62,
+    "label": "Cluster 63: Chemtech Enforcer, Flame Chompers",
+    "top_cards": [
+      "Chemtech Enforcer",
+      "Flame Chompers",
+      "Get Excited!",
+      "Jinx - Demolitionist",
+      "Jinx - Rebel",
+      "Super Mega Death Rocket!"
+    ],
+    "avg_competitive_score": 12.8144
+  },
+  {
+    "cluster_id": 63,
+    "label": "Cluster 64: Blue Sentinel",
+    "top_cards": [
+      "Blue Sentinel"
+    ],
+    "avg_competitive_score": 12.7683
+  },
+  {
+    "cluster_id": 64,
+    "label": "Cluster 65: Serrated Dirk, Vi",
+    "top_cards": [
+      "Serrated Dirk",
+      "Vi - Peacekeeper",
+      "Carrion Dredger",
+      "Tactical Retreat",
+      "Bird",
+      "Divining Shells"
+    ],
+    "avg_competitive_score": 13.2287
+  },
+  {
+    "cluster_id": 65,
+    "label": "Cluster 66: Harpoon Squad",
+    "top_cards": [
+      "Harpoon Squad"
+    ],
+    "avg_competitive_score": 12.1842
+  },
+  {
+    "cluster_id": 66,
+    "label": "Cluster 67: Relentless Pursuit, Skyfall of Areion",
+    "top_cards": [
+      "Relentless Pursuit",
+      "Skyfall of Areion",
+      "Red Brambleback"
+    ],
+    "avg_competitive_score": 12.5805
+  },
+  {
+    "cluster_id": 67,
+    "label": "Cluster 68: Dropboarder, Pit Crew",
+    "top_cards": [
+      "Dropboarder",
+      "Pit Crew",
+      "Ornn - Forge God",
+      "Gearhead",
+      "Forgefire Cape",
+      "Guardian of the Passage"
+    ],
+    "avg_competitive_score": 13.1605
+  },
+  {
+    "cluster_id": 68,
+    "label": "Cluster 69: Gust, Stacked Deck",
+    "top_cards": [
+      "Gust",
+      "Stacked Deck",
+      "Tideturner",
+      "Acceptable Losses",
+      "Back Off",
+      "Evelynn - Entrancing"
+    ],
+    "avg_competitive_score": 14.7881
+  },
+  {
+    "cluster_id": 69,
+    "label": "Cluster 70: Battering Ram, Bushwhack",
+    "top_cards": [
+      "Battering Ram",
+      "Bushwhack"
+    ],
+    "avg_competitive_score": 17.6154
+  },
+  {
+    "cluster_id": 70,
+    "label": "Cluster 71: Volibear, Kadregrin the Infernal",
+    "top_cards": [
+      "Volibear - Furious",
+      "Kadregrin the Infernal",
+      "Sky Splitter",
+      "Stormbringer",
+      "Magma Wurm",
+      "Minotaur Reckoner"
+    ],
+    "avg_competitive_score": 10.8443
+  },
+  {
+    "cluster_id": 71,
+    "label": "Cluster 72: Garen, Decisive Strike",
+    "top_cards": [
+      "Garen - Commander",
+      "Decisive Strike"
+    ],
+    "avg_competitive_score": 7.1129
+  },
+  {
+    "cluster_id": 72,
+    "label": "Cluster 73: Janna, Trusty Ramhound",
+    "top_cards": [
+      "Janna - Savior",
+      "Trusty Ramhound",
+      "Friendship",
+      "Daisy!",
+      "Ivern - Friend to All",
+      "Flurry of Feathers"
+    ],
+    "avg_competitive_score": 11.7456
+  },
+  {
+    "cluster_id": 73,
+    "label": "Cluster 74: Blastcone Fae, Mystic Poro",
+    "top_cards": [
+      "Blastcone Fae",
+      "Mystic Poro",
+      "Orb of Regret",
+      "Riptide Rex",
+      "Energy Conduit",
+      "Diana - No Longer Human"
+    ],
+    "avg_competitive_score": 12.7476
+  },
+  {
+    "cluster_id": 74,
+    "label": "Cluster 75: First Mate, Lonely Poro",
+    "top_cards": [
+      "First Mate",
+      "Lonely Poro",
+      "Akshan - Mischievous",
+      "Doran's Blade",
+      "Lucian - Merciless",
+      "Punch First"
+    ],
+    "avg_competitive_score": 12.8294
+  },
+  {
+    "cluster_id": 75,
+    "label": "Cluster 76: Back to Back, Peak Guardian",
+    "top_cards": [
+      "Back to Back",
+      "Peak Guardian",
+      "Buhru Captain",
+      "Fiora - Peerless",
+      "Dauntless Vanguard",
+      "Imposing Challenger"
+    ],
+    "avg_competitive_score": 13.088
+  },
+  {
+    "cluster_id": 76,
+    "label": "Cluster 77: Confront, Highlander",
+    "top_cards": [
+      "Confront",
+      "Highlander",
+      "Stormclaw Ursine",
+      "Targonian Visionary",
+      "Wily Newtfish",
+      "Crowd Favorite"
+    ],
+    "avg_competitive_score": 10.307
+  },
+  {
+    "cluster_id": 77,
+    "label": "Cluster 78: Warwick, Invert Timelines",
+    "top_cards": [
+      "Warwick - Hunter",
+      "Invert Timelines",
+      "Gold",
+      "Sprite"
+    ],
+    "avg_competitive_score": 12.0172
+  },
+  {
+    "cluster_id": 78,
+    "label": "Cluster 79: Gentlemen's Duel, Enthralling Protector",
+    "top_cards": [
+      "Gentlemen's Duel",
+      "Enthralling Protector",
+      "Disposal Order",
+      "Call to Battle"
+    ],
+    "avg_competitive_score": 12.3965
+  },
+  {
+    "cluster_id": 79,
+    "label": "Cluster 80: Ezreal, Frostcoat Cub",
+    "top_cards": [
+      "Ezreal - Dashing",
+      "Frostcoat Cub",
+      "Prize of Progress"
+    ],
+    "avg_competitive_score": 16.4703
+  },
+  {
+    "cluster_id": 80,
+    "label": "Cluster 81: Kayn, Last Breath",
+    "top_cards": [
+      "Kayn - Unleashed",
+      "Last Breath",
+      "Yasuo - Remorseful",
+      "Wielder of Water",
+      "Yasuo - Windrider",
+      "Mask of Foresight"
+    ],
+    "avg_competitive_score": 10.2412
+  },
+  {
+    "cluster_id": 81,
+    "label": "Cluster 82: Harnessed Dragon, Spectral Matron",
+    "top_cards": [
+      "Harnessed Dragon",
+      "Spectral Matron",
+      "B.F. Sword",
+      "Fiora - Worthy",
+      "Riposte",
+      "Unsung Hero"
+    ],
+    "avg_competitive_score": 13.7178
+  },
+  {
+    "cluster_id": 82,
+    "label": "Cluster 83: Teemo, Consult the Past",
+    "top_cards": [
+      "Teemo - Scout",
+      "Consult the Past",
+      "Guerilla Warfare",
+      "Nocturne - Horrifying",
+      "Sprite Call",
+      "Teemo - Strategist"
+    ],
+    "avg_competitive_score": 12.4543
+  },
+  {
+    "cluster_id": 83,
+    "label": "Cluster 84: Brazen Buccaneer, Undercover Agent",
+    "top_cards": [
+      "Brazen Buccaneer",
+      "Undercover Agent",
+      "Captain Farron",
+      "Raging Soul"
+    ],
+    "avg_competitive_score": 10.9078
+  },
+  {
+    "cluster_id": 84,
+    "label": "Cluster 85: Black Rose Dignitary, Rift Herald",
+    "top_cards": [
+      "Black Rose Dignitary",
+      "Rift Herald",
+      "Safety Inspector"
+    ],
+    "avg_competitive_score": 12.4841
+  },
+  {
+    "cluster_id": 85,
+    "label": "Cluster 86: Possession, Pack of Wonders",
+    "top_cards": [
+      "Possession",
+      "Pack of Wonders",
+      "Treasure Trove",
+      "Downwell"
+    ],
+    "avg_competitive_score": 14.0842
+  },
+  {
+    "cluster_id": 86,
+    "label": "Cluster 87: Cannon Barrage, Overt Operation",
+    "top_cards": [
+      "Cannon Barrage",
+      "Overt Operation",
+      "Rally the Troops",
+      "Soraka - Wanderer"
+    ],
+    "avg_competitive_score": 12.0235
+  },
+  {
+    "cluster_id": 87,
+    "label": "Cluster 88: Eager Drakehound",
+    "top_cards": [
+      "Eager Drakehound"
+    ],
+    "avg_competitive_score": 9.7202
+  },
+  {
+    "cluster_id": 88,
+    "label": "Cluster 89: Disintegrate, Flash",
+    "top_cards": [
+      "Disintegrate",
+      "Flash",
+      "Firestorm",
+      "Incinerate",
+      "Tibbers",
+      "Annie - Fiery"
+    ],
+    "avg_competitive_score": 15.1428
+  },
+  {
+    "cluster_id": 89,
+    "label": "Cluster 90: Adaptatron, Irelia",
+    "top_cards": [
+      "Adaptatron",
+      "Irelia - Graceful",
+      "Shipyard Skulker"
+    ],
+    "avg_competitive_score": 17.7037
+  },
+  {
+    "cluster_id": 90,
+    "label": "Cluster 91: Feral Strength",
+    "top_cards": [
+      "Feral Strength"
+    ],
+    "avg_competitive_score": 15.5936
+  },
+  {
+    "cluster_id": 91,
+    "label": "Cluster 92: Divine Judgment, Garen",
+    "top_cards": [
+      "Divine Judgment",
+      "Garen - Rugged",
+      "Forge of the Future",
+      "Karma - Channeler",
+      "Spoils of War"
+    ],
+    "avg_competitive_score": 12.516
+  },
+  {
+    "cluster_id": 92,
+    "label": "Cluster 93: Seal of Focus, Seal of Insight",
+    "top_cards": [
+      "Seal of Focus",
+      "Seal of Insight",
+      "Azir - Ascendant",
+      "Poro Snax",
+      "Shurelya's Requiem",
+      "Svellsongur"
+    ],
+    "avg_competitive_score": 12.6659
+  },
+  {
+    "cluster_id": 93,
+    "label": "Cluster 94: Caitlyn, Taric",
+    "top_cards": [
+      "Caitlyn - Patrolling",
+      "Taric - Protector"
+    ],
+    "avg_competitive_score": 10.0027
+  },
+  {
+    "cluster_id": 94,
+    "label": "Cluster 95: Spirit Wheel, Jaull-Fish",
+    "top_cards": [
+      "Spirit Wheel",
+      "Jaull-Fish",
+      "Corrupt Enforcer"
+    ],
+    "avg_competitive_score": 13.0346
+  },
+  {
+    "cluster_id": 95,
+    "label": "Cluster 96: Solari Chief, Albus Ferros",
+    "top_cards": [
+      "Solari Chief",
+      "Albus Ferros",
+      "Symbol of the Solari"
+    ],
+    "avg_competitive_score": 11.5551
   }
 ]

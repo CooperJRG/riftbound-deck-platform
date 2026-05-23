@@ -8,33 +8,33 @@
       "Chaos",
       "Mind"
     ],
-    "training_deck_count": 39,
-    "archetype_count": 31,
-    "competitive_prior": 23.6277,
-    "buildability_prior": 0.9548,
-    "buildable_conversion": 0.9731,
+    "training_deck_count": 42,
+    "archetype_count": 33,
+    "competitive_prior": 23.3649,
+    "buildability_prior": 0.9468,
+    "buildable_conversion": 0.9407,
     "source_breakdown": {
-      "riftboundgg": 9,
+      "riftboundgg": 12,
       "riot-bologna": 2,
       "piltoverarchive": 27,
       "mobalytics-tournament": 1
     },
     "rune_weights": {
-      "Mind Rune (Spiritforged Nexus Night Promo)": 6.0,
-      "Chaos Rune (Unleashed Nexus Night Promo)": 6.0,
-      "Mind Rune": 172.0,
-      "Chaos Rune": 254.0
+      "Mind Rune": 185.0,
+      "Chaos Rune": 277.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Sigil of the Storm": 4.0,
+      "Aspirant's Climb": 8.0,
+      "Zaun Warrens": 12.0,
+      "Marai Spire": 10.0,
+      "Abandoned Hall": 1.0,
+      "Sigil of the Storm": 5.0,
       "Void Gate": 17.0,
       "Emperor's Dais": 2.0,
       "Ripper's Bay": 1.0,
       "Vilemaw's Lair": 2.0,
-      "Marai Spire": 9.0,
       "Treasure Hoard": 4.0,
-      "Zaun Warrens": 10.0,
+      "Frozen Fortress": 1.0,
       "Obelisk of Power": 8.0,
       "Targon's Peak": 10.0,
       "Forbidding Waste": 1.0,
@@ -48,7 +48,6 @@
       "The Papertree": 3.0,
       "Minefield": 1.0,
       "The Dreaming Tree": 2.0,
-      "Aspirant's Climb": 3.0,
       "Forgotten Monument": 1.0,
       "Hallowed Tomb": 1.0
     }
@@ -62,34 +61,33 @@
       "Calm",
       "Chaos"
     ],
-    "training_deck_count": 60,
-    "archetype_count": 48,
-    "competitive_prior": 23.3413,
-    "buildability_prior": 0.9599,
-    "buildable_conversion": 0.9779,
+    "training_deck_count": 68,
+    "archetype_count": 54,
+    "competitive_prior": 23.0663,
+    "buildability_prior": 0.9539,
+    "buildable_conversion": 0.9618,
     "source_breakdown": {
-      "riftboundgg": 12,
-      "piltoverarchive": 44,
+      "riftboundgg": 19,
+      "piltoverarchive": 45,
       "mobalytics-tournament": 3,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 355.0,
-      "Chaos Rune": 347.0
+      "Calm Rune": 389.0,
+      "Chaos Rune": 373.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Targon's Peak": 15.0,
-      "Sunken Temple": 19.0,
-      "Zaun Warrens": 5.0,
-      "Ravenbloom Conservatory": 18.0,
-      "Abandoned Hall": 3.0,
-      "The Dreaming Tree": 47.0,
-      "Obelisk of Power": 19.0,
+      "Targon's Peak": 20.0,
+      "Sunken Temple": 25.0,
+      "Abandoned Hall": 8.0,
+      "Aspirant's Climb": 11.0,
+      "Zaun Warrens": 6.0,
+      "Ravenbloom Conservatory": 19.0,
+      "The Dreaming Tree": 48.0,
+      "Obelisk of Power": 20.0,
       "The Papertree": 8.0,
       "Veiled Temple": 5.0,
       "Reaver's Row": 5.0,
-      "Aspirant's Climb": 8.0,
       "Rockfall Path": 2.0,
       "Treasure Hoard": 2.0,
       "Windswept Hillock": 6.0,
@@ -111,27 +109,27 @@
       "Chaos",
       "Fury"
     ],
-    "training_deck_count": 52,
-    "archetype_count": 37,
-    "competitive_prior": 22.6469,
-    "buildability_prior": 0.9421,
-    "buildable_conversion": 0.9341,
+    "training_deck_count": 55,
+    "archetype_count": 39,
+    "competitive_prior": 22.4948,
+    "buildability_prior": 0.9428,
+    "buildable_conversion": 0.9328,
     "source_breakdown": {
-      "mobalytics-tournament": 9,
-      "piltoverarchive": 33,
+      "piltoverarchive": 36,
       "riftboundgg": 7,
-      "riot-bologna": 3
+      "riot-bologna": 3,
+      "mobalytics-tournament": 9
     },
     "rune_weights": {
-      "Chaos Rune": 304.0,
-      "Fury Rune": 308.0
+      "Fury Rune": 324.0,
+      "Chaos Rune": 324.0
     },
     "battlefield_weights": {
-      "Obelisk of Power": 28.0,
-      "Reaver's Row": 32.0,
-      "Targon's Peak": 37.0,
-      "Zaun Warrens": 19.0,
-      "The Candlelit Sanctum": 3.0,
+      "Targon's Peak": 39.0,
+      "Obelisk of Power": 30.0,
+      "Reaver's Row": 35.0,
+      "Zaun Warrens": 20.0,
+      "The Candlelit Sanctum": 4.0,
       "Minefield": 7.0,
       "Treasure Hoard": 11.0,
       "Trifarian War Camp": 1.0,
@@ -158,56 +156,29 @@
       "Chaos",
       "Fury"
     ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 21.5534,
-    "buildability_prior": 0.9466,
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 22.4151,
+    "buildability_prior": 0.9595,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 1,
+      "riftboundgg": 4,
       "piltoverarchive": 1
     },
     "rune_weights": {
-      "Fury Rune": 13.0,
-      "Chaos Rune": 11.0
+      "Fury Rune": 31.0,
+      "Chaos Rune": 23.0
     },
     "battlefield_weights": {
-      "Targon's Peak": 1.0,
+      "Targon's Peak": 4.0,
+      "Zaun Warrens": 2.0,
+      "Star Spring": 2.0,
       "Treasure Hoard": 1.0,
-      "Star Spring": 1.0,
+      "The Arena's Greatest": 2.0,
+      "Trifarian War Camp": 1.0,
+      "Aspirant's Climb": 1.0,
       "Power Nexus": 1.0,
-      "The Arena's Greatest": 1.0,
       "Forge of the Fluft": 1.0
-    }
-  },
-  {
-    "shell_id": "dravengloriousexecutioner|dravenaudacious|chaos,fury",
-    "shell_label": "Draven - Glorious Executioner / Draven - Audacious",
-    "legend_title": "Draven - Glorious Executioner",
-    "chosen_champion_title": "Draven - Audacious",
-    "legend_domains": [
-      "Chaos",
-      "Fury"
-    ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 20.5246,
-    "buildability_prior": 0.9578,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "piltoverarchive": 2
-    },
-    "rune_weights": {
-      "Fury Rune": 8.0,
-      "Chaos Rune": 16.0
-    },
-    "battlefield_weights": {
-      "Sunken Temple": 1.0,
-      "The Papertree": 1.0,
-      "Forgotten Monument": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Targon's Peak": 1.0,
-      "Startipped Peak": 1.0
     }
   },
   {
@@ -221,8 +192,8 @@
     ],
     "training_deck_count": 7,
     "archetype_count": 7,
-    "competitive_prior": 20.1729,
-    "buildability_prior": 0.9657,
+    "competitive_prior": 20.7129,
+    "buildability_prior": 0.9542,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 2,
@@ -250,30 +221,33 @@
     }
   },
   {
-    "shell_id": "anniedarkchildstarterspiritforgednexusnightpromo|anniefieryspiritforgednexusnightpromo|chaos,fury",
-    "shell_label": "Annie - Dark Child - Starter (Spiritforged Nexus Night Promo) / Annie - Fiery (Spiritforged Nexus Night Promo)",
-    "legend_title": "Annie - Dark Child - Starter (Spiritforged Nexus Night Promo)",
-    "chosen_champion_title": "Annie - Fiery (Spiritforged Nexus Night Promo)",
+    "shell_id": "dravengloriousexecutioner|dravenaudacious|chaos,fury",
+    "shell_label": "Draven - Glorious Executioner / Draven - Audacious",
+    "legend_title": "Draven - Glorious Executioner",
+    "chosen_champion_title": "Draven - Audacious",
     "legend_domains": [
       "Chaos",
       "Fury"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 19.659,
-    "buildability_prior": 0.9531,
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 20.0722,
+    "buildability_prior": 0.9541,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 1
+      "piltoverarchive": 2
     },
     "rune_weights": {
-      "Fury Rune (Spiritforged Nexus Night Promo)": 7.0,
-      "Chaos Rune (Spiritforged Nexus Night Promo)": 5.0
+      "Fury Rune": 8.0,
+      "Chaos Rune": 16.0
     },
     "battlefield_weights": {
-      "Void Gate": 1.0,
-      "Ravenbloom Conservatory": 1.0,
-      "The Academy": 1.0
+      "Sunken Temple": 1.0,
+      "The Papertree": 1.0,
+      "Forgotten Monument": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Targon's Peak": 1.0,
+      "Startipped Peak": 1.0
     }
   },
   {
@@ -287,8 +261,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 18.8814,
-    "buildability_prior": 0.9558,
+    "competitive_prior": 19.3491,
+    "buildability_prior": 0.9538,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "piltoverarchive": 1
@@ -304,102 +278,43 @@
     }
   },
   {
-    "shell_id": "anniedarkchild|anniestubborn|chaos,fury",
-    "shell_label": "Annie - Dark Child / Annie - Stubborn",
-    "legend_title": "Annie - Dark Child",
-    "chosen_champion_title": "Annie - Stubborn",
+    "shell_id": "ireliabladedancer|leesinascetic|calm,chaos",
+    "shell_label": "Irelia - Blade Dancer / Lee Sin - Ascetic",
+    "legend_title": "Irelia - Blade Dancer",
+    "chosen_champion_title": "Lee Sin - Ascetic",
     "legend_domains": [
-      "Chaos",
-      "Fury"
-    ],
-    "training_deck_count": 57,
-    "archetype_count": 28,
-    "competitive_prior": 17.8212,
-    "buildability_prior": 0.9352,
-    "buildable_conversion": 0.9227,
-    "source_breakdown": {
-      "riftboundgg": 14,
-      "mobalytics-tournament": 11,
-      "piltoverarchive": 31,
-      "riot-bologna": 1
-    },
-    "rune_weights": {
-      "Fury Rune": 339.0,
-      "Chaos Rune": 333.0
-    },
-    "battlefield_weights": {
-      "The Arena's Greatest": 45.0,
-      "Zaun Warrens": 44.0,
-      "Seat of Power": 1.0,
-      "Minefield": 2.0,
-      "Obelisk of Power": 6.0,
-      "Startipped Peak": 3.0,
-      "The Dreaming Tree": 39.0,
-      "Reckoner's Arena": 1.0,
-      "Targon's Peak": 3.0,
-      "Reaver's Row": 5.0,
-      "Aspirant's Climb": 3.0,
-      "Forgotten Monument": 3.0,
-      "Ravenbloom Conservatory": 2.0,
-      "The Candlelit Sanctum": 7.0,
-      "Trifarian War Camp": 1.0,
-      "Back-Alley Bar": 1.0,
-      "Treasure Hoard": 2.0,
-      "Grove of the God-Willow": 1.0,
-      "Void Gate": 2.0
-    }
-  },
-  {
-    "shell_id": "masteryiwujumaster|masteryitempered|body,calm",
-    "shell_label": "Master Yi - Wuju Master / Master Yi - Tempered",
-    "legend_title": "Master Yi - Wuju Master",
-    "chosen_champion_title": "Master Yi - Tempered",
-    "legend_domains": [
-      "Body",
-      "Calm"
-    ],
-    "training_deck_count": 2,
-    "archetype_count": 1,
-    "competitive_prior": 17.6644,
-    "buildability_prior": 0.9423,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 2
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Reckoner's Arena": 2.0,
-      "The Papertree": 2.0,
-      "Baron Pit": 1.0
-    }
-  },
-  {
-    "shell_id": "viktorheraldofthearcane|xinzhaovigilant|mind,order",
-    "shell_label": "Viktor - Herald of the Arcane / Xin Zhao - Vigilant",
-    "legend_title": "Viktor - Herald of the Arcane",
-    "chosen_champion_title": "Xin Zhao - Vigilant",
-    "legend_domains": [
-      "Mind",
-      "Order"
+      "Calm",
+      "Chaos"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 17.1938,
-    "buildability_prior": 0.9475,
+    "competitive_prior": 18.61,
+    "buildability_prior": 0.925,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {
-      "Mind Rune": 6.0,
-      "Order Rune": 6.0
+    "rune_weights": {},
+    "battlefield_weights": {}
+  },
+  {
+    "shell_id": "ezrealprodigy|ezrealprodigy|chaos",
+    "shell_label": "Ezreal - Prodigy / Ezreal - Prodigy",
+    "legend_title": "Ezreal - Prodigy",
+    "chosen_champion_title": "Ezreal - Prodigy",
+    "legend_domains": [
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 18.37,
+    "buildability_prior": 0.9429,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
     },
-    "battlefield_weights": {
-      "The Arena's Greatest": 1.0,
-      "Vilemaw's Lair": 1.0,
-      "Rockfall Path": 1.0
-    }
+    "rune_weights": {},
+    "battlefield_weights": {}
   },
   {
     "shell_id": "ireliabladedancer|ireliagraceful|calm,chaos",
@@ -412,8 +327,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 16.911,
-    "buildability_prior": 0.9363,
+    "competitive_prior": 18.3031,
+    "buildability_prior": 0.9494,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
@@ -426,6 +341,104 @@
     }
   },
   {
+    "shell_id": "anniedarkchild|anniestubborn|chaos,fury",
+    "shell_label": "Annie - Dark Child / Annie - Stubborn",
+    "legend_title": "Annie - Dark Child",
+    "chosen_champion_title": "Annie - Stubborn",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 61,
+    "archetype_count": 31,
+    "competitive_prior": 17.651,
+    "buildability_prior": 0.9362,
+    "buildable_conversion": 0.9153,
+    "source_breakdown": {
+      "riftboundgg": 17,
+      "piltoverarchive": 32,
+      "mobalytics-tournament": 11,
+      "riot-bologna": 1
+    },
+    "rune_weights": {
+      "Fury Rune": 358.0,
+      "Chaos Rune": 352.0
+    },
+    "battlefield_weights": {
+      "The Arena's Greatest": 46.0,
+      "Zaun Warrens": 45.0,
+      "Seat of Power": 1.0,
+      "Minefield": 2.0,
+      "Back-Alley Bar": 2.0,
+      "Targon's Peak": 4.0,
+      "The Candlelit Sanctum": 8.0,
+      "Vilemaw's Lair": 1.0,
+      "Void Gate": 3.0,
+      "Frozen Fortress": 1.0,
+      "The Dreaming Tree": 40.0,
+      "Startipped Peak": 4.0,
+      "Obelisk of Power": 7.0,
+      "Reckoner's Arena": 1.0,
+      "Reaver's Row": 5.0,
+      "Aspirant's Climb": 3.0,
+      "Forgotten Monument": 3.0,
+      "Ravenbloom Conservatory": 2.0,
+      "Trifarian War Camp": 1.0,
+      "Treasure Hoard": 2.0,
+      "Grove of the God-Willow": 1.0
+    }
+  },
+  {
+    "shell_id": "anniedarkchild|kaisasurvivor|chaos,fury",
+    "shell_label": "Annie - Dark Child / Kai'Sa - Survivor",
+    "legend_title": "Annie - Dark Child",
+    "chosen_champion_title": "Kai'Sa - Survivor",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 17.4189,
+    "buildability_prior": 0.9512,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "The Arena's Greatest": 1.0,
+      "Zaun Warrens": 1.0,
+      "Seat of Power": 1.0
+    }
+  },
+  {
+    "shell_id": "settbrawler|settbrawler|body",
+    "shell_label": "Sett - Brawler / Sett - Brawler",
+    "legend_title": "Sett - Brawler",
+    "chosen_champion_title": "Sett - Brawler",
+    "legend_domains": [
+      "Body"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 16.7524,
+    "buildability_prior": 0.9685,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Body Rune": 5.0,
+      "Order Rune": 7.0
+    },
+    "battlefield_weights": {
+      "Monastery of Hirana": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Sunken Temple": 1.0
+    }
+  },
+  {
     "shell_id": "fioragrandduelist|fioravictorious|body,order",
     "shell_label": "Fiora - Grand Duelist / Fiora - Victorious",
     "legend_title": "Fiora - Grand Duelist",
@@ -434,35 +447,36 @@
       "Body",
       "Order"
     ],
-    "training_deck_count": 32,
-    "archetype_count": 23,
-    "competitive_prior": 16.1513,
-    "buildability_prior": 0.9504,
-    "buildable_conversion": 0.9583,
+    "training_deck_count": 38,
+    "archetype_count": 28,
+    "competitive_prior": 16.2402,
+    "buildability_prior": 0.9538,
+    "buildable_conversion": 0.9658,
     "source_breakdown": {
-      "riftboundgg": 11,
-      "piltoverarchive": 18,
+      "riftboundgg": 17,
       "mobalytics-tournament": 2,
-      "riot-bologna": 1
+      "riot-bologna": 1,
+      "piltoverarchive": 18
     },
     "rune_weights": {
-      "Body Rune": 179.0,
-      "Order Rune": 169.0
+      "Body Rune": 198.0,
+      "Order Rune": 180.0
     },
     "battlefield_weights": {
-      "Monastery of Hirana": 15.0,
-      "Trifarian War Camp": 12.0,
-      "Sunken Temple": 23.0,
+      "Monastery of Hirana": 18.0,
+      "Trifarian War Camp": 17.0,
+      "Sunken Temple": 28.0,
+      "Seat of Power": 3.0,
+      "The Dreaming Tree": 13.0,
       "Grove of the God-Willow": 4.0,
       "Targon's Peak": 1.0,
       "Veiled Temple": 1.0,
-      "Valley of Idols": 1.0,
-      "The Dreaming Tree": 13.0,
+      "Valley of Idols": 2.0,
+      "The Candlelit Sanctum": 5.0,
+      "Ornn's Forge": 4.0,
+      "Rockfall Path": 1.0,
       "Zaun Warrens": 3.0,
-      "Ornn's Forge": 3.0,
       "Windswept Hillock": 2.0,
-      "The Candlelit Sanctum": 4.0,
-      "Seat of Power": 2.0,
       "Ravenbloom Conservatory": 1.0,
       "Emperor's Dais": 1.0,
       "Obelisk of Power": 2.0,
@@ -475,6 +489,66 @@
     }
   },
   {
+    "shell_id": "anniedarkchild|nocturnehorrifying|chaos,fury",
+    "shell_label": "Annie - Dark Child / Nocturne - Horrifying",
+    "legend_title": "Annie - Dark Child",
+    "chosen_champion_title": "Nocturne - Horrifying",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 16.2348,
+    "buildability_prior": 0.954,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Chaos Rune": 5.0
+    },
+    "battlefield_weights": {
+      "The Candlelit Sanctum": 1.0,
+      "Zaun Warrens": 1.0,
+      "Frozen Fortress": 1.0
+    }
+  },
+  {
+    "shell_id": "fioragrandduelist|fioraworthy|body,order",
+    "shell_label": "Fiora - Grand Duelist / Fiora - Worthy",
+    "legend_title": "Fiora - Grand Duelist",
+    "chosen_champion_title": "Fiora - Worthy",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 15.9649,
+    "buildability_prior": 0.9621,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2,
+      "piltoverarchive": 3
+    },
+    "rune_weights": {
+      "Body Rune": 31.0,
+      "Order Rune": 26.0
+    },
+    "battlefield_weights": {
+      "Monastery of Hirana": 3.0,
+      "Trifarian War Camp": 1.0,
+      "Sunken Temple": 5.0,
+      "Seat of Power": 1.0,
+      "Windswept Hillock": 1.0,
+      "Forgotten Monument": 1.0,
+      "Obelisk of Power": 1.0,
+      "Ornn's Forge": 1.0,
+      "Veiled Temple": 1.0
+    }
+  },
+  {
     "shell_id": "aziremperorofthesands|azirsovereign|calm,order",
     "shell_label": "Azir - Emperor of the Sands / Azir - Sovereign",
     "legend_title": "Azir - Emperor of the Sands",
@@ -483,27 +557,29 @@
       "Calm",
       "Order"
     ],
-    "training_deck_count": 27,
-    "archetype_count": 25,
-    "competitive_prior": 16.0423,
-    "buildability_prior": 0.9619,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 38,
+    "archetype_count": 28,
+    "competitive_prior": 15.8761,
+    "buildability_prior": 0.9506,
+    "buildable_conversion": 0.9583,
     "source_breakdown": {
-      "riftboundgg": 6,
+      "riftboundgg": 17,
       "piltoverarchive": 20,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 142.0,
-      "Order Rune": 158.0
+      "Calm Rune": 192.0,
+      "Order Rune": 202.0
     },
     "battlefield_weights": {
-      "Trifarian War Camp": 21.0,
-      "Hall of Legends": 13.0,
-      "Ornn's Forge": 20.0,
+      "Trifarian War Camp": 30.0,
+      "Hall of Legends": 21.0,
+      "Ornn's Forge": 29.0,
+      "Rockfall Path": 1.0,
       "Vilemaw's Lair": 7.0,
-      "Emperor's Dais": 5.0,
-      "Veiled Temple": 4.0,
+      "Emperor's Dais": 6.0,
+      "Forgotten Monument": 1.0,
+      "Veiled Temple": 5.0,
       "The Arena's Greatest": 3.0,
       "Forge of the Fluft": 1.0,
       "Obelisk of Power": 1.0,
@@ -515,29 +591,130 @@
     }
   },
   {
-    "shell_id": "jinxloosecannon|ezrealprodigy|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon / Ezreal - Prodigy",
-    "legend_title": "Jinx - Loose Cannon",
-    "chosen_champion_title": "Ezreal - Prodigy",
+    "shell_id": "kaisadaughterofthevoid|kaisasurvivor|fury,mind",
+    "shell_label": "Kai'Sa - Daughter of the Void / Kai'Sa - Survivor",
+    "legend_title": "Kai'Sa - Daughter of the Void",
+    "chosen_champion_title": "Kai'Sa - Survivor",
     "legend_domains": [
-      "Chaos",
-      "Fury"
+      "Fury",
+      "Mind"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 15.9849,
-    "buildability_prior": 0.9287,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 107,
+    "archetype_count": 41,
+    "competitive_prior": 15.7744,
+    "buildability_prior": 0.9211,
+    "buildable_conversion": 0.854,
     "source_breakdown": {
-      "riftboundgg": 1
+      "riftboundgg": 42,
+      "piltoverarchive": 55,
+      "riot-bologna": 1,
+      "mobalytics-tournament": 9
     },
     "rune_weights": {
-      "Chaos Rune": 12.0
+      "Fury Rune": 718.0,
+      "Mind Rune": 554.0
     },
     "battlefield_weights": {
-      "Obelisk of Power": 1.0,
-      "The Candlelit Sanctum": 1.0,
-      "Zaun Warrens": 1.0
+      "Targon's Peak": 49.0,
+      "Void Gate": 52.0,
+      "Forbidding Waste": 1.0,
+      "Grove of the God-Willow": 8.0,
+      "Vilemaw's Lair": 8.0,
+      "Zaun Warrens": 15.0,
+      "Ravenbloom Conservatory": 4.0,
+      "Obelisk of Power": 10.0,
+      "Reaver's Row": 68.0,
+      "The Arena's Greatest": 17.0,
+      "The Candlelit Sanctum": 8.0,
+      "The Dreaming Tree": 53.0,
+      "Startipped Peak": 13.0,
+      "Reckoner's Arena": 6.0,
+      "Minefield": 1.0,
+      "Windswept Hillock": 6.0,
+      "Fortified Position": 1.0,
+      "Aspirant's Climb": 1.0
+    }
+  },
+  {
+    "shell_id": "masteryiwujumaster|masteryitempered|body,calm",
+    "shell_label": "Master Yi - Wuju Master / Master Yi - Tempered",
+    "legend_title": "Master Yi - Wuju Master",
+    "chosen_champion_title": "Master Yi - Tempered",
+    "legend_domains": [
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 15.6653,
+    "buildability_prior": 0.9576,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 6
+    },
+    "rune_weights": {
+      "Calm Rune": 19.0,
+      "Body Rune": 17.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 2.0,
+      "Reckoner's Arena": 5.0,
+      "The Papertree": 2.0,
+      "Baron Pit": 1.0,
+      "Gardens of Becoming": 3.0,
+      "Star Spring": 2.0,
+      "Sunken Temple": 2.0,
+      "Amateur Recital": 1.0,
+      "Startipped Peak": 1.0
+    }
+  },
+  {
+    "shell_id": "setttheboss|settbrawler|body,order",
+    "shell_label": "Sett - The Boss / Sett - Brawler",
+    "legend_title": "Sett - The Boss",
+    "chosen_champion_title": "Sett - Brawler",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 68,
+    "archetype_count": 43,
+    "competitive_prior": 15.6068,
+    "buildability_prior": 0.9402,
+    "buildable_conversion": 0.9237,
+    "source_breakdown": {
+      "riftboundgg": 37,
+      "mobalytics-tournament": 3,
+      "piltoverarchive": 27,
+      "riot-bologna": 1
+    },
+    "rune_weights": {
+      "Body Rune": 486.0,
+      "Order Rune": 318.0
+    },
+    "battlefield_weights": {
+      "Monastery of Hirana": 60.0,
+      "Amateur Recital": 1.0,
+      "Valley of Idols": 2.0,
+      "Grove of the God-Willow": 24.0,
+      "Sunken Temple": 14.0,
+      "Windswept Hillock": 29.0,
+      "The Dreaming Tree": 12.0,
+      "Vilemaw's Lair": 11.0,
+      "Reckoner's Arena": 14.0,
+      "Navori Fighting Pit": 5.0,
+      "Obelisk of Power": 8.0,
+      "The Candlelit Sanctum": 7.0,
+      "Trifarian War Camp": 2.0,
+      "Zaun Warrens": 2.0,
+      "Altar to Unity": 1.0,
+      "Startipped Peak": 1.0,
+      "Reaver's Row": 1.0,
+      "Bandle Tree": 1.0,
+      "Targon's Peak": 1.0,
+      "Aspirant's Climb": 5.0,
+      "Back-Alley Bar": 1.0,
+      "The Arena's Greatest": 2.0
     }
   },
   {
@@ -551,8 +728,8 @@
     ],
     "training_deck_count": 28,
     "archetype_count": 28,
-    "competitive_prior": 15.934,
-    "buildability_prior": 0.9611,
+    "competitive_prior": 15.3247,
+    "buildability_prior": 0.9613,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 26,
@@ -578,134 +755,58 @@
       "Obelisk of Power": 5.0,
       "Vilemaw's Lair": 1.0,
       "Windswept Hillock": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
+      "Aspirant's Climb": 3.0,
       "The Arena's Greatest": 2.0,
       "Sigil of the Storm": 1.0,
       "Reckoner's Arena": 1.0
     }
   },
   {
-    "shell_id": "kaisadaughterofthevoid|kaisasurvivor|fury,mind",
-    "shell_label": "Kai'Sa - Daughter of the Void / Kai'Sa - Survivor",
-    "legend_title": "Kai'Sa - Daughter of the Void",
-    "chosen_champion_title": "Kai'Sa - Survivor",
+    "shell_id": "viktorheraldofthearcane|viktorleader|mind,order",
+    "shell_label": "Viktor - Herald of the Arcane / Viktor - Leader",
+    "legend_title": "Viktor - Herald of the Arcane",
+    "chosen_champion_title": "Viktor - Leader",
     "legend_domains": [
-      "Fury",
-      "Mind"
-    ],
-    "training_deck_count": 106,
-    "archetype_count": 41,
-    "competitive_prior": 15.7313,
-    "buildability_prior": 0.9222,
-    "buildable_conversion": 0.8576,
-    "source_breakdown": {
-      "riftboundgg": 42,
-      "piltoverarchive": 54,
-      "riot-bologna": 1,
-      "mobalytics-tournament": 9
-    },
-    "rune_weights": {
-      "Fury Rune": 711.0,
-      "Mind Rune": 549.0
-    },
-    "battlefield_weights": {
-      "Targon's Peak": 49.0,
-      "Void Gate": 51.0,
-      "Forbidding Waste": 1.0,
-      "Grove of the God-Willow": 8.0,
-      "Vilemaw's Lair": 8.0,
-      "Zaun Warrens": 15.0,
-      "Ravenbloom Conservatory": 3.0,
-      "Obelisk of Power": 9.0,
-      "Reaver's Row": 68.0,
-      "The Arena's Greatest": 17.0,
-      "The Candlelit Sanctum": 8.0,
-      "The Dreaming Tree": 53.0,
-      "Startipped Peak": 13.0,
-      "Reckoner's Arena": 6.0,
-      "Minefield": 1.0,
-      "Windswept Hillock": 6.0,
-      "Fortified Position": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0
-    }
-  },
-  {
-    "shell_id": "fioragrandduelist|fioraworthy|body,order",
-    "shell_label": "Fiora - Grand Duelist / Fiora - Worthy",
-    "legend_title": "Fiora - Grand Duelist",
-    "chosen_champion_title": "Fiora - Worthy",
-    "legend_domains": [
-      "Body",
+      "Mind",
       "Order"
     ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 15.6906,
-    "buildability_prior": 0.965,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 93,
+    "archetype_count": 73,
+    "competitive_prior": 15.1462,
+    "buildability_prior": 0.9501,
+    "buildable_conversion": 0.9532,
     "source_breakdown": {
-      "piltoverarchive": 3
-    },
-    "rune_weights": {
-      "Order Rune": 14.0,
-      "Body Rune": 22.0
-    },
-    "battlefield_weights": {
-      "Windswept Hillock": 1.0,
-      "Sunken Temple": 3.0,
-      "Monastery of Hirana": 1.0,
-      "Forgotten Monument": 1.0,
-      "Obelisk of Power": 1.0,
-      "Ornn's Forge": 1.0,
-      "Veiled Temple": 1.0
-    }
-  },
-  {
-    "shell_id": "setttheboss|settbrawler|body,order",
-    "shell_label": "Sett - The Boss / Sett - Brawler",
-    "legend_title": "Sett - The Boss",
-    "chosen_champion_title": "Sett - Brawler",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 65,
-    "archetype_count": 41,
-    "competitive_prior": 15.4292,
-    "buildability_prior": 0.947,
-    "buildable_conversion": 0.9427,
-    "source_breakdown": {
-      "riftboundgg": 34,
-      "mobalytics-tournament": 3,
-      "piltoverarchive": 27,
+      "riftboundgg": 31,
+      "piltoverarchive": 61,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Body Rune": 472.0,
-      "Order Rune": 308.0
+      "Mind Rune": 449.0,
+      "Order Rune": 655.0
     },
     "battlefield_weights": {
-      "Monastery of Hirana": 57.0,
-      "Sunken Temple": 12.0,
-      "Valley of Idols": 1.0,
-      "Windswept Hillock": 28.0,
-      "The Dreaming Tree": 12.0,
-      "Grove of the God-Willow": 23.0,
-      "Vilemaw's Lair": 11.0,
-      "Reckoner's Arena": 14.0,
-      "Navori Fighting Pit": 5.0,
-      "Obelisk of Power": 8.0,
-      "The Candlelit Sanctum": 7.0,
-      "Trifarian War Camp": 2.0,
-      "Zaun Warrens": 2.0,
-      "Altar to Unity": 1.0,
-      "Startipped Peak": 1.0,
-      "Reaver's Row": 1.0,
-      "Bandle Tree": 1.0,
-      "Targon's Peak": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 5.0,
-      "Back-Alley Bar": 1.0,
-      "The Arena's Greatest": 2.0
+      "Void Gate": 4.0,
+      "Ravenbloom Conservatory": 6.0,
+      "Treasure Hoard": 5.0,
+      "Trifarian War Camp": 79.0,
+      "Vilemaw's Lair": 34.0,
+      "The Grand Plaza": 14.0,
+      "The Arena's Greatest": 32.0,
+      "Obelisk of Power": 43.0,
+      "The Dreaming Tree": 10.0,
+      "Altar to Unity": 8.0,
+      "Power Nexus": 1.0,
+      "The Candlelit Sanctum": 19.0,
+      "Targon's Peak": 7.0,
+      "Veiled Temple": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Hallowed Tomb": 1.0,
+      "Rockfall Path": 1.0,
+      "Reaver's Row": 8.0,
+      "Aspirant's Climb": 2.0,
+      "Windswept Hillock": 1.0,
+      "Fortified Position": 1.0,
+      "Zaun Warrens": 1.0
     }
   },
   {
@@ -717,19 +818,23 @@
       "Calm",
       "Order"
     ],
-    "training_deck_count": 11,
-    "archetype_count": 11,
-    "competitive_prior": 15.3472,
-    "buildability_prior": 0.9632,
+    "training_deck_count": 13,
+    "archetype_count": 13,
+    "competitive_prior": 15.0253,
+    "buildability_prior": 0.9591,
     "buildable_conversion": 1.0,
     "source_breakdown": {
+      "riftboundgg": 2,
       "piltoverarchive": 11
     },
     "rune_weights": {
-      "Order Rune": 66.0,
-      "Calm Rune": 66.0
+      "Calm Rune": 75.0,
+      "Order Rune": 69.0
     },
     "battlefield_weights": {
+      "Aspirant's Climb": 1.0,
+      "Forgotten Monument": 1.0,
+      "Rockfall Path": 1.0,
       "Trifarian War Camp": 5.0,
       "Vilemaw's Lair": 2.0,
       "Ornn's Forge": 9.0,
@@ -747,86 +852,6 @@
     }
   },
   {
-    "shell_id": "fioragrandduelist|fiorapeerless|body,order",
-    "shell_label": "Fiora - Grand Duelist / Fiora - Peerless",
-    "legend_title": "Fiora - Grand Duelist",
-    "chosen_champion_title": "Fiora - Peerless",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 4,
-    "archetype_count": 4,
-    "competitive_prior": 15.2428,
-    "buildability_prior": 0.9578,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1,
-      "piltoverarchive": 3
-    },
-    "rune_weights": {
-      "Body Rune": 26.0,
-      "Order Rune": 22.0
-    },
-    "battlefield_weights": {
-      "Trifarian War Camp": 1.0,
-      "Ornn's Forge": 2.0,
-      "Sunken Temple": 4.0,
-      "Veiled Temple": 1.0,
-      "Windswept Hillock": 1.0,
-      "Obelisk of Power": 1.0,
-      "The Dreaming Tree": 1.0,
-      "The Papertree": 1.0
-    }
-  },
-  {
-    "shell_id": "viktorheraldofthearcane|viktorleader|mind,order",
-    "shell_label": "Viktor - Herald of the Arcane / Viktor - Leader",
-    "legend_title": "Viktor - Herald of the Arcane",
-    "chosen_champion_title": "Viktor - Leader",
-    "legend_domains": [
-      "Mind",
-      "Order"
-    ],
-    "training_deck_count": 91,
-    "archetype_count": 72,
-    "competitive_prior": 15.0307,
-    "buildability_prior": 0.9483,
-    "buildable_conversion": 0.9462,
-    "source_breakdown": {
-      "riftboundgg": 30,
-      "piltoverarchive": 60,
-      "riot-bologna": 1
-    },
-    "rune_weights": {
-      "Mind Rune": 438.0,
-      "Order Rune": 642.0
-    },
-    "battlefield_weights": {
-      "Void Gate": 4.0,
-      "Ravenbloom Conservatory": 5.0,
-      "Treasure Hoard": 5.0,
-      "The Grand Plaza": 14.0,
-      "Trifarian War Camp": 78.0,
-      "The Arena's Greatest": 31.0,
-      "Obelisk of Power": 43.0,
-      "The Dreaming Tree": 10.0,
-      "Vilemaw's Lair": 32.0,
-      "Altar to Unity": 8.0,
-      "Power Nexus": 1.0,
-      "The Candlelit Sanctum": 19.0,
-      "Targon's Peak": 7.0,
-      "Veiled Temple": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Hallowed Tomb": 1.0,
-      "Reaver's Row": 8.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Windswept Hillock": 1.0,
-      "Fortified Position": 1.0,
-      "Zaun Warrens": 1.0
-    }
-  },
-  {
     "shell_id": "khazixvoidreaver|dariustrifarian|body,chaos",
     "shell_label": "Kha'Zix - Voidreaver / Darius - Trifarian",
     "legend_title": "Kha'Zix - Voidreaver",
@@ -837,8 +862,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 14.9467,
-    "buildability_prior": 0.9475,
+    "competitive_prior": 14.6841,
+    "buildability_prior": 0.9438,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "piltoverarchive": 1
@@ -854,48 +879,6 @@
     }
   },
   {
-    "shell_id": "setttheboss|settkingpin|body,order",
-    "shell_label": "Sett - The Boss / Sett - Kingpin",
-    "legend_title": "Sett - The Boss",
-    "chosen_champion_title": "Sett - Kingpin",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 21,
-    "archetype_count": 16,
-    "competitive_prior": 14.2701,
-    "buildability_prior": 0.9506,
-    "buildable_conversion": 0.9583,
-    "source_breakdown": {
-      "riftboundgg": 13,
-      "piltoverarchive": 7,
-      "mobalytics-tournament": 1
-    },
-    "rune_weights": {
-      "Body Rune": 130.0,
-      "Order Rune": 110.0
-    },
-    "battlefield_weights": {
-      "Grove of the God-Willow": 8.0,
-      "Monastery of Hirana": 16.0,
-      "Sunken Temple": 3.0,
-      "Windswept Hillock": 7.0,
-      "Vilemaw's Lair": 2.0,
-      "The Candlelit Sanctum": 4.0,
-      "The Dreaming Tree": 8.0,
-      "Trifarian War Camp": 1.0,
-      "Navori Fighting Pit": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
-      "Fortified Position": 1.0,
-      "Back-Alley Bar": 1.0,
-      "Altar to Unity": 1.0,
-      "Obelisk of Power": 4.0,
-      "The Grand Plaza": 1.0,
-      "Targon's Peak": 2.0
-    }
-  },
-  {
     "shell_id": "anniedarkchild|anniefiery|chaos,fury",
     "shell_label": "Annie - Dark Child / Annie - Fiery",
     "legend_title": "Annie - Dark Child",
@@ -904,25 +887,27 @@
       "Chaos",
       "Fury"
     ],
-    "training_deck_count": 16,
-    "archetype_count": 14,
-    "competitive_prior": 14.1018,
-    "buildability_prior": 0.9542,
-    "buildable_conversion": 0.9911,
+    "training_deck_count": 19,
+    "archetype_count": 17,
+    "competitive_prior": 14.5206,
+    "buildability_prior": 0.9457,
+    "buildable_conversion": 0.9632,
     "source_breakdown": {
-      "riftboundgg": 15,
+      "riftboundgg": 18,
       "piltoverarchive": 1
     },
     "rune_weights": {
-      "Fury Rune": 98.0,
-      "Chaos Rune": 64.0
+      "Fury Rune": 105.0,
+      "Chaos Rune": 75.0
     },
     "battlefield_weights": {
+      "Void Gate": 14.0,
+      "Ravenbloom Conservatory": 1.0,
+      "The Academy": 1.0,
       "The Arena's Greatest": 2.0,
-      "Void Gate": 13.0,
       "Zaun Warrens": 4.0,
       "Targon's Peak": 6.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
+      "Aspirant's Climb": 3.0,
       "The Dreaming Tree": 2.0,
       "Fortified Position": 4.0,
       "The Candlelit Sanctum": 1.0,
@@ -934,30 +919,38 @@
     }
   },
   {
-    "shell_id": "lucianpurifier|luciangunslinger|body,fury",
-    "shell_label": "Lucian - Purifier / Lucian - Gunslinger",
-    "legend_title": "Lucian - Purifier",
-    "chosen_champion_title": "Lucian - Gunslinger",
+    "shell_id": "fioragrandduelist|fiorapeerless|body,order",
+    "shell_label": "Fiora - Grand Duelist / Fiora - Peerless",
+    "legend_title": "Fiora - Grand Duelist",
+    "chosen_champion_title": "Fiora - Peerless",
     "legend_domains": [
       "Body",
-      "Fury"
+      "Order"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 13.9295,
-    "buildability_prior": 0.9287,
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 14.5058,
+    "buildability_prior": 0.9573,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 1
+      "riftboundgg": 2,
+      "piltoverarchive": 3
     },
     "rune_weights": {
-      "Fury Rune": 6.0,
-      "Body Rune": 6.0
+      "Body Rune": 26.0,
+      "Order Rune": 22.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 1.0,
-      "The Papertree": 1.0,
-      "Treasure Hoard": 1.0
+      "Fortified Position": 1.0,
+      "Sunken Temple": 5.0,
+      "Trapping Grounds": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Ornn's Forge": 2.0,
+      "Veiled Temple": 1.0,
+      "Windswept Hillock": 1.0,
+      "Obelisk of Power": 1.0,
+      "The Dreaming Tree": 1.0,
+      "The Papertree": 1.0
     }
   },
   {
@@ -969,36 +962,63 @@
       "Body",
       "Calm"
     ],
-    "training_deck_count": 11,
-    "archetype_count": 9,
-    "competitive_prior": 13.8599,
-    "buildability_prior": 0.9351,
-    "buildable_conversion": 0.9259,
+    "training_deck_count": 14,
+    "archetype_count": 12,
+    "competitive_prior": 14.2552,
+    "buildability_prior": 0.9506,
+    "buildable_conversion": 0.9514,
     "source_breakdown": {
-      "riftboundgg": 5,
-      "piltoverarchive": 5,
+      "riftboundgg": 6,
+      "piltoverarchive": 7,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 48.0,
-      "Body Rune": 54.0
+      "Calm Rune": 67.0,
+      "Body Rune": 71.0
     },
     "battlefield_weights": {
+      "Rockfall Path": 1.0,
+      "Sunken Temple": 11.0,
+      "Star Spring": 1.0,
       "Targon's Peak": 4.0,
-      "Ornn's Forge": 3.0,
-      "Sunken Temple": 8.0,
-      "Monastery of Hirana": 4.0,
+      "Ornn's Forge": 4.0,
+      "Monastery of Hirana": 5.0,
+      "The Dreaming Tree": 3.0,
+      "Grove of the God-Willow": 3.0,
       "Hall of Legends": 1.0,
       "Minefield": 1.0,
       "Obelisk of Power": 2.0,
       "Aspirant's Climb": 1.0,
       "Forgotten Monument": 1.0,
-      "Grove of the God-Willow": 2.0,
       "Vilemaw's Lair": 1.0,
       "Startipped Peak": 1.0,
-      "The Dreaming Tree": 2.0,
       "Windswept Hillock": 1.0,
       "Reaver's Row": 1.0
+    }
+  },
+  {
+    "shell_id": "reksaiswarmqueen|reksaiswarmqueen|order",
+    "shell_label": "Rek'Sai - Swarm Queen / Rek'Sai - Swarm Queen",
+    "legend_title": "Rek'Sai - Swarm Queen",
+    "chosen_champion_title": "Rek'Sai - Swarm Queen",
+    "legend_domains": [
+      "Order"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 14.1865,
+    "buildability_prior": 0.9344,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Order Rune": 12.0
+    },
+    "battlefield_weights": {
+      "The Arena's Greatest": 1.0,
+      "The Candlelit Sanctum": 1.0,
+      "Trifarian War Camp": 1.0
     }
   },
   {
@@ -1012,8 +1032,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 13.5521,
-    "buildability_prior": 0.9481,
+    "competitive_prior": 13.9407,
+    "buildability_prior": 0.9538,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "mobalytics-tournament": 1
@@ -1029,49 +1049,67 @@
     }
   },
   {
-    "shell_id": "viktorheraldofthearcane|viktorinnovator|mind,order",
-    "shell_label": "Viktor - Herald of the Arcane / Viktor - Innovator",
-    "legend_title": "Viktor - Herald of the Arcane",
-    "chosen_champion_title": "Viktor - Innovator",
+    "shell_id": "setttheboss|settkingpin|body,order",
+    "shell_label": "Sett - The Boss / Sett - Kingpin",
+    "legend_title": "Sett - The Boss",
+    "chosen_champion_title": "Sett - Kingpin",
     "legend_domains": [
-      "Mind",
+      "Body",
       "Order"
     ],
-    "training_deck_count": 29,
+    "training_deck_count": 25,
     "archetype_count": 20,
-    "competitive_prior": 13.4652,
-    "buildability_prior": 0.9457,
-    "buildable_conversion": 0.9458,
+    "competitive_prior": 13.8865,
+    "buildability_prior": 0.9576,
+    "buildable_conversion": 0.9792,
     "source_breakdown": {
-      "piltoverarchive": 23,
-      "riftboundgg": 6
+      "riftboundgg": 17,
+      "piltoverarchive": 7,
+      "mobalytics-tournament": 1
     },
     "rune_weights": {
-      "Order Rune": 182.0,
-      "Mind Rune": 164.0
+      "Body Rune": 137.0,
+      "Order Rune": 116.0
     },
     "battlefield_weights": {
-      "Void Gate": 4.0,
-      "Vilemaw's Lair": 14.0,
-      "Ravenbloom Conservatory": 16.0,
-      "Veiled Temple": 5.0,
-      "Zaun Warrens": 2.0,
-      "Forgotten Monument": 1.0,
-      "The Candlelit Sanctum": 2.0,
-      "The Dreaming Tree": 7.0,
-      "Trifarian War Camp": 11.0,
-      "Treasure Hoard": 3.0,
-      "Targon's Peak": 4.0,
-      "The Grand Plaza": 6.0,
-      "Hall of Legends": 1.0,
-      "Ornn's Forge": 1.0,
-      "Aspirant's Climb": 1.0,
+      "Fortified Position": 2.0,
       "Hallowed Tomb": 1.0,
-      "Altar to Unity": 4.0,
-      "Obelisk of Power": 2.0,
-      "Navori Fighting Pit": 1.0,
-      "The Arena's Greatest": 1.0
+      "Valley of Idols": 3.0,
+      "Monastery of Hirana": 19.0,
+      "Navori Fighting Pit": 2.0,
+      "Sunken Temple": 5.0,
+      "Grove of the God-Willow": 9.0,
+      "Windswept Hillock": 7.0,
+      "Vilemaw's Lair": 2.0,
+      "The Candlelit Sanctum": 4.0,
+      "The Dreaming Tree": 8.0,
+      "Trifarian War Camp": 1.0,
+      "Aspirant's Climb": 3.0,
+      "Back-Alley Bar": 1.0,
+      "Altar to Unity": 1.0,
+      "Obelisk of Power": 4.0,
+      "The Grand Plaza": 1.0,
+      "Targon's Peak": 2.0
     }
+  },
+  {
+    "shell_id": "jaxunrelenting|jaxunrelenting|body",
+    "shell_label": "Jax - Unrelenting / Jax - Unrelenting",
+    "legend_title": "Jax - Unrelenting",
+    "chosen_champion_title": "Jax - Unrelenting",
+    "legend_domains": [
+      "Body"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 13.5615,
+    "buildability_prior": 0.9363,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {}
   },
   {
     "shell_id": "jaxgrandmasteratarms|jaxunrelenting|body,calm",
@@ -1084,8 +1122,8 @@
     ],
     "training_deck_count": 12,
     "archetype_count": 12,
-    "competitive_prior": 13.2337,
-    "buildability_prior": 0.96,
+    "competitive_prior": 13.4233,
+    "buildability_prior": 0.9613,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "piltoverarchive": 10,
@@ -1116,41 +1154,49 @@
     }
   },
   {
-    "shell_id": "lucianpurifier|lucianmerciless|body,fury",
-    "shell_label": "Lucian - Purifier / Lucian - Merciless",
-    "legend_title": "Lucian - Purifier",
-    "chosen_champion_title": "Lucian - Merciless",
+    "shell_id": "viktorheraldofthearcane|viktorinnovator|mind,order",
+    "shell_label": "Viktor - Herald of the Arcane / Viktor - Innovator",
+    "legend_title": "Viktor - Herald of the Arcane",
+    "chosen_champion_title": "Viktor - Innovator",
     "legend_domains": [
-      "Body",
-      "Fury"
+      "Mind",
+      "Order"
     ],
-    "training_deck_count": 21,
-    "archetype_count": 18,
-    "competitive_prior": 13.184,
-    "buildability_prior": 0.9543,
-    "buildable_conversion": 0.9792,
+    "training_deck_count": 30,
+    "archetype_count": 21,
+    "competitive_prior": 13.3923,
+    "buildability_prior": 0.9459,
+    "buildable_conversion": 0.9395,
     "source_breakdown": {
       "riftboundgg": 7,
-      "piltoverarchive": 14
+      "piltoverarchive": 23
     },
     "rune_weights": {
-      "Body Rune (Spiritforged Nexus Night Promo)": 6.0,
-      "Fury Rune": 98.0,
-      "Body Rune": 142.0
+      "Order Rune": 182.0,
+      "Mind Rune": 164.0
     },
     "battlefield_weights": {
+      "Startipped Peak": 1.0,
       "The Arena's Greatest": 2.0,
-      "Forge of the Fluft": 15.0,
-      "Ornn's Forge": 5.0,
-      "Zaun Warrens": 4.0,
-      "Sunken Temple": 14.0,
-      "Windswept Hillock": 9.0,
-      "Obelisk of Power": 7.0,
+      "Treasure Hoard": 4.0,
+      "Void Gate": 4.0,
+      "Vilemaw's Lair": 14.0,
+      "Ravenbloom Conservatory": 16.0,
+      "Veiled Temple": 5.0,
+      "Zaun Warrens": 2.0,
+      "Forgotten Monument": 1.0,
+      "The Candlelit Sanctum": 2.0,
+      "The Dreaming Tree": 7.0,
+      "Trifarian War Camp": 11.0,
+      "Targon's Peak": 4.0,
+      "The Grand Plaza": 6.0,
+      "Hall of Legends": 1.0,
+      "Ornn's Forge": 1.0,
       "Aspirant's Climb": 1.0,
-      "The Papertree": 1.0,
-      "Targon's Peak": 1.0,
-      "Reaver's Row": 3.0,
-      "The Candlelit Sanctum": 1.0
+      "Hallowed Tomb": 1.0,
+      "Altar to Unity": 4.0,
+      "Obelisk of Power": 2.0,
+      "Navori Fighting Pit": 1.0
     }
   },
   {
@@ -1162,13 +1208,13 @@
       "Body",
       "Chaos"
     ],
-    "training_deck_count": 29,
-    "archetype_count": 22,
-    "competitive_prior": 13.1368,
-    "buildability_prior": 0.9462,
-    "buildable_conversion": 0.9545,
+    "training_deck_count": 31,
+    "archetype_count": 24,
+    "competitive_prior": 13.2961,
+    "buildability_prior": 0.9472,
+    "buildable_conversion": 0.9573,
     "source_breakdown": {
-      "riftboundgg": 8,
+      "riftboundgg": 10,
       "piltoverarchive": 20,
       "riot-bologna": 1
     },
@@ -1177,11 +1223,14 @@
       "Chaos Rune": 174.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 6.0,
-      "Sigil of the Storm": 9.0,
+      "Aspirant's Climb": 10.0,
+      "Sigil of the Storm": 10.0,
+      "Vilemaw's Lair": 6.0,
+      "The Candlelit Sanctum": 3.0,
+      "Zaun Warrens": 16.0,
+      "Minefield": 10.0,
       "The Papertree": 2.0,
       "Forgotten Monument": 4.0,
-      "Zaun Warrens": 15.0,
       "Obelisk of Power": 8.0,
       "Grove of the God-Willow": 2.0,
       "Windswept Hillock": 6.0,
@@ -1189,84 +1238,134 @@
       "Power Nexus": 2.0,
       "The Arena's Greatest": 1.0,
       "Veiled Temple": 1.0,
-      "Minefield": 9.0,
       "Targon's Peak": 3.0,
       "Emperor's Dais": 1.0,
-      "Aspirant's Climb": 3.0,
-      "Vilemaw's Lair": 5.0,
       "Treasure Hoard": 2.0,
       "Bandle Tree": 1.0,
       "Hall of Legends": 1.0,
-      "The Candlelit Sanctum": 2.0,
       "Reckoner's Arena": 1.0
     }
   },
   {
-    "shell_id": "anniedarkchildstarterspiritforgednexusnightpromo|anniefiery|chaos,fury",
-    "shell_label": "Annie - Dark Child - Starter (Spiritforged Nexus Night Promo) / Annie - Fiery",
-    "legend_title": "Annie - Dark Child - Starter (Spiritforged Nexus Night Promo)",
-    "chosen_champion_title": "Annie - Fiery",
+    "shell_id": "lucianpurifier|lucianmerciless|body,fury",
+    "shell_label": "Lucian - Purifier / Lucian - Merciless",
+    "legend_title": "Lucian - Purifier",
+    "chosen_champion_title": "Lucian - Merciless",
     "legend_domains": [
-      "Chaos",
+      "Body",
       "Fury"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 13.1245,
-    "buildability_prior": 0.9641,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 25,
+    "archetype_count": 22,
+    "competitive_prior": 13.2574,
+    "buildability_prior": 0.9563,
+    "buildable_conversion": 0.983,
     "source_breakdown": {
-      "riftboundgg": 1
+      "riftboundgg": 10,
+      "piltoverarchive": 15
     },
     "rune_weights": {
-      "Chaos Rune (Origins Nexus Night Promo)": 6.0
-    },
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "jaxunrelenting|jaxunrelenting|body",
-    "shell_label": "Jax - Unrelenting / Jax - Unrelenting",
-    "legend_title": "Jax - Unrelenting",
-    "chosen_champion_title": "Jax - Unrelenting",
-    "legend_domains": [
-      "Body"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 13.1094,
-    "buildability_prior": 0.9363,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "jinxloosecannonoriginsreleaseeventpromo|jinxdemolitionist|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon (Origins Release Event Promo) / Jinx - Demolitionist",
-    "legend_title": "Jinx - Loose Cannon (Origins Release Event Promo)",
-    "chosen_champion_title": "Jinx - Demolitionist",
-    "legend_domains": [
-      "Chaos",
-      "Fury"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 13.065,
-    "buildability_prior": 0.9438,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Fury Rune": 6.0,
-      "Chaos Rune": 6.0
+      "Fury Rune": 116.0,
+      "Body Rune": 166.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "Reaver's Row": 1.0,
-      "Zaun Warrens": 1.0
+      "The Candlelit Sanctum": 2.0,
+      "Forge of the Fluft": 18.0,
+      "Sunken Temple": 15.0,
+      "The Arena's Greatest": 3.0,
+      "Ornn's Forge": 7.0,
+      "Vilemaw's Lair": 1.0,
+      "Zaun Warrens": 4.0,
+      "Power Nexus": 1.0,
+      "Emperor's Dais": 1.0,
+      "Reaver's Row": 4.0,
+      "Windswept Hillock": 9.0,
+      "Obelisk of Power": 7.0,
+      "Aspirant's Climb": 1.0,
+      "The Papertree": 1.0,
+      "Targon's Peak": 1.0
+    }
+  },
+  {
+    "shell_id": "jinxloosecannon|jinxrebel|chaos,fury",
+    "shell_label": "Jinx - Loose Cannon / Jinx - Rebel",
+    "legend_title": "Jinx - Loose Cannon",
+    "chosen_champion_title": "Jinx - Rebel",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 27,
+    "archetype_count": 21,
+    "competitive_prior": 13.0972,
+    "buildability_prior": 0.939,
+    "buildable_conversion": 0.9385,
+    "source_breakdown": {
+      "riftboundgg": 12,
+      "piltoverarchive": 14,
+      "riot-bologna": 1
+    },
+    "rune_weights": {
+      "Fury Rune": 129.0,
+      "Chaos Rune": 143.0
+    },
+    "battlefield_weights": {
+      "Targon's Peak": 4.0,
+      "Zaun Warrens": 21.0,
+      "Amateur Recital": 1.0,
+      "Bandle Tree": 1.0,
+      "Startipped Peak": 1.0,
+      "Vilemaw's Lair": 3.0,
+      "The Candlelit Sanctum": 8.0,
+      "The Arena's Greatest": 11.0,
+      "Reaver's Row": 7.0,
+      "Rockfall Path": 1.0,
+      "Veiled Temple": 2.0,
+      "Minefield": 3.0,
+      "Windswept Hillock": 4.0,
+      "Obelisk of Power": 2.0,
+      "Void Gate": 4.0,
+      "The Papertree": 1.0,
+      "Fortified Position": 3.0,
+      "Aspirant's Climb": 1.0
+    }
+  },
+  {
+    "shell_id": "leonaradiantdawn|leonazealot|calm,order",
+    "shell_label": "Leona - Radiant Dawn / Leona - Zealot",
+    "legend_title": "Leona - Radiant Dawn",
+    "chosen_champion_title": "Leona - Zealot",
+    "legend_domains": [
+      "Calm",
+      "Order"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 13.0026,
+    "buildability_prior": 0.9414,
+    "buildable_conversion": 0.925,
+    "source_breakdown": {
+      "riftboundgg": 3,
+      "piltoverarchive": 3
+    },
+    "rune_weights": {
+      "Calm Rune": 41.0,
+      "Order Rune": 31.0
+    },
+    "battlefield_weights": {
+      "Monastery of Hirana": 3.0,
+      "The Arena's Greatest": 2.0,
+      "Sunken Temple": 3.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Vilemaw's Lair": 1.0,
+      "Startipped Peak": 1.0,
+      "Altar to Unity": 1.0,
+      "The Dreaming Tree": 1.0,
+      "Obelisk of Power": 1.0,
+      "Windswept Hillock": 1.0,
+      "Sigil of the Storm": 1.0,
+      "Forgotten Monument": 1.0
     }
   },
   {
@@ -1278,13 +1377,13 @@
       "Fury",
       "Order"
     ],
-    "training_deck_count": 30,
-    "archetype_count": 26,
-    "competitive_prior": 12.959,
-    "buildability_prior": 0.9462,
-    "buildable_conversion": 0.9663,
+    "training_deck_count": 31,
+    "archetype_count": 27,
+    "competitive_prior": 12.9313,
+    "buildability_prior": 0.9515,
+    "buildable_conversion": 0.9722,
     "source_breakdown": {
-      "riftboundgg": 5,
+      "riftboundgg": 6,
       "piltoverarchive": 24,
       "riot-bologna": 1
     },
@@ -1293,11 +1392,11 @@
       "Order Rune": 171.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "The Candlelit Sanctum": 22.0,
+      "Aspirant's Climb": 1.0,
+      "The Candlelit Sanctum": 23.0,
       "Zaun Warrens": 12.0,
-      "The Arena's Greatest": 19.0,
-      "Trifarian War Camp": 10.0,
+      "The Arena's Greatest": 20.0,
+      "Trifarian War Camp": 11.0,
       "Rockfall Path": 6.0,
       "Treasure Hoard": 4.0,
       "Veiled Temple": 2.0,
@@ -1321,8 +1420,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.8046,
-    "buildability_prior": 0.9269,
+    "competitive_prior": 12.8365,
+    "buildability_prior": 0.9344,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
@@ -1335,93 +1434,30 @@
     }
   },
   {
-    "shell_id": "missfortunebountyhunteroriginsreleaseeventpromo|missfortunecaptain|body,chaos",
-    "shell_label": "Miss Fortune, Bounty Hunter (Origins Release Event Promo) / Miss Fortune - Captain",
-    "legend_title": "Miss Fortune, Bounty Hunter (Origins Release Event Promo)",
-    "chosen_champion_title": "Miss Fortune - Captain",
+    "shell_id": "lucianpurifier|luciangunslinger|body,fury",
+    "shell_label": "Lucian - Purifier / Lucian - Gunslinger",
+    "legend_title": "Lucian - Purifier",
+    "chosen_champion_title": "Lucian - Gunslinger",
     "legend_domains": [
       "Body",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 12.7664,
-    "buildability_prior": 0.9475,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Body Rune": 6.0,
-      "Chaos Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "Obelisk of Power": 1.0,
-      "Sigil of the Storm": 1.0
-    }
-  },
-  {
-    "shell_id": "ahrialluring|ahrialluring|calm",
-    "shell_label": "Ahri - Alluring / Ahri - Alluring",
-    "legend_title": "Ahri - Alluring",
-    "chosen_champion_title": "Ahri - Alluring",
-    "legend_domains": [
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 12.6851,
-    "buildability_prior": 0.9724,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {}
-  },
-  {
-    "shell_id": "jinxloosecannon|jinxrebel|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon / Jinx - Rebel",
-    "legend_title": "Jinx - Loose Cannon",
-    "chosen_champion_title": "Jinx - Rebel",
-    "legend_domains": [
-      "Chaos",
       "Fury"
     ],
-    "training_deck_count": 25,
-    "archetype_count": 19,
-    "competitive_prior": 12.6216,
-    "buildability_prior": 0.9309,
-    "buildable_conversion": 0.9035,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.7944,
+    "buildability_prior": 0.9325,
+    "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 10,
-      "piltoverarchive": 14,
-      "riot-bologna": 1
+      "piltoverarchive": 1
     },
     "rune_weights": {
-      "Fury Rune": 129.0,
-      "Chaos Rune": 131.0
+      "Fury Rune": 6.0,
+      "Body Rune": 6.0
     },
     "battlefield_weights": {
-      "Targon's Peak": 4.0,
-      "Zaun Warrens": 20.0,
-      "Amateur Recital": 1.0,
-      "Bandle Tree": 1.0,
-      "Startipped Peak": 1.0,
-      "Vilemaw's Lair": 3.0,
-      "The Candlelit Sanctum": 7.0,
-      "The Arena's Greatest": 11.0,
-      "Reaver's Row": 7.0,
-      "Rockfall Path": 1.0,
-      "Veiled Temple": 2.0,
-      "Minefield": 3.0,
-      "Windswept Hillock": 4.0,
-      "Obelisk of Power": 1.0,
-      "Void Gate": 4.0,
+      "The Arena's Greatest": 1.0,
       "The Papertree": 1.0,
-      "Fortified Position": 3.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0
+      "Treasure Hoard": 1.0
     }
   },
   {
@@ -1433,108 +1469,68 @@
       "Calm",
       "Mind"
     ],
-    "training_deck_count": 57,
-    "archetype_count": 39,
-    "competitive_prior": 12.5403,
-    "buildability_prior": 0.9469,
-    "buildable_conversion": 0.9445,
+    "training_deck_count": 59,
+    "archetype_count": 40,
+    "competitive_prior": 12.7466,
+    "buildability_prior": 0.9456,
+    "buildable_conversion": 0.9443,
     "source_breakdown": {
-      "riftboundgg": 21,
+      "riftboundgg": 23,
       "piltoverarchive": 35,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 332.0,
-      "Mind Rune": 338.0
+      "Calm Rune": 343.0,
+      "Mind Rune": 351.0
     },
     "battlefield_weights": {
-      "Marai Spire": 2.0,
+      "The Arena's Greatest": 6.0,
+      "The Grand Plaza": 1.0,
+      "Dusk Rose Lab": 1.0,
+      "Marai Spire": 3.0,
       "Ravenbloom Conservatory": 7.0,
       "The Papertree": 1.0,
+      "The Dreaming Tree": 41.0,
       "Grove of the God-Willow": 32.0,
-      "The Dreaming Tree": 40.0,
       "Trifarian War Camp": 22.0,
       "Obelisk of Power": 4.0,
-      "The Arena's Greatest": 4.0,
       "Targon's Peak": 18.0,
       "Startipped Peak": 7.0,
-      "Aspirant's Climb": 1.0,
+      "Aspirant's Climb": 5.0,
       "Sigil of the Storm": 2.0,
-      "Fortified Position": 10.0,
-      "Fortified Position (Oversized)": 1.0,
+      "Fortified Position": 11.0,
       "Reaver's Row": 7.0,
       "Zaun Warrens": 3.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 4.0,
       "Altar to Unity": 3.0,
       "Windswept Hillock": 1.0,
       "Hallowed Tomb": 1.0
     }
   },
   {
-    "shell_id": "leonaradiantdawn|leonazealot|calm,order",
-    "shell_label": "Leona - Radiant Dawn / Leona - Zealot",
-    "legend_title": "Leona - Radiant Dawn",
-    "chosen_champion_title": "Leona - Zealot",
-    "legend_domains": [
-      "Calm",
-      "Order"
-    ],
-    "training_deck_count": 5,
-    "archetype_count": 5,
-    "competitive_prior": 12.4842,
-    "buildability_prior": 0.9658,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 2,
-      "piltoverarchive": 3
-    },
-    "rune_weights": {
-      "Calm Rune": 34.0,
-      "Order Rune": 26.0
-    },
-    "battlefield_weights": {
-      "Monastery of Hirana": 2.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Sunken Temple": 2.0,
-      "The Arena's Greatest": 1.0,
-      "Grove of the God-Willow": 1.0,
-      "Vilemaw's Lair": 1.0,
-      "Startipped Peak": 1.0,
-      "Altar to Unity": 1.0,
-      "The Dreaming Tree": 1.0,
-      "Obelisk of Power": 1.0,
-      "Windswept Hillock": 1.0,
-      "Sigil of the Storm": 1.0,
-      "Forgotten Monument": 1.0
-    }
-  },
-  {
-    "shell_id": "dianascornofthemoon|dianalunari|chaos,mind",
-    "shell_label": "Diana - Scorn of the Moon / Diana - Lunari",
-    "legend_title": "Diana - Scorn of the Moon",
-    "chosen_champion_title": "Diana - Lunari",
+    "shell_id": "jinxloosecannon|kaisasurvivor|chaos,fury",
+    "shell_label": "Jinx - Loose Cannon / Kai'Sa - Survivor",
+    "legend_title": "Jinx - Loose Cannon",
+    "chosen_champion_title": "Kai'Sa - Survivor",
     "legend_domains": [
       "Chaos",
-      "Mind"
+      "Fury"
     ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 12.2471,
-    "buildability_prior": 0.9616,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.7461,
+    "buildability_prior": 0.955,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 3
+      "riftboundgg": 1
     },
     "rune_weights": {
-      "Mind Rune": 16.0,
-      "Chaos Rune": 20.0
+      "Fury Rune": 6.0,
+      "Chaos Rune": 6.0
     },
     "battlefield_weights": {
-      "Startipped Peak": 1.0,
-      "Targon's Peak": 2.0,
-      "Abandoned Hall": 3.0,
-      "The Candlelit Sanctum": 1.0,
-      "Ravenbloom Conservatory": 2.0
+      "Hallowed Tomb": 1.0,
+      "Obelisk of Power": 1.0,
+      "Zaun Warrens": 1.0
     }
   },
   {
@@ -1545,8 +1541,8 @@
     "legend_domains": [],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 12.2398,
-    "buildability_prior": 0.9475,
+    "competitive_prior": 12.5959,
+    "buildability_prior": 0.9494,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riot-bologna": 1
@@ -1562,50 +1558,67 @@
     }
   },
   {
-    "shell_id": "ornnfirebelowthemountain|ornnforgegod|calm,mind",
-    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Forge God",
-    "legend_title": "Ornn - Fire Below the Mountain",
-    "chosen_champion_title": "Ornn - Forge God",
+    "shell_id": "reksaivoidburrower|reksaiswarmqueen|fury,order",
+    "shell_label": "Rek'Sai - Void Burrower / Rek'Sai - Swarm Queen",
+    "legend_title": "Rek'Sai - Void Burrower",
+    "chosen_champion_title": "Rek'Sai - Swarm Queen",
     "legend_domains": [
-      "Calm",
-      "Mind"
+      "Fury",
+      "Order"
     ],
-    "training_deck_count": 31,
-    "archetype_count": 29,
-    "competitive_prior": 12.2218,
-    "buildability_prior": 0.9592,
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 12.5247,
+    "buildability_prior": 0.9531,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 5,
-      "piltoverarchive": 26
+      "riftboundgg": 1,
+      "piltoverarchive": 1
     },
     "rune_weights": {
-      "Calm Rune": 190.0,
-      "Mind Rune": 162.0
+      "Order Rune": 5.0,
+      "Fury Rune": 7.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 2.0,
-      "Treasure Hoard": 5.0,
-      "Dusk Rose Lab": 1.0,
-      "Ornn's Forge": 12.0,
-      "Aspirant's Climb": 16.0,
-      "Forgotten Monument": 10.0,
-      "Obelisk of Power": 12.0,
-      "Sigil of the Storm": 6.0,
-      "The Papertree": 3.0,
-      "Forge of the Fluft": 1.0,
-      "Fortified Position": 2.0,
-      "Vilemaw's Lair": 4.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
-      "Power Nexus": 3.0,
-      "Sunken Temple": 3.0,
-      "Targon's Peak": 2.0,
       "Void Gate": 1.0,
-      "Zaun Warrens": 2.0,
-      "Grove of the God-Willow": 2.0,
-      "Rockfall Path": 1.0,
-      "The Candlelit Sanctum": 1.0,
+      "Amateur Recital": 1.0,
+      "Frozen Fortress": 1.0,
+      "Zaun Warrens": 1.0,
+      "Reckoner's Arena": 1.0,
       "Windswept Hillock": 1.0
+    }
+  },
+  {
+    "shell_id": "rengarpridestalker|rengartrophyhunter|body,fury",
+    "shell_label": "Rengar - Pridestalker / Rengar - Trophy Hunter",
+    "legend_title": "Rengar - Pridestalker",
+    "chosen_champion_title": "Rengar - Trophy Hunter",
+    "legend_domains": [
+      "Body",
+      "Fury"
+    ],
+    "training_deck_count": 4,
+    "archetype_count": 4,
+    "competitive_prior": 12.414,
+    "buildability_prior": 0.9447,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 4
+    },
+    "rune_weights": {
+      "Fury Rune": 19.0,
+      "Body Rune": 17.0
+    },
+    "battlefield_weights": {
+      "The Arena's Greatest": 1.0,
+      "Treasure Hoard": 2.0,
+      "Star Spring": 2.0,
+      "Emperor's Dais": 1.0,
+      "Aspirant's Climb": 2.0,
+      "Forgotten Monument": 1.0,
+      "The Papertree": 1.0,
+      "Fortified Position": 1.0,
+      "Sigil of the Storm": 1.0
     }
   },
   {
@@ -1617,31 +1630,34 @@
       "Fury",
       "Order"
     ],
-    "training_deck_count": 38,
-    "archetype_count": 21,
-    "competitive_prior": 12.2044,
-    "buildability_prior": 0.9234,
-    "buildable_conversion": 0.8656,
+    "training_deck_count": 42,
+    "archetype_count": 25,
+    "competitive_prior": 12.3061,
+    "buildability_prior": 0.9245,
+    "buildable_conversion": 0.8875,
     "source_breakdown": {
-      "riftboundgg": 18,
+      "riftboundgg": 22,
       "piltoverarchive": 20
     },
     "rune_weights": {
-      "Fury Rune": 200.0,
-      "Order Rune": 240.0
+      "Fury Rune": 222.0,
+      "Order Rune": 266.0
     },
     "battlefield_weights": {
       "Monastery of Hirana": 1.0,
-      "Trifarian War Camp": 35.0,
+      "Trifarian War Camp": 38.0,
       "Zaun Warrens": 23.0,
+      "The Arena's Greatest": 28.0,
+      "Treasure Hoard": 1.0,
       "Altar to Unity": 1.0,
       "Reaver's Row": 6.0,
       "Seat of Power": 3.0,
-      "The Arena's Greatest": 26.0,
-      "The Dreaming Tree": 1.0,
-      "Vilemaw's Lair": 1.0,
+      "The Dreaming Tree": 2.0,
+      "Vilemaw's Lair": 2.0,
       "The Candlelit Sanctum": 14.0,
       "Fortified Position": 1.0,
+      "Emperor's Dais": 3.0,
+      "Sunken Temple": 1.0,
       "Reckoner's Arena": 1.0
     }
   },
@@ -1656,8 +1672,8 @@
     ],
     "training_deck_count": 6,
     "archetype_count": 6,
-    "competitive_prior": 12.0845,
-    "buildability_prior": 0.9613,
+    "competitive_prior": 12.2478,
+    "buildability_prior": 0.965,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "piltoverarchive": 3,
@@ -1680,6 +1696,238 @@
     }
   },
   {
+    "shell_id": "teemoswiftscout|teemostrategist|chaos,mind",
+    "shell_label": "Teemo - Swift Scout / Teemo - Strategist",
+    "legend_title": "Teemo - Swift Scout",
+    "chosen_champion_title": "Teemo - Strategist",
+    "legend_domains": [
+      "Chaos",
+      "Mind"
+    ],
+    "training_deck_count": 13,
+    "archetype_count": 10,
+    "competitive_prior": 12.235,
+    "buildability_prior": 0.9436,
+    "buildable_conversion": 0.95,
+    "source_breakdown": {
+      "riftboundgg": 9,
+      "piltoverarchive": 4
+    },
+    "rune_weights": {
+      "Mind Rune": 77.0,
+      "Chaos Rune": 55.0
+    },
+    "battlefield_weights": {
+      "Bandle Tree": 13.0,
+      "Grove of the God-Willow": 4.0,
+      "Startipped Peak": 2.0,
+      "Ravenbloom Conservatory": 1.0,
+      "The Candlelit Sanctum": 6.0,
+      "Hallowed Tomb": 1.0,
+      "Zaun Warrens": 3.0,
+      "Windswept Hillock": 2.0,
+      "The Arena's Greatest": 3.0,
+      "Targon's Peak": 1.0,
+      "Void Gate": 2.0,
+      "Altar to Unity": 1.0
+    }
+  },
+  {
+    "shell_id": "ornnfirebelowthemountain|ornnblacksmith|calm,mind",
+    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Blacksmith",
+    "legend_title": "Ornn - Fire Below the Mountain",
+    "chosen_champion_title": "Ornn - Blacksmith",
+    "legend_domains": [
+      "Calm",
+      "Mind"
+    ],
+    "training_deck_count": 3,
+    "archetype_count": 3,
+    "competitive_prior": 12.1996,
+    "buildability_prior": 0.9453,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2,
+      "piltoverarchive": 1
+    },
+    "rune_weights": {
+      "Mind Rune": 18.0,
+      "Calm Rune": 13.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 1.0,
+      "Ornn's Forge": 2.0,
+      "Veiled Temple": 1.0,
+      "The Arena's Greatest": 1.0,
+      "Treasure Hoard": 1.0,
+      "Back-Alley Bar": 1.0,
+      "Void Gate": 1.0,
+      "Forgotten Monument": 1.0
+    }
+  },
+  {
+    "shell_id": "masteryiwujubladesman|masteryitempered|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Tempered",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Master Yi - Tempered",
+    "legend_domains": [
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.195,
+    "buildability_prior": 0.9644,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Calm Rune": 6.0,
+      "Body Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Startipped Peak": 1.0,
+      "Vilemaw's Lair": 1.0,
+      "Star Spring": 1.0
+    }
+  },
+  {
+    "shell_id": "ahrialluring|ahrialluring|calm",
+    "shell_label": "Ahri - Alluring / Ahri - Alluring",
+    "legend_title": "Ahri - Alluring",
+    "chosen_champion_title": "Ahri - Alluring",
+    "legend_domains": [
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.1943,
+    "buildability_prior": 0.9507,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {}
+  },
+  {
+    "shell_id": "viktorheraldofthearcane|xinzhaovigilant|mind,order",
+    "shell_label": "Viktor - Herald of the Arcane / Xin Zhao - Vigilant",
+    "legend_title": "Viktor - Herald of the Arcane",
+    "chosen_champion_title": "Xin Zhao - Vigilant",
+    "legend_domains": [
+      "Mind",
+      "Order"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 12.1691,
+    "buildability_prior": 0.94,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {
+      "Order Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Altar to Unity": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Sunken Temple": 1.0
+    }
+  },
+  {
+    "shell_id": "ornnfirebelowthemountain|ornnforgegod|calm,mind",
+    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Forge God",
+    "legend_title": "Ornn - Fire Below the Mountain",
+    "chosen_champion_title": "Ornn - Forge God",
+    "legend_domains": [
+      "Calm",
+      "Mind"
+    ],
+    "training_deck_count": 34,
+    "archetype_count": 32,
+    "competitive_prior": 12.1102,
+    "buildability_prior": 0.9603,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 7,
+      "piltoverarchive": 27
+    },
+    "rune_weights": {
+      "Mind Rune": 173.0,
+      "Calm Rune": 203.0
+    },
+    "battlefield_weights": {
+      "Ornn's Forge": 13.0,
+      "Veiled Temple": 1.0,
+      "Abandoned Hall": 1.0,
+      "The Arena's Greatest": 2.0,
+      "Treasure Hoard": 5.0,
+      "Dusk Rose Lab": 1.0,
+      "Grove of the God-Willow": 3.0,
+      "The Papertree": 4.0,
+      "Forgotten Monument": 11.0,
+      "Aspirant's Climb": 19.0,
+      "Obelisk of Power": 12.0,
+      "Sigil of the Storm": 6.0,
+      "Forge of the Fluft": 1.0,
+      "Fortified Position": 2.0,
+      "Vilemaw's Lair": 4.0,
+      "Power Nexus": 3.0,
+      "Sunken Temple": 3.0,
+      "Targon's Peak": 2.0,
+      "Void Gate": 1.0,
+      "Zaun Warrens": 2.0,
+      "Rockfall Path": 1.0,
+      "The Candlelit Sanctum": 1.0,
+      "Windswept Hillock": 1.0
+    }
+  },
+  {
+    "shell_id": "vexgloomist|vexapathetic|calm,chaos",
+    "shell_label": "Vex - Gloomist / Vex - Apathetic",
+    "legend_title": "Vex - Gloomist",
+    "chosen_champion_title": "Vex - Apathetic",
+    "legend_domains": [
+      "Calm",
+      "Chaos"
+    ],
+    "training_deck_count": 21,
+    "archetype_count": 19,
+    "competitive_prior": 11.9208,
+    "buildability_prior": 0.9551,
+    "buildable_conversion": 0.9868,
+    "source_breakdown": {
+      "riftboundgg": 21
+    },
+    "rune_weights": {
+      "Calm Rune": 73.0,
+      "Chaos Rune": 71.0
+    },
+    "battlefield_weights": {
+      "Fortified Position": 3.0,
+      "Hallowed Tomb": 2.0,
+      "Ravenbloom Conservatory": 4.0,
+      "Grove of the God-Willow": 6.0,
+      "The Academy": 1.0,
+      "Aspirant's Climb": 2.0,
+      "The Papertree": 3.0,
+      "Abandoned Hall": 4.0,
+      "Amateur Recital": 9.0,
+      "Ripper's Bay": 2.0,
+      "Bandle Tree": 3.0,
+      "Startipped Peak": 8.0,
+      "Star Spring": 4.0,
+      "Trifarian War Camp": 1.0,
+      "Targon's Peak": 1.0,
+      "The Arena's Greatest": 1.0,
+      "Sigil of the Storm": 1.0,
+      "Gardens of Becoming": 1.0
+    }
+  },
+  {
     "shell_id": "yasuounforgiven|yasuowindrider|calm,chaos",
     "shell_label": "Yasuo - Unforgiven / Yasuo - Windrider",
     "legend_title": "Yasuo - Unforgiven",
@@ -1690,8 +1938,8 @@
     ],
     "training_deck_count": 11,
     "archetype_count": 11,
-    "competitive_prior": 11.9027,
-    "buildability_prior": 0.9576,
+    "competitive_prior": 11.9007,
+    "buildability_prior": 0.9632,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 6,
@@ -1722,97 +1970,135 @@
     }
   },
   {
-    "shell_id": "ornnfirebelowthemountain|ornnblacksmith|calm,mind",
-    "shell_label": "Ornn - Fire Below the Mountain / Ornn - Blacksmith",
-    "legend_title": "Ornn - Fire Below the Mountain",
-    "chosen_champion_title": "Ornn - Blacksmith",
+    "shell_id": "dianascornofthemoon|dianalunari|chaos,mind",
+    "shell_label": "Diana - Scorn of the Moon / Diana - Lunari",
+    "legend_title": "Diana - Scorn of the Moon",
+    "chosen_champion_title": "Diana - Lunari",
     "legend_domains": [
-      "Calm",
+      "Chaos",
       "Mind"
     ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 11.8514,
-    "buildability_prior": 0.9419,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 8,
+    "archetype_count": 7,
+    "competitive_prior": 11.8522,
+    "buildability_prior": 0.9393,
+    "buildable_conversion": 0.9286,
     "source_breakdown": {
-      "riftboundgg": 1,
-      "piltoverarchive": 1
+      "riftboundgg": 8
     },
     "rune_weights": {
-      "Calm Rune": 13.0,
-      "Mind Rune": 11.0
+      "Mind Rune": 27.0,
+      "Chaos Rune": 33.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 1.0,
-      "Ornn's Forge": 1.0,
-      "Treasure Hoard": 1.0,
-      "Back-Alley Bar": 1.0,
+      "Startipped Peak": 3.0,
+      "Targon's Peak": 6.0,
+      "Abandoned Hall": 7.0,
+      "The Candlelit Sanctum": 2.0,
+      "Ravenbloom Conservatory": 4.0,
       "Void Gate": 1.0,
-      "Forgotten Monument": 1.0
+      "The Academy": 1.0
     }
   },
   {
-    "shell_id": "jinxloosecannon|kaisasurvivor|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon / Kai'Sa - Survivor",
+    "shell_id": "jinxloosecannon|jinxdemolitionist|chaos,fury",
+    "shell_label": "Jinx - Loose Cannon / Jinx - Demolitionist",
     "legend_title": "Jinx - Loose Cannon",
-    "chosen_champion_title": "Kai'Sa - Survivor",
+    "chosen_champion_title": "Jinx - Demolitionist",
     "legend_domains": [
       "Chaos",
       "Fury"
     ],
+    "training_deck_count": 69,
+    "archetype_count": 61,
+    "competitive_prior": 11.7365,
+    "buildability_prior": 0.9529,
+    "buildable_conversion": 0.972,
+    "source_breakdown": {
+      "riftboundgg": 31,
+      "piltoverarchive": 38
+    },
+    "rune_weights": {
+      "Fury Rune": 492.0,
+      "Chaos Rune": 282.0
+    },
+    "battlefield_weights": {
+      "Zaun Warrens": 65.0,
+      "Forge of the Fluft": 1.0,
+      "Treasure Hoard": 1.0,
+      "The Arena's Greatest": 40.0,
+      "Minefield": 5.0,
+      "The Papertree": 1.0,
+      "The Candlelit Sanctum": 20.0,
+      "Windswept Hillock": 7.0,
+      "Amateur Recital": 1.0,
+      "Reaver's Row": 35.0,
+      "Targon's Peak": 7.0,
+      "Void Gate": 4.0,
+      "Startipped Peak": 2.0,
+      "Back-Alley Bar": 1.0,
+      "Aspirant's Climb": 2.0,
+      "Obelisk of Power": 3.0,
+      "The Dreaming Tree": 2.0,
+      "Hallowed Tomb": 3.0,
+      "Fortified Position": 1.0,
+      "Altar to Unity": 1.0
+    }
+  },
+  {
+    "shell_id": "poppykeeperofthehammer|poppyparagon|body,order",
+    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Paragon",
+    "legend_title": "Poppy - Keeper of the Hammer",
+    "chosen_champion_title": "Poppy - Paragon",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 11.7359,
+    "buildability_prior": 0.9554,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 5
+    },
+    "rune_weights": {
+      "Body Rune": 28.0,
+      "Order Rune": 20.0
+    },
+    "battlefield_weights": {
+      "Hall of Legends": 1.0,
+      "The Papertree": 1.0,
+      "Gardens of Becoming": 5.0,
+      "Sunken Temple": 1.0,
+      "Amateur Recital": 1.0,
+      "Reckoner's Arena": 2.0,
+      "Windswept Hillock": 2.0,
+      "Fortified Position": 1.0,
+      "Trifarian War Camp": 1.0
+    }
+  },
+  {
+    "shell_id": "sonaharmonious|evelynnentrancing|calm",
+    "shell_label": "Sona - Harmonious / Evelynn - Entrancing",
+    "legend_title": "Sona - Harmonious",
+    "chosen_champion_title": "Evelynn - Entrancing",
+    "legend_domains": [
+      "Calm"
+    ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 11.8328,
-    "buildability_prior": 0.955,
+    "competitive_prior": 11.729,
+    "buildability_prior": 0.9175,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {
-      "Fury Rune": 6.0,
-      "Chaos Rune": 6.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
+      "Fortified Position": 1.0,
       "Hallowed Tomb": 1.0,
-      "Obelisk of Power": 1.0,
-      "Zaun Warrens": 1.0
-    }
-  },
-  {
-    "shell_id": "teemoswiftscout|teemostrategist|chaos,mind",
-    "shell_label": "Teemo - Swift Scout / Teemo - Strategist",
-    "legend_title": "Teemo - Swift Scout",
-    "chosen_champion_title": "Teemo - Strategist",
-    "legend_domains": [
-      "Chaos",
-      "Mind"
-    ],
-    "training_deck_count": 11,
-    "archetype_count": 9,
-    "competitive_prior": 11.7674,
-    "buildability_prior": 0.9611,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "piltoverarchive": 4,
-      "riftboundgg": 7
-    },
-    "rune_weights": {
-      "Mind Rune": 77.0,
-      "Chaos Rune": 55.0
-    },
-    "battlefield_weights": {
-      "Ravenbloom Conservatory": 1.0,
-      "Bandle Tree": 11.0,
-      "The Candlelit Sanctum": 6.0,
-      "Hallowed Tomb": 1.0,
-      "Zaun Warrens": 3.0,
-      "Windswept Hillock": 2.0,
-      "The Arena's Greatest": 3.0,
-      "Grove of the God-Willow": 2.0,
-      "Targon's Peak": 1.0,
-      "Void Gate": 2.0,
-      "Altar to Unity": 1.0
+      "Ravenbloom Conservatory": 1.0
     }
   },
   {
@@ -1824,33 +2110,32 @@
       "Body",
       "Chaos"
     ],
-    "training_deck_count": 58,
-    "archetype_count": 40,
-    "competitive_prior": 11.5069,
-    "buildability_prior": 0.9358,
-    "buildable_conversion": 0.925,
+    "training_deck_count": 63,
+    "archetype_count": 44,
+    "competitive_prior": 11.7121,
+    "buildability_prior": 0.9334,
+    "buildable_conversion": 0.9125,
     "source_breakdown": {
-      "riftboundgg": 15,
+      "riftboundgg": 20,
       "piltoverarchive": 39,
       "mobalytics-tournament": 3,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Body Rune": 367.0,
-      "Chaos Rune": 321.0
+      "Body Rune": 391.0,
+      "Chaos Rune": 339.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 11.0,
-      "Forgotten Monument": 3.0,
+      "Aspirant's Climb": 44.0,
+      "Sigil of the Storm": 33.0,
+      "Vilemaw's Lair": 12.0,
+      "Forgotten Monument": 6.0,
       "The Papertree": 4.0,
+      "Obelisk of Power": 41.0,
       "Zaun Warrens": 13.0,
       "The Arena's Greatest": 8.0,
       "Reaver's Row": 6.0,
       "Back-Alley Bar": 6.0,
-      "Aspirant's Climb": 28.0,
-      "Vilemaw's Lair": 11.0,
-      "Obelisk of Power": 40.0,
-      "Sigil of the Storm": 28.0,
       "Targon's Peak": 2.0,
       "Minefield": 3.0,
       "Grove of the God-Willow": 1.0,
@@ -1863,44 +2148,34 @@
     }
   },
   {
-    "shell_id": "jinxloosecannon|jinxdemolitionist|chaos,fury",
-    "shell_label": "Jinx - Loose Cannon / Jinx - Demolitionist",
-    "legend_title": "Jinx - Loose Cannon",
-    "chosen_champion_title": "Jinx - Demolitionist",
+    "shell_id": "khazixvoidreaver|khazixmutatinghorror|body,chaos",
+    "shell_label": "Kha'Zix - Voidreaver / Kha'Zix - Mutating Horror",
+    "legend_title": "Kha'Zix - Voidreaver",
+    "chosen_champion_title": "Kha'Zix - Mutating Horror",
     "legend_domains": [
-      "Chaos",
-      "Fury"
+      "Body",
+      "Chaos"
     ],
-    "training_deck_count": 63,
-    "archetype_count": 56,
-    "competitive_prior": 11.5027,
-    "buildability_prior": 0.9562,
-    "buildable_conversion": 0.9747,
+    "training_deck_count": 6,
+    "archetype_count": 6,
+    "competitive_prior": 11.7041,
+    "buildability_prior": 0.9526,
+    "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 25,
-      "piltoverarchive": 38
+      "riftboundgg": 6
     },
     "rune_weights": {
-      "Fury Rune": 468.0,
-      "Chaos Rune": 258.0
+      "Body Rune": 6.0,
+      "Chaos Rune": 6.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 39.0,
-      "The Candlelit Sanctum": 19.0,
-      "Zaun Warrens": 59.0,
-      "Minefield": 2.0,
-      "Reaver's Row": 34.0,
-      "Targon's Peak": 7.0,
-      "Void Gate": 4.0,
-      "Startipped Peak": 2.0,
+      "Monastery of Hirana": 4.0,
+      "Forbidding Waste": 3.0,
+      "Star Spring": 4.0,
       "Back-Alley Bar": 1.0,
-      "Windswept Hillock": 6.0,
-      "Aspirant's Climb": 1.0,
-      "Obelisk of Power": 3.0,
-      "The Dreaming Tree": 2.0,
-      "Hallowed Tomb": 3.0,
-      "Fortified Position": 1.0,
-      "Altar to Unity": 1.0
+      "Windswept Hillock": 1.0,
+      "Sunken Temple": 1.0,
+      "Gardens of Becoming": 1.0
     }
   },
   {
@@ -1914,8 +2189,8 @@
     ],
     "training_deck_count": 6,
     "archetype_count": 6,
-    "competitive_prior": 11.4224,
-    "buildability_prior": 0.9603,
+    "competitive_prior": 11.6675,
+    "buildability_prior": 0.9562,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 2,
@@ -1942,37 +2217,157 @@
     }
   },
   {
-    "shell_id": "vexgloomist|vexapathetic|calm,chaos",
-    "shell_label": "Vex - Gloomist / Vex - Apathetic",
+    "shell_id": "leblancdeceiver|leblancfragmented|mind,order",
+    "shell_label": "LeBlanc - Deceiver / LeBlanc - Fragmented",
+    "legend_title": "LeBlanc - Deceiver",
+    "chosen_champion_title": "LeBlanc - Fragmented",
+    "legend_domains": [
+      "Mind",
+      "Order"
+    ],
+    "training_deck_count": 9,
+    "archetype_count": 8,
+    "competitive_prior": 11.4842,
+    "buildability_prior": 0.9675,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 9
+    },
+    "rune_weights": {
+      "Mind Rune": 20.0,
+      "Order Rune": 53.0
+    },
+    "battlefield_weights": {
+      "Windswept Hillock": 8.0,
+      "Dusk Rose Lab": 6.0,
+      "Forbidding Waste": 5.0,
+      "Star Spring": 2.0,
+      "Aspirant's Climb": 2.0,
+      "Trifarian War Camp": 2.0,
+      "Obelisk of Power": 1.0,
+      "Startipped Peak": 1.0
+    }
+  },
+  {
+    "shell_id": "vaynehunter|rengarunseen|fury",
+    "shell_label": "Vayne - Hunter / Rengar - Unseen",
+    "legend_title": "Vayne - Hunter",
+    "chosen_champion_title": "Rengar - Unseen",
+    "legend_domains": [
+      "Fury"
+    ],
+    "training_deck_count": 2,
+    "archetype_count": 1,
+    "competitive_prior": 11.4583,
+    "buildability_prior": 0.9494,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Grove of the God-Willow": 2.0,
+      "Star Spring": 2.0,
+      "Valley of Idols": 2.0
+    }
+  },
+  {
+    "shell_id": "qiyanavictorious|nidaleecatform|body",
+    "shell_label": "Qiyana - Victorious / Nidalee - Cat Form",
+    "legend_title": "Qiyana - Victorious",
+    "chosen_champion_title": "Nidalee - Cat Form",
+    "legend_domains": [
+      "Body"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 11.4348,
+    "buildability_prior": 0.9344,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Back-Alley Bar": 1.0,
+      "Fortified Position": 1.0,
+      "Treasure Hoard": 1.0
+    }
+  },
+  {
+    "shell_id": "vexgloomist|vexcheerless|calm,chaos",
+    "shell_label": "Vex - Gloomist / Vex - Cheerless",
     "legend_title": "Vex - Gloomist",
-    "chosen_champion_title": "Vex - Apathetic",
+    "chosen_champion_title": "Vex - Cheerless",
     "legend_domains": [
       "Calm",
       "Chaos"
     ],
-    "training_deck_count": 8,
-    "archetype_count": 8,
-    "competitive_prior": 11.4183,
-    "buildability_prior": 0.9622,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 11.4233,
+    "buildability_prior": 0.94,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 8
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Grove of the God-Willow": 1.0,
+      "Startipped Peak": 1.0,
+      "Ravenbloom Conservatory": 1.0
+    }
+  },
+  {
+    "shell_id": "vipiltoverenforcer|vihotheaded|fury,order",
+    "shell_label": "Vi - Piltover Enforcer / Vi - Hotheaded",
+    "legend_title": "Vi - Piltover Enforcer",
+    "chosen_champion_title": "Vi - Hotheaded",
+    "legend_domains": [
+      "Fury",
+      "Order"
+    ],
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 11.3293,
+    "buildability_prior": 0.9456,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2
     },
     "rune_weights": {
-      "Calm Rune": 13.0,
-      "Chaos Rune": 11.0
+      "Fury Rune": 6.0,
+      "Order Rune": 6.0
     },
     "battlefield_weights": {
-      "Grove of the God-Willow": 4.0,
-      "Startipped Peak": 4.0,
-      "Amateur Recital": 5.0,
+      "Emperor's Dais": 1.0,
+      "Altar of Blood": 1.0,
+      "Trapping Grounds": 2.0,
+      "Sunken Temple": 1.0,
+      "Valley of Idols": 1.0
+    }
+  },
+  {
+    "shell_id": "fizztrickster|hweibroodingpainter|chaos",
+    "shell_label": "Fizz - Trickster / Hwei - Brooding Painter",
+    "legend_title": "Fizz - Trickster",
+    "chosen_champion_title": "Hwei - Brooding Painter",
+    "legend_domains": [
+      "Chaos"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 11.2949,
+    "buildability_prior": 0.95,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Startipped Peak": 1.0,
       "Targon's Peak": 1.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Hallowed Tomb": 1.0,
-      "The Arena's Greatest": 1.0,
-      "Sigil of the Storm": 1.0,
-      "Star Spring": 2.0,
-      "Bandle Tree": 1.0
+      "Abandoned Hall": 1.0
     }
   },
   {
@@ -1986,8 +2381,8 @@
     ],
     "training_deck_count": 3,
     "archetype_count": 3,
-    "competitive_prior": 11.3533,
-    "buildability_prior": 0.9782,
+    "competitive_prior": 11.2389,
+    "buildability_prior": 0.9744,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "mobalytics-tournament": 3
@@ -2005,33 +2400,28 @@
     }
   },
   {
-    "shell_id": "dariushandofnoxusoriginsreleaseeventpromo|dariustrifarian|fury,order",
-    "shell_label": "Darius, Hand of Noxus (Origins Release Event Promo) / Darius - Trifarian",
-    "legend_title": "Darius, Hand of Noxus (Origins Release Event Promo)",
-    "chosen_champion_title": "Darius - Trifarian",
+    "shell_id": "vexcheerless|vexapathetic|chaos",
+    "shell_label": "Vex - Cheerless / Vex - Apathetic",
+    "legend_title": "Vex - Cheerless",
+    "chosen_champion_title": "Vex - Apathetic",
     "legend_domains": [
-      "Fury",
-      "Order"
+      "Chaos"
     ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 11.3026,
-    "buildability_prior": 0.9643,
+    "training_deck_count": 2,
+    "archetype_count": 2,
+    "competitive_prior": 11.1858,
+    "buildability_prior": 0.9548,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 3
+      "riftboundgg": 2
     },
-    "rune_weights": {
-      "Fury Rune": 18.0,
-      "Order Rune": 18.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
-      "Trifarian War Camp": 2.0,
-      "Vilemaw's Lair": 1.0,
-      "Emperor's Dais": 3.0,
-      "The Arena's Greatest": 1.0,
-      "The Dreaming Tree": 1.0,
-      "Sunken Temple": 1.0
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 1.0,
+      "Ripper's Bay": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Targon's Peak": 1.0
     }
   },
   {
@@ -2045,8 +2435,8 @@
     ],
     "training_deck_count": 19,
     "archetype_count": 19,
-    "competitive_prior": 11.2742,
-    "buildability_prior": 0.9553,
+    "competitive_prior": 11.1736,
+    "buildability_prior": 0.9544,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 10,
@@ -2060,7 +2450,7 @@
       "Forgotten Monument": 1.0,
       "Hall of Legends": 1.0,
       "Rockfall Path": 1.0,
-      "Aspirant's Climb": 4.0,
+      "Aspirant's Climb": 6.0,
       "Vilemaw's Lair": 10.0,
       "Obelisk of Power": 7.0,
       "Zaun Warrens": 2.0,
@@ -2071,7 +2461,6 @@
       "Treasure Hoard": 1.0,
       "Ornn's Forge": 1.0,
       "The Papertree": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
       "Sigil of the Storm": 1.0,
       "The Candlelit Sanctum": 4.0,
       "Windswept Hillock": 1.0,
@@ -2080,56 +2469,98 @@
     }
   },
   {
-    "shell_id": "reksaivoidburrower|reksaiswarmqueen|fury,order",
-    "shell_label": "Rek'Sai - Void Burrower / Rek'Sai - Swarm Queen",
-    "legend_title": "Rek'Sai - Void Burrower",
-    "chosen_champion_title": "Rek'Sai - Swarm Queen",
+    "shell_id": "vexcheerless|vexmocking|chaos",
+    "shell_label": "Vex - Cheerless / Vex - Mocking",
+    "legend_title": "Vex - Cheerless",
+    "chosen_champion_title": "Vex - Mocking",
     "legend_domains": [
-      "Fury",
-      "Order"
+      "Chaos"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.2514,
-    "buildability_prior": 0.9475,
+    "training_deck_count": 3,
+    "archetype_count": 2,
+    "competitive_prior": 11.1294,
+    "buildability_prior": 0.9643,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 1
+      "riftboundgg": 3
     },
     "rune_weights": {
-      "Order Rune": 5.0,
-      "Fury Rune": 7.0
+      "Calm Rune": 12.0,
+      "Chaos Rune": 12.0
     },
     "battlefield_weights": {
-      "Zaun Warrens": 1.0,
-      "Reckoner's Arena": 1.0,
-      "Windswept Hillock": 1.0
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 2.0,
+      "Ripper's Bay": 2.0
     }
   },
   {
-    "shell_id": "volibearrelentlessstorm|videstructive|body,fury",
-    "shell_label": "Volibear - Relentless Storm / Vi - Destructive",
-    "legend_title": "Volibear - Relentless Storm",
-    "chosen_champion_title": "Vi - Destructive",
+    "shell_id": "lilliabashfulbloom|lilliafaefawn|calm,mind",
+    "shell_label": "Lillia - Bashful Bloom / Lillia - Fae Fawn",
+    "legend_title": "Lillia - Bashful Bloom",
+    "chosen_champion_title": "Lillia - Fae Fawn",
     "legend_domains": [
-      "Body",
-      "Fury"
+      "Calm",
+      "Mind"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.2505,
-    "buildability_prior": 0.9494,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 13,
+    "archetype_count": 11,
+    "competitive_prior": 11.0939,
+    "buildability_prior": 0.9554,
+    "buildable_conversion": 0.9659,
     "source_breakdown": {
-      "riftboundgg": 1
+      "riftboundgg": 13
     },
     "rune_weights": {
-      "Fury Rune": 12.0
+      "Calm Rune": 30.0,
+      "Mind Rune": 25.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "Obelisk of Power": 1.0,
-      "Startipped Peak": 1.0
+      "Hall of Legends": 1.0,
+      "Black Flame Altar": 10.0,
+      "Dusk Rose Lab": 11.0,
+      "Seat of Power": 5.0,
+      "Frozen Fortress": 1.0,
+      "Targon's Peak": 2.0,
+      "Forbidding Waste": 3.0,
+      "The Arena's Greatest": 2.0,
+      "Ravenbloom Conservatory": 1.0
+    }
+  },
+  {
+    "shell_id": "pykebloodharborripper|pykedocksidebutcher|chaos,fury",
+    "shell_label": "Pyke - Bloodharbor Ripper / Pyke - Dockside Butcher",
+    "legend_title": "Pyke - Bloodharbor Ripper",
+    "chosen_champion_title": "Pyke - Dockside Butcher",
+    "legend_domains": [
+      "Chaos",
+      "Fury"
+    ],
+    "training_deck_count": 9,
+    "archetype_count": 9,
+    "competitive_prior": 11.0878,
+    "buildability_prior": 0.9559,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 9
+    },
+    "rune_weights": {
+      "Fury Rune": 22.0,
+      "Chaos Rune": 19.0
+    },
+    "battlefield_weights": {
+      "Targon's Peak": 1.0,
+      "Vilemaw's Lair": 2.0,
+      "Ripper's Bay": 8.0,
+      "The Papertree": 1.0,
+      "Amateur Recital": 1.0,
+      "Bandle Tree": 1.0,
+      "Emperor's Dais": 1.0,
+      "The Candlelit Sanctum": 1.0,
+      "Forbidding Waste": 2.0,
+      "Zaun Warrens": 3.0,
+      "Aspirant's Climb": 3.0,
+      "Trifarian War Camp": 1.0
     }
   },
   {
@@ -2141,13 +2572,13 @@
       "Calm",
       "Mind"
     ],
-    "training_deck_count": 51,
-    "archetype_count": 43,
-    "competitive_prior": 11.1409,
-    "buildability_prior": 0.9547,
-    "buildable_conversion": 0.9758,
+    "training_deck_count": 52,
+    "archetype_count": 44,
+    "competitive_prior": 11.0672,
+    "buildability_prior": 0.948,
+    "buildable_conversion": 0.9574,
     "source_breakdown": {
-      "riftboundgg": 19,
+      "riftboundgg": 20,
       "piltoverarchive": 32
     },
     "rune_weights": {
@@ -2155,19 +2586,18 @@
       "Mind Rune": 281.0
     },
     "battlefield_weights": {
+      "Fortified Position": 19.0,
+      "Grove of the God-Willow": 36.0,
+      "Targon's Peak": 8.0,
       "Monastery of Hirana": 1.0,
       "Startipped Peak": 11.0,
-      "Targon's Peak": 7.0,
-      "Fortified Position": 18.0,
-      "Grove of the God-Willow": 35.0,
       "Windswept Hillock": 2.0,
-      "Aspirant's Climb": 7.0,
+      "Aspirant's Climb": 10.0,
       "The Dreaming Tree": 35.0,
       "Vilemaw's Lair": 4.0,
       "Reaver's Row": 2.0,
       "Obelisk of Power": 10.0,
       "The Arena's Greatest": 2.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
       "Trifarian War Camp": 7.0,
       "Navori Fighting Pit": 3.0,
       "Reckoner's Arena": 1.0,
@@ -2179,106 +2609,6 @@
     }
   },
   {
-    "shell_id": "khazixvoidreaver|khazixmutatinghorror|body,chaos",
-    "shell_label": "Kha'Zix - Voidreaver / Kha'Zix - Mutating Horror",
-    "legend_title": "Kha'Zix - Voidreaver",
-    "chosen_champion_title": "Kha'Zix - Mutating Horror",
-    "legend_domains": [
-      "Body",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.1168,
-    "buildability_prior": 0.9462,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Forbidding Waste": 1.0,
-      "Gardens of Becoming": 1.0,
-      "Star Spring": 1.0
-    }
-  },
-  {
-    "shell_id": "leblancdeceiver|leblancfragmented|mind,order",
-    "shell_label": "LeBlanc - Deceiver / LeBlanc - Fragmented",
-    "legend_title": "LeBlanc - Deceiver",
-    "chosen_champion_title": "LeBlanc - Fragmented",
-    "legend_domains": [
-      "Mind",
-      "Order"
-    ],
-    "training_deck_count": 4,
-    "archetype_count": 3,
-    "competitive_prior": 11.0514,
-    "buildability_prior": 0.9688,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 4
-    },
-    "rune_weights": {
-      "Order Rune": 29.0,
-      "Mind Rune": 8.0
-    },
-    "battlefield_weights": {
-      "Windswept Hillock": 4.0,
-      "Dusk Rose Lab": 3.0,
-      "Forbidding Waste": 3.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "Star Spring": 1.0
-    }
-  },
-  {
-    "shell_id": "qiyanavictorious|nidaleecatform|body",
-    "shell_label": "Qiyana - Victorious / Nidalee - Cat Form",
-    "legend_title": "Qiyana - Victorious",
-    "chosen_champion_title": "Nidalee - Cat Form",
-    "legend_domains": [
-      "Body"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 11.0035,
-    "buildability_prior": 0.9269,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Back-Alley Bar": 1.0,
-      "Fortified Position (Oversized)": 1.0,
-      "Treasure Hoard": 1.0
-    }
-  },
-  {
-    "shell_id": "vipiltoverenforcer|videstructive|fury,order",
-    "shell_label": "Vi - Piltover Enforcer / Vi - Destructive",
-    "legend_title": "Vi - Piltover Enforcer",
-    "chosen_champion_title": "Vi - Destructive",
-    "legend_domains": [
-      "Fury",
-      "Order"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.9688,
-    "buildability_prior": 0.955,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Forge of the Fluft": 1.0,
-      "Hall of Legends": 1.0,
-      "Sunken Temple": 1.0
-    }
-  },
-  {
     "shell_id": "volibearrelentlessstorm|volibearimposing|body,fury",
     "shell_label": "Volibear - Relentless Storm / Volibear - Imposing",
     "legend_title": "Volibear - Relentless Storm",
@@ -2287,52 +2617,91 @@
       "Body",
       "Fury"
     ],
-    "training_deck_count": 9,
-    "archetype_count": 9,
-    "competitive_prior": 10.9424,
-    "buildability_prior": 0.9612,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 12,
+    "archetype_count": 11,
+    "competitive_prior": 11.0561,
+    "buildability_prior": 0.9434,
+    "buildable_conversion": 0.9659,
     "source_breakdown": {
-      "riftboundgg": 5,
+      "riftboundgg": 8,
       "piltoverarchive": 4
     },
     "rune_weights": {
-      "Fury Rune": 41.0,
-      "Body Rune": 43.0
+      "Fury Rune": 47.0,
+      "Body Rune": 50.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Sigil of the Storm": 6.0,
+      "Sigil of the Storm": 7.0,
+      "Forgotten Monument": 1.0,
+      "The Papertree": 1.0,
+      "Aspirant's Climb": 8.0,
+      "Windswept Hillock": 3.0,
+      "Altar of Blood": 2.0,
       "Trifarian War Camp": 1.0,
-      "Aspirant's Climb": 4.0,
       "Obelisk of Power": 6.0,
       "Startipped Peak": 3.0,
-      "Windswept Hillock": 1.0,
       "Hallowed Tomb": 1.0
     }
   },
   {
-    "shell_id": "vexgloomist|vexmocking|calm,chaos",
-    "shell_label": "Vex - Gloomist / Vex - Mocking",
-    "legend_title": "Vex - Gloomist",
-    "chosen_champion_title": "Vex - Mocking",
+    "shell_id": "masteryiwujubladesman|masteryimeditative|body,calm",
+    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Meditative",
+    "legend_title": "Master Yi - Wuju Bladesman",
+    "chosen_champion_title": "Master Yi - Meditative",
     "legend_domains": [
-      "Calm",
-      "Chaos"
+      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 10.9796,
+    "buildability_prior": 0.9605,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 1,
+      "riftboundgg": 5
+    },
+    "rune_weights": {
+      "Calm Rune": 39.0,
+      "Body Rune": 33.0
+    },
+    "battlefield_weights": {
+      "Grove of the God-Willow": 2.0,
+      "Vilemaw's Lair": 2.0,
+      "Fortified Position": 2.0,
+      "Obelisk of Power": 3.0,
+      "Startipped Peak": 3.0,
+      "The Dreaming Tree": 1.0,
+      "Targon's Peak": 3.0,
+      "The Candlelit Sanctum": 1.0,
+      "Windswept Hillock": 1.0
+    }
+  },
+  {
+    "shell_id": "poppykeeperofthehammer|poppydefenderofthemeek|body,order",
+    "shell_label": "Poppy - Keeper of the Hammer / Poppy - Defender of the Meek",
+    "legend_title": "Poppy - Keeper of the Hammer",
+    "chosen_champion_title": "Poppy - Defender of the Meek",
+    "legend_domains": [
+      "Body",
+      "Order"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 10.8957,
-    "buildability_prior": 0.9175,
+    "competitive_prior": 10.9682,
+    "buildability_prior": 0.9325,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Body Rune": 6.0,
+      "Order Rune": 6.0
+    },
     "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "Ravenbloom Conservatory": 1.0,
-      "Abandoned Hall": 1.0
+      "Reckoner's Arena": 1.0,
+      "Sunken Temple": 1.0,
+      "Gardens of Becoming": 1.0
     }
   },
   {
@@ -2344,34 +2713,33 @@
       "Mind",
       "Order"
     ],
-    "training_deck_count": 55,
-    "archetype_count": 46,
-    "competitive_prior": 10.7636,
-    "buildability_prior": 0.9431,
-    "buildable_conversion": 0.9493,
+    "training_deck_count": 59,
+    "archetype_count": 48,
+    "competitive_prior": 10.9443,
+    "buildability_prior": 0.939,
+    "buildable_conversion": 0.9375,
     "source_breakdown": {
-      "riftboundgg": 28,
+      "riftboundgg": 32,
       "piltoverarchive": 26,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Mind Rune": 354.0,
-      "Order Rune": 282.0
+      "Mind Rune": 371.0,
+      "Order Rune": 301.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 19.0,
-      "Sigil of the Storm": 10.0,
-      "Forgotten Monument": 4.0,
+      "Aspirant's Climb": 43.0,
+      "Sigil of the Storm": 13.0,
+      "Vilemaw's Lair": 23.0,
+      "Forgotten Monument": 5.0,
       "The Grand Plaza": 21.0,
       "Trifarian War Camp": 5.0,
       "Veiled Temple": 2.0,
+      "Void Gate": 7.0,
       "The Papertree": 7.0,
       "Obelisk of Power": 18.0,
-      "Aspirant's Climb": 20.0,
-      "Vilemaw's Lair": 20.0,
       "Startipped Peak": 10.0,
       "Ravenbloom Conservatory": 1.0,
-      "Void Gate": 6.0,
       "Hallowed Tomb": 2.0,
       "Reaver's Row": 2.0,
       "The Candlelit Sanctum": 2.0,
@@ -2386,6 +2754,70 @@
     }
   },
   {
+    "shell_id": "vexgloomist|vexmocking|calm,chaos",
+    "shell_label": "Vex - Gloomist / Vex - Mocking",
+    "legend_title": "Vex - Gloomist",
+    "chosen_champion_title": "Vex - Mocking",
+    "legend_domains": [
+      "Calm",
+      "Chaos"
+    ],
+    "training_deck_count": 4,
+    "archetype_count": 4,
+    "competitive_prior": 10.8655,
+    "buildability_prior": 0.955,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 4
+    },
+    "rune_weights": {
+      "Calm Rune": 12.0,
+      "Chaos Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Amateur Recital": 2.0,
+      "Gardens of Becoming": 1.0,
+      "Ripper's Bay": 1.0,
+      "Bandle Tree": 1.0,
+      "The Papertree": 1.0,
+      "Marai Spire": 1.0,
+      "Abandoned Hall": 2.0,
+      "The Academy": 1.0,
+      "Grove of the God-Willow": 1.0,
+      "Ravenbloom Conservatory": 1.0
+    }
+  },
+  {
+    "shell_id": "jhinvirtuoso|jhinmeticulouskiller|fury,mind",
+    "shell_label": "Jhin - Virtuoso / Jhin - Meticulous Killer",
+    "legend_title": "Jhin - Virtuoso",
+    "chosen_champion_title": "Jhin - Meticulous Killer",
+    "legend_domains": [
+      "Fury",
+      "Mind"
+    ],
+    "training_deck_count": 4,
+    "archetype_count": 4,
+    "competitive_prior": 10.8079,
+    "buildability_prior": 0.9686,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 4
+    },
+    "rune_weights": {
+      "Fury Rune": 17.0,
+      "Mind Rune": 19.0
+    },
+    "battlefield_weights": {
+      "Void Gate": 2.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Rockfall Path": 4.0,
+      "Targon's Peak": 1.0,
+      "Forgotten Library": 2.0,
+      "Vilemaw's Lair": 2.0
+    }
+  },
+  {
     "shell_id": "leblancdeceiver|leblanceverywhereatonce|mind,order",
     "shell_label": "LeBlanc - Deceiver / LeBlanc - Everywhere at Once",
     "legend_title": "LeBlanc - Deceiver",
@@ -2396,8 +2828,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 10.7176,
-    "buildability_prior": 0.91,
+    "competitive_prior": 10.608,
+    "buildability_prior": 0.9231,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
@@ -2410,6 +2842,35 @@
     }
   },
   {
+    "shell_id": "iverngreenfather|ivernfriendtoall|calm,order",
+    "shell_label": "Ivern - Green Father / Ivern - Friend to All",
+    "legend_title": "Ivern - Green Father",
+    "chosen_champion_title": "Ivern - Friend to All",
+    "legend_domains": [
+      "Calm",
+      "Order"
+    ],
+    "training_deck_count": 5,
+    "archetype_count": 5,
+    "competitive_prior": 10.5902,
+    "buildability_prior": 0.964,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 5
+    },
+    "rune_weights": {
+      "Calm Rune": 35.0,
+      "Order Rune": 25.0
+    },
+    "battlefield_weights": {
+      "Forbidding Waste": 4.0,
+      "Frozen Fortress": 1.0,
+      "Vaults of Helia": 5.0,
+      "Vilemaw's Lair": 2.0,
+      "Rockfall Path": 3.0
+    }
+  },
+  {
     "shell_id": "masteryiwujubladesman|masteryihoned|body,calm",
     "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Honed",
     "legend_title": "Master Yi - Wuju Bladesman",
@@ -2418,34 +2879,33 @@
       "Body",
       "Calm"
     ],
-    "training_deck_count": 91,
-    "archetype_count": 46,
-    "competitive_prior": 10.6804,
-    "buildability_prior": 0.922,
-    "buildable_conversion": 0.8735,
+    "training_deck_count": 92,
+    "archetype_count": 47,
+    "competitive_prior": 10.5704,
+    "buildability_prior": 0.9232,
+    "buildable_conversion": 0.8768,
     "source_breakdown": {
-      "riftboundgg": 40,
+      "riftboundgg": 41,
       "riot-bologna": 1,
       "piltoverarchive": 50
     },
     "rune_weights": {
       "Calm Rune": 535.0,
-      "Body Rune": 539.0,
+      "Body Rune": 545.0,
       "Order Rune": 6.0
     },
     "battlefield_weights": {
-      "Vilemaw's Lair": 36.0,
+      "Vilemaw's Lair": 37.0,
       "Forge of the Fluft": 6.0,
       "The Papertree": 3.0,
+      "Grove of the God-Willow": 51.0,
+      "Targon's Peak": 4.0,
       "Ravenbloom Conservatory": 2.0,
-      "Aspirant's Climb": 17.0,
+      "Aspirant's Climb": 21.0,
       "Obelisk of Power": 53.0,
       "Hallowed Tomb": 14.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 4.0,
       "The Dreaming Tree": 32.0,
-      "Grove of the God-Willow": 50.0,
       "Startipped Peak": 15.0,
-      "Targon's Peak": 3.0,
       "The Arena's Greatest": 3.0,
       "Rockfall Path": 1.0,
       "Altar to Unity": 7.0,
@@ -2460,30 +2920,6 @@
     }
   },
   {
-    "shell_id": "yasuounforgiven|vexapathetic|calm,chaos",
-    "shell_label": "Yasuo - Unforgiven / Vex - Apathetic",
-    "legend_title": "Yasuo - Unforgiven",
-    "chosen_champion_title": "Vex - Apathetic",
-    "legend_domains": [
-      "Calm",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 10.5094,
-    "buildability_prior": 0.9667,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {},
-    "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "The Arena's Greatest": 1.0,
-      "Seat of Power": 1.0
-    }
-  },
-  {
     "shell_id": "teemoswiftscout|teemoscout|chaos,mind",
     "shell_label": "Teemo - Swift Scout / Teemo - Scout",
     "legend_title": "Teemo - Swift Scout",
@@ -2492,44 +2928,42 @@
       "Chaos",
       "Mind"
     ],
-    "training_deck_count": 75,
-    "archetype_count": 51,
-    "competitive_prior": 10.454,
-    "buildability_prior": 0.9388,
-    "buildable_conversion": 0.9306,
+    "training_deck_count": 78,
+    "archetype_count": 52,
+    "competitive_prior": 10.5368,
+    "buildability_prior": 0.9434,
+    "buildable_conversion": 0.9422,
     "source_breakdown": {
-      "riftboundgg": 29,
+      "riftboundgg": 32,
       "piltoverarchive": 44,
       "mobalytics-tournament": 1,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Mind Rune": 479.0,
-      "Chaos Rune": 385.0
+      "Mind Rune": 491.0,
+      "Chaos Rune": 397.0
     },
     "battlefield_weights": {
-      "Bandle Tree": 57.0,
-      "Startipped Peak": 11.0,
+      "Bandle Tree": 60.0,
+      "Grove of the God-Willow": 25.0,
+      "Startipped Peak": 12.0,
       "The Arena's Greatest": 5.0,
-      "Grove of the God-Willow": 24.0,
       "The Candlelit Sanctum": 12.0,
-      "Zaun Warrens": 31.0,
+      "Zaun Warrens": 33.0,
       "Targon's Peak": 6.0,
       "Back-Alley Bar": 2.0,
       "Emperor's Dais": 3.0,
       "Forge of the Fluft": 2.0,
       "Windswept Hillock": 5.0,
       "The Dreaming Tree": 28.0,
-      "Trifarian War Camp": 13.0,
-      "Aspirant's Climb": 3.0,
-      "Trifarian War Camp (Oversized)": 1.0,
+      "Trifarian War Camp": 15.0,
+      "Aspirant's Climb": 7.0,
       "Forgotten Monument": 2.0,
       "Treasure Hoard": 1.0,
       "Void Gate": 3.0,
       "Power Nexus": 4.0,
       "Minefield": 1.0,
       "Obelisk of Power": 2.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 4.0,
       "Sigil of the Storm": 1.0,
       "Vilemaw's Lair": 1.0,
       "Hallowed Tomb": 1.0,
@@ -2538,61 +2972,56 @@
     }
   },
   {
-    "shell_id": "lilliabashfulbloom|lilliafaefawn|calm,mind",
-    "shell_label": "Lillia - Bashful Bloom / Lillia - Fae Fawn",
-    "legend_title": "Lillia - Bashful Bloom",
-    "chosen_champion_title": "Lillia - Fae Fawn",
+    "shell_id": "vipiltoverenforcer|videstructive|fury,order",
+    "shell_label": "Vi - Piltover Enforcer / Vi - Destructive",
+    "legend_title": "Vi - Piltover Enforcer",
+    "chosen_champion_title": "Vi - Destructive",
     "legend_domains": [
-      "Calm",
-      "Mind"
+      "Fury",
+      "Order"
     ],
-    "training_deck_count": 5,
-    "archetype_count": 5,
-    "competitive_prior": 10.4423,
-    "buildability_prior": 0.9688,
+    "training_deck_count": 4,
+    "archetype_count": 3,
+    "competitive_prior": 10.4322,
+    "buildability_prior": 0.9573,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 5
+      "riftboundgg": 4
     },
     "rune_weights": {
-      "Calm Rune": 6.0,
-      "Mind Rune": 6.0
+      "Fury Rune": 22.0,
+      "Order Rune": 8.0
     },
     "battlefield_weights": {
-      "Targon's Peak": 1.0,
-      "Black Flame Altar": 3.0,
-      "Dusk Rose Lab": 4.0,
-      "Seat of Power": 2.0,
-      "Forbidding Waste": 2.0
+      "Forge of the Fluft": 3.0,
+      "Hall of Legends": 1.0,
+      "Sunken Temple": 4.0,
+      "Rockfall Path": 2.0,
+      "The Arena's Greatest": 1.0,
+      "Vilemaw's Lair": 1.0
     }
   },
   {
-    "shell_id": "jhinvirtuoso|jhinmeticulouskiller|fury,mind",
-    "shell_label": "Jhin - Virtuoso / Jhin - Meticulous Killer",
-    "legend_title": "Jhin - Virtuoso",
-    "chosen_champion_title": "Jhin - Meticulous Killer",
+    "shell_id": "fizztrickster|dianalunari|chaos",
+    "shell_label": "Fizz - Trickster / Diana - Lunari",
+    "legend_title": "Fizz - Trickster",
+    "chosen_champion_title": "Diana - Lunari",
     "legend_domains": [
-      "Fury",
-      "Mind"
+      "Chaos"
     ],
-    "training_deck_count": 3,
-    "archetype_count": 3,
-    "competitive_prior": 10.1975,
-    "buildability_prior": 0.9637,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.4204,
+    "buildability_prior": 0.9634,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 3
+      "riftboundgg": 1
     },
-    "rune_weights": {
-      "Fury Rune": 12.0,
-      "Mind Rune": 12.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
       "Targon's Peak": 1.0,
-      "Rockfall Path": 3.0,
-      "Forgotten Library": 2.0,
-      "Vilemaw's Lair": 2.0,
-      "Void Gate": 1.0
+      "Abandoned Hall": 1.0,
+      "Amateur Recital": 1.0
     }
   },
   {
@@ -2604,72 +3033,30 @@
       "Calm",
       "Order"
     ],
-    "training_deck_count": 2,
-    "archetype_count": 2,
-    "competitive_prior": 10.1443,
-    "buildability_prior": 0.9616,
+    "training_deck_count": 7,
+    "archetype_count": 7,
+    "competitive_prior": 10.4157,
+    "buildability_prior": 0.9631,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 2
+      "riftboundgg": 7
     },
     "rune_weights": {
-      "Calm Rune": 8.0,
-      "Order Rune": 4.0
+      "Calm Rune": 16.0,
+      "Order Rune": 8.0
     },
     "battlefield_weights": {
+      "Forbidding Waste": 5.0,
+      "Frozen Fortress": 2.0,
+      "Vaults of Helia": 5.0,
+      "Amateur Recital": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Black Flame Altar": 1.0,
+      "Forgotten Library": 1.0,
       "Sigil of the Storm": 1.0,
       "Vilemaw's Lair": 2.0,
-      "Forbidding Waste": 1.0,
       "Rockfall Path": 1.0,
-      "Vaults of Helia": 1.0
-    }
-  },
-  {
-    "shell_id": "volibearrelentlessstorm|volibearfurious|body,fury",
-    "shell_label": "Volibear - Relentless Storm / Volibear - Furious",
-    "legend_title": "Volibear - Relentless Storm",
-    "chosen_champion_title": "Volibear - Furious",
-    "legend_domains": [
-      "Body",
-      "Fury"
-    ],
-    "training_deck_count": 53,
-    "archetype_count": 46,
-    "competitive_prior": 10.0164,
-    "buildability_prior": 0.9481,
-    "buildable_conversion": 0.9792,
-    "source_breakdown": {
-      "riftboundgg": 33,
-      "riot-bologna": 1,
-      "piltoverarchive": 19
-    },
-    "rune_weights": {
-      "Fury Rune": 327.0,
-      "Body Rune": 279.0,
-      "Chaos Rune": 2.0
-    },
-    "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 20.0,
-      "Obelisk of Power": 40.0,
-      "Sigil of the Storm": 25.0,
-      "Vilemaw's Lair": 8.0,
-      "Aspirant's Climb": 16.0,
-      "Sunken Temple": 2.0,
-      "The Papertree": 3.0,
-      "Startipped Peak": 11.0,
-      "Windswept Hillock": 4.0,
-      "Forgotten Monument": 2.0,
-      "The Candlelit Sanctum": 6.0,
-      "Void Gate": 7.0,
-      "Reaver's Row": 2.0,
-      "Reckoner's Arena": 4.0,
-      "Grove of the God-Willow": 1.0,
-      "The Dreaming Tree": 1.0,
-      "The Grand Plaza": 2.0,
-      "Zaun Warrens": 3.0,
-      "Targon's Peak": 1.0,
-      "Fortified Position": 3.0,
-      "Trifarian War Camp": 1.0
+      "Back-Alley Bar": 1.0
     }
   },
   {
@@ -2681,94 +3068,119 @@
       "Calm",
       "Order"
     ],
-    "training_deck_count": 62,
-    "archetype_count": 54,
-    "competitive_prior": 9.9588,
-    "buildability_prior": 0.9565,
-    "buildable_conversion": 0.9823,
+    "training_deck_count": 66,
+    "archetype_count": 57,
+    "competitive_prior": 10.3771,
+    "buildability_prior": 0.961,
+    "buildable_conversion": 0.9967,
     "source_breakdown": {
-      "riftboundgg": 21,
+      "riftboundgg": 25,
       "piltoverarchive": 39,
       "mobalytics-tournament": 1,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 381.0,
-      "Order Rune": 354.0
+      "Calm Rune": 394.0,
+      "Order Rune": 365.0
     },
     "battlefield_weights": {
-      "Grove of the God-Willow": 26.0,
-      "Monastery of Hirana": 31.0,
+      "Grove of the God-Willow": 27.0,
+      "The Candlelit Sanctum": 5.0,
+      "Windswept Hillock": 21.0,
+      "Monastery of Hirana": 33.0,
+      "Ravenbloom Conservatory": 5.0,
+      "Sunken Temple": 1.0,
       "Vilemaw's Lair": 9.0,
+      "Targon's Peak": 12.0,
+      "Reaver's Row": 11.0,
+      "Fortified Position": 12.0,
       "The Dreaming Tree": 15.0,
-      "Ravenbloom Conservatory": 4.0,
-      "Fortified Position": 11.0,
-      "Windswept Hillock": 19.0,
       "Startipped Peak": 4.0,
       "Navori Fighting Pit": 3.0,
-      "Reaver's Row": 11.0,
-      "Aspirant's Climb": 1.0,
+      "Aspirant's Climb": 4.0,
       "Obelisk of Power": 12.0,
       "Trifarian War Camp": 4.0,
-      "The Candlelit Sanctum": 4.0,
-      "Targon's Peak": 12.0,
       "Hallowed Tomb": 7.0,
       "Forge of the Fluft": 1.0,
       "The Grand Plaza": 2.0,
       "Sigil of the Storm": 1.0,
       "The Papertree": 1.0,
       "Zaun Warrens": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
       "Altar to Unity": 3.0,
       "Bandle Tree": 1.0
     }
   },
   {
-    "shell_id": "jhinvirtuoso|jhinmurderousartist|fury,mind",
-    "shell_label": "Jhin - Virtuoso / Jhin - Murderous Artist",
-    "legend_title": "Jhin - Virtuoso",
-    "chosen_champion_title": "Jhin - Murderous Artist",
+    "shell_id": "volibearrelentlessstorm|videstructive|body,fury",
+    "shell_label": "Volibear - Relentless Storm / Vi - Destructive",
+    "legend_title": "Volibear - Relentless Storm",
+    "chosen_champion_title": "Vi - Destructive",
     "legend_domains": [
-      "Fury",
-      "Mind"
+      "Body",
+      "Fury"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.9337,
-    "buildability_prior": 0.94,
+    "competitive_prior": 10.3522,
+    "buildability_prior": 0.9269,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Fury Rune": 12.0
+    },
     "battlefield_weights": {
-      "Altar to Unity": 1.0,
-      "Power Nexus": 1.0,
-      "Vaults of Helia": 1.0
+      "Aspirant's Climb": 1.0,
+      "Obelisk of Power": 1.0,
+      "Startipped Peak": 1.0
     }
   },
   {
-    "shell_id": "vipiltoverenforcer|vihotheaded|fury,order",
-    "shell_label": "Vi - Piltover Enforcer / Vi - Hotheaded",
-    "legend_title": "Vi - Piltover Enforcer",
-    "chosen_champion_title": "Vi - Hotheaded",
+    "shell_id": "volibearrelentlessstorm|volibearfurious|body,fury",
+    "shell_label": "Volibear - Relentless Storm / Volibear - Furious",
+    "legend_title": "Volibear - Relentless Storm",
+    "chosen_champion_title": "Volibear - Furious",
     "legend_domains": [
-      "Fury",
-      "Order"
+      "Body",
+      "Fury"
     ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 9.8092,
-    "buildability_prior": 0.925,
-    "buildable_conversion": 1.0,
+    "training_deck_count": 59,
+    "archetype_count": 51,
+    "competitive_prior": 10.1259,
+    "buildability_prior": 0.9503,
+    "buildable_conversion": 0.9788,
     "source_breakdown": {
-      "riftboundgg": 1
+      "riftboundgg": 39,
+      "riot-bologna": 1,
+      "piltoverarchive": 19
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Fury Rune": 344.0,
+      "Body Rune": 304.0,
+      "Chaos Rune": 2.0
+    },
     "battlefield_weights": {
-      "Sunken Temple": 1.0,
-      "Trapping Grounds": 1.0,
-      "Valley of Idols": 1.0
+      "Aspirant's Climb": 41.0,
+      "Sigil of the Storm": 31.0,
+      "The Papertree": 5.0,
+      "Obelisk of Power": 41.0,
+      "Vilemaw's Lair": 8.0,
+      "Sunken Temple": 4.0,
+      "Trifarian War Camp": 2.0,
+      "Forgotten Monument": 3.0,
+      "Startipped Peak": 11.0,
+      "Windswept Hillock": 4.0,
+      "The Candlelit Sanctum": 6.0,
+      "Void Gate": 7.0,
+      "Reaver's Row": 2.0,
+      "Reckoner's Arena": 4.0,
+      "Grove of the God-Willow": 1.0,
+      "The Dreaming Tree": 1.0,
+      "The Grand Plaza": 2.0,
+      "Zaun Warrens": 3.0,
+      "Targon's Peak": 1.0,
+      "Fortified Position": 3.0
     }
   },
   {
@@ -2782,7 +3194,7 @@
     ],
     "training_deck_count": 4,
     "archetype_count": 4,
-    "competitive_prior": 9.6704,
+    "competitive_prior": 10.1049,
     "buildability_prior": 0.9681,
     "buildable_conversion": 1.0,
     "source_breakdown": {
@@ -2797,7 +3209,7 @@
       "Trifarian War Camp": 1.0,
       "Obelisk of Power": 1.0,
       "The Candlelit Sanctum": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
+      "Aspirant's Climb": 2.0,
       "The Grand Plaza": 2.0,
       "Vilemaw's Lair": 2.0,
       "Startipped Peak": 1.0,
@@ -2806,63 +3218,99 @@
     }
   },
   {
-    "shell_id": "garenmightofdemacia|volibearimposing|body,order",
-    "shell_label": "Garen - Might of Demacia / Volibear - Imposing",
-    "legend_title": "Garen - Might of Demacia",
-    "chosen_champion_title": "Volibear - Imposing",
+    "shell_id": "jannasavior|namiheadstrong|calm",
+    "shell_label": "Janna - Savior / Nami - Headstrong",
+    "legend_title": "Janna - Savior",
+    "chosen_champion_title": "Nami - Headstrong",
     "legend_domains": [
-      "Body",
+      "Calm"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 10.0789,
+    "buildability_prior": 0.9453,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Targon's Peak": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Vaults of Helia": 1.0
+    }
+  },
+  {
+    "shell_id": "karthuseternal|galioindefatigable|order",
+    "shell_label": "Karthus - Eternal / Galio - Indefatigable",
+    "legend_title": "Karthus - Eternal",
+    "chosen_champion_title": "Galio - Indefatigable",
+    "legend_domains": [
       "Order"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.544,
-    "buildability_prior": 0.9654,
+    "competitive_prior": 9.8675,
+    "buildability_prior": 0.9569,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 1
+    },
+    "rune_weights": {},
+    "battlefield_weights": {
+      "Grove of the God-Willow": 1.0,
+      "Trifarian War Camp": 1.0,
+      "Gardens of Becoming": 1.0
+    }
+  },
+  {
+    "shell_id": "videstructive|vipeacekeeper|fury",
+    "shell_label": "Vi - Destructive / Vi - Peacekeeper",
+    "legend_title": "Vi - Destructive",
+    "chosen_champion_title": "Vi - Peacekeeper",
+    "legend_domains": [
+      "Fury"
+    ],
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 9.8524,
+    "buildability_prior": 0.9587,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
     "rune_weights": {
-      "Body Rune": 6.0,
+      "Fury Rune": 6.0,
       "Order Rune": 6.0
     },
     "battlefield_weights": {
-      "Altar to Unity": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 1.0,
-      "Back-Alley Bar": 1.0
+      "Star Spring": 1.0,
+      "Trapping Grounds": 1.0,
+      "Valley of Idols": 1.0
     }
   },
   {
-    "shell_id": "masteryiwujubladesman|masteryimeditative|body,calm",
-    "shell_label": "Master Yi - Wuju Bladesman / Master Yi - Meditative",
-    "legend_title": "Master Yi - Wuju Bladesman",
-    "chosen_champion_title": "Master Yi - Meditative",
+    "shell_id": "yasuounforgiven|vexapathetic|calm,chaos",
+    "shell_label": "Yasuo - Unforgiven / Vex - Apathetic",
+    "legend_title": "Yasuo - Unforgiven",
+    "chosen_champion_title": "Vex - Apathetic",
     "legend_domains": [
-      "Body",
-      "Calm"
+      "Calm",
+      "Chaos"
     ],
-    "training_deck_count": 5,
-    "archetype_count": 4,
-    "competitive_prior": 9.4112,
-    "buildability_prior": 0.9707,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 9.7328,
+    "buildability_prior": 0.9417,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "riftboundgg": 5
+      "riftboundgg": 1
     },
-    "rune_weights": {
-      "Calm Rune": 34.0,
-      "Body Rune": 26.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
       "Grove of the God-Willow": 1.0,
-      "Obelisk of Power": 3.0,
-      "Vilemaw's Lair": 1.0,
-      "Fortified Position": 1.0,
-      "Startipped Peak": 3.0,
-      "The Dreaming Tree": 1.0,
-      "Targon's Peak": 3.0,
-      "The Candlelit Sanctum": 1.0,
-      "Windswept Hillock": 1.0
+      "The Arena's Greatest": 1.0,
+      "Seat of Power": 1.0
     }
   },
   {
@@ -2875,8 +3323,8 @@
     ],
     "training_deck_count": 2,
     "archetype_count": 2,
-    "competitive_prior": 9.2239,
-    "buildability_prior": 0.9521,
+    "competitive_prior": 9.4928,
+    "buildability_prior": 0.9523,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 2
@@ -2891,57 +3339,6 @@
     }
   },
   {
-    "shell_id": "yasuounforgiven|yasuoremorseful|calm,chaos",
-    "shell_label": "Yasuo - Unforgiven / Yasuo - Remorseful",
-    "legend_title": "Yasuo - Unforgiven",
-    "chosen_champion_title": "Yasuo - Remorseful",
-    "legend_domains": [
-      "Calm",
-      "Chaos"
-    ],
-    "training_deck_count": 68,
-    "archetype_count": 47,
-    "competitive_prior": 9.1216,
-    "buildability_prior": 0.9403,
-    "buildable_conversion": 0.9377,
-    "source_breakdown": {
-      "piltoverarchive": 47,
-      "riftboundgg": 21
-    },
-    "rune_weights": {
-      "Calm Rune": 416.0,
-      "Chaos Rune": 398.0
-    },
-    "battlefield_weights": {
-      "Back-Alley Bar": 32.0,
-      "Windswept Hillock": 29.0,
-      "Obelisk of Power": 14.0,
-      "The Dreaming Tree": 30.0,
-      "Zaun Warrens": 20.0,
-      "Targon's Peak": 19.0,
-      "Aspirant's Climb": 5.0,
-      "Ravenbloom Conservatory": 2.0,
-      "The Candlelit Sanctum": 19.0,
-      "Minefield": 1.0,
-      "Hallowed Tomb": 2.0,
-      "Vilemaw's Lair": 2.0,
-      "The Papertree": 2.0,
-      "Reaver's Row": 5.0,
-      "Treasure Hoard": 2.0,
-      "The Grand Plaza": 1.0,
-      "Void Gate": 2.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
-      "Trifarian War Camp": 3.0,
-      "Grove of the God-Willow": 4.0,
-      "Sigil of the Storm": 1.0,
-      "Altar to Unity": 1.0,
-      "Bandle Tree": 1.0,
-      "Monastery of Hirana": 1.0,
-      "Navori Fighting Pit": 1.0,
-      "The Arena's Greatest": 2.0
-    }
-  },
-  {
     "shell_id": "ahrininetailedfox|blitzcrankimpassive|calm,mind",
     "shell_label": "Ahri - Nine-Tailed Fox / Blitzcrank - Impassive",
     "legend_title": "Ahri - Nine-Tailed Fox",
@@ -2952,8 +3349,8 @@
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.0888,
-    "buildability_prior": 0.9444,
+    "competitive_prior": 9.4038,
+    "buildability_prior": 0.9323,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
@@ -2969,87 +3366,157 @@
     }
   },
   {
-    "shell_id": "karthuseternal|galioindefatigable|order",
-    "shell_label": "Karthus - Eternal / Galio - Indefatigable",
-    "legend_title": "Karthus - Eternal",
-    "chosen_champion_title": "Galio - Indefatigable",
+    "shell_id": "yasuounforgiven|yasuoremorseful|calm,chaos",
+    "shell_label": "Yasuo - Unforgiven / Yasuo - Remorseful",
+    "legend_title": "Yasuo - Unforgiven",
+    "chosen_champion_title": "Yasuo - Remorseful",
     "legend_domains": [
+      "Calm",
+      "Chaos"
+    ],
+    "training_deck_count": 71,
+    "archetype_count": 49,
+    "competitive_prior": 9.3637,
+    "buildability_prior": 0.94,
+    "buildable_conversion": 0.9439,
+    "source_breakdown": {
+      "riftboundgg": 24,
+      "piltoverarchive": 47
+    },
+    "rune_weights": {
+      "Calm Rune": 422.0,
+      "Chaos Rune": 404.0
+    },
+    "battlefield_weights": {
+      "Grove of the God-Willow": 5.0,
+      "Amateur Recital": 1.0,
+      "Vaults of Helia": 1.0,
+      "Back-Alley Bar": 34.0,
+      "Targon's Peak": 20.0,
+      "Seat of Power": 1.0,
+      "Windswept Hillock": 29.0,
+      "Obelisk of Power": 14.0,
+      "The Dreaming Tree": 31.0,
+      "Zaun Warrens": 20.0,
+      "Aspirant's Climb": 8.0,
+      "Ravenbloom Conservatory": 2.0,
+      "The Candlelit Sanctum": 20.0,
+      "Minefield": 1.0,
+      "Hallowed Tomb": 2.0,
+      "Vilemaw's Lair": 2.0,
+      "The Papertree": 2.0,
+      "Reaver's Row": 5.0,
+      "Treasure Hoard": 2.0,
+      "The Grand Plaza": 1.0,
+      "Void Gate": 2.0,
+      "Trifarian War Camp": 3.0,
+      "Sigil of the Storm": 1.0,
+      "Altar to Unity": 1.0,
+      "Bandle Tree": 1.0,
+      "Monastery of Hirana": 1.0,
+      "Navori Fighting Pit": 1.0,
+      "The Arena's Greatest": 2.0
+    }
+  },
+  {
+    "shell_id": "garenmightofdemacia|volibearimposing|body,order",
+    "shell_label": "Garen - Might of Demacia / Volibear - Imposing",
+    "legend_title": "Garen - Might of Demacia",
+    "chosen_champion_title": "Volibear - Imposing",
+    "legend_domains": [
+      "Body",
       "Order"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 9.0649,
-    "buildability_prior": 0.9625,
+    "competitive_prior": 9.2933,
+    "buildability_prior": 0.9346,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {},
+    "rune_weights": {
+      "Body Rune": 6.0,
+      "Order Rune": 6.0
+    },
     "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "Trifarian War Camp": 1.0,
-      "Gardens of Becoming": 1.0
+      "Altar to Unity": 1.0,
+      "Aspirant's Climb": 1.0,
+      "Back-Alley Bar": 1.0
     }
   },
   {
-    "shell_id": "teemoswiftscout|teemoscoutoriginsstoredemopromo|chaos,mind",
-    "shell_label": "Teemo - Swift Scout / Teemo - Scout (Origins Store Demo Promo)",
-    "legend_title": "Teemo - Swift Scout",
-    "chosen_champion_title": "Teemo - Scout (Origins Store Demo Promo)",
+    "shell_id": "jhinvirtuoso|jhinmurderousartist|fury,mind",
+    "shell_label": "Jhin - Virtuoso / Jhin - Murderous Artist",
+    "legend_title": "Jhin - Virtuoso",
+    "chosen_champion_title": "Jhin - Murderous Artist",
+    "legend_domains": [
+      "Fury",
+      "Mind"
+    ],
+    "training_deck_count": 3,
+    "archetype_count": 3,
+    "competitive_prior": 9.2071,
+    "buildability_prior": 0.9531,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 3
+    },
+    "rune_weights": {
+      "Fury Rune": 6.0,
+      "Mind Rune": 6.0
+    },
+    "battlefield_weights": {
+      "Altar to Unity": 2.0,
+      "Power Nexus": 2.0,
+      "Vaults of Helia": 1.0,
+      "Void Gate": 1.0,
+      "Ravenbloom Conservatory": 1.0,
+      "Rockfall Path": 1.0,
+      "The Academy": 1.0
+    }
+  },
+  {
+    "shell_id": "dianascornofthemoon|fizztrickster|chaos,mind",
+    "shell_label": "Diana - Scorn of the Moon / Fizz - Trickster",
+    "legend_title": "Diana - Scorn of the Moon",
+    "chosen_champion_title": "Fizz - Trickster",
     "legend_domains": [
       "Chaos",
       "Mind"
     ],
     "training_deck_count": 1,
     "archetype_count": 1,
-    "competitive_prior": 8.6236,
-    "buildability_prior": 0.9438,
+    "competitive_prior": 8.9388,
+    "buildability_prior": 0.9386,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 1
     },
-    "rune_weights": {
-      "Mind Rune": 7.0,
-      "Chaos Rune": 5.0
-    },
-    "battlefield_weights": {
-      "Bandle Tree": 1.0,
-      "Trifarian War Camp (Oversized)": 1.0,
-      "Zaun Warrens": 1.0
-    }
+    "rune_weights": {},
+    "battlefield_weights": {}
   },
   {
-    "shell_id": "garenmightofdemacia|garenrugged|body,order",
-    "shell_label": "Garen - Might of Demacia / Garen - Rugged",
-    "legend_title": "Garen - Might of Demacia",
-    "chosen_champion_title": "Garen - Rugged",
+    "shell_id": "jannasavior|jannasavior|calm",
+    "shell_label": "Janna - Savior / Janna - Savior",
+    "legend_title": "Janna - Savior",
+    "chosen_champion_title": "Janna - Savior",
     "legend_domains": [
-      "Body",
-      "Order"
+      "Calm"
     ],
-    "training_deck_count": 6,
-    "archetype_count": 5,
-    "competitive_prior": 8.3412,
-    "buildability_prior": 0.9591,
+    "training_deck_count": 1,
+    "archetype_count": 1,
+    "competitive_prior": 8.8126,
+    "buildability_prior": 0.9487,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 2,
-      "riftboundgg": 3,
-      "mobalytics-tournament": 1
+      "riftboundgg": 1
     },
-    "rune_weights": {
-      "Order Rune": 35.0,
-      "Body Rune": 37.0
-    },
+    "rune_weights": {},
     "battlefield_weights": {
-      "Aspirant's Climb": 2.0,
-      "Sigil of the Storm": 4.0,
-      "Obelisk of Power": 5.0,
-      "Altar to Unity": 1.0,
-      "The Grand Plaza": 1.0,
-      "Trifarian War Camp": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
-      "The Candlelit Sanctum": 1.0
+      "The Arena's Greatest": 1.0,
+      "Vilemaw's Lair": 1.0,
+      "Dusk Rose Lab": 1.0
     }
   },
   {
@@ -3061,29 +3528,34 @@
       "Mind",
       "Order"
     ],
-    "training_deck_count": 22,
-    "archetype_count": 21,
-    "competitive_prior": 8.3374,
-    "buildability_prior": 0.958,
-    "buildable_conversion": 0.994,
+    "training_deck_count": 28,
+    "archetype_count": 26,
+    "competitive_prior": 8.6984,
+    "buildability_prior": 0.9599,
+    "buildable_conversion": 0.9904,
     "source_breakdown": {
-      "riftboundgg": 4,
+      "riftboundgg": 10,
       "piltoverarchive": 17,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Mind Rune": 144.0,
-      "Order Rune": 108.0
+      "Mind Rune": 168.0,
+      "Order Rune": 132.0
     },
     "battlefield_weights": {
-      "The Arena's Greatest": 9.0,
-      "Power Nexus": 7.0,
-      "Treasure Hoard": 12.0,
-      "Vilemaw's Lair": 3.0,
-      "Void Gate": 2.0,
-      "Trifarian War Camp": 3.0,
+      "Fortified Position": 1.0,
+      "Grove of the God-Willow": 5.0,
+      "Amateur Recital": 1.0,
+      "The Arena's Greatest": 11.0,
+      "Power Nexus": 10.0,
+      "Treasure Hoard": 15.0,
+      "Vilemaw's Lair": 4.0,
+      "Void Gate": 3.0,
+      "Sigil of the Storm": 2.0,
+      "Vaults of Helia": 1.0,
+      "Trifarian War Camp": 4.0,
+      "Dusk Rose Lab": 1.0,
       "Obelisk of Power": 4.0,
-      "Grove of the God-Willow": 4.0,
       "Ravenbloom Conservatory": 4.0,
       "Back-Alley Bar": 1.0,
       "Reaver's Row": 1.0,
@@ -3100,83 +3572,6 @@
     }
   },
   {
-    "shell_id": "garenmightofdemacia|garencommander|body,order",
-    "shell_label": "Garen - Might of Demacia / Garen - Commander",
-    "legend_title": "Garen - Might of Demacia",
-    "chosen_champion_title": "Garen - Commander",
-    "legend_domains": [
-      "Body",
-      "Order"
-    ],
-    "training_deck_count": 15,
-    "archetype_count": 13,
-    "competitive_prior": 8.1931,
-    "buildability_prior": 0.9467,
-    "buildable_conversion": 0.9615,
-    "source_breakdown": {
-      "piltoverarchive": 4,
-      "riftboundgg": 10,
-      "riot-bologna": 1
-    },
-    "rune_weights": {
-      "Order Rune": 93.0,
-      "Body Rune": 75.0
-    },
-    "battlefield_weights": {
-      "Trifarian War Camp": 6.0,
-      "Monastery of Hirana": 2.0,
-      "Treasure Hoard": 2.0,
-      "Aspirant's Climb": 3.0,
-      "The Papertree": 2.0,
-      "Obelisk of Power": 7.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 3.0,
-      "Sigil of the Storm": 5.0,
-      "Forge of the Fluft": 2.0,
-      "The Grand Plaza": 5.0,
-      "Windswept Hillock": 1.0,
-      "Altar to Unity": 2.0,
-      "Reckoner's Arena": 1.0,
-      "The Arena's Greatest": 1.0,
-      "Reaver's Row": 1.0
-    }
-  },
-  {
-    "shell_id": "rumblemechanizedmenace|rumblescrapper|fury,mind",
-    "shell_label": "Rumble - Mechanized Menace / Rumble - Scrapper",
-    "legend_title": "Rumble - Mechanized Menace",
-    "chosen_champion_title": "Rumble - Scrapper",
-    "legend_domains": [
-      "Fury",
-      "Mind"
-    ],
-    "training_deck_count": 7,
-    "archetype_count": 7,
-    "competitive_prior": 8.0001,
-    "buildability_prior": 0.9656,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "piltoverarchive": 6,
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Fury Rune": 36.0,
-      "Mind Rune": 48.0
-    },
-    "battlefield_weights": {
-      "Zaun Warrens": 2.0,
-      "Grove of the God-Willow": 4.0,
-      "Trifarian War Camp": 4.0,
-      "Startipped Peak": 3.0,
-      "Obelisk of Power": 1.0,
-      "Aspirant's Climb": 1.0,
-      "The Papertree": 1.0,
-      "Forgotten Monument": 1.0,
-      "Vilemaw's Lair": 1.0,
-      "Fortified Position": 2.0,
-      "Ornn's Forge": 1.0
-    }
-  },
-  {
     "shell_id": "leesinblindmonk|leesincentered|body,calm",
     "shell_label": "Lee Sin - Blind Monk / Lee Sin - Centered",
     "legend_title": "Lee Sin - Blind Monk",
@@ -3185,27 +3580,30 @@
       "Body",
       "Calm"
     ],
-    "training_deck_count": 38,
-    "archetype_count": 34,
-    "competitive_prior": 7.9783,
-    "buildability_prior": 0.9566,
-    "buildable_conversion": 0.9902,
+    "training_deck_count": 41,
+    "archetype_count": 37,
+    "competitive_prior": 8.3339,
+    "buildability_prior": 0.9576,
+    "buildable_conversion": 0.991,
     "source_breakdown": {
-      "riftboundgg": 12,
+      "riftboundgg": 15,
       "piltoverarchive": 25,
       "riot-bologna": 1
     },
     "rune_weights": {
-      "Calm Rune": 206.0,
-      "Body Rune": 226.0,
-      "Calm Rune (Origins Nexus Night Promo)": 12.0
+      "Calm Rune": 236.0,
+      "Body Rune": 244.0
     },
     "battlefield_weights": {
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0,
-      "Monastery of Hirana": 33.0,
-      "Sunken Temple": 3.0,
-      "Grove of the God-Willow": 19.0,
-      "Trifarian War Camp": 4.0,
+      "Trifarian War Camp": 6.0,
+      "Windswept Hillock": 2.0,
+      "Valley of Idols": 1.0,
+      "Monastery of Hirana": 34.0,
+      "Sunken Temple": 4.0,
+      "The Papertree": 1.0,
+      "Grove of the God-Willow": 20.0,
+      "Targon's Peak": 5.0,
+      "Aspirant's Climb": 3.0,
       "Obelisk of Power": 6.0,
       "The Dreaming Tree": 14.0,
       "The Arena's Greatest": 2.0,
@@ -3215,13 +3613,50 @@
       "Navori Fighting Pit": 4.0,
       "Vilemaw's Lair": 3.0,
       "Reaver's Row": 1.0,
-      "Aspirant's Climb": 1.0,
       "Forgotten Monument": 1.0,
-      "Targon's Peak": 4.0,
       "Void Gate": 1.0,
       "Rockfall Path": 1.0,
-      "Windswept Hillock": 1.0,
       "Ravenbloom Conservatory": 2.0
+    }
+  },
+  {
+    "shell_id": "garenmightofdemacia|garencommander|body,order",
+    "shell_label": "Garen - Might of Demacia / Garen - Commander",
+    "legend_title": "Garen - Might of Demacia",
+    "chosen_champion_title": "Garen - Commander",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 16,
+    "archetype_count": 14,
+    "competitive_prior": 8.2553,
+    "buildability_prior": 0.9415,
+    "buildable_conversion": 0.9643,
+    "source_breakdown": {
+      "riftboundgg": 11,
+      "piltoverarchive": 4,
+      "riot-bologna": 1
+    },
+    "rune_weights": {
+      "Body Rune": 80.0,
+      "Order Rune": 100.0
+    },
+    "battlefield_weights": {
+      "The Grand Plaza": 6.0,
+      "Trifarian War Camp": 7.0,
+      "Forge of the Fluft": 3.0,
+      "Monastery of Hirana": 2.0,
+      "Treasure Hoard": 2.0,
+      "Aspirant's Climb": 6.0,
+      "The Papertree": 2.0,
+      "Obelisk of Power": 7.0,
+      "Sigil of the Storm": 5.0,
+      "Windswept Hillock": 1.0,
+      "Altar to Unity": 2.0,
+      "Reckoner's Arena": 1.0,
+      "The Arena's Greatest": 1.0,
+      "Reaver's Row": 1.0
     }
   },
   {
@@ -3235,8 +3670,8 @@
     ],
     "training_deck_count": 9,
     "archetype_count": 8,
-    "competitive_prior": 7.7925,
-    "buildability_prior": 0.9639,
+    "competitive_prior": 8.1008,
+    "buildability_prior": 0.9636,
     "buildable_conversion": 1.0,
     "source_breakdown": {
       "riftboundgg": 3,
@@ -3264,6 +3699,76 @@
     }
   },
   {
+    "shell_id": "garenmightofdemacia|garenrugged|body,order",
+    "shell_label": "Garen - Might of Demacia / Garen - Rugged",
+    "legend_title": "Garen - Might of Demacia",
+    "chosen_champion_title": "Garen - Rugged",
+    "legend_domains": [
+      "Body",
+      "Order"
+    ],
+    "training_deck_count": 6,
+    "archetype_count": 5,
+    "competitive_prior": 8.0369,
+    "buildability_prior": 0.9537,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "piltoverarchive": 2,
+      "riftboundgg": 3,
+      "mobalytics-tournament": 1
+    },
+    "rune_weights": {
+      "Order Rune": 35.0,
+      "Body Rune": 37.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 5.0,
+      "Sigil of the Storm": 4.0,
+      "Obelisk of Power": 5.0,
+      "Altar to Unity": 1.0,
+      "The Grand Plaza": 1.0,
+      "Trifarian War Camp": 1.0,
+      "The Candlelit Sanctum": 1.0
+    }
+  },
+  {
+    "shell_id": "rumblemechanizedmenace|rumblescrapper|fury,mind",
+    "shell_label": "Rumble - Mechanized Menace / Rumble - Scrapper",
+    "legend_title": "Rumble - Mechanized Menace",
+    "chosen_champion_title": "Rumble - Scrapper",
+    "legend_domains": [
+      "Fury",
+      "Mind"
+    ],
+    "training_deck_count": 8,
+    "archetype_count": 8,
+    "competitive_prior": 7.7733,
+    "buildability_prior": 0.9631,
+    "buildable_conversion": 1.0,
+    "source_breakdown": {
+      "riftboundgg": 2,
+      "piltoverarchive": 6
+    },
+    "rune_weights": {
+      "Fury Rune": 36.0,
+      "Mind Rune": 48.0
+    },
+    "battlefield_weights": {
+      "Aspirant's Climb": 2.0,
+      "Forgotten Monument": 2.0,
+      "Amateur Recital": 1.0,
+      "Zaun Warrens": 2.0,
+      "Grove of the God-Willow": 4.0,
+      "Trifarian War Camp": 4.0,
+      "Startipped Peak": 3.0,
+      "Obelisk of Power": 1.0,
+      "The Papertree": 1.0,
+      "Vilemaw's Lair": 1.0,
+      "Fortified Position": 2.0,
+      "Ornn's Forge": 1.0
+    }
+  },
+  {
     "shell_id": "leesinblindmonk|leesinascetic|body,calm",
     "shell_label": "Lee Sin - Blind Monk / Lee Sin - Ascetic",
     "legend_title": "Lee Sin - Blind Monk",
@@ -3272,34 +3777,33 @@
       "Body",
       "Calm"
     ],
-    "training_deck_count": 16,
-    "archetype_count": 14,
-    "competitive_prior": 7.5622,
-    "buildability_prior": 0.9626,
+    "training_deck_count": 18,
+    "archetype_count": 16,
+    "competitive_prior": 7.6888,
+    "buildability_prior": 0.9605,
     "buildable_conversion": 1.0,
     "source_breakdown": {
-      "piltoverarchive": 11,
-      "riftboundgg": 5
+      "riftboundgg": 7,
+      "piltoverarchive": 11
     },
     "rune_weights": {
-      "Calm Rune": 95.0,
-      "Body Rune": 97.0
+      "Calm Rune": 101.0,
+      "Body Rune": 103.0
     },
     "battlefield_weights": {
+      "Grove of the God-Willow": 9.0,
+      "Monastery of Hirana": 14.0,
+      "Startipped Peak": 3.0,
       "Navori Fighting Pit": 3.0,
-      "Startipped Peak": 2.0,
       "Obelisk of Power": 1.0,
       "Windswept Hillock": 6.0,
-      "The Dreaming Tree": 8.0,
-      "Monastery of Hirana": 12.0,
+      "The Dreaming Tree": 9.0,
       "Fortified Position": 2.0,
       "Altar to Unity": 1.0,
-      "Grove of the God-Willow": 7.0,
       "The Arena's Greatest": 1.0,
       "Targon's Peak": 1.0,
-      "Aspirant's Climb": 1.0,
-      "Zaun Warrens": 1.0,
-      "Aspirant's Climb (Worlds Bundle 2025 Promo)": 2.0
+      "Aspirant's Climb": 3.0,
+      "Zaun Warrens": 1.0
     }
   },
   {
@@ -3313,9 +3817,9 @@
     ],
     "training_deck_count": 16,
     "archetype_count": 13,
-    "competitive_prior": 7.5132,
-    "buildability_prior": 0.9541,
-    "buildable_conversion": 0.9519,
+    "competitive_prior": 7.4345,
+    "buildability_prior": 0.9565,
+    "buildable_conversion": 0.9551,
     "source_breakdown": {
       "riftboundgg": 6,
       "piltoverarchive": 10
@@ -3343,60 +3847,6 @@
       "The Grand Plaza": 1.0,
       "Forgotten Monument": 1.0,
       "Sigil of the Storm": 1.0
-    }
-  },
-  {
-    "shell_id": "yasuounforgivenoriginsreleaseeventpromo|yasuoremorseful|calm,chaos",
-    "shell_label": "Yasuo - Unforgiven (Origins Release Event Promo) / Yasuo - Remorseful",
-    "legend_title": "Yasuo - Unforgiven (Origins Release Event Promo)",
-    "chosen_champion_title": "Yasuo - Remorseful",
-    "legend_domains": [
-      "Calm",
-      "Chaos"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 7.2262,
-    "buildability_prior": 0.9531,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Calm Rune": 6.0,
-      "Chaos Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Back-Alley Bar": 1.0,
-      "The Candlelit Sanctum": 1.0,
-      "The Dreaming Tree": 1.0
-    }
-  },
-  {
-    "shell_id": "leesinblindmonkoriginsreleaseeventpromo|leesinascetic|body,calm",
-    "shell_label": "Lee Sin - Blind Monk (Origins Release Event Promo) / Lee Sin - Ascetic",
-    "legend_title": "Lee Sin - Blind Monk (Origins Release Event Promo)",
-    "chosen_champion_title": "Lee Sin - Ascetic",
-    "legend_domains": [
-      "Body",
-      "Calm"
-    ],
-    "training_deck_count": 1,
-    "archetype_count": 1,
-    "competitive_prior": 6.335,
-    "buildability_prior": 0.9494,
-    "buildable_conversion": 1.0,
-    "source_breakdown": {
-      "riftboundgg": 1
-    },
-    "rune_weights": {
-      "Calm Rune": 6.0,
-      "Body Rune": 6.0
-    },
-    "battlefield_weights": {
-      "Grove of the God-Willow": 1.0,
-      "Monastery of Hirana": 1.0,
-      "The Dreaming Tree": 1.0
     }
   }
 ]

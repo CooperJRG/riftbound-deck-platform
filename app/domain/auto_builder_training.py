@@ -56,31 +56,31 @@ from app.domain.rules import load_format_rules
 from app.infra.cards_repo import CardCatalog, load_card_catalog
 from app.infra.meta_repo import MetaDeckRepository
 
-_EMBEDDING_DIM = 64
-_NEGATIVE_SAMPLES = 15
-_MAX_WIN_CONDITION_COMPONENTS = 96
-_MAX_SYNERGY_CLUSTERS = 192
-_NMF_CANDIDATE_GRID = (20,)
-_SYNERGY_CANDIDATE_GRID = (24, 28, 32, 36, 40, 48)
-_KNN_NEIGHBORS = 25
-_MOE_EXPERTS = 8
-_CLUSTER_VECTOR_SIZE = 64
-_WIN_VECTOR_SIZE = 32
+_EMBEDDING_DIM = 128
+_NEGATIVE_SAMPLES = 30
+_MAX_WIN_CONDITION_COMPONENTS = 128
+_MAX_SYNERGY_CLUSTERS = 256
+_NMF_CANDIDATE_GRID = (88,)
+_SYNERGY_CANDIDATE_GRID = (96,)
+_KNN_NEIGHBORS = 30
+_MOE_EXPERTS = 16
+_CLUSTER_VECTOR_SIZE = 96
+_WIN_VECTOR_SIZE = 48
 _ARCHETYPE_JACCARD_THRESHOLD = 0.78
 _ARCHETYPE_MIN_DECKS = 4
 _DEFAULT_MIN_RESULTS = 12
 _DEFAULT_MAX_VARIANTS_PER_SHELL = 2
 _EVAL_COLLECTION_SCENARIOS = 3
 _TORCH_DEVICE_ENV = "RB_AUTO_BUILDER_TORCH_DEVICE"
-_DEFAULT_MIN_WIN_CONDITION_COUNT = 56
-_DEFAULT_MIN_SYNERGY_CLUSTER_COUNT = 112
+_DEFAULT_MIN_WIN_CONDITION_COUNT = 64
+_DEFAULT_MIN_SYNERGY_CLUSTER_COUNT = 128
 _DEFAULT_SYNTHETIC_PACK_MIN = 24
 _DEFAULT_SYNTHETIC_PACK_MAX = 240
 _DEFAULT_SYNTHETIC_SCENARIO_COUNT = 4
-_EMBEDDING_NEIGHBOR_COUNT = 12
-_MOE_TOP_K = 2
-_MOE_LOAD_BALANCE_ALPHA = 0.08
-_TEXT_EMB_DIM = 32
+_EMBEDDING_NEIGHBOR_COUNT = 16
+_MOE_TOP_K = 3
+_MOE_LOAD_BALANCE_ALPHA = 0.06
+_TEXT_EMB_DIM = 64
 _RESOLUTION_MODE_AUTO = "auto"
 _RESOLUTION_MODE_SEARCH = "search"
 _RESOLUTION_MODE_REUSE = "reuse"
@@ -557,20 +557,27 @@ class _MoECandidateScorer(nn.Module):
         super().__init__()
         self._last_gate_probs: torch.Tensor | None = None
         self._last_top_idx: torch.Tensor | None = None
-        self.legend_emb = nn.Embedding(max(1, legend_count), 16)
-        self.champion_emb = nn.Embedding(max(1, champion_count), 16)
-        gate_in = state_dim + 32
+        self.legend_emb = nn.Embedding(max(1, legend_count), 32)
+        self.champion_emb = nn.Embedding(max(1, champion_count), 32)
+        gate_in = state_dim + 64
         self.gate = nn.Sequential(
-            nn.Linear(gate_in, 128),
+            nn.Linear(gate_in, 256),
+            nn.LayerNorm(256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
             nn.ReLU(),
             nn.Linear(128, _MOE_EXPERTS),
         )
+        expert_in = state_dim + candidate_dim + 64
         self.experts = nn.ModuleList(
             [
                 nn.Sequential(
-                    nn.Linear(state_dim + candidate_dim + 32, 128),
+                    nn.Linear(expert_in, 256),
+                    nn.LayerNorm(256),
                     nn.ReLU(),
-                    nn.Linear(128, 128),
+                    nn.Linear(256, 256),
+                    nn.ReLU(),
+                    nn.Linear(256, 128),
                     nn.ReLU(),
                     nn.Linear(128, 1),
                 )
@@ -1524,7 +1531,7 @@ def _moe_training_samples(
             easy_negatives = [key for key in legal_pool if key != target_key and key not in set(hard_negatives)]
             rng.shuffle(hard_negatives)
             rng.shuffle(easy_negatives)
-            selected_negatives = hard_negatives[:8] + easy_negatives[:7]
+            selected_negatives = hard_negatives[:15] + easy_negatives[:15]
             for neg_key in selected_negatives:
                 neg_vec = card_embeddings.get(neg_key)
                 if neg_vec is None:
@@ -2794,7 +2801,11 @@ def _persist_artifacts(
         (temp_dir / "evaluation_report.json").write_text(json.dumps(evaluation, indent=2), encoding="utf-8")
         if out_dir.exists():
             shutil.rmtree(out_dir)
-        temp_dir.replace(out_dir)
+        try:
+            temp_dir.replace(out_dir)
+        except OSError:
+            # Windows: atomic rename can fail; fall back to copy then delete
+            shutil.copytree(str(temp_dir), str(out_dir))
     finally:
         if temp_dir.exists():
             shutil.rmtree(temp_dir, ignore_errors=True)

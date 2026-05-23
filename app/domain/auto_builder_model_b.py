@@ -25,7 +25,7 @@ import torch.nn.functional as F
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-_B_CARD_FEAT_DIM: int = 59   # cost_oh(11)+domain_oh(6)+type_oh(6)+supertype_oh(3)+is_unique(1)+text_svd(32)
+_B_CARD_FEAT_DIM: int = 91   # cost_oh(11)+domain_oh(6)+type_oh(6)+supertype_oh(3)+is_unique(1)+text_svd(64)
 _B_D_MODEL: int = 128
 _B_N_HEADS: int = 4
 _B_N_LAYERS: int = 3

@@ -5,10 +5,30 @@
       "id": "20260305T213936Z-model-closed-beta",
       "label": "Model-Closed-Beta",
       "kind": "trained",
-      "status": "ready",
+      "status": "archived",
       "createdAt": "2026-03-05T21:39:36.220464+00:00",
       "promotedAt": "2026-03-05T21:53:16.844671+00:00",
       "dirName": "20260305T213936Z-model-closed-beta"
+    },
+    {
+      "id": "20260523T022939Z-model-v4-unleashed",
+      "label": "Model-v4-Unleashed",
+      "kind": "trained",
+      "status": "ready",
+      "createdAt": "2026-05-23T02:29:39.401497+00:00",
+      "promotedAt": "2026-05-23T02:29:39.401497+00:00",
+      "dirName": "active",
+      "metrics": {
+        "nextCardTop10Recall": 0.5938,
+        "collectionFirstRecommendationHitRate": 0.8986,
+        "competitiveScoreSpearman": 0.6025,
+        "trainingDecks": 1979,
+        "cardVocab": 640,
+        "winConditions": 88,
+        "synergyClusters": 96,
+        "uniqueShells": 111
+      },
+      "notes": "Trained on 2479 decks including Unleashed set (UNL). Larger MoE architecture: 16 experts, top-3 routing, 128-dim embeddings, 256-unit expert networks."
     }
   ]
 }
