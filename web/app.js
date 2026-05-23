@@ -8420,16 +8420,16 @@
     const clean = canonicalTitle(title);
     if (!clean) return 0;
     const required = Math.max(0, Number(requiredQty || 0) || 0);
+    if (state.wizard.collectionAgnostic) {
+      if (isWizardRuneCardTitle(clean) && required > 0) return required;
+      return required > 0 ? required : wizardMainCopyCapForTitle(clean);
+    }
     if (state.wizard.transientCollection[clean] !== undefined) {
       let qty = Math.max(0, Number(state.wizard.transientCollection[clean] || 0) || 0);
       if (isWizardRuneCardTitle(clean) && required > 0) {
         qty = Math.max(qty, required);
       }
       return qty;
-    }
-    if (state.wizard.collectionAgnostic) {
-      if (isWizardRuneCardTitle(clean) && required > 0) return required;
-      return required > 0 ? required : wizardMainCopyCapForTitle(clean);
     }
     if (state.collection && state.collection[clean] !== undefined) {
       let qty = Math.max(0, Number(state.collection[clean] || 0) || 0);
@@ -8480,8 +8480,8 @@
       Object.assign(merged, wizardAgnosticOwnedPool());
     } else if (state.collection) {
       Object.assign(merged, wizardCollectionCardsMap(state.collection));
+      Object.assign(merged, wizardCollectionCardsMap(state.wizard.transientCollection, { includeZero: true }));
     }
-    Object.assign(merged, wizardCollectionCardsMap(state.wizard.transientCollection, { includeZero: true }));
     return merged;
   }
 
@@ -8546,6 +8546,17 @@
       if (required <= 0) return;
       setWizardOwnedQty(title, enabled ? 0 : wizardBaselineOwnedQty(title, required));
     });
+  }
+
+  function applyWizardCollectionAgnosticMode(enabled) {
+    state.wizard.collectionAgnostic = Boolean(enabled);
+    state.wizard.transientCollection = {};
+    state.wizard.physicalChecklistMode = false;
+    state.wizard.activeReplacementCard = null;
+    state.wizard.activeReplacementOptions = [];
+    state.wizard.activeReplacementLoading = false;
+    state.wizard.activeReplacementNotice = "";
+    state.wizard.lastRefinement = null;
   }
 
   function beginWizardDeckbuildingIteration() {
@@ -9210,10 +9221,12 @@
     const isSelected = canonicalTitle(state.wizard.activeReplacementCard || "") === canonicalTitle(title);
     const isComplete = missing === 0;
     const isPartial = missing > 0 && ownedQty > 0;
-    const allowStepper = opts.allowStepper !== false && required > 0 && !assumeFull;
+    const allowStepper = opts.allowStepper !== false && required > 0 && !assumeFull && !state.wizard.collectionAgnostic;
     const image = info && info.imageUrl ? info.imageUrl : cardBackFor(title);
     const statusClass = isComplete ? "is-complete" : isPartial ? "is-partial" : "is-short";
-    const statusLabel = `${ownedQty} / ${required} in collection`;
+    const statusLabel = state.wizard.collectionAgnostic
+      ? `${ownedQty} / ${required} available`
+      : `${ownedQty} / ${required} in collection`;
 
     const stepper = allowStepper
       ? `<div class="qty-stepper wizard-checklist-stepper">` +
@@ -9824,6 +9837,7 @@
     const mainInventory = wizardMainInventoryMetrics();
     const mainInventoryPct = Math.round(mainInventory.completionPct);
     const physicalMode = Boolean(state.wizard.physicalChecklistMode);
+    const collectionAgnosticMode = Boolean(state.wizard.collectionAgnostic);
     let inspectorHtml = "";
     if (!state.wizard.activeReplacementCard) {
       inspectorHtml = `
@@ -9831,10 +9845,12 @@
           <div class="wizard-inspector-empty-icon">◇</div>
           <h4>Iterative build</h4>
           <p class="muted">
-            Mark what you own, then refine. The model rebuilds toward the strongest legal deck your collection can support and saves upgrade ideas for later.
+            ${collectionAgnosticMode
+              ? "Collection is ignored for this deck. Refine only if you want the wizard to rebuild toward a legal, fully available list."
+              : "Mark what you own, then refine. The model rebuilds toward the strongest legal deck your collection can support and saves upgrade ideas for later."}
           </p>
           <div class="wizard-inspector-actions">
-            <button id="wizard-refine-deck-btn" type="button" class="card-action-btn primary">Refine for my collection</button>
+            <button id="wizard-refine-deck-btn" type="button" class="card-action-btn primary">${collectionAgnosticMode ? "Refine ignoring collection" : "Refine for my collection"}</button>
             ${finalizeReady ? `<button id="wizard-finalize-deck-btn" type="button" class="card-action-btn">Finalize strongest deck</button>` : ""}
           </div>
           <div class="wizard-playlist-panel">
@@ -9882,11 +9898,19 @@
               <span class="wizard-checklist-progress-pct">${esc(mainInventoryPct)}%</span>
             </div>
             <label class="wizard-physical-toggle">
-              <input id="wizard-physical-check-toggle" type="checkbox"${physicalMode ? " checked" : ""}>
+              <input id="wizard-physical-check-toggle" type="checkbox"${physicalMode ? " checked" : ""}${collectionAgnosticMode ? " disabled" : ""}>
               <span class="wizard-physical-toggle-ui" aria-hidden="true"></span>
               <span class="wizard-physical-toggle-copy">
                 <strong>Physical check</strong>
-                <small>Set main deck to zero, then add cards as you find them.</small>
+                <small>${collectionAgnosticMode ? "Disabled while collection is ignored." : "Set main deck to zero, then add cards as you find them."}</small>
+              </span>
+            </label>
+            <label class="wizard-physical-toggle">
+              <input id="wizard-collection-agnostic-toggle" type="checkbox"${collectionAgnosticMode ? " checked" : ""}>
+              <span class="wizard-physical-toggle-ui" aria-hidden="true"></span>
+              <span class="wizard-physical-toggle-copy">
+                <strong>Ignore collection</strong>
+                <small>Treat every card in this deck as available.</small>
               </span>
             </label>
           </div>
@@ -9917,6 +9941,21 @@
         state.wizard.activeReplacementNotice = "";
         renderWizardPreservingChecklistScroll();
         setStatus(enabled ? "Main deck marked missing for physical checking." : "Main deck ownership restored.", false);
+      });
+    }
+
+    const collectionAgnosticToggle = document.getElementById("wizard-collection-agnostic-toggle");
+    if (collectionAgnosticToggle) {
+      collectionAgnosticToggle.addEventListener("change", () => {
+        const enabled = Boolean(collectionAgnosticToggle.checked);
+        applyWizardCollectionAgnosticMode(enabled);
+        renderWizardPreservingChecklistScroll();
+        setStatus(
+          enabled
+            ? "Collection ignored. The wizard will treat all cards as available."
+            : "Collection checks restored for this wizard deck.",
+          false
+        );
       });
     }
 
