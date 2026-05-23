@@ -907,6 +907,7 @@ def test_auto_builder_artifact_persists_selection_metrics(tmp_path: Path) -> Non
     generator_payload = torch.load(out_dir / "generator_moe.pt", map_location="cpu")
     assert int(generator_payload["winVectorSize"]) >= 1
     assert int(generator_payload["clusterVectorSize"]) >= 1
+    assert int(generator_payload["candidateDim"]) >= 1
 
     with (out_dir / "sklearn_bundle.joblib").open("rb") as fh:
         bundle = pickle.load(fh)

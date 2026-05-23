@@ -27,7 +27,7 @@ from app.domain.auto_builder_scoring import (
     resolved_ranking_mode,
     synergy_cluster_coverage,
 )
-from app.domain.auto_builder_training import _MoECandidateScorer, _replacement_feature_row, _resolve_torch_device, _state_feature_vector
+from app.domain.auto_builder_training import _EMBEDDING_DIM, _MoECandidateScorer, _replacement_feature_row, _resolve_generator_candidate_dim, _resolve_torch_device, _state_feature_vector
 from app.domain.auto_builder_types import CandidateDeck, GenerationPlan, PlanSeed
 from app.domain.eligibility import build_eligibility_snapshot
 from app.domain.models import DeckPayload
@@ -117,6 +117,22 @@ def _bundle_cluster_count(bundle: dict[str, Any]) -> int:
     return max(1, max((int(value) for value in cluster_by_card.values()), default=-1) + 1)
 
 
+def _bundle_embedding_dim(bundle: dict[str, Any]) -> int:
+    explicit = int(bundle.get("embeddingDim") or 0)
+    if explicit > 0:
+        return explicit
+    cached = bundle.get("_runtimeCache")
+    if isinstance(cached, dict):
+        embeddings = cached.get("embeddings") or {}
+        for vec in embeddings.values():
+            if vec is not None and len(vec) > 0:
+                return max(1, int(len(vec)))
+    for vec in dict(bundle.get("cardEmbeddings") or {}).values():
+        if vec:
+            return max(1, int(len(vec)))
+    return _EMBEDDING_DIM
+
+
 def _generator_feature_sizes(generator_state: dict[str, Any]) -> tuple[int, int]:
     return (
         max(1, int(generator_state.get("winVectorSize") or 32)),
@@ -131,7 +147,7 @@ def _deck_vector_win_size(bundle: dict[str, Any]) -> int:
     raw = bundle.get("deckVectors")
     deck_vectors = np.array(raw, dtype=np.float32) if raw is not None else np.zeros((0, 0), dtype=np.float32)
     if deck_vectors.ndim == 2 and deck_vectors.shape[1] > 0:
-        return max(1, int(deck_vectors.shape[1]) - (64 + 8 + 6 + 3 + 3))
+        return max(1, int(deck_vectors.shape[1]) - (_bundle_embedding_dim(bundle) + 8 + 6 + 3 + 3))
     return _win_condition_vector_size(bundle)
 
 
@@ -175,6 +191,7 @@ def _bundle_runtime(bundle: dict[str, Any], cards) -> dict[str, Any]:
         "idf": np.array(bundle.get("idf"), dtype=np.float32) if bundle.get("idf") is not None else np.zeros((0,), dtype=np.float32),
         "winConditionMatrix": np.array(bundle.get("winConditionMatrix"), dtype=np.float32) if bundle.get("winConditionMatrix") is not None else np.zeros((0, 0), dtype=np.float32),
         "deckVectorWinSize": _deck_vector_win_size(bundle),
+        "embeddingDim": _bundle_embedding_dim(bundle),
     }
     bundle["_runtimeCache"] = cache
     return cache
@@ -847,7 +864,7 @@ def _generator_runtime(generator_state: dict[str, Any], *, model: _MoECandidateS
         return cached
     runtime_model = model or _MoECandidateScorer(
         state_dim=int(generator_state.get("stateDim") or 0),
-        candidate_dim=64,
+        candidate_dim=_resolve_generator_candidate_dim(generator_state),
         legend_count=max(1, len(generator_state.get("legendToIdx") or {})),
         champion_count=max(1, len(generator_state.get("championToIdx") or {})),
     )
@@ -1121,7 +1138,7 @@ def build_candidate_payload(*, deck: DeckPayload, plan: GenerationPlan, build_mo
     deck_win_vector = _project_win_condition_vector(main_by_key, bundle=bundle, win_vector_size=int(runtime_cache.get("deckVectorWinSize") or _deck_vector_win_size(bundle)))
     target_win_vector = _plan_win_condition_vector(plan, bundle=bundle, win_vector_size=deck_win_vector.shape[0])
     if profile_vectors.size:
-        query_vec = deck_vector(main_by_key=main_by_key, card_embeddings=embeddings, embedding_dim=64, win_condition_vector=deck_win_vector, static_features=static_features)
+        query_vec = deck_vector(main_by_key=main_by_key, card_embeddings=embeddings, embedding_dim=int(runtime_cache.get("embeddingDim") or _bundle_embedding_dim(bundle)), win_condition_vector=deck_win_vector, static_features=static_features)
         competitive_model = bundle.get("competitiveModel")
         competitive_score = _safe_model_predict(competitive_model, query_vec, default=0.0)
     else:

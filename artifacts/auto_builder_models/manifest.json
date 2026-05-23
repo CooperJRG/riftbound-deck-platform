@@ -1,5 +1,5 @@
 {
-  "productionModelId": "20260305T213936Z-model-closed-beta",
+  "productionModelId": "20260523T022939Z-model-v4-unleashed",
   "models": [
     {
       "id": "20260305T213936Z-model-closed-beta",
@@ -17,7 +17,7 @@
       "status": "ready",
       "createdAt": "2026-05-23T02:29:39.401497+00:00",
       "promotedAt": "2026-05-23T02:29:39.401497+00:00",
-      "dirName": "active",
+      "dirName": "20260523T022939Z-model-v4-unleashed",
       "metrics": {
         "nextCardTop10Recall": 0.5938,
         "collectionFirstRecommendationHitRate": 0.8986,

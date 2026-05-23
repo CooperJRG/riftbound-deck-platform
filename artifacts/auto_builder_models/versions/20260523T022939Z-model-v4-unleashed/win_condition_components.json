@@ -1,0 +1,1938 @@
+[
+  {
+    "component_id": 0,
+    "label": "WC01 | Irelia | unit | time",
+    "top_cards": [
+      "Guardian Angel",
+      "Defiant Dance",
+      "Not So Fast",
+      "Draven - Audacious",
+      "The Syren",
+      "Fight or Flight",
+      "Irelia - Fervent",
+      "Ride the Wind"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "time"
+    ],
+    "sample_deck_count": 59,
+    "avg_competitive_score": 22.2212,
+    "shell_coverage_count": 4,
+    "archetype_count": 48
+  },
+  {
+    "component_id": 1,
+    "label": "WC02 | Vi | energy | rune",
+    "top_cards": [
+      "Hextech Gauntlets",
+      "Rengar - Unseen",
+      "Jhin - Murderous Artist",
+      "Unsung Hero",
+      "Pyke - Dockside Butcher",
+      "Deathgrip",
+      "B.F. Sword",
+      "Rek'Sai - Breacher"
+    ],
+    "top_effect_tokens": [
+      "energy",
+      "rune"
+    ],
+    "sample_deck_count": 5,
+    "avg_competitive_score": 10.6335,
+    "shell_coverage_count": 2,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 2,
+    "label": "WC03 | Lux | play | action",
+    "top_cards": [
+      "Bellows Breath",
+      "Imperial Decree",
+      "Wages of Pain",
+      "Vanguard Armory",
+      "Blood Money",
+      "Drag Under",
+      "Cull the Weak",
+      "Singularity"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "action"
+    ],
+    "sample_deck_count": 50,
+    "avg_competitive_score": 12.5692,
+    "shell_coverage_count": 7,
+    "archetype_count": 37
+  },
+  {
+    "component_id": 3,
+    "label": "WC04 | Renata Glasc | play | gear",
+    "top_cards": [
+      "Ornn - Forge God",
+      "Hostile Takeover",
+      "Plundering Poro",
+      "Trove Golem",
+      "Honest Broker",
+      "Time Warp",
+      "Blue Sentinel",
+      "World Atlas"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "gear"
+    ],
+    "sample_deck_count": 19,
+    "avg_competitive_score": 9.8643,
+    "shell_coverage_count": 5,
+    "archetype_count": 18
+  },
+  {
+    "component_id": 4,
+    "label": "WC05 | Azir | unit | control",
+    "top_cards": [
+      "Eye of the Herald",
+      "Doran's Shield",
+      "Desert's Call",
+      "Arise!",
+      "Brutalizer",
+      "B.F. Sword",
+      "Deathgrip",
+      "Guards!"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "control"
+    ],
+    "sample_deck_count": 42,
+    "avg_competitive_score": 15.5726,
+    "shell_coverage_count": 3,
+    "archetype_count": 37
+  },
+  {
+    "component_id": 5,
+    "label": "WC06 | Vex | combat | damage",
+    "top_cards": [
+      "Mutated Mouser",
+      "Back Off",
+      "Evelynn - Entrancing",
+      "Sona - Harmonious",
+      "Existential Dread",
+      "Discipline",
+      "Kha'Zix - Mutating Horror",
+      "Emperor's Divide"
+    ],
+    "top_effect_tokens": [
+      "combat",
+      "damage"
+    ],
+    "sample_deck_count": 22,
+    "avg_competitive_score": 11.5023,
+    "shell_coverage_count": 5,
+    "archetype_count": 20
+  },
+  {
+    "component_id": 6,
+    "label": "WC07 | Draven | play | unit",
+    "top_cards": [
+      "Spinning Axe",
+      "Darius - Trifarian",
+      "Overzealous Fan",
+      "Tideturner",
+      "Kai'Sa - Survivor",
+      "Noxus Hopeful",
+      "Ferrous Forerunner",
+      "Stacked Deck"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 52,
+    "avg_competitive_score": 21.0528,
+    "shell_coverage_count": 7,
+    "archetype_count": 41
+  },
+  {
+    "component_id": 7,
+    "label": "WC08 | Miss Fortune | play | channel",
+    "top_cards": [
+      "Catalyst of Aeons",
+      "Dazzling Aurora",
+      "Mobilize",
+      "Mindsplitter",
+      "Deadbloom Predator",
+      "Bullet Time",
+      "Sabotage",
+      "Stacked Deck"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "channel"
+    ],
+    "sample_deck_count": 124,
+    "avg_competitive_score": 11.4129,
+    "shell_coverage_count": 12,
+    "archetype_count": 92
+  },
+  {
+    "component_id": 8,
+    "label": "WC09 | LeBlanc | deathknell | unit",
+    "top_cards": [
+      "Mirror Image",
+      "Karthus - Eternal",
+      "Glasc Mixologist",
+      "Ruined Rex",
+      "Black Rose Dignitary",
+      "LeBlanc - Fragmented",
+      "Sacrifice",
+      "Soaring Scout"
+    ],
+    "top_effect_tokens": [
+      "deathknell",
+      "unit"
+    ],
+    "sample_deck_count": 11,
+    "avg_competitive_score": 11.6714,
+    "shell_coverage_count": 3,
+    "archetype_count": 10
+  },
+  {
+    "component_id": 9,
+    "label": "WC10 | Lucian | unit | conquer",
+    "top_cards": [
+      "Skyfall of Areion",
+      "Red Brambleback",
+      "Relentless Pursuit",
+      "Trinity Force",
+      "Lucian - Merciless",
+      "Irresistible Faefolk",
+      "Hunter's Machete",
+      "Nilah - Joyful Ascetic"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "conquer"
+    ],
+    "sample_deck_count": 12,
+    "avg_competitive_score": 13.0436,
+    "shell_coverage_count": 3,
+    "archetype_count": 11
+  },
+  {
+    "component_id": 10,
+    "label": "WC11 | Lillia | unit | temporary",
+    "top_cards": [
+      "Sprite Fountain",
+      "Smoke and Mirrors",
+      "Sprite Burst",
+      "Heart of Dark Ice",
+      "Sprite Queen",
+      "Lilting Lullaby",
+      "Lillia - Fae Fawn",
+      "Ravenbloom Student"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "temporary"
+    ],
+    "sample_deck_count": 15,
+    "avg_competitive_score": 11.1391,
+    "shell_coverage_count": 5,
+    "archetype_count": 13
+  },
+  {
+    "component_id": 11,
+    "label": "WC12 | Draven | cost | less",
+    "top_cards": [
+      "Called Shot",
+      "Ezreal - Prodigy",
+      "Rhasa the Sunderer",
+      "Seal of Discord",
+      "Battering Ram",
+      "Scrapheap",
+      "Traveling Merchant",
+      "Stacked Deck"
+    ],
+    "top_effect_tokens": [
+      "cost",
+      "less"
+    ],
+    "sample_deck_count": 74,
+    "avg_competitive_score": 18.658,
+    "shell_coverage_count": 12,
+    "archetype_count": 55
+  },
+  {
+    "component_id": 12,
+    "label": "WC13 | Master Yi | reaction | play",
+    "top_cards": [
+      "Stalwart Poro",
+      "En Garde",
+      "Tasty Faefolk",
+      "Discipline",
+      "Defy",
+      "Charm",
+      "Find Your Center",
+      "Clockwork Keeper"
+    ],
+    "top_effect_tokens": [
+      "reaction",
+      "play"
+    ],
+    "sample_deck_count": 267,
+    "avg_competitive_score": 10.2081,
+    "shell_coverage_count": 12,
+    "archetype_count": 184
+  },
+  {
+    "component_id": 13,
+    "label": "WC14 | Lucian | unit | play",
+    "top_cards": [
+      "Gem Jammer",
+      "Relentless Pursuit",
+      "Long Sword",
+      "Blood Rush",
+      "Skyfall of Areion",
+      "Kai'Sa - Survivor",
+      "Doran's Blade",
+      "Hexdrinker"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "play"
+    ],
+    "sample_deck_count": 20,
+    "avg_competitive_score": 12.5122,
+    "shell_coverage_count": 6,
+    "archetype_count": 18
+  },
+  {
+    "component_id": 14,
+    "label": "WC15 | Pyke | play | rune",
+    "top_cards": [
+      "Bewitching Spirit",
+      "Death from Below",
+      "Pyke - Dockside Butcher",
+      "Mischievous Marai",
+      "Sharkling",
+      "Inferna",
+      "Pyke - Returned",
+      "Beast Below"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "rune"
+    ],
+    "sample_deck_count": 9,
+    "avg_competitive_score": 10.5459,
+    "shell_coverage_count": 3,
+    "archetype_count": 9
+  },
+  {
+    "component_id": 15,
+    "label": "WC16 | Leona | unit | turn",
+    "top_cards": [
+      "Leona - Determined",
+      "Zenith Blade",
+      "Rune Prison",
+      "Call to Glory",
+      "Solari Shieldbearer",
+      "Fiora - Victorious",
+      "Leona - Zealot",
+      "Discipline"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "turn"
+    ],
+    "sample_deck_count": 70,
+    "avg_competitive_score": 10.448,
+    "shell_coverage_count": 6,
+    "archetype_count": 60
+  },
+  {
+    "component_id": 16,
+    "label": "WC17 | Jax | unit | attach",
+    "top_cards": [
+      "Counter Strike",
+      "Brutalizer",
+      "Aphelios - Exalted",
+      "Guardian Angel",
+      "Jax - Unmatched",
+      "Warmog's Armor",
+      "First Mate",
+      "Not So Fast"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "attach"
+    ],
+    "sample_deck_count": 19,
+    "avg_competitive_score": 14.2426,
+    "shell_coverage_count": 2,
+    "archetype_count": 17
+  },
+  {
+    "component_id": 17,
+    "label": "WC18 | Viktor | play | unit",
+    "top_cards": [
+      "Baited Hook",
+      "Harnessed Dragon",
+      "Honest Broker",
+      "Glasc Mixologist",
+      "Galio - Indefatigable",
+      "Xin Zhao - Vigilant",
+      "Spectral Matron",
+      "Unsung Hero"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 11,
+    "avg_competitive_score": 13.6054,
+    "shell_coverage_count": 6,
+    "archetype_count": 11
+  },
+  {
+    "component_id": 18,
+    "label": "WC19 | Volibear | ready | play",
+    "top_cards": [
+      "Herald of Scales",
+      "Show of Strength",
+      "Direwing",
+      "Blazing Scorcher",
+      "Gentle Gemdragon",
+      "Dune Drake",
+      "Dragonsoul Sage",
+      "Sky Splitter"
+    ],
+    "top_effect_tokens": [
+      "ready",
+      "play"
+    ],
+    "sample_deck_count": 31,
+    "avg_competitive_score": 8.8152,
+    "shell_coverage_count": 7,
+    "archetype_count": 29
+  },
+  {
+    "component_id": 19,
+    "label": "WC20 | Jinx | discard | may",
+    "top_cards": [
+      "Flame Chompers",
+      "Chemtech Enforcer",
+      "Vi - Destructive",
+      "Super Mega Death Rocket!",
+      "Traveling Merchant",
+      "Seal of Rage",
+      "Noxus Hopeful",
+      "Jinx - Demolitionist"
+    ],
+    "top_effect_tokens": [
+      "discard",
+      "may"
+    ],
+    "sample_deck_count": 102,
+    "avg_competitive_score": 11.5198,
+    "shell_coverage_count": 8,
+    "archetype_count": 87
+  },
+  {
+    "component_id": 20,
+    "label": "WC21 | Ornn | equip | calm",
+    "top_cards": [
+      "Svellsongur",
+      "Poro Snax",
+      "Guardian Angel",
+      "Ornn - Forge God",
+      "Seal of Focus",
+      "World Atlas",
+      "Not So Fast",
+      "Doran's Shield"
+    ],
+    "top_effect_tokens": [
+      "equip",
+      "calm"
+    ],
+    "sample_deck_count": 34,
+    "avg_competitive_score": 12.6551,
+    "shell_coverage_count": 7,
+    "archetype_count": 32
+  },
+  {
+    "component_id": 21,
+    "label": "WC22 | Rumble | play | mech",
+    "top_cards": [
+      "Forecaster",
+      "Bubble Bot",
+      "Rumble - Scrapper",
+      "Ferrous Forerunner",
+      "Rumble - Hotheaded",
+      "Gem Jammer",
+      "Production Surge",
+      "Danger Zone"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "mech"
+    ],
+    "sample_deck_count": 29,
+    "avg_competitive_score": 7.9944,
+    "shell_coverage_count": 7,
+    "archetype_count": 26
+  },
+  {
+    "component_id": 22,
+    "label": "WC23 | Teemo | play | hidden",
+    "top_cards": [
+      "Ember Monk",
+      "Dr. Mundo - Expert",
+      "Consult the Past",
+      "Fight or Flight",
+      "Ravenbloom Student",
+      "Sprite Call",
+      "Stupefy",
+      "Gust"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "hidden"
+    ],
+    "sample_deck_count": 46,
+    "avg_competitive_score": 8.953,
+    "shell_coverage_count": 1,
+    "archetype_count": 22
+  },
+  {
+    "component_id": 23,
+    "label": "WC24 | Teemo | play | gear",
+    "top_cards": [
+      "Dropboarder",
+      "Poro Snax",
+      "Pit Crew",
+      "Sterak's Gage",
+      "Plundering Poro",
+      "Brutalizer",
+      "Sprite Fountain",
+      "Ornn - Blacksmith"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "gear"
+    ],
+    "sample_deck_count": 19,
+    "avg_competitive_score": 11.6779,
+    "shell_coverage_count": 6,
+    "archetype_count": 17
+  },
+  {
+    "component_id": 24,
+    "label": "WC25 | Diana | play | any",
+    "top_cards": [
+      "Eclipse",
+      "Icevale Archer",
+      "Downstage Dramatics",
+      "Crescent Strike",
+      "Dramatic Visionary",
+      "Diana - No Longer Human",
+      "Diana - Lunari",
+      "Hwei - Brooding Painter"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "any"
+    ],
+    "sample_deck_count": 5,
+    "avg_competitive_score": 13.3307,
+    "shell_coverage_count": 2,
+    "archetype_count": 5
+  },
+  {
+    "component_id": 25,
+    "label": "WC26 | Sett | battlefield | may",
+    "top_cards": [
+      "Nidalee - Cat Form",
+      "Irresistible Faefolk",
+      "Thrill of the Hunt",
+      "Rengar - Trophy Hunter",
+      "Inferna",
+      "Fresh Beans",
+      "Grim Apothecary",
+      "Repulse"
+    ],
+    "top_effect_tokens": [
+      "battlefield",
+      "may"
+    ],
+    "sample_deck_count": 10,
+    "avg_competitive_score": 13.403,
+    "shell_coverage_count": 7,
+    "archetype_count": 10
+  },
+  {
+    "component_id": 26,
+    "label": "WC27 | Jhin | play | may",
+    "top_cards": [
+      "Jhin - Meticulous Killer",
+      "Downstage Dramatics",
+      "Curtain Call",
+      "Deadly Flourish",
+      "Frigid Touch",
+      "Plundering Poro",
+      "Piercing Light",
+      "Hextech Anomaly"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "may"
+    ],
+    "sample_deck_count": 4,
+    "avg_competitive_score": 10.5185,
+    "shell_coverage_count": 1,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 27,
+    "label": "WC28 | Leona | play | stun",
+    "top_cards": [
+      "Nami - Headstrong",
+      "Vi - Peacekeeper",
+      "Back Off",
+      "Zenith Blade",
+      "Stellacorn Herder",
+      "Call to Glory",
+      "Emperor's Divide",
+      "Vex - Mocking"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "stun"
+    ],
+    "sample_deck_count": 9,
+    "avg_competitive_score": 13.7827,
+    "shell_coverage_count": 5,
+    "archetype_count": 8
+  },
+  {
+    "component_id": 28,
+    "label": "WC29 | Viktor | play | unit",
+    "top_cards": [
+      "Faithful Manufactor",
+      "Cull the Weak",
+      "Sprite Mother",
+      "Machine Evangel",
+      "Daring Poro",
+      "Vanguard Captain",
+      "Riptide Rex",
+      "Hidden Blade"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 60,
+    "avg_competitive_score": 15.0632,
+    "shell_coverage_count": 3,
+    "archetype_count": 45
+  },
+  {
+    "component_id": 29,
+    "label": "WC30 | Sett | play | unit",
+    "top_cards": [
+      "Qiyana - Victorious",
+      "First Mate",
+      "Primal Strength",
+      "Pit Rookie",
+      "Sett - Brawler",
+      "Challenge",
+      "Sabotage",
+      "Miss Fortune - Captain"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 55,
+    "avg_competitive_score": 15.2189,
+    "shell_coverage_count": 5,
+    "archetype_count": 33
+  },
+  {
+    "component_id": 30,
+    "label": "WC31 | Sivir | cost | unit",
+    "top_cards": [
+      "Yordle Explorer",
+      "Spirit Wheel",
+      "Heedless Resurrection",
+      "Jaull-Fish",
+      "Dragonsoul Sage",
+      "Lunar Boon",
+      "The Harrowing",
+      "Corrupt Enforcer"
+    ],
+    "top_effect_tokens": [
+      "cost",
+      "unit"
+    ],
+    "sample_deck_count": 4,
+    "avg_competitive_score": 11.1001,
+    "shell_coverage_count": 2,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 31,
+    "label": "WC32 | Azir | play | unit",
+    "top_cards": [
+      "Royal Entourage",
+      "Royal Guard",
+      "Feral Strength",
+      "Sand Soldier",
+      "Bonds of Strength",
+      "Emperor's Divide",
+      "Guardian of the Passage",
+      "Guards!"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 13.0514,
+    "shell_coverage_count": 1,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 32,
+    "label": "WC33 | Yasuo | play | look",
+    "top_cards": [
+      "Heedless Resurrection",
+      "Mystic Poro",
+      "Nocturne - Horrifying",
+      "Scryer's Bloom",
+      "Smite",
+      "Bewitching Spirit",
+      "Rhasa the Sunderer",
+      "Immortal Phoenix"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "look"
+    ],
+    "sample_deck_count": 27,
+    "avg_competitive_score": 10.4058,
+    "shell_coverage_count": 8,
+    "archetype_count": 22
+  },
+  {
+    "component_id": 33,
+    "label": "WC34 | Ezreal | play | gear",
+    "top_cards": [
+      "Cull",
+      "Pit Crew",
+      "Card Sharp",
+      "Called Shot",
+      "Seal of Discord",
+      "Wages of Pain",
+      "Ezreal - Prodigy",
+      "Frigid Touch"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "gear"
+    ],
+    "sample_deck_count": 15,
+    "avg_competitive_score": 22.6753,
+    "shell_coverage_count": 3,
+    "archetype_count": 9
+  },
+  {
+    "component_id": 34,
+    "label": "WC35 | Kha'Zix | may | battlefield",
+    "top_cards": [
+      "Mister Root",
+      "Insightful Investigator",
+      "Kha'Zix - Mutating Horror",
+      "Void Assault",
+      "Grim Resolve",
+      "Nilah - Joyful Ascetic",
+      "Concentrate",
+      "Demacian Diplomat"
+    ],
+    "top_effect_tokens": [
+      "may",
+      "battlefield"
+    ],
+    "sample_deck_count": 3,
+    "avg_competitive_score": 11.6142,
+    "shell_coverage_count": 1,
+    "archetype_count": 3
+  },
+  {
+    "component_id": 35,
+    "label": "WC36 | Rek'Sai | play | deck",
+    "top_cards": [
+      "Void Rush",
+      "Undertitan",
+      "Void Hatchling",
+      "Void Drone",
+      "Honest Broker",
+      "Rek'Sai - Breacher",
+      "Noxus Hopeful",
+      "Rek'Sai - Swarm Queen"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "deck"
+    ],
+    "sample_deck_count": 30,
+    "avg_competitive_score": 12.9146,
+    "shell_coverage_count": 3,
+    "archetype_count": 26
+  },
+  {
+    "component_id": 36,
+    "label": "WC37 | Rek'Sai | unit | control",
+    "top_cards": [
+      "Serrated Dirk",
+      "Jhin - Murderous Artist",
+      "Shadow's Call",
+      "Fiora - Worthy",
+      "Sun Disc",
+      "Facebreaker",
+      "Eye of the Herald",
+      "Void Rush"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "control"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 13.6093,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 37,
+    "label": "WC38 | Darius | play | unit",
+    "top_cards": [
+      "Spectral Matron",
+      "Vanguard Captain",
+      "Baited Hook",
+      "Seal of Unity",
+      "Draven - Showboat",
+      "Trifarian Gloryseeker",
+      "Hidden Blade",
+      "Faithful Manufactor"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 41,
+    "avg_competitive_score": 13.2418,
+    "shell_coverage_count": 7,
+    "archetype_count": 24
+  },
+  {
+    "component_id": 38,
+    "label": "WC39 | Ezreal | turn | unit",
+    "top_cards": [
+      "Isolate",
+      "Factory Recall",
+      "Vi - Hotheaded",
+      "Square Up",
+      "Sudden Storm",
+      "Serrated Dirk",
+      "Death from Below",
+      "Pyke - Returned"
+    ],
+    "top_effect_tokens": [
+      "turn",
+      "unit"
+    ],
+    "sample_deck_count": 3,
+    "avg_competitive_score": 15.8511,
+    "shell_coverage_count": 3,
+    "archetype_count": 3
+  },
+  {
+    "component_id": 39,
+    "label": "WC40 | Annie | play | move",
+    "top_cards": [
+      "Sneaky Deckhand",
+      "Flash",
+      "Vi - Destructive",
+      "Cleave",
+      "Traveling Merchant",
+      "Ride the Wind",
+      "Pouty Poro",
+      "Scrapheap"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "move"
+    ],
+    "sample_deck_count": 44,
+    "avg_competitive_score": 17.5701,
+    "shell_coverage_count": 5,
+    "archetype_count": 18
+  },
+  {
+    "component_id": 40,
+    "label": "WC41 | Ahri | play | repeat",
+    "top_cards": [
+      "Feral Strength",
+      "Desert's Call",
+      "Sona - Harmonious",
+      "Thwonk!",
+      "Eager Apprentice",
+      "Block",
+      "Ravenbloom Student",
+      "Thousand-Tailed Watcher"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "repeat"
+    ],
+    "sample_deck_count": 21,
+    "avg_competitive_score": 13.212,
+    "shell_coverage_count": 5,
+    "archetype_count": 15
+  },
+  {
+    "component_id": 41,
+    "label": "WC42 | hand | play",
+    "top_cards": [
+      "Treasure Trove",
+      "Pack of Wonders",
+      "Gust",
+      "Stacked Deck",
+      "Bewitching Spirit",
+      "Vex - Apathetic",
+      "Mindsplitter",
+      "Detonate"
+    ],
+    "top_effect_tokens": [
+      "hand",
+      "play"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 42,
+    "label": "WC43 | play | unit",
+    "top_cards": [
+      "Star-Crossed",
+      "Gust",
+      "Bewitching Spirit",
+      "Navori Scout",
+      "Blast Cone",
+      "Vex - Apathetic",
+      "Abandon",
+      "Stacked Deck"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 43,
+    "label": "WC44 | Volibear | units | play",
+    "top_cards": [
+      "Kadregrin the Infernal",
+      "Sky Splitter",
+      "Mobilize",
+      "Confront",
+      "Stormbringer",
+      "Catalyst of Aeons",
+      "Minotaur Reckoner",
+      "Dazzling Aurora"
+    ],
+    "top_effect_tokens": [
+      "units",
+      "play"
+    ],
+    "sample_deck_count": 6,
+    "avg_competitive_score": 11.7792,
+    "shell_coverage_count": 1,
+    "archetype_count": 3
+  },
+  {
+    "component_id": 44,
+    "label": "WC45 | Annie | play | base",
+    "top_cards": [
+      "Ferrous Forerunner",
+      "Flash",
+      "Rengar - Pouncing",
+      "Traveling Merchant",
+      "Kai'Sa - Survivor",
+      "Rek'Sai - Breacher",
+      "Noxus Hopeful",
+      "Pouty Poro"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "base"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 16.7669,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 45,
+    "label": "WC46 | Annie | deal | unit",
+    "top_cards": [
+      "Blast Corps Cadet",
+      "Iron Ballista",
+      "Shakedown",
+      "Monster Harpoon",
+      "Void Seeker",
+      "Mischievous Marai",
+      "Hextech Ray",
+      "Xerath - Freed"
+    ],
+    "top_effect_tokens": [
+      "deal",
+      "unit"
+    ],
+    "sample_deck_count": 8,
+    "avg_competitive_score": 14.8227,
+    "shell_coverage_count": 3,
+    "archetype_count": 7
+  },
+  {
+    "component_id": 46,
+    "label": "WC47 | Volibear | any | play",
+    "top_cards": [
+      "Elder Dragon",
+      "Scryer's Bloom",
+      "Lunar Boon",
+      "Flurry of Blades",
+      "Dazzling Aurora",
+      "Catalyst of Aeons",
+      "Mobilize",
+      "Last Rites"
+    ],
+    "top_effect_tokens": [
+      "any",
+      "play"
+    ],
+    "sample_deck_count": 7,
+    "avg_competitive_score": 11.9559,
+    "shell_coverage_count": 4,
+    "archetype_count": 7
+  },
+  {
+    "component_id": 47,
+    "label": "WC48 | Master Yi | effect | unit",
+    "top_cards": [
+      "Concentrate",
+      "Mosstomper",
+      "Anivia - Primal",
+      "Svellsongur",
+      "Alpha Strike",
+      "Master Yi - Unstoppable",
+      "Blood Rose",
+      "Master Yi - Tempered"
+    ],
+    "top_effect_tokens": [
+      "effect",
+      "unit"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 18.1159,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 48,
+    "label": "WC49 | Ivern | might | play",
+    "top_cards": [
+      "Friendship",
+      "Ultrasoft Poro",
+      "Stalking Wolf",
+      "Mutated Mouser",
+      "Crimson Pigeons",
+      "Ivern - Nurturer",
+      "Frisky Hunter",
+      "Combat Experience"
+    ],
+    "top_effect_tokens": [
+      "might",
+      "play"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 10.6918,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 49,
+    "label": "WC50 | Master Yi | unit | equip",
+    "top_cards": [
+      "Ruin Runner",
+      "Trinity Force",
+      "Punch First",
+      "Sea Monkey",
+      "Boneshiver",
+      "Veteran Poro",
+      "Akshan - Mischievous",
+      "First Mate"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "equip"
+    ],
+    "sample_deck_count": 6,
+    "avg_competitive_score": 10.1996,
+    "shell_coverage_count": 4,
+    "archetype_count": 5
+  },
+  {
+    "component_id": 50,
+    "label": "WC51 | play | its",
+    "top_cards": [
+      "Treasure Hunter",
+      "Fight or Flight",
+      "Fizz - Trickster",
+      "Called Shot",
+      "Hard Bargain",
+      "Ride the Wind",
+      "Stacked Deck",
+      "Rebuke"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "its"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 51,
+    "label": "WC52 | Fiora | play | may",
+    "top_cards": [
+      "Fiora - Peerless",
+      "Dauntless Vanguard",
+      "Bonds of Strength",
+      "Heroic Charge",
+      "Buhru Captain",
+      "Kinkou Initiate",
+      "Mageseeker Investigator",
+      "Fae Dragon"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "may"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 15.2949,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 52,
+    "label": "WC53 | Jhin | play | unit",
+    "top_cards": [
+      "Downstage Dramatics",
+      "Sprite Burst",
+      "Cloth Armor",
+      "Blighted Battleaxe",
+      "Frigid Touch",
+      "Gearhead",
+      "World Atlas",
+      "Progress Day"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 9.7302,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 53,
+    "label": "WC54 | Lee Sin | have | additional",
+    "top_cards": [
+      "Wizened Elder",
+      "Lee Sin - Centered",
+      "Pit Rookie",
+      "Stand United",
+      "Dragon's Rage",
+      "Wildclaw Shaman",
+      "Kraken Hunter",
+      "Enthusiastic Promoter"
+    ],
+    "top_effect_tokens": [
+      "have",
+      "additional"
+    ],
+    "sample_deck_count": 4,
+    "avg_competitive_score": 6.6439,
+    "shell_coverage_count": 2,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 54,
+    "label": "WC55 | deathknell | exhausted",
+    "top_cards": [
+      "Soaring Scout",
+      "Cull the Weak",
+      "Hidden Blade",
+      "Honest Broker",
+      "Karthus - Eternal",
+      "Watchful Sentry",
+      "Cruel Patron",
+      "Grand Strategem"
+    ],
+    "top_effect_tokens": [
+      "deathknell",
+      "exhausted"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 55,
+    "label": "WC56 | Volibear | add | energy",
+    "top_cards": [
+      "Dragonsoul Sage",
+      "Arachnoid Horror",
+      "Boneshiver",
+      "Jhin - Murderous Artist",
+      "Dunebreaker",
+      "Elder Dragon",
+      "Magma Wurm",
+      "Volibear - Imposing"
+    ],
+    "top_effect_tokens": [
+      "add",
+      "energy"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 15.6248,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 56,
+    "label": "WC57 | Viktor | play | tokens",
+    "top_cards": [
+      "Gemcraft Seer",
+      "The Ruination",
+      "Vanguard Armory",
+      "Sprite Burst",
+      "Renata Glasc - Industrialist",
+      "Altar of Memories",
+      "Jayce - Man of Progress",
+      "Sprite Queen"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "tokens"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 16.8129,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 57,
+    "label": "WC58 | Annie | play | unit",
+    "top_cards": [
+      "Sudden Storm",
+      "Morbid Return",
+      "Incinerate",
+      "Sneaky Deckhand",
+      "Pack of Wonders",
+      "Bewitching Spirit",
+      "Get Excited!",
+      "Mindsplitter"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 12.9268,
+    "shell_coverage_count": 1,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 58,
+    "label": "WC59 | Darius | unit | play",
+    "top_cards": [
+      "Laurent Duelist",
+      "Trusty Ramhound",
+      "Scrapyard Champion",
+      "Gem Jammer",
+      "Sandshifter",
+      "Against the Odds",
+      "Trifarian Gloryseeker",
+      "Bonds of Strength"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "play"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 8.6323,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 59,
+    "label": "WC60 | play | hidden",
+    "top_cards": [
+      "Edge of Night",
+      "Switcheroo",
+      "Boots of Swiftness",
+      "Teemo - Scout",
+      "Hard Bargain",
+      "Ember Monk",
+      "Irelia - Fervent",
+      "The Syren"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "hidden"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 60,
+    "label": "WC61 | Lux | action | play",
+    "top_cards": [
+      "Recruit the Vanguard",
+      "Falling Comet",
+      "Seal of Insight",
+      "Blast of Power",
+      "Ekko - Recurrent",
+      "Singularity",
+      "Time Warp",
+      "Energy Conduit"
+    ],
+    "top_effect_tokens": [
+      "action",
+      "play"
+    ],
+    "sample_deck_count": 47,
+    "avg_competitive_score": 10.8388,
+    "shell_coverage_count": 9,
+    "archetype_count": 41
+  },
+  {
+    "component_id": 61,
+    "label": "WC62 | Vex | unit | stun",
+    "top_cards": [
+      "Shadow",
+      "Existential Dread",
+      "Vex - Mocking",
+      "Vex - Apathetic",
+      "Monch",
+      "Back Off",
+      "Nami - Headstrong",
+      "Thwonk!"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "stun"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 12.4754,
+    "shell_coverage_count": 2,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 62,
+    "label": "WC63 | temporary | rune",
+    "top_cards": [
+      "Keeper of Masks",
+      "Smoke and Mirrors",
+      "Petal Pixie",
+      "Lillia - Fae Fawn",
+      "LeBlanc - Everywhere at Once",
+      "Sprite Fountain",
+      "Lilting Lullaby",
+      "Trevor Snoozebottom"
+    ],
+    "top_effect_tokens": [
+      "temporary",
+      "rune"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 63,
+    "label": "WC64 | discard | play",
+    "top_cards": [
+      "Evershade Stalker",
+      "Square Up",
+      "Unlicensed Armory",
+      "Abandon",
+      "Get Excited!",
+      "Invert Timelines",
+      "Jinx - Rebel",
+      "Lunar Boon"
+    ],
+    "top_effect_tokens": [
+      "discard",
+      "play"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 64,
+    "label": "WC65 | play | turn",
+    "top_cards": [
+      "Arcane Shift",
+      "Frigid Touch",
+      "Ravenbloom Student",
+      "Stupefy",
+      "Ezreal - Prodigy",
+      "Wages of Pain",
+      "Fizz - Trickster",
+      "Plundering Poro"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "turn"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 65,
+    "label": "WC66 | Sett | buff | unit",
+    "top_cards": [
+      "Showstopper",
+      "Call to Glory",
+      "Fiora - Victorious",
+      "Pit Rookie",
+      "Cithria of Cloudfield",
+      "Arena Bar",
+      "Sea Monkey",
+      "Kinkou Monk"
+    ],
+    "top_effect_tokens": [
+      "buff",
+      "unit"
+    ],
+    "sample_deck_count": 9,
+    "avg_competitive_score": 13.6291,
+    "shell_coverage_count": 2,
+    "archetype_count": 6
+  },
+  {
+    "component_id": 66,
+    "label": "WC67 | Lillia | might | shield",
+    "top_cards": [
+      "Blue Sentinel",
+      "Trevor Snoozebottom",
+      "Sprite Fountain",
+      "Mutated Mouser",
+      "Chakram Dancer",
+      "Sprite Queen",
+      "Petal Pixie",
+      "Not So Fast"
+    ],
+    "top_effect_tokens": [
+      "might",
+      "shield"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 14.0091,
+    "shell_coverage_count": 2,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 67,
+    "label": "WC68 | Lux | play | hand",
+    "top_cards": [
+      "Ashe - Focused",
+      "Vanguard Armory",
+      "Plundering Poro",
+      "Jayce - Man of Progress",
+      "Drag Under",
+      "Card Sharp",
+      "Falling Comet",
+      "The Ruination"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "hand"
+    ],
+    "sample_deck_count": 3,
+    "avg_competitive_score": 12.3262,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 68,
+    "label": "WC69 | turn | play",
+    "top_cards": [
+      "Mask of Foresight",
+      "Wielder of Water",
+      "Stacked Deck",
+      "Mindsplitter",
+      "En Garde",
+      "Fight or Flight",
+      "Ride the Wind",
+      "Traveling Merchant"
+    ],
+    "top_effect_tokens": [
+      "turn",
+      "play"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 69,
+    "label": "WC70 | Ivern | here | while",
+    "top_cards": [
+      "Trusty Ramhound",
+      "Frisky Hunter",
+      "Mutated Mouser",
+      "Loyal Poro",
+      "Daisy!",
+      "Friendship",
+      "Stalwart Poro",
+      "Flurry of Feathers"
+    ],
+    "top_effect_tokens": [
+      "here",
+      "while"
+    ],
+    "sample_deck_count": 1,
+    "avg_competitive_score": 10.7239,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 70,
+    "label": "WC71 | Diana | spell | turn",
+    "top_cards": [
+      "Hwei - Brooding Painter",
+      "Moonfall",
+      "Vex - Apathetic",
+      "Ravenbloom Student",
+      "Diana - Lunari",
+      "Stupefy",
+      "Abandon",
+      "Kha'Zix - Mutating Horror"
+    ],
+    "top_effect_tokens": [
+      "spell",
+      "turn"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 11.4331,
+    "shell_coverage_count": 2,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 71,
+    "label": "WC72 | Azir | unit | play",
+    "top_cards": [
+      "Arise!",
+      "Guards!",
+      "Soul Sword",
+      "Shadow's Call",
+      "Eye of the Herald",
+      "Doran's Shield",
+      "Brutalizer",
+      "B.F. Sword"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "play"
+    ],
+    "sample_deck_count": 6,
+    "avg_competitive_score": 17.1422,
+    "shell_coverage_count": 1,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 72,
+    "label": "WC73 | Vi | play | might",
+    "top_cards": [
+      "Inferna",
+      "Carrion Dredger",
+      "Divining Shells",
+      "Right of Conquest",
+      "Yeti Brawler",
+      "Towering Pairofant",
+      "Crimson Pigeons",
+      "Vault Breaker"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "might"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 9.7744,
+    "shell_coverage_count": 2,
+    "archetype_count": 2
+  },
+  {
+    "component_id": 73,
+    "label": "WC74 | play | unit",
+    "top_cards": [
+      "Kinkou Initiate",
+      "Grim Resolve",
+      "Shepherd's Heirloom",
+      "Sacrifice",
+      "Challenge",
+      "First Mate",
+      "Irresistible Faefolk",
+      "Tactical Retreat"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 0,
+    "avg_competitive_score": 0.0,
+    "shell_coverage_count": 0,
+    "archetype_count": 0
+  },
+  {
+    "component_id": 74,
+    "label": "WC75 | Master Yi | hunt | conquer",
+    "top_cards": [
+      "Wuju Apprentice",
+      "Gemhand Hunter",
+      "Concentrate",
+      "Herald of Spring",
+      "Voracious Gromp",
+      "Alpha Strike",
+      "Grim Resolve",
+      "Master Yi - Tempered"
+    ],
+    "top_effect_tokens": [
+      "hunt",
+      "conquer"
+    ],
+    "sample_deck_count": 4,
+    "avg_competitive_score": 14.7694,
+    "shell_coverage_count": 1,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 75,
+    "label": "WC76 | Vex | play | while",
+    "top_cards": [
+      "Wuju Apprentice",
+      "Back Off",
+      "Skyward Strike",
+      "Blast Cone",
+      "Allay - Eager Admirer",
+      "Mosstomper",
+      "Mister Root",
+      "Herald of Spring"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "while"
+    ],
+    "sample_deck_count": 5,
+    "avg_competitive_score": 11.394,
+    "shell_coverage_count": 4,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 76,
+    "label": "WC77 | Poppy | gain | hunt",
+    "top_cards": [
+      "Keeper's Verdict",
+      "Demacian Diplomat",
+      "Voracious Gromp",
+      "Master Yi - Tempered",
+      "Enthralling Protector",
+      "Poppy - Paragon",
+      "Rengar - Trophy Hunter",
+      "Galio - Indefatigable"
+    ],
+    "top_effect_tokens": [
+      "gain",
+      "hunt"
+    ],
+    "sample_deck_count": 8,
+    "avg_competitive_score": 11.9432,
+    "shell_coverage_count": 4,
+    "archetype_count": 8
+  },
+  {
+    "component_id": 77,
+    "label": "WC78 | Ivern | play | reaction",
+    "top_cards": [
+      "Scuttle Crab",
+      "Meditation",
+      "Vilemaw",
+      "Defy",
+      "Seal of Focus",
+      "Friendship",
+      "Discipline",
+      "Adaptatron"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "reaction"
+    ],
+    "sample_deck_count": 2,
+    "avg_competitive_score": 10.7727,
+    "shell_coverage_count": 2,
+    "archetype_count": 1
+  },
+  {
+    "component_id": 78,
+    "label": "WC79 | Irelia | unit | move",
+    "top_cards": [
+      "Stellacorn Herder",
+      "Defiant Dance",
+      "Boots of Swiftness",
+      "En Garde",
+      "Tideturner",
+      "Guardian Angel",
+      "Discipline",
+      "Charm"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "move"
+    ],
+    "sample_deck_count": 10,
+    "avg_competitive_score": 21.0179,
+    "shell_coverage_count": 2,
+    "archetype_count": 7
+  },
+  {
+    "component_id": 79,
+    "label": "WC80 | Lee Sin | play | unit",
+    "top_cards": [
+      "Lonely Poro",
+      "Discipline",
+      "Charm",
+      "Defy",
+      "Thwonk!",
+      "Navori Scout",
+      "En Garde",
+      "Guardian Angel"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 7,
+    "avg_competitive_score": 11.8808,
+    "shell_coverage_count": 5,
+    "archetype_count": 7
+  },
+  {
+    "component_id": 80,
+    "label": "WC81 | Sett | equip | unit",
+    "top_cards": [
+      "Lucian - Merciless",
+      "Doran's Blade",
+      "Warmog's Armor",
+      "Punch First",
+      "Boneshiver",
+      "Strike Down",
+      "Akshan - Mischievous",
+      "Yone - Blademaster"
+    ],
+    "top_effect_tokens": [
+      "equip",
+      "unit"
+    ],
+    "sample_deck_count": 44,
+    "avg_competitive_score": 13.5221,
+    "shell_coverage_count": 11,
+    "archetype_count": 39
+  },
+  {
+    "component_id": 81,
+    "label": "WC82 | Fiora | have | unit",
+    "top_cards": [
+      "Unsung Hero",
+      "Riposte",
+      "B.F. Sword",
+      "Pit Rookie",
+      "Sett - Brawler",
+      "Fiora - Victorious",
+      "Fiora - Worthy",
+      "Punch First"
+    ],
+    "top_effect_tokens": [
+      "have",
+      "unit"
+    ],
+    "sample_deck_count": 34,
+    "avg_competitive_score": 16.9276,
+    "shell_coverage_count": 5,
+    "archetype_count": 25
+  },
+  {
+    "component_id": 82,
+    "label": "WC83 | Renata Glasc | play | gold",
+    "top_cards": [
+      "Card Sharp",
+      "Blood Money",
+      "Premonition",
+      "Honest Broker",
+      "Wages of Pain",
+      "Hostile Takeover",
+      "Plundering Poro",
+      "Renata Glasc - Mastermind"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "gold"
+    ],
+    "sample_deck_count": 19,
+    "avg_competitive_score": 8.5845,
+    "shell_coverage_count": 5,
+    "archetype_count": 18
+  },
+  {
+    "component_id": 83,
+    "label": "WC84 | Ezreal | play | cost",
+    "top_cards": [
+      "Bewitching Spirit",
+      "Fizz - Trickster",
+      "Downwell",
+      "Ezreal - Prodigy",
+      "Existential Dread",
+      "Rhasa the Sunderer",
+      "Last Rites",
+      "Hard Bargain"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "cost"
+    ],
+    "sample_deck_count": 12,
+    "avg_competitive_score": 17.023,
+    "shell_coverage_count": 8,
+    "archetype_count": 11
+  },
+  {
+    "component_id": 84,
+    "label": "WC85 | Darius | assault | might",
+    "top_cards": [
+      "Vault Breaker",
+      "Inferna",
+      "Rengar - Unseen",
+      "Sharkling",
+      "Tactical Retreat",
+      "Grim Apothecary",
+      "Vayne - Hunter",
+      "Heroic Charge"
+    ],
+    "top_effect_tokens": [
+      "assault",
+      "might"
+    ],
+    "sample_deck_count": 5,
+    "avg_competitive_score": 11.2471,
+    "shell_coverage_count": 3,
+    "archetype_count": 4
+  },
+  {
+    "component_id": 85,
+    "label": "WC86 | Annie | unit | may",
+    "top_cards": [
+      "Overzealous Fan",
+      "Vex - Apathetic",
+      "Abandon",
+      "Fae Porter",
+      "Gust",
+      "Existential Dread",
+      "Shadow",
+      "Charm"
+    ],
+    "top_effect_tokens": [
+      "unit",
+      "may"
+    ],
+    "sample_deck_count": 35,
+    "avg_competitive_score": 15.1911,
+    "shell_coverage_count": 12,
+    "archetype_count": 34
+  },
+  {
+    "component_id": 86,
+    "label": "WC87 | Teemo | hidden | hide",
+    "top_cards": [
+      "Teemo - Strategist",
+      "Windsinger",
+      "Nocturne - Horrifying",
+      "Evelynn - Entrancing",
+      "Pyke - Returned",
+      "Guerilla Warfare",
+      "Teemo - Scout",
+      "Switcheroo"
+    ],
+    "top_effect_tokens": [
+      "hidden",
+      "hide"
+    ],
+    "sample_deck_count": 32,
+    "avg_competitive_score": 12.3024,
+    "shell_coverage_count": 2,
+    "archetype_count": 29
+  },
+  {
+    "component_id": 87,
+    "label": "WC88 | Kai'Sa | play | unit",
+    "top_cards": [
+      "Hextech Ray",
+      "Watchful Sentry",
+      "Falling Star",
+      "Retreat",
+      "Thousand-Tailed Watcher",
+      "Stupefy",
+      "Lecturing Yordle",
+      "Pouty Poro"
+    ],
+    "top_effect_tokens": [
+      "play",
+      "unit"
+    ],
+    "sample_deck_count": 170,
+    "avg_competitive_score": 15.1897,
+    "shell_coverage_count": 12,
+    "archetype_count": 101
+  }
+]

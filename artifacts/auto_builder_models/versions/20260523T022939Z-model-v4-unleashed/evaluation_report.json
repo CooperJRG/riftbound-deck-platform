@@ -1,0 +1,67 @@
+{
+  "nextCardTop10Recall": 0.5938,
+  "maskedDeckReconstructionExactCardRecall": 0.1406,
+  "winConditionClusterSilhouette": -0.0257,
+  "competitiveScoreSpearman": 0.6025,
+  "moeLoadBalanceLoss": 3.002642,
+  "collectionFirstRecommendationHitRate": 0.8986,
+  "strictBuildableRecommendationHitRate": 0.1774,
+  "strictBuildableCandidateCountP50": 0.0,
+  "strictBuildableCandidateCountP90": 1.0,
+  "strictBuildableEmptyResultRate": 0.8197,
+  "winConditionSelectionTable": {
+    "88": {
+      "recommendationHitRate": 0.8986,
+      "strictBuildableHitRate": 0.1774,
+      "reconstructionRecall": 0.3364,
+      "topicCoherence": 0.2335,
+      "shellCoverageBalance": 0.04,
+      "silhouette": -0.0257,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.8197,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1684
+    },
+    "104": {
+      "recommendationHitRate": 0.8957,
+      "strictBuildableHitRate": 0.1751,
+      "reconstructionRecall": 0.3018,
+      "topicCoherence": 0.2234,
+      "shellCoverageBalance": 0.036,
+      "silhouette": -0.062,
+      "strictBuildableCandidateCountP50": 0.0,
+      "strictBuildableCandidateCountP90": 1.0,
+      "strictBuildableEmptyResultRate": 0.8185,
+      "strictBuildableCandidateDensity": 0.15,
+      "compositeScore": 0.1602
+    }
+  },
+  "synergySelectionTable": {
+    "96": {
+      "replacementQuality": 0.761,
+      "modularityProxy": 0.4102,
+      "coverageScore": 0.3062,
+      "buildableRepairSuccess": 0.5073,
+      "silhouette": 0.0063,
+      "clusterSizeRegularization": 0.9271,
+      "compositeScore": 0.5098
+    },
+    "224": {
+      "replacementQuality": 0.573,
+      "modularityProxy": 0.0338,
+      "coverageScore": 0.1395,
+      "buildableRepairSuccess": 0.4905,
+      "silhouette": -0.1399,
+      "clusterSizeRegularization": 0.183,
+      "compositeScore": 0.2878
+    }
+  },
+  "sourceCountsByAdapter": {
+    "riftboundgg": 898,
+    "piltoverarchive": 1005,
+    "riot-bologna": 27,
+    "mobalytics-tournament": 49
+  },
+  "sourceFailuresByAdapter": {}
+}

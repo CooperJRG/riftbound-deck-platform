@@ -608,6 +608,20 @@ class _MoECandidateScorer(nn.Module):
         return torch.sum(selected_outputs * sparse_scores, dim=1)
 
 
+def _resolve_generator_candidate_dim(generator_state: dict[str, Any]) -> int:
+    explicit = int(generator_state.get("candidateDim") or 0)
+    if explicit > 0:
+        return explicit
+    state_dim = int(generator_state.get("stateDim") or 0)
+    state_dict = generator_state.get("stateDict") or {}
+    weight = state_dict.get("experts.0.0.weight")
+    if weight is not None and state_dim > 0:
+        inferred = int(weight.shape[1]) - state_dim - 64
+        if inferred > 0:
+            return inferred
+    return _EMBEDDING_DIM
+
+
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -1587,7 +1601,7 @@ def train_generator_moe(
     _prepare_torch_runtime(device)
     model = _MoECandidateScorer(state_dim=state_dim, candidate_dim=_EMBEDDING_DIM, legend_count=max(1, len(legends)), champion_count=max(1, len(champions))).to(device)
     if states.shape[0] <= 0:
-        return {"stateDim": state_dim, "winVectorSize": win_vector_size, "clusterVectorSize": cluster_count, "textEmbDim": resolved_text_emb_dim, "legendToIdx": legend_to_idx, "championToIdx": champion_to_idx, "epochs": 0, "loss": 0.0, "avgLoadBalanceLoss": 0.0, "mainDeckSize": int(total_main_slots), "torchDevice": device.type, "stateDict": {key: value.detach().cpu() for key, value in model.state_dict().items()}}
+        return {"stateDim": state_dim, "candidateDim": _EMBEDDING_DIM, "winVectorSize": win_vector_size, "clusterVectorSize": cluster_count, "textEmbDim": resolved_text_emb_dim, "legendToIdx": legend_to_idx, "championToIdx": champion_to_idx, "epochs": 0, "loss": 0.0, "avgLoadBalanceLoss": 0.0, "mainDeckSize": int(total_main_slots), "torchDevice": device.type, "stateDict": {key: value.detach().cpu() for key, value in model.state_dict().items()}}
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     epoch_total = max(1, int(epochs))
     scheduler_moe = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epoch_total, eta_min=1e-5)
@@ -1647,7 +1661,7 @@ def train_generator_moe(
                 extra={"epoch": epoch_idx + 1, "epochs": epoch_total, "loss": round(float(last_loss), 6), "torchDevice": device.type},
             )
     avg_lb_loss = lb_loss_sum / max(1, lb_loss_count)
-    return {"stateDim": state_dim, "winVectorSize": win_vector_size, "clusterVectorSize": cluster_count, "textEmbDim": resolved_text_emb_dim, "legendToIdx": legend_to_idx, "championToIdx": champion_to_idx, "epochs": max(1, int(epochs)), "loss": last_loss, "avgLoadBalanceLoss": round(avg_lb_loss, 6), "mainDeckSize": int(total_main_slots), "torchDevice": device.type, "stateDict": {key: value.detach().cpu() for key, value in model.state_dict().items()}}
+    return {"stateDim": state_dim, "candidateDim": _EMBEDDING_DIM, "winVectorSize": win_vector_size, "clusterVectorSize": cluster_count, "textEmbDim": resolved_text_emb_dim, "legendToIdx": legend_to_idx, "championToIdx": champion_to_idx, "epochs": max(1, int(epochs)), "loss": last_loss, "avgLoadBalanceLoss": round(avg_lb_loss, 6), "mainDeckSize": int(total_main_slots), "torchDevice": device.type, "stateDict": {key: value.detach().cpu() for key, value in model.state_dict().items()}}
 
 
 def _win_condition_card_frequency(rows: list[TrainingDeckRow], dominant_components: np.ndarray) -> dict[int, dict[str, float]]:
@@ -2793,7 +2807,7 @@ def _persist_artifacts(
         if card_text_embeddings:
             emb_payload["textVectors"] = {key: vec.tolist() for key, vec in card_text_embeddings.items()}
         torch.save(emb_payload, temp_dir / "card_embeddings.pt")
-        torch.save({"stateDim": moe_payload["stateDim"], "winVectorSize": moe_payload.get("winVectorSize", _WIN_VECTOR_SIZE), "clusterVectorSize": moe_payload.get("clusterVectorSize", _CLUSTER_VECTOR_SIZE), "textEmbDim": moe_payload.get("textEmbDim", 0), "legendToIdx": moe_payload.get("legendToIdx", {}), "championToIdx": moe_payload.get("championToIdx", {}), "mainDeckSize": moe_payload.get("mainDeckSize", 40), "trainingTorchDevice": moe_payload.get("torchDevice", ""), "stateDict": moe_payload["stateDict"]}, temp_dir / "generator_moe.pt")
+        torch.save({"stateDim": moe_payload["stateDim"], "candidateDim": int(moe_payload.get("candidateDim") or _EMBEDDING_DIM), "winVectorSize": moe_payload.get("winVectorSize", _WIN_VECTOR_SIZE), "clusterVectorSize": moe_payload.get("clusterVectorSize", _CLUSTER_VECTOR_SIZE), "textEmbDim": moe_payload.get("textEmbDim", 0), "legendToIdx": moe_payload.get("legendToIdx", {}), "championToIdx": moe_payload.get("championToIdx", {}), "mainDeckSize": moe_payload.get("mainDeckSize", 40), "trainingTorchDevice": moe_payload.get("torchDevice", ""), "stateDict": moe_payload["stateDict"]}, temp_dir / "generator_moe.pt")
         (temp_dir / "win_condition_components.json").write_text(json.dumps([asdict(item) for item in win_conditions], indent=2), encoding="utf-8")
         (temp_dir / "synergy_clusters.json").write_text(json.dumps([asdict(item) for item in synergy_clusters], indent=2), encoding="utf-8")
         (temp_dir / "shell_profiles.json").write_text(json.dumps([asdict(item) for item in shell_profiles], indent=2), encoding="utf-8")
