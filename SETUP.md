@@ -54,7 +54,19 @@ RB_META_AUTO_REFRESH_ENABLED=0
 
 This runs the app fully locally using SQLite — no Supabase login or internet connection required.
 
-## 5. Run the app
+## 5. Auto-builder model
+
+The trained model artifacts are included in the repo under `artifacts/auto_builder/`. The current model is **Model-v4-Unleashed**, trained on 2479 decks including the full Unleashed (UNL) set.
+
+No extra download is needed — `git clone` above already fetches the artifacts. If you want to retrain from scratch, run:
+
+```powershell
+python scripts/run_training.py
+```
+
+> Retraining requires PyTorch (from `requirements-dev.txt`) and takes ~50 min on a CUDA GPU.
+
+## 6. Run the app
 
 ```powershell
 python run.py
@@ -62,7 +74,7 @@ python run.py
 
 Then open **http://127.0.0.1:8010** in your browser.
 
-## 6. Run tests (optional)
+## 7. Run tests (optional)
 
 ```powershell
 python -m pytest -q
