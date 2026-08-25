@@ -6,7 +6,12 @@
  * Collection mode is the precise-but-expensive option, offered second.
  */
 
-import type { AvailabilityMode, AvailabilityProfile, CardFacets } from "../api/types";
+import type {
+  AvailabilityMode,
+  AvailabilityProfile,
+  CardFacets,
+  ExcludedCard,
+} from "../api/types";
 import {
   setAvailabilityMode,
   setStrict,
@@ -48,20 +53,19 @@ function modeButton(mode: AvailabilityMode, active: boolean): HTMLElement {
   );
 }
 
-function excludedChip(cardId: string): HTMLElement {
-  const known = store.state.deckCards.get(cardId);
+function excludedChip(entry: ExcludedCard): HTMLElement {
   return h(
     "span",
     { class: "chip" },
-    known?.card.name ?? cardId,
+    entry.name,
     h(
       "button",
       {
         class: "chip-x",
         type: "button",
         title: "I do have this after all",
-        aria: { label: `Remove ${known?.card.name ?? cardId}` },
-        on: { click: () => void unexcludeCard(cardId) },
+        aria: { label: `Remove ${entry.name}` },
+        on: { click: () => void unexcludeCard(entry.cardId) },
       },
       "×",
     ),
@@ -134,12 +138,12 @@ export function renderAvailability(root: HTMLElement): void {
       h(
         "div",
         { class: "exclusions" },
-        profile.excludedCardIds.length > 0
+        profile.excludedCards.length > 0
           ? h(
               "div",
               { class: "chips" },
               h("span", { class: "chips-label" }, "Missing:"),
-              ...profile.excludedCardIds.map(excludedChip),
+              ...profile.excludedCards.map(excludedChip),
             )
           : h(
               "p",

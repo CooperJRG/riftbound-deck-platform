@@ -29,7 +29,7 @@ from typing import Any, Iterable
 
 from ..domain.cards import Card, Catalog, Printing, build_catalog
 
-BUNDLE_FORMAT_VERSION = 1
+BUNDLE_FORMAT_VERSION = 2
 CURRENT_LINK_NAME = "current"
 
 
@@ -144,6 +144,7 @@ def card_to_dict(card: Card) -> dict[str, Any]:
         "effect": card.effect,
         "flavor": card.flavor,
         "unique": card.unique,
+        "bannedUpstream": card.banned_upstream,
         "printings": [
             {
                 "printId": p.print_id,
@@ -190,6 +191,7 @@ def card_from_dict(raw: dict[str, Any]) -> Card:
         effect=str(raw.get("effect") or ""),
         flavor=str(raw.get("flavor") or ""),
         unique=bool(raw.get("unique")),
+        banned_upstream=bool(raw.get("bannedUpstream")),
         printings=printings,
     )
 

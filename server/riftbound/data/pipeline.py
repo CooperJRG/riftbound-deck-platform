@@ -34,17 +34,24 @@ from .bundle import (
 from .gate import diff_summary, run_gate
 from .normalize import normalize
 from .sources.base import CardSource, FetchResult
+from .sources.dotgg import DotGGSource
 from .sources.json_export import JsonExportSource
 
+#: Raw source responses are kept here for replay and diffing. Gitignored: cache, not
+#: source code. v2 committed 2,268 scraped files.
+INGEST_CACHE = ROOT / "var" / "ingest"
 
-def default_sources(explicit: Path | None = None) -> list[CardSource]:
+
+def default_sources(local_export: Path | None = None) -> list[CardSource]:
     """The sources an ordinary ``build`` runs.
 
-    Network adapters (dotgg, Piltover Archive, riftbound.gg) register here as they are
-    written; each is independent, so adding one cannot break the others.
+    ``--source PATH`` swaps in a local export instead, for working offline. Additional
+    network adapters (Piltover Archive, riftbound.gg) register here as they are
+    written; each is independent, so one going down cannot break the others.
     """
-    seed = explicit or (ROOT / "data" / "seed" / "cards-export.json")
-    return [JsonExportSource(seed, name="json-export")]
+    if local_export is not None:
+        return [JsonExportSource(local_export, name="json-export")]
+    return [DotGGSource(cache_dir=INGEST_CACHE)]
 
 
 def _current_bundle(bundles_dir: Path) -> Bundle | None:
@@ -91,6 +98,19 @@ def cmd_build(args: argparse.Namespace) -> int:
     print(f"\nNormalised: {diff_summary(cards, previous)}")
     print(f"            {len(raws)} printings -> {len(cards)} gameplay cards")
 
+    by_set: dict[str, int] = {}
+    for card in cards:
+        for code in card.set_codes:
+            by_set[code] = by_set.get(code, 0) + 1
+    print("            sets: " + ", ".join(f"{k} {v}" for k, v in sorted(by_set.items())))
+
+    drift = _ban_drift(cards, cfg)
+    if drift:
+        print("\nBan list drift - the source and your rules profile disagree:")
+        for line in drift:
+            print(f"  {line}")
+        print("  Rules profiles decide legality, so edit data/rules/*.json to act on this.")
+
     report = run_gate(cards, sources=health, previous=previous)
     print("\nValidation gate:")
     print(report.render())
@@ -105,7 +125,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     print(f"\nWrote bundle {bundle.manifest.bundle_id} -> {bundle.path}")
 
     if not report.passed:
-        print("\nGate FAILED — bundle written for inspection but not promoted.")
+        print("\nGate FAILED - bundle written for inspection but not promoted.")
         return 1
 
     if args.promote:
@@ -117,6 +137,35 @@ def cmd_build(args: argparse.Namespace) -> int:
             f"  python -m riftbound.data.pipeline promote {bundle.manifest.bundle_id}"
         )
     return 0
+
+
+def _ban_drift(cards: Sequence, cfg) -> list[str]:
+    """Compare the source's ban flags against each format's authored ban list.
+
+    Ban lists go stale the same way set lists do. The rules profile stays the authority
+    on legality -- this only reports the difference so a human can act on it.
+    """
+    try:
+        from ..domain.rules import load_format_rules_dir
+        profiles = load_format_rules_dir(cfg.rules_dir)
+    except (FileNotFoundError, ValueError):
+        return []
+
+    by_id = {c.card_id: c for c in cards}
+    upstream = {c.card_id for c in cards if c.banned_upstream}
+    lines: list[str] = []
+    for name, profile in sorted(profiles.items()):
+        authored: set[str] = set()
+        unknown: list[str] = []
+        for raw_name in profile.list_constraint("banned_cards"):
+            from ..domain.ids import card_id_for
+            cid = card_id_for(raw_name)
+            (authored.add(cid) if cid in by_id else unknown.append(raw_name))
+        for cid in sorted(upstream - authored):
+            lines.append(f"{name}: source bans {by_id[cid].name!r}, profile does not")
+        for raw_name in unknown:
+            lines.append(f"{name}: profile bans {raw_name!r}, which is not in the card data")
+    return lines
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -147,7 +196,7 @@ def cmd_promote(args: argparse.Namespace) -> int:
     print("Validation gate:")
     print(report.render())
     if not report.passed and not args.force:
-        print("\nGate FAILED — refusing to promote. Pass --force to override.")
+        print("\nGate FAILED - refusing to promote. Pass --force to override.")
         return 1
     promote(cfg.bundles_dir, args.bundle_id)
     print(f"\nPromoted {args.bundle_id} to current.")
@@ -185,7 +234,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_build = sub.add_parser("build", help="ingest, normalise, validate, write a bundle")
     p_build.add_argument("--promote", action="store_true", help="promote if the gate passes")
-    p_build.add_argument("--source", help="path to a local JSON card export")
+    p_build.add_argument(
+        "--source", help="build from a local JSON export instead of the network"
+    )
     p_build.add_argument("--notes", help="note recorded in the manifest")
     p_build.set_defaults(func=cmd_build)
 

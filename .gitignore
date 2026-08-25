@@ -34,3 +34,6 @@ var/
 .DS_Store
 Thumbs.db
 *.log
+
+# Raw ingest responses — cache, not source
+var/

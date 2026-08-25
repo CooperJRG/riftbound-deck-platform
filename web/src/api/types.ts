@@ -139,12 +139,18 @@ export interface ExclusionRuleView {
   description: string;
 }
 
+/** An excluded card, named by the server so the client never shows a bare id. */
+export interface ExcludedCard {
+  cardId: string;
+  name: string;
+}
+
 export interface AvailabilityProfile {
   mode: AvailabilityMode;
   strict: boolean;
   penalty: number;
   description: string;
-  excludedCardIds: string[];
+  excludedCards: ExcludedCard[];
   rules: ExclusionRuleView[];
   ownedCardCount: number;
 }

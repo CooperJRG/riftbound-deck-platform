@@ -251,7 +251,7 @@ export async function setAvailabilityMode(mode: AvailabilityMode): Promise<void>
     api.setAvailability({
       mode,
       strict: current?.strict ?? false,
-      excludedCardIds: current?.excludedCardIds ?? [],
+      excludedCardIds: (current?.excludedCards ?? []).map((c) => c.cardId),
       rules: (current?.rules ?? []).map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );
@@ -264,7 +264,7 @@ export async function setStrict(strict: boolean): Promise<void> {
     api.setAvailability({
       mode: current.mode,
       strict,
-      excludedCardIds: current.excludedCardIds,
+      excludedCardIds: current.excludedCards.map((c) => c.cardId),
       rules: current.rules.map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );
@@ -289,7 +289,7 @@ export async function toggleRule(kind: string, value: string): Promise<void> {
     api.setAvailability({
       mode: "exclusion",
       strict: current.strict,
-      excludedCardIds: current.excludedCardIds,
+      excludedCardIds: current.excludedCards.map((c) => c.cardId),
       rules: rules.map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );

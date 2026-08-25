@@ -84,11 +84,16 @@ Leave the terminal window open while you use it. Press `Ctrl + C` to stop.
 
 ## Card data
 
-The card list lives in a **bundle** — a dated, checksummed snapshot with a record of
-where it came from. Bundles are never edited in place, so a bad refresh can be inspected
-and rolled back rather than silently becoming the truth.
+Card data is fetched from the dotgg community card API. The card list lives in a
+**bundle** — a dated, checksummed snapshot with a record of where it came from. Bundles
+are never edited in place, so a bad refresh can be inspected and rolled back rather than
+silently becoming the truth.
+
+To pick up a newly released set, just re-run the build — nothing in the code enumerates
+known sets, so a new one needs no code change.
 
 ```bash
+python -m riftbound.data.pipeline build --promote   # fetch, validate, publish
 python -m riftbound.data.pipeline build      # fetch and validate, don't publish
 python -m riftbound.data.pipeline list       # what's on disk
 python -m riftbound.data.pipeline promote ID # publish a specific bundle
@@ -99,6 +104,17 @@ python -m riftbound.data.pipeline show       # what's live, and how healthy its 
 validation — in particular, one that has *lost* a meaningful number of cards, which is
 what a broken scraper looks like. Sources that fail are recorded in the bundle manifest
 and visible at `/api/data/bundle`.
+
+It also reports **ban-list drift**: cards the source marks banned that your format
+profile does not (or the reverse). Rules profiles in `data/rules/` remain the authority
+on legality, so acting on a drift report is a deliberate edit, never automatic.
+
+Working offline, or want to build from a known-good file? Point it at the bundled seed
+export instead of the network:
+
+```bash
+python -m riftbound.data.pipeline build --promote --source data/seed/cards-export.json
+```
 
 ---
 

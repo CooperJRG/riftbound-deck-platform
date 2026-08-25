@@ -205,7 +205,7 @@ def test_excluding_one_card_switches_to_exclusion_mode(client):
     """The onboarding path: no collection, one click, immediately useful."""
     body = client.post("/api/availability/exclude/harpoon-squad").json()
     assert body["mode"] == "exclusion"
-    assert body["excludedCardIds"] == ["harpoon-squad"]
+    assert body["excludedCards"] == [{"cardId": "harpoon-squad", "name": "Harpoon Squad"}]
     assert body["strict"] is False, "soft by default"
 
 
@@ -238,7 +238,14 @@ def test_coverage_names_the_cards_the_player_lacks(client):
 def test_unexcluding_restores_full_weight(client):
     client.post("/api/availability/exclude/harpoon-squad")
     body = client.delete("/api/availability/exclude/harpoon-squad").json()
-    assert body["excludedCardIds"] == []
+    assert body["excludedCards"] == []
+
+
+def test_excluded_cards_come_back_named(client):
+    """The client must never have to render a bare card id."""
+    client.post("/api/availability/exclude/harpoon-squad")
+    entry = client.get("/api/availability").json()["excludedCards"][0]
+    assert entry == {"cardId": "harpoon-squad", "name": "Harpoon Squad"}
 
 
 def test_exclusion_rules_cover_a_class_of_cards(client):
@@ -260,7 +267,8 @@ def test_strict_mode_hides_cards_when_asked(client):
 
 def test_availability_survives_a_reload(client):
     client.post("/api/availability/exclude/harpoon-squad")
-    assert client.get("/api/availability").json()["excludedCardIds"] == ["harpoon-squad"]
+    stored = client.get("/api/availability").json()["excludedCards"]
+    assert [e["cardId"] for e in stored] == ["harpoon-squad"]
 
 
 def test_excluding_an_unknown_card_is_404(client):

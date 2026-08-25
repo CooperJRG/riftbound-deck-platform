@@ -9,7 +9,7 @@
  * lose focus and the caret after the first character.
  */
 
-import type { CardAvailability, CardFacets } from "../api/types";
+import type { Card, CardAvailability, CardFacets } from "../api/types";
 import { addCard, excludeCard, setFilter, zoneFor } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
@@ -42,6 +42,16 @@ function availabilityNote(row: CardAvailability): HTMLElement | null {
   return h("span", { class: "avail-note" }, label);
 }
 
+/**
+ * Battlefields are printed landscape; every other card is portrait. The grid rotates
+ * their art a quarter turn so every tile keeps the same silhouette (see `.is-landscape`
+ * in styles.css). Keyed off the card type rather than measuring the image, so a tile
+ * renders correctly on first paint instead of reflowing once the art loads.
+ */
+function hasLandscapeArt(card: Card): boolean {
+  return card.cardType === "Battlefield";
+}
+
 function cardTile(row: CardAvailability): HTMLElement {
   const { card } = row;
   const target = zoneFor(card);
@@ -51,7 +61,7 @@ function cardTile(row: CardAvailability): HTMLElement {
     { class: `tile${row.weight < 1 ? " is-dim" : ""}`, data: { cardId: card.cardId } },
     h(
       "div",
-      { class: "tile-art" },
+      { class: `tile-art${hasLandscapeArt(card) ? " is-landscape" : ""}` },
       card.imageUrl
         ? h("img", { src: card.imageUrl, alt: card.name, loading: "lazy" })
         : h("div", { class: "tile-art-empty" }, card.name.slice(0, 2)),

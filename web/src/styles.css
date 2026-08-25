@@ -332,12 +332,32 @@ h4 {
   position: relative;
   aspect-ratio: 3 / 4;
   background: var(--bg-input);
+  overflow: hidden;
 }
 .tile-art img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Battlefields are printed landscape (1039x744) while every other card is portrait
+   (744x1039) — exactly inverse. Laying the image out at the frame's inverted
+   dimensions and rotating it a quarter turn fills the portrait tile precisely, with
+   no cropping, so battlefields keep the same silhouette as the rest of the grid.
+
+   Offsets centre the pre-rotation box; rotating about its own centre then maps it
+   onto the frame. Doing the centring with `left`/`top` rather than a percentage
+   `translate` avoids depending on whether the translate resolves before or after the
+   rotation. */
+.tile-art.is-landscape img {
+  position: absolute;
+  width: 133.3333%; /* the frame's height, as a share of its width  (4/3) */
+  height: 75%; /*     the frame's width,  as a share of its height (3/4) */
+  left: -16.6667%; /* (100% - 133.3333%) / 2 */
+  top: 12.5%; /*      (100% -  75%)      / 2 */
+  transform: rotate(90deg);
+  transform-origin: center center;
 }
 .tile-art-empty {
   display: grid;

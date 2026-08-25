@@ -34,7 +34,7 @@ def get_availability(
     services: Services = Depends(get_services),
     identity: Identity = Depends(current_identity),
 ) -> AvailabilityView:
-    return availability_view(_load(services, identity.user_id))
+    return availability_view(_load(services, identity.user_id), services.catalog)
 
 
 @router.put("", response_model=AvailabilityView)
@@ -74,7 +74,7 @@ def set_availability(
         profile = AvailabilityProfile.open_profile()
 
     services.availability.save(profile, user_id=identity.user_id)
-    return availability_view(profile)
+    return availability_view(profile, services.catalog)
 
 
 @router.post("/exclude/{card_id}", response_model=AvailabilityView)
@@ -96,7 +96,7 @@ def exclude_card(
         penalty=current.penalty,
     )
     services.availability.save(profile, user_id=identity.user_id)
-    return availability_view(profile)
+    return availability_view(profile, services.catalog)
 
 
 @router.delete("/exclude/{card_id}", response_model=AvailabilityView)
@@ -113,7 +113,7 @@ def unexclude_card(
         penalty=current.penalty,
     )
     services.availability.save(profile, user_id=identity.user_id)
-    return availability_view(profile)
+    return availability_view(profile, services.catalog)
 
 
 @router.get("/rule-kinds")

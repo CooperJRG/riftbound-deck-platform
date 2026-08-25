@@ -1,0 +1,249 @@
+"""Network source adapters, and the rules that keep new releases flowing through.
+
+The Vendetta gap that prompted this file was two separate faults:
+
+* there was no network source at all, only a local seed export; and
+* ``set_code_for`` checked the slug prefix against a hardcoded allowlist, so even with
+  the data in hand, VEN and SGN would have normalised to an empty set code.
+
+The second is the more dangerous one, and :func:`test_a_set_released_tomorrow_needs_no_code_change`
+is its guard.
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import urllib.error
+
+import pytest
+
+from riftbound.data.normalize import (
+    KNOWN_SET_ORDER,
+    clean_rules_text,
+    normalize,
+    set_code_for,
+    set_rank,
+)
+from riftbound.data.sources.base import FetchResult
+from riftbound.data.sources.dotgg import DotGGSource
+from riftbound.domain.cards import coerce_domains
+
+
+def dotgg_row(**overrides) -> dict:
+    row = {
+        "id": "VEN-150",
+        "slug": "ven-150-acceleration-gate",
+        "name": "Acceleration Gate",
+        "effect": "Ready up to 4 units, gear, and/or runes.",
+        "flavor": None,
+        "color": ["Mind", "Body"],
+        "cost": "3",
+        "might": None,
+        "type": "Spell",
+        "supertype": "Signature",
+        "tags": ["Jayce"],
+        "set_name": "Vendetta",
+        "rarity": "Epic",
+        "image": "https://static.dotgg.gg/riftbound/cards/VEN-150.webp",
+        "promo": "0",
+        "banned": "0",
+    }
+    row.update(overrides)
+    return row
+
+
+class FakeResponse:
+    def __init__(self, payload: bytes):
+        self._payload = payload
+
+    def read(self) -> bytes:
+        return self._payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+
+def fake_urlopen(payload: object):
+    def opener(request, timeout=None):  # noqa: ARG001
+        return FakeResponse(json.dumps(payload).encode("utf-8"))
+
+    return opener
+
+
+# -- set codes must be derived, never enumerated ------------------------------
+
+
+def test_a_set_released_tomorrow_needs_no_code_change():
+    """The Vendetta regression guard.
+
+    A set code this file has never heard of must still normalise correctly, from the
+    slug alone. If this fails, every new release is blocked until someone edits a list.
+    """
+    assert set_code_for("zzz-001-some-future-card", "Some Future Set") == "ZZZ"
+    assert set_code_for("ven-150-acceleration-gate", "Vendetta") == "VEN"
+    assert set_code_for("sgn-001-a-secret", "Secret Garden Set") == "SGN"
+
+
+def test_unknown_sets_sort_after_known_ones():
+    """Ordering, not filtering: an unlisted set still ingests, it just sorts last."""
+    assert set_rank("OGN") < set_rank("VEN") < set_rank("ZZZ")
+    assert set_rank("ZZZ") == len(KNOWN_SET_ORDER)
+
+
+def test_set_name_fallback_when_the_slug_has_no_code():
+    assert set_code_for("", "Vendetta") == "VEN"
+    assert set_code_for("", "Secret Garden Set") == "SGN"
+
+
+def test_padded_set_code_is_tolerated():
+    """Upstream ships "SGN " with a trailing space in some ids."""
+    assert set_code_for("sgn-001-thing", "SGN ") == "SGN"
+
+
+def test_a_new_set_normalises_end_to_end():
+    cards = normalize([DotGGSource._to_raw(dotgg_row())])
+    assert len(cards) == 1
+    card = cards[0]
+    assert card.card_id == "acceleration-gate"
+    assert card.set_codes == ("VEN",)
+    assert card.printings[0].card_number == "150"
+
+
+# -- domains ------------------------------------------------------------------
+
+
+def test_list_domains_are_read_directly():
+    assert coerce_domains(["Mind", "Body"]) == (("Body", "Mind"), True)
+
+
+def test_packed_domains_still_work_for_older_exports():
+    assert coerce_domains("FuryChaos") == (("Chaos", "Fury"), True)
+
+
+def test_empty_domain_list_is_colourless_not_a_failure():
+    assert coerce_domains([]) == ((), True)
+
+
+def test_missing_domains_are_a_parse_failure():
+    """None means "we don't know", which must not be enforced as "no domains"."""
+    assert coerce_domains(None) == ((), False)
+
+
+def test_unrecognised_domain_names_are_a_parse_failure():
+    assert coerce_domains(["Nonsense"]) == ((), False)
+
+
+# -- rules text ---------------------------------------------------------------
+
+
+def test_html_line_breaks_become_newlines():
+    assert clean_rules_text("First line.<br />Second line.") == "First line.\nSecond line."
+
+
+def test_ability_symbol_markup_survives_html_stripping():
+    text = clean_rules_text("I must be assigned damage last.<br /> :rb_exhaust:: Deal damage.")
+    assert ":rb_exhaust:" in text
+    assert "<br" not in text
+
+
+def test_reminder_text_emphasis_is_stripped():
+    assert clean_rules_text("[Ganking] <em>(I can move.)</em>") == "[Ganking] (I can move.)"
+
+
+def test_list_markup_becomes_bullets():
+    out = clean_rules_text("<ul><li>Draw a card</li><li>Gain 1</li></ul>")
+    assert "• Draw a card" in out and "• Gain 1" in out
+    assert "<" not in out
+
+
+# -- the dotgg adapter --------------------------------------------------------
+
+
+def test_rows_map_onto_the_shared_raw_shape():
+    raw = DotGGSource._to_raw(dotgg_row())
+    assert raw.slug == "ven-150-acceleration-gate"
+    assert raw.card_number == "150"
+    assert raw.card_type == "Spell"
+    assert raw.super_type == "Signature"
+    assert raw.color == ["Mind", "Body"]
+    assert raw.promo is False
+    assert raw.banned is False
+
+
+def test_promo_and_banned_flags_are_strings_upstream():
+    raw = DotGGSource._to_raw(dotgg_row(promo="1", banned="1"))
+    assert raw.promo is True
+    assert raw.banned is True
+
+
+def test_upstream_ban_flag_reaches_the_card(monkeypatch):
+    cards = normalize([DotGGSource._to_raw(dotgg_row(banned="1"))])
+    assert cards[0].banned_upstream is True
+
+
+def test_a_successful_fetch_reports_row_counts(monkeypatch):
+    payload = [dotgg_row(id=f"VEN-{i:03d}", slug=f"ven-{i:03d}-card-{i}", name=f"Card {i}")
+               for i in range(250)]
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen(payload))
+    result = DotGGSource().fetch()
+    assert result.ok
+    assert result.fetched == 250
+    assert len(result.cards) == 250
+
+
+def test_a_network_failure_does_not_raise(monkeypatch):
+    def boom(request, timeout=None):  # noqa: ARG001
+        raise urllib.error.URLError("connection refused")
+
+    monkeypatch.setattr("urllib.request.urlopen", boom)
+    result = DotGGSource().fetch()
+    assert isinstance(result, FetchResult)
+    assert result.ok is False
+    assert "could not reach" in result.error
+
+
+def test_an_http_error_does_not_raise(monkeypatch):
+    def boom(request, timeout=None):  # noqa: ARG001
+        raise urllib.error.HTTPError("url", 503, "Service Unavailable", {}, None)
+
+    monkeypatch.setattr("urllib.request.urlopen", boom)
+    result = DotGGSource().fetch()
+    assert result.ok is False
+    assert "HTTP 503" in result.error
+
+
+def test_a_truncated_response_is_a_failure_not_a_shrunken_card_pool(monkeypatch):
+    """An API returning a handful of rows must not quietly replace the catalogue."""
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen([dotgg_row()]))
+    result = DotGGSource().fetch()
+    assert result.ok is False
+    assert "plausibility floor" in result.error
+
+
+def test_an_error_page_instead_of_json_is_a_failure(monkeypatch):
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen({"error": "nope"}))
+    result = DotGGSource().fetch()
+    assert result.ok is False
+    assert "expected a JSON array" in result.error
+
+
+def test_raw_responses_are_cached_for_replay(monkeypatch, tmp_path: Path):
+    payload = [dotgg_row(id=f"VEN-{i:03d}", slug=f"ven-{i:03d}-c{i}", name=f"C{i}")
+               for i in range(250)]
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen(payload))
+    DotGGSource(cache_dir=tmp_path).fetch()
+    cached = list(tmp_path.glob("dotgg-*.json"))
+    assert len(cached) == 1
+    assert len(json.loads(cached[0].read_text(encoding="utf-8"))) == 250
+
+
+def test_an_unwritable_cache_never_fails_an_ingest(monkeypatch, tmp_path: Path):
+    payload = [dotgg_row(id=f"VEN-{i:03d}", slug=f"ven-{i:03d}-c{i}", name=f"C{i}")
+               for i in range(250)]
+    monkeypatch.setattr("urllib.request.urlopen", fake_urlopen(payload))
+    monkeypatch.setattr(Path, "mkdir", lambda *a, **k: (_ for _ in ()).throw(OSError("read-only")))
+    assert DotGGSource(cache_dir=tmp_path / "nope").fetch().ok is True

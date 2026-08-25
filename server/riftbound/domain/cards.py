@@ -21,6 +21,25 @@ _DOMAIN_LOOKUP = {d.lower(): d for d in BASE_DOMAINS}
 RARITY_ORDER: tuple[str, ...] = ("Common", "Uncommon", "Rare", "Epic", "Showcase")
 
 
+def coerce_domains(color: object) -> tuple[tuple[str, ...], bool]:
+    """Domains from whatever shape a source supplies.
+
+    Modern sources give a proper list (``["Mind", "Body"]``); older exports pack them
+    into one string (``"MindBody"``). Both land here so no adapter has to know.
+    """
+    if isinstance(color, (list, tuple, set)):
+        found = tuple(
+            sorted({_DOMAIN_LOOKUP[str(c).strip().lower()]
+                    for c in color
+                    if str(c).strip().lower() in _DOMAIN_LOOKUP})
+        )
+        # A non-empty list whose entries we did not recognise is a parse failure;
+        # an empty list is a colourless card, which is a fact, not a failure.
+        recognised = len(found) == len([c for c in color if str(c).strip()])
+        return found, recognised
+    return parse_domains(color)
+
+
 def parse_domains(color: object) -> tuple[tuple[str, ...], bool]:
     """Split a packed colour string into domains.
 
@@ -83,6 +102,10 @@ class Card:
     effect: str
     flavor: str
     unique: bool
+    #: The source's own ban flag. Advisory only — a format's rules profile decides
+    #: legality. Kept so the pipeline can report when the two have drifted apart,
+    #: because ban lists go stale exactly the way set lists do.
+    banned_upstream: bool = False
     printings: tuple[Printing, ...] = field(default_factory=tuple)
 
     @property

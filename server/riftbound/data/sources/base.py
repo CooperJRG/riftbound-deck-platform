@@ -34,12 +34,16 @@ class RawCard:
     image_url: str = ""
     card_type: str = ""
     super_type: str = ""
-    color: str = ""
+    # A list of domain names from modern sources; older exports pack it as "FuryChaos".
+    color: str | Sequence[str] = ""
     cost: Any = None
     might: Any = None
     tags: Sequence[str] = field(default_factory=tuple)
     effect: str = ""
     flavor: str = ""
+    #: Whether the source marks this card banned. Advisory only -- the format's rules
+    #: profile remains the authority on legality; this drives drift detection.
+    banned: bool = False
 
 
 @dataclass

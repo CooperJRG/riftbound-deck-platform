@@ -155,12 +155,22 @@ class ExclusionRuleView(ApiModel):
     description: str
 
 
+class ExcludedCardView(ApiModel):
+    """An excluded card with its name resolved.
+
+    The server owns the catalogue, so it names these rather than leaving the client to
+    display a bare id for any card it has not happened to load.
+    """
+    card_id: str
+    name: str
+
+
 class AvailabilityView(ApiModel):
     mode: str
     strict: bool
     penalty: float
     description: str
-    excluded_card_ids: list[str]
+    excluded_cards: list[ExcludedCardView]
     rules: list[ExclusionRuleView]
     owned_card_count: int
 

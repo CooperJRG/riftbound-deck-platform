@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ..domain.availability import Availability, AvailabilityProfile, DeckCoverage
-from ..domain.cards import Card
+from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
 from ..domain.validator import ValidationResult
 from .schemas import (
@@ -11,6 +11,7 @@ from .schemas import (
     CardAvailabilityView,
     CardView,
     CoverageView,
+    ExcludedCardView,
     ExclusionRuleView,
     IssueView,
     PrintingView,
@@ -110,13 +111,21 @@ def deck_dict(deck: Deck) -> dict:
     }
 
 
-def availability_view(profile: AvailabilityProfile) -> AvailabilityView:
+def availability_view(
+    profile: AvailabilityProfile, catalog: Catalog | None = None
+) -> AvailabilityView:
+    def named(card_id: str) -> ExcludedCardView:
+        card = catalog.get(card_id) if catalog is not None else None
+        # Fall back to the id when a bundle no longer knows the card, so an exclusion
+        # made before a data refresh is still visible and removable.
+        return ExcludedCardView(card_id=card_id, name=card.name if card else card_id)
+
     return AvailabilityView(
         mode=profile.mode,
         strict=profile.strict,
         penalty=profile.penalty,
         description=profile.describe(),
-        excluded_card_ids=sorted(profile.excluded_cards),
+        excluded_cards=[named(cid) for cid in sorted(profile.excluded_cards)],
         rules=[
             ExclusionRuleView(kind=r.kind, value=r.value, description=r.describe())
             for r in profile.exclusion_rules

@@ -46,7 +46,15 @@ it can never invalidate your setup — where a recorded collection goes stale on
 | **Now** | `data/` is a pipeline inside the package: **sources → normalise → gate → bundle → promote**. |
 
 - **Sources** (`data/sources/`) are independent adapters that never raise. One site
-  changing its markup shows up as *that source* unhealthy in the bundle manifest.
+  changing its markup shows up as *that source* unhealthy in the bundle manifest. The
+  primary source is the dotgg card API (`data/sources/dotgg.py`), stdlib-only so the
+  base install stays tiny; `json_export.py` reads a local file for offline builds.
+- **No list of known sets gates ingestion.** Set codes are derived from the data, so a
+  release that postdates the code flows through untouched. This was a real bug: the
+  first cut of `set_code_for` checked the slug prefix against an allowlist, which would
+  have silently blanked Vendetta's and Secret Garden's set codes even with the data in
+  hand. `KNOWN_SET_ORDER` now affects only merge *ordering*, and
+  `test_a_set_released_tomorrow_needs_no_code_change` guards the distinction.
 - **Normalisation** (`data/normalize.py`) holds every piece of knowledge about how
   upstream data is broken, in one testable place. It merges reprints field by field
   rather than picking a "representative" row — which on the real data recovers ability
@@ -135,8 +143,13 @@ focused `<input>` on each keystroke blurs it.
 
 Deliberately out of scope for this milestone, with the seams already in place:
 
-- **Network card sources.** `data/sources/` has the adapter interface and one local-JSON
-  adapter; dotgg / Piltover Archive / riftbound.gg adapters slot in beside it.
+- **More card sources.** dotgg and a local-file adapter exist; Piltover Archive and
+  riftbound.gg slot in beside them for cross-checking. Cross-source disagreement is not
+  yet reconciled — today a single source is authoritative.
+- **Scheduled refresh.** Ingest is a manual command. It should run on a timer, with the
+  gate deciding whether the result gets promoted.
+- **Ban-list automation.** Drift between the source's ban flags and the rules profiles
+  is reported, not applied. Legality stays a deliberate human edit.
 - **Meta deck tracking.** Ingesting decklists needs the same bundle-and-gate treatment,
   plus a name→`card_id` resolver that *reports* what it could not resolve rather than
   dropping it silently as v2 did.

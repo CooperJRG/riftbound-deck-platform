@@ -24,44 +24,68 @@ from collections import defaultdict
 import re
 from typing import Iterable, Sequence
 
-from ..domain.cards import Card, Printing, parse_domains
+from ..domain.cards import Card, Printing, coerce_domains
 from ..domain.ids import card_id_for, clean_text, oracle_name, print_id_for
 from .sources.base import RawCard
 
-# Set codes in canonical release order. Used for ordering, and to recognise a code in
-# a slug prefix or a set name like "OGN - Origins".
-SET_ORDER: tuple[str, ...] = ("OGN", "OGS", "SFD", "UNL", "ARC")
+# Known sets in release order. Used **only to order printings** when merging fields;
+# it is never a filter. A set missing from this list ingests normally and simply sorts
+# after the known ones, which is the right behaviour for a new release.
+#
+# This distinction matters. An allowlist here would mean every new set needed a code
+# change before its cards could appear — exactly the staleness this rebuild exists to
+# avoid. Vendetta (VEN) shipped after the first version of this file and required no
+# code change to ingest; adding it below only refines merge ordering.
+KNOWN_SET_ORDER: tuple[str, ...] = ("OGN", "OGS", "SFD", "UNL", "VEN")
+
+# Fallback only, for sources that give a set name but no usable code in the slug.
 _SET_NAME_TO_CODE = {
     "origins": "OGN",
     "proving grounds": "OGS",
     "origins proving grounds": "OGS",
     "spiritforged": "SFD",
     "unleashed": "UNL",
+    "vendetta": "VEN",
     "arcane box set": "ARC",
+    "secret garden set": "SGN",
 }
-_SET_CODE_RE = re.compile(r"^([A-Za-z]{3})\b")
+_SET_CODE_RE = re.compile(r"^([A-Za-z]{3})(?:[-\s]|$)")
 
 # Ability symbols are encoded as ":rb_exhaust:" in good rows and stripped to nothing
 # in degraded ones. Presence of the markup means the text survived intact.
 _SYMBOL_MARKUP = re.compile(r":rb_[a-z_]+:")
+# Upstream embeds HTML in rules text: <br /> for line breaks, <em> for reminder text,
+# <ul>/<li> for modal choices. Strip it to plain text but keep the ability markup.
+_LINE_BREAK = re.compile(r"<br\s*/?>|</li>", re.IGNORECASE)
+_LIST_ITEM = re.compile(r"<li>", re.IGNORECASE)
+_HTML_TAG = re.compile(r"<[^>]+>")
 _UNIQUE_PHRASES = ("your deck can have only 1 card with this name",)
 
 
 def set_code_for(slug: str, set_name: str) -> str:
     """Canonical 3-letter set code.
 
-    The slug prefix is the reliable signal -- upstream lists the same set as both
-    "OGN - Origins" and bare "Origins", but every slug starts with the code.
+    Derived from the data, never checked against an allowlist, so a set released after
+    this code was written still gets a correct code. The slug prefix is the reliable
+    signal — upstream lists the same set as both "OGN - Origins" and bare "Origins",
+    but every slug starts with the code.
     """
-    match = _SET_CODE_RE.match(str(slug or ""))
-    if match and match.group(1).upper() in SET_ORDER:
+    match = _SET_CODE_RE.match(str(slug or "").strip())
+    if match:
         return match.group(1).upper()
-    name = clean_text(set_name)
+    name = clean_text(set_name).strip()
     match = _SET_CODE_RE.match(name)
-    if match and match.group(1).upper() in SET_ORDER:
+    if match and match.group(1).isupper():
         return match.group(1).upper()
     tail = name.split("-", 1)[-1].strip().casefold()
     return _SET_NAME_TO_CODE.get(tail, _SET_NAME_TO_CODE.get(name.casefold(), ""))
+
+
+def set_rank(code: str) -> int:
+    """Ordering position for a set code. Unknown — that is, newer — sets sort last."""
+    return (
+        KNOWN_SET_ORDER.index(code) if code in KNOWN_SET_ORDER else len(KNOWN_SET_ORDER)
+    )
 
 
 def _coerce_int(value: object) -> int | None:
@@ -81,6 +105,23 @@ def _coerce_str(value: object) -> str:
     return "" if text.lower() == "null" else text
 
 
+def clean_rules_text(value: object) -> str:
+    """Rules text as plain text, with ability symbol markup preserved.
+
+    Upstream embeds HTML in rules text. The UI renders card text as text, never as
+    markup, so tags are stripped here rather than being carried into the catalogue.
+    """
+    text = _coerce_str(value)
+    if not text:
+        return ""
+    text = _LINE_BREAK.sub("\n", text)
+    text = _LIST_ITEM.sub("• ", text)
+    text = _HTML_TAG.sub("", text)
+    # Collapse the blank lines that stripping <ul></ul> leaves behind.
+    lines = [line.strip() for line in text.split("\n")]
+    return "\n".join(line for line in lines if line)
+
+
 def _authority(raw: RawCard) -> tuple:
     """Sort key: the most trustworthy printing of a card first.
 
@@ -94,7 +135,7 @@ def _authority(raw: RawCard) -> tuple:
     return (
         1 if raw.promo else 0,
         1 if rarity == "Showcase" else 0,
-        SET_ORDER.index(code) if code in SET_ORDER else len(SET_ORDER),
+        set_rank(code),
         int(digits) if digits else 10**6,
         number,
     )
@@ -230,9 +271,9 @@ def normalize(
                 )
             )
 
-        effect = _best_text([_coerce_str(r.effect) for r in rows])
-        color = str(_first(_coerce_str(r.color) or None for r in rows) or "")
-        domains, domains_ok = parse_domains(color)
+        effect = _best_text([clean_rules_text(r.effect) for r in rows])
+        color = _first(r.color for r in rows if r.color)
+        domains, domains_ok = coerce_domains(color)
 
         tags: list[str] = []
         for raw in rows:
@@ -259,8 +300,9 @@ def normalize(
                 tags=tuple(tags),
                 champion_tags=(),  # filled in by _attach_champion_tags below
                 effect=effect,
-                flavor=_best_text([_coerce_str(r.flavor) for r in rows]),
+                flavor=_best_text([clean_rules_text(r.flavor) for r in rows]),
                 unique=_is_unique(effect),
+                banned_upstream=any(r.banned for r in rows),
                 printings=tuple(printings),
             )
         )
@@ -305,5 +347,6 @@ def _replace_tags(card: Card, champion_tags: tuple[str, ...]) -> Card:
         effect=card.effect,
         flavor=card.flavor,
         unique=card.unique,
+        banned_upstream=card.banned_upstream,
         printings=card.printings,
     )
