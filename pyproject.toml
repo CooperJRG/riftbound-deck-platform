@@ -1,0 +1,42 @@
+[project]
+name = "riftbound"
+version = "0.1.0"
+description = "Riftbound deck builder with collection-aware and exclusion-aware card availability"
+requires-python = ">=3.11"
+
+# Deliberately tiny. Deck building needs a web framework and nothing else.
+#
+# v2's base requirements excluded torch to keep the install light, but its service
+# container imported torch at module scope anyway, so the documented install produced
+# an app that could not start. Here the base set is genuinely sufficient: everything
+# in this list is needed to browse cards, build decks, and check legality.
+dependencies = [
+    "fastapi>=0.119,<1.0",
+    "uvicorn[standard]>=0.34,<1.0",
+    "pydantic>=2.12,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "httpx2>=0.29",         # starlette TestClient transport
+]
+
+[project.scripts]
+riftbound = "riftbound.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { "" = "server" }
+
+[tool.setuptools.packages.find]
+where = ["server"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "server"]
+addopts = "-q --strict-markers"
+filterwarnings = ["error::DeprecationWarning", "error::UserWarning"]

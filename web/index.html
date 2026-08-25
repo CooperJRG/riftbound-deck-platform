@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riftbound Deck Builder</title>
+  </head>
+  <body>
+    <div id="error" class="error-bar" hidden></div>
+
+    <header class="app-header">
+      <h1 class="app-title">Riftbound</h1>
+      <div id="availability" class="availability"></div>
+    </header>
+
+    <main class="app-body">
+      <section id="browser" class="panel panel-browser" aria-label="Card browser"></section>
+      <aside class="panel panel-deck">
+        <div id="deck" class="deck"></div>
+        <div id="library" class="library"></div>
+      </aside>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+"""The two-mode availability model.
+
+The behaviour these tests pin down is the direct answer to v2's
+``strictBuildableEmptyResultRate: 0.814`` -- soft by default, so a card the player
+lacks is de-emphasised rather than removed from consideration.
+"""
+
+from __future__ import annotations
+
+import pytest
+
+from riftbound.domain.availability import (
+    DEFAULT_PENALTY,
+    ExclusionRule,
+    AvailabilityProfile,
+    RULE_PROMO_ONLY,
+    RULE_RARITY,
+    RULE_SET,
+    deck_coverage,
+)
+
+
+# -- open mode ----------------------------------------------------------------
+
+
+def test_open_mode_makes_everything_fully_available(catalog):
+    profile = AvailabilityProfile.open_profile()
+    for card in catalog:
+        state = profile.resolve(card)
+        assert state.weight == 1.0
+        assert state.max_copies is None
+        assert state.available
+
+
+# -- exclusion mode -----------------------------------------------------------
+
+
+def test_excluded_card_is_de_emphasised_not_removed(catalog):
+    """The onboarding case: "I don't have Seal of Discord"."""
+    profile = AvailabilityProfile.from_exclusions(["harpoon-squad"])
+    excluded = profile.resolve(catalog.get("harpoon-squad"))
+    other = profile.resolve(catalog.get("brazen-buccaneer"))
+
+    assert excluded.weight == pytest.approx(DEFAULT_PENALTY)
+    assert excluded.available is True, "soft by default -- the builder may still use it"
+    assert excluded.max_copies is None
+    assert other.weight == 1.0
+
+
+def test_strict_exclusion_removes_the_card(catalog):
+    profile = AvailabilityProfile.from_exclusions(["harpoon-squad"], strict=True)
+    state = profile.resolve(catalog.get("harpoon-squad"))
+    assert state.weight == 0.0
+    assert state.available is False
+    assert state.max_copies == 0
+
+
+def test_exclusion_rule_covers_a_whole_class(catalog):
+    """One click instead of naming cards: "I don't have any Epics"."""
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule(RULE_RARITY, "Epic")])
+    assert profile.resolve(catalog.get("harpoon-squad")).is_penalised  # Epic
+    assert not profile.resolve(catalog.get("brazen-buccaneer")).is_penalised  # Common
+
+
+def test_set_exclusion_rule(catalog):
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule(RULE_SET, "UNL")])
+    assert profile.resolve(catalog.get("showcase-only")).is_penalised
+    assert not profile.resolve(catalog.get("brazen-buccaneer")).is_penalised
+
+
+def test_promo_only_rule_targets_cards_with_no_ordinary_printing(catalog):
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule(RULE_PROMO_ONLY)])
+    assert profile.resolve(catalog.get("showcase-only")).is_penalised
+    assert not profile.resolve(catalog.get("vi-destructive")).is_penalised
+
+
+def test_exclusion_reason_is_machine_readable(catalog):
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule(RULE_RARITY, "Epic")])
+    assert profile.resolve(catalog.get("harpoon-squad")).reason == "excluded:rarity=Epic"
+
+
+def test_new_cards_are_available_by_default_in_exclusion_mode(catalog):
+    """Self-healing across releases: a set the player has never heard of is usable."""
+    profile = AvailabilityProfile.from_exclusions(["harpoon-squad"])
+    brand_new = catalog.get("filler-01")
+    assert profile.resolve(brand_new).weight == 1.0
+
+
+# -- collection mode ----------------------------------------------------------
+
+
+def test_owned_cards_are_full_weight(catalog):
+    profile = AvailabilityProfile.from_collection({"brazen-buccaneer": 3})
+    state = profile.resolve(catalog.get("brazen-buccaneer"))
+    assert state.weight == 1.0
+    assert state.owned_copies == 3
+
+
+def test_unowned_cards_are_soft_by_default(catalog):
+    """v2 made this a hard constraint and returned nothing 81% of the time."""
+    profile = AvailabilityProfile.from_collection({"brazen-buccaneer": 3})
+    state = profile.resolve(catalog.get("harpoon-squad"))
+    assert state.weight == pytest.approx(DEFAULT_PENALTY)
+    assert state.available is True
+
+
+def test_strict_collection_caps_copies_at_what_is_owned(catalog):
+    profile = AvailabilityProfile.from_collection({"brazen-buccaneer": 2}, strict=True)
+    state = profile.resolve(catalog.get("brazen-buccaneer"))
+    assert state.max_copies == 2
+    assert profile.resolve(catalog.get("harpoon-squad")).available is False
+
+
+def test_zero_quantities_are_treated_as_not_owned(catalog):
+    profile = AvailabilityProfile.from_collection({"brazen-buccaneer": 0})
+    assert profile.resolve(catalog.get("brazen-buccaneer")).owned_copies == 0
+
+
+# -- profile validation -------------------------------------------------------
+
+
+def test_invalid_mode_is_rejected():
+    with pytest.raises(ValueError, match="mode must be one of"):
+        AvailabilityProfile(mode="nonsense")
+
+
+def test_penalty_must_be_a_fraction():
+    with pytest.raises(ValueError, match="penalty must be between"):
+        AvailabilityProfile(mode="open", penalty=1.5)
+
+
+# -- coverage reporting -------------------------------------------------------
+
+
+def test_coverage_counts_penalised_copies(catalog):
+    profile = AvailabilityProfile.from_exclusions(["harpoon-squad"])
+    coverage = deck_coverage({"brazen-buccaneer": 3, "harpoon-squad": 2}, profile=profile, catalog=catalog)
+    assert coverage.total_copies == 5
+    assert coverage.available_copies == 3
+    assert coverage.penalised_copies == 2
+    assert coverage.missing == (("harpoon-squad", 2, "excluded:card"),)
+
+
+def test_coverage_reports_partial_ownership(catalog):
+    profile = AvailabilityProfile.from_collection({"brazen-buccaneer": 1})
+    coverage = deck_coverage({"brazen-buccaneer": 3}, profile=profile, catalog=catalog)
+    assert coverage.available_copies == 1
+    assert coverage.missing == (("brazen-buccaneer", 2, "not-enough-copies"),)
+
+
+def test_coverage_reports_unknown_cards_rather_than_dropping_them(catalog):
+    """A card removed by a data refresh must be surfaced, not silently deleted."""
+    profile = AvailabilityProfile.open_profile()
+    coverage = deck_coverage({"card-that-no-longer-exists": 2}, profile=profile, catalog=catalog)
+    assert coverage.missing == (("card-that-no-longer-exists", 2, "unknown-card"),)
+
+
+def test_coverage_of_a_fully_available_deck_is_complete(catalog):
+    coverage = deck_coverage(
+        {"brazen-buccaneer": 3}, profile=AvailabilityProfile.open_profile(), catalog=catalog
+    )
+    assert coverage.is_complete
+    assert coverage.ratio == 1.0
+
+
+def test_describe_is_human_readable(catalog):
+    assert "every card" in AvailabilityProfile.open_profile().describe()
+    exclusion = AvailabilityProfile.from_exclusions(
+        ["harpoon-squad"], [ExclusionRule(RULE_RARITY, "Epic")]
+    )
+    text = exclusion.describe()
+    assert "De-emphasising" in text and "1 card" in text and "no Epic cards" in text
+    assert "Excluding" in AvailabilityProfile.from_exclusions(["x"], strict=True).describe()
