@@ -125,10 +125,12 @@ def catalog():
         ),
         make_card("banned-blade", "Banned Blade", domains=("Fury",)),
     ]
-    # Filler so a test deck can reach a legal 40 cards without noise.
+    # Filler so a test deck can reach a legal 40 cards without noise. 01-09 fill the
+    # main deck; 10-14 are deliberately left out of it so sideboard tests have cards
+    # that do not collide with the combined main+sideboard copy limit.
     cards += [
         make_card(f"filler-{i:02d}", f"Filler {i:02d}", domains=("Fury",))
-        for i in range(1, 10)
+        for i in range(1, 15)
     ]
     return build_catalog(cards)
 

@@ -32,7 +32,7 @@
     "battlefield_unique_required": true,
     "main_copy_limit": 3,
     "combined_main_sideboard_copy_limit": 3,
-    "sideboard_max": 8,
+    "sideboard_max": 10,
     "signature_max_total": 3,
     "domain_identity_enforced": true,
     "rune_card_type": "Rune",
@@ -144,6 +144,14 @@
     "banned_list": [
       "TR Banned List"
     ]
+  },
+  "advisories": {
+    "sideboard_max": {
+      "recommended_max": 8,
+      "message": "Sideboards of 10 are allowed here because that is what current tournament lists play. Official rules may still cap it at 8 — check your event and trim before you play.",
+      "rule_refs": [
+        "TR 601.1.c.1"
+      ]
+    }
   }
 }
-

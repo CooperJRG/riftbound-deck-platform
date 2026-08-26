@@ -195,10 +195,21 @@ export function renderDeckPanel(root: HTMLElement): void {
               on: { click: () => setChampion(id) } }, cardName(id))))
       : null;
 
-  const issues = validation && validation.issues.length > 0
+  // Notices are legal-but-worth-knowing, so they sit apart from real problems.
+  // Mixing them in would teach players to ignore the legality list.
+  const problems = (validation?.issues ?? []).filter((i) => i.severity !== "notice");
+  const notices = (validation?.issues ?? []).filter((i) => i.severity === "notice");
+
+  const issues = problems.length > 0
     ? h("section", { class: "issues" },
         h("h3", { class: "zone-title" }, "Legality"),
-        h("ul", { class: "issue-list" }, ...validation.issues.map(issueItem)))
+        h("ul", { class: "issue-list" }, ...problems.map(issueItem)))
+    : null;
+
+  const beforeYouPlay = notices.length > 0
+    ? h("section", { class: "issues" },
+        h("h3", { class: "zone-title" }, "Before you play"),
+        h("ul", { class: "issue-list" }, ...notices.map(issueItem)))
     : null;
 
   replace(
@@ -212,5 +223,6 @@ export function renderDeckPanel(root: HTMLElement): void {
     zoneSection("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null),
     validation ? coveragePanel(validation) : null,
     issues,
+    beforeYouPlay,
   );
 }

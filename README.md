@@ -105,6 +105,11 @@ validation — in particular, one that has *lost* a meaningful number of cards, 
 what a broken scraper looks like. Sources that fail are recorded in the bundle manifest
 and visible at `/api/data/bundle`.
 
+Where the field has moved but the rulebook may not have, a profile can *relax* a limit and
+still caution about it — `sideboard_max` is 10 with an advisory at 8, so a tournament list
+imports cleanly and still tells you to trim before a sanctioned event. Those show as
+notices in their own "Before you play" section and never make a deck illegal.
+
 It also reports **ban-list drift**: cards the source marks banned that your format
 profile does not (or the reverse). Rules profiles in `data/rules/` remain the authority
 on legality, so acting on a drift report is a deliberate edit, never automatic.

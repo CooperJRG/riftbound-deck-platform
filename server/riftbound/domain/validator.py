@@ -21,6 +21,16 @@ from .rules import BoundRules
 
 SEVERITY_ERROR = "error"
 SEVERITY_WARNING = "warning"
+#: Legal here, but worth knowing before you play. Never affects ``legal``.
+SEVERITY_NOTICE = "notice"
+
+#: Advisory constraints, mapped to the total they are measured against.
+_ADVISORY_TOTALS = {
+    "sideboard_max": ("sideboard", "sideboard cards"),
+    "main_deck_size_exact": ("main", "main-deck cards"),
+    "rune_count_exact": ("runes", "runes"),
+    "battlefield_count_exact": ("battlefields", "battlefields"),
+}
 
 
 @dataclass(frozen=True)
@@ -50,6 +60,11 @@ class ValidationResult:
     @property
     def warnings(self) -> tuple[Issue, ...]:
         return tuple(i for i in self.issues if i.severity == SEVERITY_WARNING)
+
+    @property
+    def notices(self) -> tuple[Issue, ...]:
+        """Legal, but worth knowing. Deliberately separate from warnings."""
+        return tuple(i for i in self.issues if i.severity == SEVERITY_NOTICE)
 
 
 class _Collector:
@@ -283,6 +298,8 @@ def validate(deck: Deck, *, rules: BoundRules, catalog: Catalog) -> ValidationRe
                 "banned_list", card_id=card_id,
             )
 
+    _check_advisories(deck, rules=rules, collector=collector)
+
     issues = tuple(collector.issues)
     return ValidationResult(
         legal=not any(i.severity == SEVERITY_ERROR for i in issues),
@@ -293,6 +310,44 @@ def validate(deck: Deck, *, rules: BoundRules, catalog: Catalog) -> ValidationRe
         battlefield_count=len(deck.battlefields),
         legend_domains=legend_domains,
     )
+
+
+def _check_advisories(deck: Deck, *, rules: BoundRules, collector: _Collector) -> None:
+    """Flag totals the app permits but the profile cautions about.
+
+    The app allows what the field actually plays, so a deck copied from a tournament
+    result is not rejected; the notice is what stops a player taking an over-sized
+    sideboard to an event that still enforces the older limit.
+    """
+    totals = {
+        "sideboard": deck.sideboard_total,
+        "main": deck.main_total,
+        "runes": deck.rune_total,
+        "battlefields": len(deck.battlefields),
+    }
+    for constraint, (zone, noun) in _ADVISORY_TOTALS.items():
+        advisory = rules.advisory(constraint)
+        if not advisory:
+            continue
+        try:
+            recommended = int(advisory.get("recommended_max"))
+        except (TypeError, ValueError):
+            continue
+        total = totals.get(zone, 0)
+        if total <= recommended:
+            continue
+        message = str(advisory.get("message") or "").strip() or (
+            f"{total} {noun} is allowed here, but some events cap it at {recommended}."
+        )
+        collector.issues.append(
+            Issue(
+                code=f"{zone.upper()}_ADVISORY",
+                field=zone,
+                message=message,
+                rule_refs=tuple(str(r) for r in (advisory.get("rule_refs") or ())),
+                severity=SEVERITY_NOTICE,
+            )
+        )
 
 
 def _check_zone(

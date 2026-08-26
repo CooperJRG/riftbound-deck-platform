@@ -317,6 +317,6 @@ patterns.
   inference.
 - **Repaired decks can drift.** Bounded by a cap on swapped copies before we stop calling
   it the same deck, and always disclosed.
-- **The rules profile is still stale** (`sideboard_max: 8` vs a field that plays 10). The
-  constructor enforces the profile, so this needs deciding before Smart Decks ships or it
-  will build decks the user is told are illegal.
+- ~~The rules profile is stale~~ — **resolved.** `sideboard_max` is now 10 with an
+  advisory at 8, so the constructor can build what the field plays without producing decks
+  the app then calls illegal. Meta-deck legality went 53% → 73%.

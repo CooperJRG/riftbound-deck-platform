@@ -33,6 +33,12 @@ class FormatRules:
     description: str
     constraints: Mapping[str, Any]
     rule_refs: Mapping[str, Sequence[str]]
+    #: Constraints the app relaxes but still wants to caution about. Keyed by constraint
+    #: name; each carries a recommended limit and the message to show above it. This
+    #: exists because "what the field plays" and "what the rulebook says" can diverge:
+    #: the app should not block a deck the whole field is playing, but it should not let
+    #: a player walk into an event with an illegal list either.
+    advisories: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
     source_path: Path | None = None
 
     # -- typed constraint access ------------------------------------------------
@@ -57,6 +63,11 @@ class FormatRules:
         if not isinstance(value, (list, tuple)):
             return ()
         return tuple(str(v).strip() for v in value if str(v).strip())
+
+    def advisory(self, key: str) -> Mapping[str, Any] | None:
+        """The advisory for a constraint, if the profile declares one."""
+        value = self.advisories.get(key)
+        return value if isinstance(value, Mapping) else None
 
     def refs(self, key: str) -> tuple[str, ...]:
         """Rulebook citations for a constraint, e.g. ('CR 103.1', 'TR 402.1')."""
@@ -113,6 +124,7 @@ def load_format_rules(path: Path) -> FormatRules:
         description=str(raw.get("description") or ""),
         constraints=dict(raw.get("constraints") or {}),
         rule_refs=dict(raw.get("rule_refs") or {}),
+        advisories=dict(raw.get("advisories") or {}),
         source_path=Path(path),
     )
 

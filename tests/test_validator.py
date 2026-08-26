@@ -160,3 +160,84 @@ def test_cards_with_unparseable_domains_do_not_block(legal_deck, bound_rules, ca
     deck = legal_deck.with_card("filler-01", 0).with_card("mystery-card", 3)
     result = validate(deck, rules=bound_rules, catalog=wider)
     assert "MAIN_DOMAIN" not in codes(result)
+
+
+# -- advisories ---------------------------------------------------------------
+
+
+#: Ten sideboard cards spread over cards absent from the main deck, so the combined
+#: main+sideboard copy limit does not fire and the test measures what it claims to.
+SIDEBOARD_OF_10 = {"filler-10": 3, "filler-11": 3, "filler-12": 3, "filler-13": 1}
+
+
+def advisory_rules(rules, catalog, *, allow=10, advise=8):
+    """A profile that permits `allow` but cautions above `advise`."""
+    return rules.__class__(
+        format_name="constructed",
+        description="",
+        constraints={**rules.constraints, "sideboard_max": allow},
+        rule_refs=rules.rule_refs,
+        advisories={
+            "sideboard_max": {
+                "recommended_max": advise,
+                "message": "Allowed here; trim to 8 before a sanctioned event.",
+                "rule_refs": ["TR 601.1.c.1"],
+            }
+        },
+    ).bind(catalog)
+
+
+def test_a_relaxed_limit_no_longer_makes_a_deck_illegal(legal_deck, rules, catalog):
+    """The field plays 10-card sideboards; the app must not reject them."""
+    deck = legal_deck.with_meta(sideboard=SIDEBOARD_OF_10)
+    result = validate(deck, rules=advisory_rules(rules, catalog), catalog=catalog)
+    assert result.legal, [i.message for i in result.errors]
+    assert "SIDEBOARD_SIZE" not in codes(result)
+
+
+def test_but_it_still_says_so_before_you_play(legal_deck, rules, catalog):
+    deck = legal_deck.with_meta(sideboard=SIDEBOARD_OF_10)
+    result = validate(deck, rules=advisory_rules(rules, catalog), catalog=catalog)
+    notice = next(i for i in result.notices if i.code == "SIDEBOARD_ADVISORY")
+    assert "trim to 8" in notice.message
+    assert notice.rule_refs == ("TR 601.1.c.1",)
+
+
+def test_a_notice_never_makes_a_deck_illegal(legal_deck, rules, catalog):
+    """Otherwise 'notice' is just a warning wearing a different hat."""
+    deck = legal_deck.with_meta(sideboard=SIDEBOARD_OF_10)
+    result = validate(deck, rules=advisory_rules(rules, catalog), catalog=catalog)
+    assert result.notices
+    assert result.legal
+    assert result.errors == ()
+
+
+def test_no_notice_when_the_deck_is_within_the_recommendation(legal_deck, rules, catalog):
+    deck = legal_deck.with_meta(sideboard={"filler-10": 3})
+    result = validate(deck, rules=advisory_rules(rules, catalog), catalog=catalog)
+    assert result.notices == ()
+
+
+def test_the_hard_limit_still_applies_above_the_relaxed_value(legal_deck, rules, catalog):
+    """Relaxing 8 -> 10 is not the same as removing the limit."""
+    deck = legal_deck.with_meta(sideboard={**SIDEBOARD_OF_10, "filler-14": 2})  # 12
+    result = validate(deck, rules=advisory_rules(rules, catalog), catalog=catalog)
+    assert "SIDEBOARD_SIZE" in codes(result)
+    assert not result.legal
+
+
+def test_a_profile_without_advisories_emits_none(legal_deck, bound_rules, catalog):
+    deck = legal_deck.with_meta(sideboard={"filler-10": 3})
+    assert validate(deck, rules=bound_rules, catalog=catalog).notices == ()
+
+
+def test_the_shipped_profile_allows_ten_and_advises_eight(catalog):
+    """What the field plays, with the caution the rulebook may still want."""
+    from pathlib import Path
+    from riftbound.domain.rules import load_format_rules
+
+    profile = load_format_rules(Path("data/rules/constructed.json"))
+    assert profile.int_constraint("sideboard_max") == 10
+    advisory = profile.advisory("sideboard_max")
+    assert advisory is not None
+    assert advisory["recommended_max"] == 8

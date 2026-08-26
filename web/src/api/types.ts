@@ -87,7 +87,8 @@ export interface Issue {
   message: string;
   ruleRefs: string[];
   cardId: string;
-  severity: "error" | "warning";
+  /** `notice` is legal-but-worth-knowing and never blocks a deck. */
+  severity: "error" | "warning" | "notice";
 }
 
 export interface MissingEntry {
