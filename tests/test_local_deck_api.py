@@ -302,3 +302,40 @@ def test_winning_a_major_still_beats_a_top_five_percent_finish(catalog):
         tournaments=[Tournament("2", "e2", "Regional", "2026-08-20", "Constructed", 2224)],
     )[0]
     assert score_deck(winner, now=now).total > score_deck(deep_run, now=now).total
+
+
+def test_popularity_does_not_apply_to_decks_with_a_real_finish(catalog):
+    """Only some sources publish a quality rating, so letting it count for placed decks
+    compares sources rather than decks. Two identical finishes must score identically
+    whether or not their source rates them."""
+    from datetime import datetime, timezone
+    from riftbound.domain.meta import Standing, Tournament
+    from riftbound.domain.meta_scoring import score_deck
+
+    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    zones, _ = section_zones(deck_detail(catalog)["cards"])
+    base = {"_named_zones": zones, "public": "1", "published_date": "2026-08-20"}
+    events = [Tournament("1", "e", "Event", "2026-08-20", "Constructed", 200)]
+
+    rated = normalize_meta_decks(
+        [{**base, "_slug": "a", "_source": "riftdecks", "_quality": 99.0}], catalog=catalog,
+        standings=[Standing("e", 5, "A", "a")], tournaments=events,
+    )[0]
+    unrated = normalize_meta_decks(
+        [{**base, "_slug": "b", "_source": "topdeck"}], catalog=catalog,
+        standings=[Standing("e", 5, "B", "b")], tournaments=events,
+    )[0]
+    assert score_deck(rated, now=now).total == score_deck(unrated, now=now).total
+
+
+def test_quality_still_separates_community_decks(catalog):
+    from datetime import datetime, timezone
+    from riftbound.domain.meta_scoring import score_deck
+
+    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    zones, _ = section_zones(deck_detail(catalog)["cards"])
+    base = {"_named_zones": zones, "public": "1", "published_date": "2026-08-20",
+            "_source": "riftdecks"}
+    good = normalize_meta_decks([{**base, "_slug": "g", "_quality": 95.0}], catalog=catalog)[0]
+    poor = normalize_meta_decks([{**base, "_slug": "p", "_quality": 20.0}], catalog=catalog)[0]
+    assert score_deck(good, now=now).total > score_deck(poor, now=now).total

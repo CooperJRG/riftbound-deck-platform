@@ -139,7 +139,18 @@ def score_deck(deck: MetaDeck, *, now: datetime | None = None) -> ScoreBreakdown
     evidence = EVIDENCE_WEIGHT.get(prov.evidence, EVIDENCE_WEIGHT[EVIDENCE_COMMUNITY])
     placement = placement_score(prov.placement, prov.field_size)
     recency = recency_score(prov.published_at or prov.tournament_date, now=now)
-    popularity = popularity_score(prov.views, prov.quality)
+
+    # Popularity only separates decks that have nothing better going for them. Once a
+    # deck has a real finish, how a website rates it adds nothing that placement and
+    # recency do not already say — and it actively distorts, because only *some*
+    # sources publish a rating. Letting it apply to placed decks let a top-5% finish
+    # outrank a tournament win purely because its source scores decks and the other's
+    # does not. Placed decks all take the neutral value, so the comparison is fair.
+    popularity = (
+        popularity_score(prov.views, prov.quality)
+        if prov.evidence == EVIDENCE_COMMUNITY
+        else NO_POPULARITY_SIGNAL
+    )
 
     total = (
         W_EVIDENCE * evidence
