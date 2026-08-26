@@ -355,12 +355,13 @@ function banPanel(notices: BanNotice[]): HTMLElement | null {
  * changelog, and a changelog is no substitute for the thing it describes.
  */
 function finishedDeck(repair: Repair): HTMLElement {
+  const cards = repair.cards ?? [];
   const zones: { zone: string; title: string }[] = [
     { zone: "main", title: "Main deck" },
     { zone: "runes", title: "Runes" },
     { zone: "battlefields", title: "Battlefields" },
   ];
-  const added = repair.cards.filter((card) => card.added).length;
+  const added = cards.filter((card) => card.added).length;
 
   return h(
     "details",
@@ -374,7 +375,7 @@ function finishedDeck(repair: Repair): HTMLElement {
         : null,
     ),
     ...zones.map((group) => {
-      const members = repair.cards.filter((card) => card.zone === group.zone);
+      const members = cards.filter((card) => card.zone === group.zone);
       if (!members.length) return null;
       const copies = members.reduce((sum, card) => sum + card.copies, 0);
       return h(
@@ -440,7 +441,10 @@ function repairPanel(repair: Repair, label: string, note: string, busy: boolean)
       : null,
     // The finished list. Without it a swap names a card that appears nowhere on the
     // page -- the wizard describing a deck it declines to show you.
-    repair.cards.length ? finishedDeck(repair) : null,
+    // `?? []` rather than a bare read: on a version skew this degrades to "no list"
+    // instead of throwing `Cannot read properties of undefined`, which names the wrong
+    // problem entirely.
+    (repair.cards ?? []).length ? finishedDeck(repair) : null,
     h(
       "button",
       {

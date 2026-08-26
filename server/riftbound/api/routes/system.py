@@ -7,6 +7,15 @@ from fastapi import APIRouter, Depends
 from ...services import Services, get_services
 from ..schemas import BundleView, FormatView, SourceHealthView
 
+#: Bumped whenever a response gains a field the shipped UI relies on.
+#:
+#: The server serves `web/dist` from disk while its own routes are fixed at start-up, so
+#: a rebuilt page routinely talks to a server that has not restarted. Left undetected
+#: that arrives as a bare `Cannot read properties of undefined` from whichever field is
+#: newest -- an error that says nothing about the actual problem and has now cost three
+#: separate bug reports. The page compares this number against its own and says so.
+API_CONTRACT = 2
+
 router = APIRouter(prefix="/api", tags=["system"])
 
 
@@ -16,6 +25,7 @@ def health(services: Services = Depends(get_services)) -> dict:
     snapshot = services.meta
     return {
         "ok": True,
+        "apiContract": API_CONTRACT,
         "mode": services.config.mode,
         "bundleId": manifest.bundle_id,
         "cardCount": manifest.card_count,

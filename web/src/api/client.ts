@@ -28,6 +28,14 @@ import type {
   Validation,
 } from "./types";
 
+/**
+ * The API contract this page was built against.
+ *
+ * Must match `API_CONTRACT` in `server/riftbound/api/routes/system.py`. Raise both
+ * together whenever a response gains a field the UI reads.
+ */
+export const EXPECTED_API_CONTRACT = 2;
+
 export class ApiError extends Error {
   constructor(
     message: string,

@@ -1,6 +1,6 @@
 /** Every state transition. Views call these; they never mutate state directly. */
 
-import { ApiError, api } from "../api/client";
+import { ApiError, EXPECTED_API_CONTRACT, api } from "../api/client";
 import type {
   Card,
   CardAvailability,
@@ -38,13 +38,24 @@ function reportError(error: unknown): void {
 
 export async function boot(): Promise<void> {
   try {
-    const [formats, facets, availability, savedDecks] = await Promise.all([
+    const [health, formats, facets, availability, savedDecks] = await Promise.all([
+      // Checked first, because everything after it can fail in confusing ways when the
+      // answer is "your server is older than this page".
+      api.health().catch(() => null),
       api.formats(),
       api.facets(),
       api.availability(),
       api.listDecks(),
     ]);
-    store.set({ formats, facets, availability, savedDecks, ready: true, error: "" });
+    const contract = health?.apiContract ?? 0;
+    const staleServer =
+      contract < EXPECTED_API_CONTRACT
+        ? "This page is newer than the server it is talking to, so parts of it will " +
+          "not work. Stop the server and start it again to pick up the current code."
+        : "";
+    store.set({
+      formats, facets, availability, savedDecks, staleServer, ready: true, error: "",
+    });
     await Promise.all([refreshCards(), revalidate()]);
   } catch (error) {
     reportError(error);

@@ -57,9 +57,16 @@ MAX_PROPOSALS = 4
 REPAIRABLE_COPIES = 12
 
 #: Weights for choosing the next deck to ask about.
-W_QUALITY = 0.45
-W_PLAUSIBILITY = 0.25
-W_INFORMATION = 0.30
+W_QUALITY = 0.35
+W_PLAUSIBILITY = 0.20
+W_INFORMATION = 0.25
+#: How much a deck's own archetype being fieldable counts.
+#:
+#: Without this the wizard will happily keep offering variants of a plan whose core the
+#: player does not own, patching the same holes each time. A deck is not the sum of its
+#: individually popular cards: if the enabler is missing, the expensive payoffs it was
+#: buying time for are just expensive.
+W_COHERENCE = 0.20
 
 #: How much expected yield a checklist aims for, as a multiple of the shortfall. Above
 #: 1 because the estimate is a prior, not a measurement, and a checklist that falls just
@@ -528,11 +535,20 @@ class Engine:
     # -- the two tracks -------------------------------------------------------
 
     def floor(self, session: Session) -> Deck | None:
-        """The best deck they can definitely build right now."""
+        """The best deck they can definitely build right now.
+
+        Built inside a single archetype rather than from the legend's overall play
+        rates. Filling forty slots by popularity produces an average of every plan the
+        legend supports -- a pile of individually strong cards that do not work
+        together. We pick the strongest family this collection can actually field and
+        build within it.
+        """
+        owned = session.knowledge.owned()
+        cluster = self.profile.best_cluster(owned)
         return build(
-            session.legend_id, session.knowledge.owned(),
+            session.legend_id, owned,
             catalog=self.catalog, rules=self.rules,
-            preference=self.profile.preference(),
+            preference=self.profile.preference(cluster),
         )
 
     def feasibility(self, session: Session) -> Feasibility:
@@ -607,6 +623,13 @@ class Engine:
             out.append(deck)
         return out
 
+    def _coherence(self, deck: MetaDeck, owned: Mapping[str, int]) -> float:
+        """Can this deck's own archetype be fielded by this collection?"""
+        cluster = self.profile.cluster_of(deck.deck_id)
+        if cluster is None or not cluster.core:
+            return 0.0
+        return self.profile.coverage(cluster, owned)
+
     def _pick(self, session: Session, candidates: Sequence[MetaDeck]) -> MetaDeck:
         """The next deck to show.
 
@@ -617,6 +640,7 @@ class Engine:
         if not session.asked:
             return max(candidates, key=lambda d: (self.scores.get(d.deck_id, 0.0), d.deck_id))
 
+        owned = session.knowledge.owned()
         # How many candidates each still-unknown card would settle.
         resolves: dict[str, int] = {}
         for deck in candidates:
@@ -635,6 +659,7 @@ class Engine:
                 W_QUALITY * self.scores.get(deck.deck_id, 0.0)
                 + W_PLAUSIBILITY * self._plausibility(deck, session.knowledge)
                 + W_INFORMATION * information
+                + W_COHERENCE * self._coherence(deck, owned)
             )
             return (total, deck.deck_id)
 

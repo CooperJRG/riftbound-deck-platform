@@ -180,6 +180,13 @@ export interface FormatView {
 
 export interface Health {
   ok: boolean;
+  /**
+   * The server's API contract number.
+   *
+   * Absent on a server old enough to predate this field, which is itself the answer:
+   * anything below EXPECTED_API_CONTRACT means the page is newer than the server.
+   */
+  apiContract?: number;
   mode: string;
   bundleId: string;
   cardCount: number;

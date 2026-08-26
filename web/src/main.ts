@@ -31,7 +31,15 @@ const buildRoot = query("#build");
 const tabsRoot = query("#tabs");
 const themeRoot = query<HTMLButtonElement>("#theme-toggle");
 
-function renderError(message: string): void {
+function renderError(message: string, staleServer: string): void {
+  // The stale-server warning outranks whatever error it caused, and cannot be
+  // dismissed: every feature added since that server started will misbehave, and each
+  // one looks like a separate bug until somebody restarts the process.
+  if (staleServer) {
+    errorRoot.hidden = false;
+    replace(errorRoot, h("strong", {}, "Restart the server. "), h("span", {}, staleServer));
+    return;
+  }
   if (!message) {
     replace(errorRoot);
     errorRoot.hidden = true;
@@ -92,7 +100,7 @@ function renderTabs(current: string): void {
 }
 
 store.subscribe((state) => {
-  renderError(state.error);
+  renderError(state.error, state.staleServer);
   renderNotice(state.notice);
   if (!state.ready) return;
 

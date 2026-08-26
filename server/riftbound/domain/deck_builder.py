@@ -22,7 +22,7 @@ shown to the player.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Sequence
 
 from .cards import Card, Catalog
 from .deck import Deck
@@ -249,6 +249,13 @@ class Preference:
     """
     play_rate: Mapping[str, float]
     copies: Mapping[str, int]
+    #: How often the field plays two cards together, as a 0..1 conditional probability.
+    #:
+    #: Optional, and the difference between a deck and a pile. Without it a build is
+    #: forty individually popular cards: keep the expensive payoffs after the enabler
+    #: that bought them time turned out to be missing, and you have expensive cards and
+    #: no plan. With it, each choice is scored against what has already been chosen.
+    pair: Callable[[str, str], float] | None = None
 
     def rank(self, card_id: str) -> float:
         return float(self.play_rate.get(card_id, 0.0))
@@ -259,6 +266,65 @@ class Preference:
     @classmethod
     def empty(cls) -> "Preference":
         return cls(play_rate={}, copies={})
+
+
+#: How much "does this sit with what we have chosen" counts against "how often is this
+#: played at all".
+#:
+#: Swept against the live snapshot, measuring the share of a built deck the field pairs
+#: with the rest less often than chance:
+#:
+#:   weight   0.00    0.35    0.55    0.75    0.90    0.95    1.00
+#:   orphans  50.1%   49.1%   48.8%   47.9%   46.7%   46.1%   46.0%
+#:   meta     21.64   21.70   21.72   21.74   21.74   21.73   21.66
+#:
+#: There is no trade to make until the very top: coherence improves both measures,
+#: because cards that belong together are also the cards the field plays. Stopping at
+#: 0.9 rather than 0.95 keeps a real popularity term, which matters for a legend with
+#: few published decks where the pairing counts are thin enough to be noise.
+COHERENCE_WEIGHT = 0.9
+
+
+def _fill_by_affinity(
+    candidates: Sequence[Card],
+    take,
+    pref: Preference,
+    *,
+    chosen: list[str],
+    filled,
+    target: int,
+) -> None:
+    """Pick each card against the deck so far, not against the format in general.
+
+    Greedy, and re-scored after every addition, which is the whole point: the value of
+    a card depends on what is already in the deck. Affinity is accumulated as a running
+    sum per candidate so a re-score costs one dictionary lookup per card rather than a
+    fresh pass over the deck.
+    """
+    assert pref.pair is not None
+    running: dict[str, float] = {c.card_id: 0.0 for c in candidates}
+    for card_id in chosen:
+        for candidate in candidates:
+            running[candidate.card_id] += pref.pair(candidate.card_id, card_id)
+
+    remaining = list(candidates)
+    while remaining and (not target or filled() < target):
+        partners = max(1, len(chosen))
+        best = max(
+            remaining,
+            key=lambda c: (
+                (1.0 - COHERENCE_WEIGHT) * pref.rank(c.card_id)
+                + COHERENCE_WEIGHT * (running[c.card_id] / partners),
+                -0.0,
+                c.name,
+            ),
+        )
+        remaining.remove(best)
+        if take(best, pref.wanted(best.card_id)) <= 0:
+            continue
+        chosen.append(best.card_id)
+        for candidate in remaining:
+            running[candidate.card_id] += pref.pair(candidate.card_id, best.card_id)
 
 
 def build(
@@ -327,12 +393,23 @@ def build(
     # Most-played first; name breaks ties so a build is reproducible.
     candidates.sort(key=lambda c: (-pref.rank(c.card_id), c.name))
 
-    # First pass takes what the field actually runs of each card; a second pass tops up
-    # from the same ranked list when the collection is thin and the first pass fell short.
-    for card in candidates:
-        if main_needed and sum(main.values()) >= main_needed:
-            break
-        take(card, pref.wanted(card.card_id))
+    if pref.pair is None:
+        # No pairing signal: fall back to straight popularity. First pass takes what the
+        # field runs of each card, second tops up when the collection is thin.
+        for card in candidates:
+            if main_needed and sum(main.values()) >= main_needed:
+                break
+            take(card, pref.wanted(card.card_id))
+    else:
+        _fill_by_affinity(
+            candidates, take, pref,
+            chosen=list(main),
+            filled=lambda: sum(main.values()),
+            target=main_needed,
+        )
+
+    # Whatever the first pass left, fill from the ranked list. The guarantee is a legal
+    # forty; coherence is a preference and must never cost a deck.
     for card in candidates:
         if main_needed and sum(main.values()) >= main_needed:
             break

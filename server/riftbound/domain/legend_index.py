@@ -38,6 +38,16 @@ CLUSTER_THRESHOLD = 0.62
 #: A card is part of a cluster's identity when this much of the cluster plays it.
 CORE_SHARE = 0.8
 
+#: How much a family's own cards outrank the legend's general staples when building
+#: within that family. High enough to keep a plan coherent, low enough that a genuinely
+#: ubiquitous card is still picked up.
+CLUSTER_BOOST = 2.5
+
+#: How much "can they field this family's core" counts against "how strong is it" when
+#: choosing an archetype. Weighted toward coverage: the strongest deck in the format is
+#: worth nothing to somebody who cannot field the half of it that makes it work.
+COVERAGE_WEIGHT = 0.65
+
 #: How much a same-type, same-cost-band card is worth when nothing better is owned.
 #: Small on purpose: it should never outrank a card the field actually plays here.
 ROLE_MATCH_BONUS = 0.05
@@ -81,9 +91,72 @@ class LegendProfile:
     _card_weight: Mapping[str, float] = field(default_factory=dict)
     _total_weight: float = 0.0
 
-    def preference(self) -> Preference:
-        """The signal :func:`deck_builder.build` fills from."""
-        return Preference(play_rate=self.play_rate, copies=self.copies)
+    def preference(self, cluster: "Cluster | None" = None) -> Preference:
+        """The signal :func:`deck_builder.build` fills from.
+
+        Given a cluster, the family's own cards are promoted above the legend's general
+        staples. This is what stops a constructed deck being an average of every plan
+        the legend can support: cards are chosen because they belong together, not
+        because each is individually popular.
+        """
+        if cluster is None:
+            return Preference(
+                play_rate=self.play_rate, copies=self.copies, pair=self.pair_strength
+            )
+
+        family = set(cluster.core) | set(cluster.flex)
+        promoted = {
+            card_id: rate * (CLUSTER_BOOST if card_id in family else 1.0)
+            for card_id, rate in self.play_rate.items()
+        }
+        return Preference(play_rate=promoted, copies=self.copies, pair=self.pair_strength)
+
+    def pair_strength(self, card_id: str, partner_id: str) -> float:
+        """How often the field plays `card_id` in decks that contain `partner_id`.
+
+        The single-partner term behind :meth:`affinity`, exposed so a builder can keep a
+        running total instead of recomputing the average on every pick.
+        """
+        weight = self._card_weight.get(partner_id, 0.0)
+        if weight <= 0:
+            return 0.0
+        return self._pair_counts.get(card_id, {}).get(partner_id, 0.0) / weight
+
+    def coverage(self, cluster: "Cluster", owned: Mapping[str, int]) -> float:
+        """How much of a family's defining core this collection can actually field.
+
+        Partial credit per card, because two of a three-of is most of the way there and
+        scoring it as zero would discard a deck the player can very nearly play.
+        """
+        if not cluster.core:
+            return 0.0
+        total = 0.0
+        for card_id in cluster.core:
+            want = max(1, self.copies.get(card_id, 1))
+            total += min(1.0, owned.get(card_id, 0) / want)
+        return total / len(cluster.core)
+
+    def best_cluster(
+        self, owned: Mapping[str, int], *, minimum: float = 0.0
+    ) -> "Cluster | None":
+        """The strongest family this collection can actually support.
+
+        The heart of the user-facing point: owning none of the enabler a plan is built
+        around does not mean playing that plan without it. It means playing a different
+        plan. Strength still counts -- we are not steering somebody to a weak deck they
+        happen to own -- but it is weighed against whether the core is there at all.
+        """
+        best, best_score = None, -1.0
+        for cluster in self.clusters:
+            if not cluster.core:
+                continue
+            covered = self.coverage(cluster, owned)
+            if covered < minimum:
+                continue
+            score = covered * COVERAGE_WEIGHT + cluster.score * (1.0 - COVERAGE_WEIGHT)
+            if score > best_score:
+                best, best_score = cluster, score
+        return best
 
     def cluster_of(self, deck_id: str) -> Cluster | None:
         return next((c for c in self.clusters if deck_id in c.deck_ids), None)

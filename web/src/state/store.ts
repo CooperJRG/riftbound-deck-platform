@@ -44,6 +44,13 @@ export type ViewName = "find" | "explore" | "build" | "decks";
 export interface AppState {
   ready: boolean;
   error: string;
+  /**
+   * Set when the running server is older than this page.
+   *
+   * Sticky and non-dismissable: every feature added since that server started will
+   * misbehave, and the failures look like unrelated bugs rather than one stale process.
+   */
+  staleServer: string;
   view: ViewName;
   notice: string;
   formats: FormatView[];
@@ -134,6 +141,7 @@ export function emptyDeck(): DeckPayload {
 const initial: AppState = {
   ready: false,
   error: "",
+  staleServer: "",
   view: "find",
   notice: "",
   formats: [],
