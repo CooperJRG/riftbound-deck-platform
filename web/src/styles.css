@@ -972,3 +972,13 @@ h4 {
   max-width: 100%;
   margin: 0;
 }
+
+.attribution {
+  margin: 3px 0 0;
+}
+.attribution a {
+  color: var(--text-dim);
+}
+.attribution a:hover {
+  color: var(--accent);
+}

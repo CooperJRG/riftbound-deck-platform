@@ -97,10 +97,80 @@ def _pick_champion(main: Mapping[str, int], legend: Card | None, catalog: Catalo
     return candidates[0][1]
 
 
+def _deck_from_zones(
+    payload: Mapping[str, Any], *, catalog: Catalog
+) -> tuple[Deck, tuple[str, ...]]:
+    """Build a deck from a source that already separates its zones.
+
+    TopDeck supplies these, including the **chosen champion** — which the flat-map path
+    below has to infer from champion tags. Where a source states it, we take its word.
+    """
+    zones: Mapping[str, Mapping[str, int]] = payload.get("_zones") or {}
+    unresolved: list[str] = []
+
+    def resolve(zone: str) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for code, qty in (zones.get(zone) or {}).items():
+            card = catalog.by_code(code)
+            if card is None:
+                unresolved.append(code)
+                continue
+            out[card.card_id] = out.get(card.card_id, 0) + int(qty)
+        return out
+
+    def single(zone: str) -> str:
+        resolved = resolve(zone)
+        return next(iter(resolved), "")
+
+    battlefields: list[str] = []
+    for card_id, qty in resolve("battlefields").items():
+        battlefields.extend([card_id] * max(1, qty))
+
+    main = resolve("main")
+    champions = resolve("champion")
+
+    # Riftbound's chosen champion is *part of* the 40-card main deck, but TopDeck lists
+    # it in a zone of its own and usually does not repeat it in Mainboard. Folding those
+    # copies in is what makes the count come out at 40 rather than 39 — it affects 1,384
+    # of 2,861 live decks. A further 106 decks *do* repeat the champion in Mainboard, so
+    # adding unconditionally would make those read as 41; only absent champions are added.
+    for card_id, qty in champions.items():
+        if card_id not in main:
+            main[card_id] = qty
+
+    # Prefer the source's own champion; fall back to inference when it records none.
+    # TopDeck omits the champion for 1,371 of 2,861 live decks, and without this those
+    # decks fail legality for "no chosen champion" — a gap in the feed, not the deck.
+    legend_id = single("legend")
+    champion_id = next(iter(champions), "")
+    if not champion_id:
+        champion_id = _pick_champion(main, catalog.get(legend_id) if legend_id else None, catalog)
+
+    deck = Deck.make(
+        name=str(payload.get("humanname") or payload.get("name") or "Untitled").strip(),
+        format="constructed",
+        legend_id=legend_id,
+        champion_id=champion_id,
+        main=main,
+        runes=resolve("runes"),
+        battlefields=battlefields,
+        sideboard=resolve("sideboard"),
+    )
+    return deck, tuple(dict.fromkeys(unresolved))
+
+
 def deck_from_payload(
     payload: Mapping[str, Any], *, catalog: Catalog
 ) -> tuple[Deck, tuple[str, ...]]:
-    """Split a flat code->quantity map into zones. Returns the deck and unresolved codes."""
+    """Build a deck from a source payload.
+
+    Two shapes are accepted: a source that already separates zones (TopDeck), and a
+    flat collector-code map where zones must be recovered from each card's type
+    (dotgg). Both end at the same :class:`Deck`.
+    """
+    if payload.get("_zones"):
+        return _deck_from_zones(payload, catalog=catalog)
+
     main: dict[str, int] = {}
     runes: dict[str, int] = {}
     battlefields: list[str] = []
@@ -178,15 +248,17 @@ def normalize_meta_decks(
         standing = by_slug.get(slug)
         tournament = tournament_by_slug.get(standing.tournament_slug) if standing else None
         evidence = _evidence_for(standing, payload)
+        source = str(payload.get("_source") or "dotgg")
+        url = str(payload.get("_tournament_url") or "") or deck_url(slug)
 
         out.append(
             MetaDeck(
                 deck=deck,
                 unresolved=unresolved,
                 provenance=Provenance(
-                    source="dotgg",
+                    source=source,
                     source_slug=slug,
-                    url=deck_url(slug),
+                    url=url,
                     published_at=_iso_date(payload.get("date_edited") or payload.get("date")),
                     author=str(payload.get("authornick") or "").strip(),
                     views=_int(payload.get("views")),

@@ -404,3 +404,87 @@ def test_a_lowercase_variant_code_resolves(coded_catalog):
     catalog = build_catalog([base, variant])
     assert catalog.by_code("VEN-R02A") is variant, "decklists use uppercase"
     assert catalog.by_code("ven-r02a") is variant
+
+
+# -- rules drift --------------------------------------------------------------
+
+
+def test_rules_drift_spots_a_stale_constraint(coded_catalog, tmp_path, monkeypatch):
+    """The check that caught a real change: Riftbound's sideboard limit moved 8 -> 10.
+
+    A rules profile nobody revisits starts calling legal decks illegal. Tournament decks
+    are the best evidence of what the rules are *now*, so a constraint that most of the
+    recent field breaks is reported as probably stale.
+    """
+    import json as _json
+    from riftbound.data.meta_pipeline import _rules_drift
+
+    rules_dir = tmp_path / "rules"
+    rules_dir.mkdir()
+    (rules_dir / "constructed.json").write_text(
+        _json.dumps({
+            "format": "constructed",
+            "constraints": {"sideboard_max": 8, "allowed_sideboard_card_types": ["Unit"]},
+            "rule_refs": {},
+        }),
+        encoding="utf-8",
+    )
+
+    bundles = tmp_path / "bundles"
+    bundles.mkdir()
+    from riftbound.data.bundle import promote as promote_bundle, write_bundle
+    written = write_bundle(bundles, list(coded_catalog))
+    promote_bundle(bundles, written.manifest.bundle_id)
+
+    class Cfg:
+        rules_dir = None
+        bundles_dir = None
+    cfg = Cfg()
+    cfg.rules_dir = rules_dir
+    cfg.bundles_dir = bundles
+
+    # A field that plays 10-card sideboards against a profile that allows 8.
+    payloads = []
+    for i in range(20):
+        p = deck_payload(coded_catalog, slug=f"d{i}")
+        p["deck"][code_for(coded_catalog, "brazen-buccaneer")] = "3"
+        payloads.append(p)
+    decks = normalize_meta_decks(payloads, catalog=coded_catalog)
+    decks = [
+        type(d)(
+            deck=d.deck.with_meta(sideboard={"harpoon-squad": 10}),
+            provenance=d.provenance, unresolved=d.unresolved,
+        )
+        for d in decks
+    ]
+
+    drift = _rules_drift(decks, cfg)
+    assert any("SIDEBOARD_SIZE" in line for line in drift)
+    assert any("the field plays 10" in line and "allows 8" in line for line in drift)
+
+
+def test_rules_drift_is_quiet_when_the_profile_matches(coded_catalog, tmp_path):
+    import json as _json
+    from riftbound.data.meta_pipeline import _rules_drift
+    from riftbound.data.bundle import promote as promote_bundle, write_bundle
+
+    rules_dir = tmp_path / "rules"
+    rules_dir.mkdir()
+    (rules_dir / "constructed.json").write_text(
+        _json.dumps({"format": "constructed", "constraints": {"sideboard_max": 10},
+                     "rule_refs": {}}),
+        encoding="utf-8",
+    )
+    bundles = tmp_path / "bundles"
+    bundles.mkdir()
+    written = write_bundle(bundles, list(coded_catalog))
+    promote_bundle(bundles, written.manifest.bundle_id)
+
+    class Cfg:
+        pass
+    cfg = Cfg()
+    cfg.rules_dir = rules_dir
+    cfg.bundles_dir = bundles
+
+    decks = make_decks(coded_catalog, 20)
+    assert _rules_drift(decks, cfg) == []

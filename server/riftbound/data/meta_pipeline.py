@@ -16,7 +16,7 @@ from pathlib import Path
 import sys
 from typing import Sequence
 
-from ..config import ROOT, ConfigError, load_config
+from ..config import ROOT, ConfigError, load_config, load_dotenv
 from ..domain.meta import build_archetypes
 from ..domain.meta_scoring import score_all, totals
 from .bundle import load_current
@@ -36,6 +36,7 @@ from .meta_snapshot import (
 )
 from .sources.dotgg_meta import DotGGMetaSource
 from .sources.meta_replay import MetaReplaySource
+from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION, MissingApiKey, TopDeckSource
 
 INGEST_CACHE = ROOT / "var" / "ingest"
 
@@ -61,6 +62,17 @@ def cmd_build(args: argparse.Namespace) -> int:
     if args.replay:
         source = MetaReplaySource(INGEST_CACHE)
         print(f"Replaying the cached harvest from {INGEST_CACHE} (no network)...")
+    elif args.source == "topdeck":
+        source = TopDeckSource(
+            days=args.days,
+            min_players=args.min_players,
+            cache_dir=INGEST_CACHE,
+        )
+        print(
+            f"Harvesting {args.days} days of TopDeck.gg tournaments"
+            + (f" with {args.min_players}+ players" if args.min_players else "")
+            + " (one bulk request)..."
+        )
     else:
         source = DotGGMetaSource(
             max_tournaments=args.tournaments,
@@ -112,6 +124,13 @@ def cmd_build(args: argparse.Namespace) -> int:
             )
             print(f"  {arch.score:.3f}  {arch.name[:46]:<48} {backing}")
 
+    drift = _rules_drift(decks, cfg)
+    if drift:
+        print("\nRules drift - the current field disagrees with data/rules/constructed.json:")
+        for line in drift:
+            print(f"  {line}")
+        print("  The rules profile decides legality; edit it deliberately to act on this.")
+
     previous = load_current_meta(cfg.meta_dir)
     report = run_meta_gate(
         decks, tournaments, source_ok=result.ok, source_error=result.error,
@@ -124,6 +143,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         cfg.meta_dir, decks, tournaments, standings,
         source_ok=result.ok, source_error=result.error,
         notes=result.notes, warnings=warnings[:40],
+        attribution=_attribution_for(decks),
     )
     print(f"\nWrote snapshot {snapshot.manifest.snapshot_id} -> {snapshot.path}")
 
@@ -139,6 +159,98 @@ def cmd_build(args: argparse.Namespace) -> int:
             f"  python -m riftbound.data.meta_pipeline promote {snapshot.manifest.snapshot_id}"
         )
     return 0
+
+
+#: A constraint is only called stale when this much of the recent field breaks it.
+#: Well below it is noise (bad lists, mixed formats); above it, the rules moved.
+RULES_DRIFT_THRESHOLD = 0.5
+#: How many of the most recent decks to judge a constraint against.
+RULES_DRIFT_SAMPLE = 400
+
+
+def _rules_drift(decks, cfg) -> list[str]:
+    """Report where the *current* field disagrees with our format profile.
+
+    Formats change: bans land, deck-size limits move. A rules profile that nobody
+    revisits silently starts calling legal decks illegal. Tournament decks are the best
+    available evidence of what the rules actually are right now, so a constraint that
+    most of the recent field breaks is reported as probably stale.
+
+    This only ever *reports*. The profile in ``data/rules`` stays the authority on
+    legality — acting on this is a deliberate edit.
+    """
+    try:
+        from ..domain.rules import load_format_rules_dir
+        from ..domain.validator import validate
+        from .bundle import load_current
+        catalog = load_current(cfg.bundles_dir).catalog
+        profiles = load_format_rules_dir(cfg.rules_dir)
+    except (FileNotFoundError, ValueError):
+        return []
+
+    recent = sorted(
+        decks,
+        key=lambda d: d.provenance.tournament_date or d.provenance.published_at or "",
+        reverse=True,
+    )[:RULES_DRIFT_SAMPLE]
+    if not recent:
+        return []
+
+    rules = profiles.get("constructed")
+    if rules is None:
+        return []
+    bound = rules.bind(catalog)
+
+    failures: dict[str, int] = {}
+    for deck in recent:
+        for issue in validate(deck.deck, rules=bound, catalog=catalog).errors:
+            failures[issue.code] = failures.get(issue.code, 0) + 1
+
+    lines: list[str] = []
+    for code, count in sorted(failures.items(), key=lambda kv: -kv[1]):
+        share = count / len(recent)
+        if share < RULES_DRIFT_THRESHOLD:
+            continue
+        detail = _drift_detail(code, recent, bound)
+        lines.append(
+            f"{code}: {share:.0%} of the {len(recent)} most recent tournament decks "
+            f"break this{detail}"
+        )
+    return lines
+
+
+def _drift_detail(code: str, decks, bound) -> str:
+    """A concrete suggestion for the constraints we can measure directly."""
+    if code == "SIDEBOARD_SIZE":
+        from collections import Counter
+        common = Counter(d.deck.sideboard_total for d in decks).most_common(1)
+        if common:
+            observed, _ = common[0]
+            return (
+                f" - the field plays {observed}, the profile allows "
+                f"{bound.int_constraint('sideboard_max')} (sideboard_max)"
+            )
+    if code == "MAIN_SIZE":
+        from collections import Counter
+        common = Counter(d.deck.main_total for d in decks).most_common(1)
+        if common:
+            observed, _ = common[0]
+            return (
+                f" - the field plays {observed}, the profile requires "
+                f"{bound.int_constraint('main_deck_size_exact')} (main_deck_size_exact)"
+            )
+    if code == "BANNED":
+        return " - expected if these events predate the ban; check the dates"
+    return ""
+
+
+def _attribution_for(decks) -> list[dict[str, str]]:
+    """Credits owed by the sources actually present in this snapshot."""
+    sources = {d.provenance.source for d in decks}
+    credits: list[dict[str, str]] = []
+    if "topdeck" in sources:
+        credits.append(dict(TOPDECK_ATTRIBUTION))
+    return credits
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -213,7 +325,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--replay", action="store_true",
         help="rebuild from the cached harvest in var/ingest instead of fetching",
     )
-    p.add_argument("--decks", type=int, default=400, help="max decklists to hydrate")
+    p.add_argument(
+        "--source", choices=("topdeck", "dotgg"), default="topdeck",
+        help="topdeck: bulk tournament decks (fast). dotgg: community decks (slow)",
+    )
+    p.add_argument("--days", type=int, default=180, help="topdeck: how far back to look")
+    p.add_argument(
+        "--min-players", type=int, default=0, dest="min_players",
+        help="topdeck: ignore events smaller than this",
+    )
+    p.add_argument("--decks", type=int, default=400, help="dotgg: max decklists to hydrate")
     p.add_argument("--tournaments", type=int, default=12, help="max tournaments to read")
     p.add_argument("--since", help="only decks modified on/after this date (YYYY-MM-DD)")
     p.add_argument(
@@ -242,6 +363,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
+    load_dotenv()
 
     args = build_parser().parse_args(argv)
     try:

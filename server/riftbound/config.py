@@ -100,6 +100,32 @@ class Config:
             )
 
 
+def load_dotenv(path: Path | None = None) -> list[str]:
+    """Load ``.env`` into the environment, without overriding what is already set.
+
+    Kept deliberately small — the only secret this project has is an optional API key
+    for tournament data. Real environment variables always win, so a CI or shell value
+    is never shadowed by a stale file. Returns the names loaded, never the values.
+    """
+    target = path or (Path(ROOT) / ".env")
+    if not target.is_file():
+        return []
+    loaded: list[str] = []
+    for raw_line in target.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        if line.startswith("export "):
+            line = line[7:].lstrip()
+        name, _, value = line.partition("=")
+        name = name.strip()
+        if not name or name in os.environ:
+            continue
+        os.environ[name] = value.strip().strip("'\"")
+        loaded.append(name)
+    return loaded
+
+
 def load_config() -> Config:
     mode = _env_str("RB_MODE", "local").lower()
     if mode not in {"local", "hosted"}:

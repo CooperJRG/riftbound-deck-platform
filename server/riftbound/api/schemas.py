@@ -288,6 +288,13 @@ class TournamentView(ApiModel):
     decks_published: int
 
 
+class AttributionView(ApiModel):
+    """A credit the meta data's source requires us to display."""
+    source: str
+    url: str
+    text: str
+
+
 class MetaStatusView(ApiModel):
     available: bool
     snapshot_id: str
@@ -296,3 +303,4 @@ class MetaStatusView(ApiModel):
     tournament_count: int
     evidence_counts: dict[str, int]
     warnings: list[str]
+    attribution: list[AttributionView] = Field(default_factory=list)

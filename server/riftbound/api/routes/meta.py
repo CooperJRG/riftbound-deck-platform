@@ -23,6 +23,7 @@ from ...services import Services, get_services
 from ..identity import Identity, current_identity
 from ..schemas import (
     ArchetypeView,
+    AttributionView,
     MetaDeckView,
     MetaStatusView,
     TournamentView,
@@ -58,6 +59,7 @@ def meta_status(services: Services = Depends(get_services)) -> MetaStatusView:
             tournament_count=0,
             evidence_counts={},
             warnings=[],
+            attribution=[],
         )
     m = snapshot.manifest
     return MetaStatusView(
@@ -68,6 +70,12 @@ def meta_status(services: Services = Depends(get_services)) -> MetaStatusView:
         tournament_count=m.tournament_count,
         evidence_counts=dict(m.evidence_counts),
         warnings=list(m.warnings[:10]),
+        attribution=[
+            AttributionView(
+                source=a.get("source", ""), url=a.get("url", ""), text=a.get("text", "")
+            )
+            for a in m.attribution
+        ],
     )
 
 

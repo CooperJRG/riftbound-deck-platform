@@ -49,6 +49,10 @@ class MetaManifest:
     source_error: str = ""
     notes: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
+    #: Credits required by the sources this snapshot came from. TopDeck.gg's API terms
+    #: require a visible credit and link back on any project that uses it, so the
+    #: obligation travels with the data rather than living only in a docs page.
+    attribution: tuple[dict[str, str], ...] = ()
     promoted: bool = False
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,6 +69,7 @@ class MetaManifest:
             "sourceError": self.source_error,
             "notes": list(self.notes),
             "warnings": list(self.warnings),
+            "attribution": [dict(a) for a in self.attribution],
             "promoted": self.promoted,
         }
 
@@ -83,6 +88,11 @@ class MetaManifest:
             source_error=str(raw.get("sourceError") or ""),
             notes=tuple(raw.get("notes") or ()),
             warnings=tuple(raw.get("warnings") or ()),
+            attribution=tuple(
+                {str(k): str(v) for k, v in a.items()}
+                for a in (raw.get("attribution") or [])
+                if isinstance(a, dict)
+            ),
             promoted=bool(raw.get("promoted")),
         )
 
@@ -194,6 +204,7 @@ def write_snapshot(
     source_error: str = "",
     notes: Sequence[str] = (),
     warnings: Sequence[str] = (),
+    attribution: Sequence[dict[str, str]] = (),
 ) -> MetaSnapshot:
     ordered = sorted(decks, key=lambda d: d.deck_id)
     payload = {
@@ -222,6 +233,7 @@ def write_snapshot(
         source_error=source_error,
         notes=tuple(notes),
         warnings=tuple(warnings),
+        attribution=tuple(dict(a) for a in attribution),
     )
 
     target = meta_dir / snapshot_id

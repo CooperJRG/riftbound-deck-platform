@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import sys
 
-from .config import ConfigError, load_config
+from .config import ConfigError, load_config, load_dotenv
 
 
 def main() -> int:
+    load_dotenv()
     try:
         config = load_config()
         config.require_files()

@@ -181,6 +181,30 @@ function statusLine(): HTMLElement {
   );
 }
 
+/**
+ * Source credits.
+ *
+ * TopDeck.gg's API terms require a visible credit and a link back on any project that
+ * uses it. The requirement travels with the snapshot, so this renders whatever the
+ * data itself says is owed rather than a hardcoded line that could drift out of date.
+ */
+function attributionLine(): HTMLElement | null {
+  const credits = store.state.metaStatus?.attribution ?? [];
+  if (credits.length === 0) return null;
+  return h(
+    "p",
+    { class: "attribution muted small" },
+    ...credits.flatMap((credit, index) => [
+      index > 0 ? h("span", {}, " · ") : null,
+      h(
+        "a",
+        { href: credit.url, target: "_blank", rel: "noopener noreferrer" },
+        credit.text || credit.source,
+      ),
+    ]),
+  );
+}
+
 function emptyState(): HTMLElement {
   return h(
     "div",
@@ -241,7 +265,13 @@ export function renderMeta(root: HTMLElement): void {
 
   replace(
     root,
-    h("div", { class: "meta-head" }, h("h2", { class: "meta-title" }, "Meta"), statusLine()),
+    h(
+      "div",
+      { class: "meta-head" },
+      h("h2", { class: "meta-title" }, "Meta"),
+      statusLine(),
+      attributionLine(),
+    ),
     controls,
     metaLoading ? h("p", { class: "muted" }, "Loading…") : null,
     !metaArchetype && archetypes.length > 0

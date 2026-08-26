@@ -256,6 +256,13 @@ export interface Tournament {
   decksPublished: number;
 }
 
+/** A credit the meta data's source requires the app to display. */
+export interface Attribution {
+  source: string;
+  url: string;
+  text: string;
+}
+
 export interface MetaStatus {
   available: boolean;
   snapshotId: string;
@@ -264,4 +271,5 @@ export interface MetaStatus {
   tournamentCount: number;
   evidenceCounts: Record<string, number>;
   warnings: string[];
+  attribution: Attribution[];
 }

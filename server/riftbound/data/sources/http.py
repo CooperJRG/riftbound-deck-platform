@@ -80,16 +80,46 @@ class HttpClient:
         self._referer = referer
 
     def get(self, url: str) -> bytes:
+        return self._send(url, method="GET", body=None, extra_headers=None)
+
+    def post_json(
+        self, url: str, payload: object, *, headers: dict[str, str] | None = None
+    ) -> Any:
+        """POST JSON and parse the JSON response.
+
+        Extra headers carry credentials for APIs that need them. They are never logged:
+        errors from :meth:`_send` mention only the URL.
+        """
+        body = json.dumps(payload).encode("utf-8")
+        merged = {"Content-Type": "application/json", **(headers or {})}
+        raw = self._send(url, method="POST", body=body, extra_headers=merged)
+        if not raw.strip():
+            return None
+        if raw[:1] not in (b"{", b"["):
+            raise HttpError(f"non-JSON response from {url}: {raw[:40]!r}")
+        return json.loads(raw.decode("utf-8"))
+
+    def _send(
+        self,
+        url: str,
+        *,
+        method: str,
+        body: bytes | None,
+        extra_headers: dict[str, str] | None,
+    ) -> bytes:
         host = urllib.parse.urlparse(url).netloc
         headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
         if self._referer:
             headers["Referer"] = self._referer
+        headers.update(extra_headers or {})
 
         last_error = ""
         for attempt in range(1, self._max_attempts + 1):
             self._limiter.wait(host)
             try:
-                request = urllib.request.Request(url, headers=headers)
+                request = urllib.request.Request(
+                    url, headers=headers, data=body, method=method
+                )
                 with urllib.request.urlopen(request, timeout=self._timeout) as response:
                     return response.read()
             except urllib.error.HTTPError as exc:

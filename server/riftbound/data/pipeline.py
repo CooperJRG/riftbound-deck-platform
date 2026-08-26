@@ -20,7 +20,7 @@ from pathlib import Path
 import sys
 from typing import Sequence
 
-from ..config import ROOT, load_config
+from ..config import ROOT, load_config, load_dotenv
 from .bundle import (
     Bundle,
     SourceHealth,
@@ -261,6 +261,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="replace")
+    load_dotenv()
 
     args = build_parser().parse_args(argv)
     return int(args.func(args))
