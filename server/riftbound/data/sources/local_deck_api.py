@@ -34,6 +34,10 @@ from typing import Any, Sequence
 from .http import HttpClient, HttpError
 
 DEFAULT_BASE_URL = "http://127.0.0.1:8787"
+#: Upper bound on a single harvest, so a runaway response cannot exhaust memory. Far
+#: above any plausible local library; it exists to bound a bug, not to shape a harvest.
+SANE_MAX = 20_000
+
 #: The service caps a page at 100.
 PAGE_SIZE = 100
 
@@ -141,7 +145,7 @@ class LocalDeckApiSource:
         base_url: str = "",
         min_quality: int = 0,
         since: str = "",
-        limit: int = 400,
+        limit: int = 0,
         workers: int = 8,
         timeout: float = 30.0,
         cache_dir: Path | None = None,
@@ -150,7 +154,12 @@ class LocalDeckApiSource:
         self._base = (base_url or base_url_from_env()).rstrip("/")
         self._min_quality = max(0, min_quality)
         self._since = since
-        self._limit = max(1, limit)
+        # 0 means "whatever the service has". This is a local process on the same
+        # machine with no rate limit to respect, so a fixed cap buys nothing and costs
+        # data: the service grows every few hours and a cap silently drops the newest
+        # decks off the end of a quality sort. A ceiling still exists (SANE_MAX) to
+        # bound a pathological response.
+        self._limit = max(1, limit) if limit else 0
         self._workers = max(1, workers)
         self._cache_dir = cache_dir
         # A local service: no throttle needed, but retries still cover a restart mid-run.
@@ -191,18 +200,35 @@ class LocalDeckApiSource:
     def _list(self, result: LocalDeckResult) -> list[dict[str, Any]]:
         summaries: list[dict[str, Any]] = []
         offset = 0
-        while len(summaries) < self._limit:
-            page = self._http.get_json(self._query(offset, min(PAGE_SIZE, self._limit - offset)))
+        total = 0
+        ceiling = self._limit or SANE_MAX
+
+        while len(summaries) < ceiling:
+            page = self._http.get_json(self._query(offset, min(PAGE_SIZE, ceiling - offset)))
             if not isinstance(page, dict):
                 raise HttpError(f"unexpected response from {self._base}/v1/decks")
             rows = page.get("decks") or []
             summaries.extend(r for r in rows if isinstance(r, dict))
-            total = _int(page.get("total"))
+            total = _int(page.get("total")) or total
             offset += len(rows)
             if not rows or offset >= total:
                 break
-        result.notes.append(f"{len(summaries)} deck summaries from {self._base}")
-        return summaries[: self._limit]
+
+        kept = summaries[:ceiling]
+        result.notes.append(
+            f"{len(kept)} of {total} deck summaries from {self._base}"
+            if total
+            else f"{len(kept)} deck summaries from {self._base}"
+        )
+        # Never drop decks quietly. A harvest that silently returns less than the
+        # service holds is the exact failure this project was rebuilt to avoid, and it
+        # gets worse on its own as the service grows.
+        if total and len(kept) < total:
+            result.notes.append(
+                f"TRUNCATED: {total - len(kept)} decks not fetched (limit {ceiling}). "
+                f"Raise --local-limit, or leave it at 0 to take everything."
+            )
+        return kept
 
     def _hydrate(
         self, summaries: Sequence[dict[str, Any]], result: LocalDeckResult

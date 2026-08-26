@@ -17,6 +17,7 @@ import type {
   LegendChoice,
   MetaDeck,
   MetaStatus,
+  RefreshStatus,
   SmartSession,
   Validation,
 } from "../api/types";
@@ -73,6 +74,17 @@ export interface AppState {
   smartFinished: boolean;
   /** Legend picker filter, so a 49-legend list stays navigable. */
   smartLegendQuery: string;
+  /**
+   * Why the legend list is empty, when it is.
+   *
+   * Distinct from "there are no legends": an empty list because the request failed is
+   * a different problem with a different fix, and telling somebody to run the meta
+   * pipeline when the real fault is a stale server sends them somewhere useless.
+   */
+  smartLegendsError: string;
+  smartLegendsLoaded: boolean;
+  refresh: RefreshStatus | null;
+  refreshBusy: boolean;
 }
 
 export function emptyDeck(): DeckPayload {
@@ -131,6 +143,10 @@ const initial: AppState = {
   smartBusy: false,
   smartFinished: false,
   smartLegendQuery: "",
+  smartLegendsError: "",
+  smartLegendsLoaded: false,
+  refresh: null,
+  refreshBusy: false,
 };
 
 type Listener = (state: AppState) => void;

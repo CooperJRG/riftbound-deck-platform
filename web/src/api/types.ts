@@ -277,6 +277,31 @@ export interface MetaStatus {
   attribution: Attribution[];
 }
 
+export interface RefreshRun {
+  startedAt: string;
+  finishedAt: string;
+  ok: boolean;
+  promoted: boolean;
+  snapshotId: string;
+  deckCount: number;
+  durationMs: number;
+  message: string;
+}
+
+export interface RefreshStatus {
+  enabled: boolean;
+  status: "idle" | "running" | "off";
+  intervalHours: number;
+  nextRunAt: string;
+  runs: number;
+  failures: number;
+  consecutiveFailures: number;
+  snapshotAgeHours: number;
+  stale: boolean;
+  lastRun: RefreshRun | null;
+  history: RefreshRun[];
+}
+
 // -- smart decks --------------------------------------------------------------
 
 export interface LegendChoice {

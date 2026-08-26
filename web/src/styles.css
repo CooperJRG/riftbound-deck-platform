@@ -1384,3 +1384,30 @@ h4 {
   font-size: 12px;
   color: var(--text-dim);
 }
+
+/* -- meta freshness -------------------------------------------------------- */
+
+.smart-freshness {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Stale is a caution, not an error: the app still works, the data is just old. */
+.smart-freshness.is-stale {
+  color: var(--warn);
+}
+
+.smart-empty {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  max-width: 60ch;
+}
+.smart-empty strong {
+  display: block;
+  margin-bottom: 4px;
+}

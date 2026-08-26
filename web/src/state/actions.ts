@@ -388,13 +388,54 @@ function seedAnswers(session: SmartSession | null): Map<string, number> {
 
 export async function openSmartDecks(): Promise<void> {
   store.set({ view: "smart" });
-  if (store.state.smartLegends.length) return;
-  store.set({ smartBusy: true });
+  if (store.state.smartLegendsLoaded && store.state.smartLegends.length) return;
+  store.set({ smartBusy: true, smartLegendsError: "" });
   try {
-    store.set({ smartLegends: await api.smartLegends(), smartBusy: false });
+    const [smartLegends, refresh] = await Promise.all([
+      api.smartLegends(),
+      // Best-effort: the picker is still usable without it.
+      api.refreshStatus().catch(() => null),
+    ]);
+    store.set({
+      smartLegends,
+      refresh,
+      smartBusy: false,
+      smartLegendsLoaded: true,
+      smartLegendsError: "",
+    });
+  } catch (error) {
+    // Record why rather than falling through to an empty list. An empty picker after
+    // a failed request is not "no decks are loaded", and saying so sends somebody to
+    // run a pipeline that was never the problem.
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ smartBusy: false, smartLegendsLoaded: true, smartLegendsError: message });
+  }
+}
+
+/**
+ * Harvest now rather than waiting for the timer.
+ *
+ * The answer to "run the meta pipeline" for somebody looking at a web page who does
+ * not want to go and find a terminal.
+ */
+export async function refreshMetaNow(): Promise<void> {
+  store.set({ refreshBusy: true });
+  try {
+    const refresh = await api.refreshNow();
+    const run = refresh.lastRun;
+    store.set({
+      refresh,
+      refreshBusy: false,
+      smartLegendsLoaded: false,
+      notice: run?.ok
+        ? `Meta updated: ${run.deckCount} decks.`
+        : `Refresh did not complete. ${run?.message ?? ""}`.trim(),
+    });
+    // The snapshot changed underneath us, so anything derived from it is stale.
+    await Promise.all([openSmartDecks(), loadMeta()]);
   } catch (error) {
     reportError(error);
-    store.set({ smartBusy: false });
+    store.set({ refreshBusy: false });
   }
 }
 

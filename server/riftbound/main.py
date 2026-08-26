@@ -19,6 +19,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import ConfigError
+from .data.scheduler import MetaScheduler
 from .api.identity import build_identity_provider
 from .api.routes import availability, cards, decks, meta, smart_decks, system
 from .services import get_services
@@ -40,7 +41,17 @@ async def lifespan(app: FastAPI):
         services.bundle.manifest.bundle_id,
         services.bundle.manifest.card_count,
     )
-    yield
+
+    # Keep the meta fresh on a timer. Started after the app is otherwise ready and
+    # stopped on the way out, so a refresh can never delay start-up or outlive the
+    # process it belongs to.
+    scheduler = MetaScheduler(services.config)
+    app.state.meta_scheduler = scheduler
+    scheduler.start()
+    try:
+        yield
+    finally:
+        await scheduler.stop()
 
 
 def create_app() -> FastAPI:

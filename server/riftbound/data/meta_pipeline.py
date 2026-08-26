@@ -175,7 +175,7 @@ def _build_sources(args: argparse.Namespace, progress):
     if "riftdecks" in wanted:
         sources.append(LocalDeckApiSource(
             min_quality=args.min_quality, since=args.since or "",
-            limit=args.decks, cache_dir=INGEST_CACHE,
+            limit=args.local_limit, cache_dir=INGEST_CACHE,
         ))
     if "dotgg" in wanted:
         sources.append(DotGGMetaSource(
@@ -397,6 +397,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="topdeck: ignore events smaller than this",
     )
     p.add_argument("--decks", type=int, default=400, help="dotgg: max decklists to hydrate")
+    p.add_argument(
+        "--local-limit", type=int, default=0, dest="local_limit",
+        help=(
+            "riftdecks: max decks to take from the local API (0 = everything it has, "
+            "the default). It is a local service with no rate limit to respect, and a "
+            "cap silently drops its newest decks."
+        ),
+    )
     p.add_argument("--tournaments", type=int, default=12, help="max tournaments to read")
     p.add_argument("--since", help="only decks modified on/after this date (YYYY-MM-DD)")
     p.add_argument(

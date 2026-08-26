@@ -32,6 +32,16 @@ def _env_bool(name: str, *, default: bool) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _env_float(name: str, *, default: float) -> float:
+    raw = _env_str(name)
+    if not raw:
+        return default
+    try:
+        return float(raw)
+    except ValueError as exc:
+        raise ConfigError(f"{name} must be a number, got {raw!r}") from exc
+
+
 def _env_int(name: str, *, default: int) -> int:
     raw = _env_str(name)
     if not raw:
@@ -71,6 +81,18 @@ class Config:
     host: str
     port: int
     dev_origins: tuple[str, ...]
+
+    #: Keep the meta snapshot fresh in the background. The whole feature set on top of
+    #: it -- meta view, Smart Decks -- is only as good as the last harvest, and a
+    #: refresh nobody remembers to run is a stale app that looks current.
+    meta_refresh: bool
+    #: Hours between harvests. Defaults to the cadence of the slowest upstream we read.
+    meta_refresh_hours: float
+    #: Seconds after start-up before the first check, so booting is never blocked and a
+    #: restart loop cannot become a request flood.
+    meta_refresh_delay: float
+    #: Wall-clock seconds a scheduled harvest may take before it stops with what it has.
+    meta_refresh_budget: float
 
     @property
     def is_local(self) -> bool:
@@ -161,4 +183,13 @@ def load_config() -> Config:
         dev_origins=tuple(
             o.strip() for o in _env_str("RB_DEV_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if o.strip()
         ),
+        # On by default in local mode: this is somebody's own machine running their own
+        # app, and the alternative is the failure the rebuild exists to avoid -- data
+        # that quietly goes stale until a player notices the meta is a month old.
+        # Hosted mode leaves it off, because there the harvest belongs to whatever
+        # deploys the service, not to every process that happens to be running.
+        meta_refresh=_env_bool("RB_META_REFRESH", default=(mode == "local")),
+        meta_refresh_hours=_env_float("RB_META_REFRESH_HOURS", default=3.0),
+        meta_refresh_delay=_env_float("RB_META_REFRESH_DELAY", default=90.0),
+        meta_refresh_budget=_env_float("RB_META_REFRESH_BUDGET", default=240.0),
     )

@@ -319,6 +319,56 @@ def served_client(client, tmp_path):
     reset_services()
 
 
+def test_refresh_status_answers_even_with_no_meta(client):
+    """A stale snapshot looks exactly like a fresh one from outside, so this must
+    always be answerable -- including when there is nothing to be fresh about."""
+    body = client.get("/api/meta/refresh").json()
+    assert body["snapshotAgeHours"] == -1.0
+    assert body["stale"] is False, "nothing cannot be stale"
+    assert body["lastRun"] is None
+
+
+def test_refresh_status_reports_the_schedule(client):
+    body = client.get("/api/meta/refresh").json()
+    assert body["enabled"] is True, "local mode keeps its own data current"
+    assert body["intervalHours"] > 0
+    assert body["status"] in {"idle", "running", "off"}
+
+
+def test_a_refresh_can_be_triggered_without_a_terminal(client, monkeypatch):
+    """The honest answer to "run the meta pipeline" for somebody on a web page."""
+    from riftbound.data.scheduler import RunRecord
+
+    record = RunRecord(
+        started_at="2026-08-26T00:00:00+00:00", finished_at="2026-08-26T00:01:00+00:00",
+        ok=True, promoted=True, snapshot_id="snap-test", deck_count=1234,
+        duration_ms=1000, message="",
+    )
+    monkeypatch.setattr(
+        "riftbound.data.scheduler.run_refresh", lambda config, budget: record
+    )
+    response = client.post("/api/meta/refresh")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["lastRun"]["snapshotId"] == "snap-test"
+    assert body["lastRun"]["deckCount"] == 1234
+    assert body["runs"] == 1
+
+
+def test_a_failed_refresh_is_reported_not_raised(client, monkeypatch):
+    """Meta is optional data; a bad harvest degrades the meta view and nothing else."""
+    def explode(config, budget):
+        raise RuntimeError("upstream unreachable")
+
+    monkeypatch.setattr("riftbound.data.scheduler.run_refresh", explode)
+    response = client.post("/api/meta/refresh")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["lastRun"]["ok"] is False
+    assert "upstream unreachable" in body["lastRun"]["message"]
+    assert body["consecutiveFailures"] == 1
+
+
 def test_an_unknown_api_path_is_json_not_the_app_shell(served_client):
     """The SPA fallback must not answer for /api.
 

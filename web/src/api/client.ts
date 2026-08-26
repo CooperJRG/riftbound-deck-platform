@@ -14,6 +14,7 @@ import type {
   MetaDeck,
   MetaStatus,
   LegendChoice,
+  RefreshStatus,
   RuleKinds,
   SaveCollectionResult,
   SmartSession,
@@ -154,6 +155,9 @@ export const api = {
       `/api/meta/decks/${deckId}/import`,
       { method: "POST" },
     ),
+
+  refreshStatus: () => request<RefreshStatus>("/api/meta/refresh"),
+  refreshNow: () => request<RefreshStatus>("/api/meta/refresh", { method: "POST" }),
 
   smartLegends: () => request<LegendChoice[]>("/api/smart-decks/legends"),
   smartSessions: () => request<SmartSession[]>("/api/smart-decks/sessions"),

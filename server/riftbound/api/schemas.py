@@ -307,6 +307,38 @@ class MetaStatusView(ApiModel):
     attribution: list[AttributionView] = Field(default_factory=list)
 
 
+class RefreshRunView(ApiModel):
+    """One scheduled harvest, kept whether it worked or not."""
+    started_at: str
+    finished_at: str
+    ok: bool
+    promoted: bool
+    snapshot_id: str
+    deck_count: int
+    duration_ms: int
+    message: str
+
+
+class RefreshStatusView(ApiModel):
+    """Whether the meta is keeping itself current, and how it is going.
+
+    Exposed because a stale snapshot looks exactly like a fresh one from the outside.
+    "Why is the meta old" should be answerable in the UI, not in a log file.
+    """
+    enabled: bool
+    status: str                 # 'idle' | 'running' | 'off'
+    interval_hours: float
+    next_run_at: str
+    runs: int
+    failures: int
+    consecutive_failures: int
+    #: Age of the promoted snapshot in hours, or -1 when there is none.
+    snapshot_age_hours: float
+    stale: bool
+    last_run: RefreshRunView | None = None
+    history: list[RefreshRunView] = Field(default_factory=list)
+
+
 # -- smart decks --------------------------------------------------------------
 
 

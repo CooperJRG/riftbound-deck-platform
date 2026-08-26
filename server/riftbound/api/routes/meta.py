@@ -14,14 +14,19 @@ to someone else's tier list.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from ...domain.availability import deck_coverage
 from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
-from ...services import Services, get_services
+from ...data.scheduler import snapshot_age_hours
+from ...services import Services, get_services, reset_services
 from ..identity import Identity, current_identity
 from ..schemas import (
+    RefreshRunView,
+    RefreshStatusView,
+    RefreshRunView,
+    RefreshStatusView,
     ArchetypeView,
     AttributionView,
     MetaDeckView,
@@ -220,3 +225,84 @@ def _deck_counts(deck: MetaDeck) -> dict[str, int]:
     if deck.deck.legend_id:
         counts[deck.deck.legend_id] = counts.get(deck.deck.legend_id, 0) + 1
     return counts
+
+
+# -- scheduled refresh --------------------------------------------------------
+
+
+def _run_view(record) -> RefreshRunView:
+    return RefreshRunView(
+        started_at=record.started_at,
+        finished_at=record.finished_at,
+        ok=record.ok,
+        promoted=record.promoted,
+        snapshot_id=record.snapshot_id,
+        deck_count=record.deck_count,
+        duration_ms=record.duration_ms,
+        message=record.message,
+    )
+
+
+def _scheduler(request: Request):
+    scheduler = getattr(request.app.state, "meta_scheduler", None)
+    if scheduler is None:
+        raise HTTPException(
+            status_code=503,
+            detail="The refresh scheduler is not running in this process.",
+        )
+    return scheduler
+
+
+def _refresh_status(request: Request, services: Services) -> RefreshStatusView:
+    scheduler = getattr(request.app.state, "meta_scheduler", None)
+    snapshot = services.meta
+    age = snapshot_age_hours(snapshot.manifest.created_at) if snapshot else None
+    state = scheduler.state if scheduler else None
+    interval = state.interval_hours if state else 0.0
+
+    return RefreshStatusView(
+        enabled=bool(state and state.enabled),
+        status=state.status if state else "off",
+        interval_hours=interval,
+        next_run_at=state.next_run_at if state else "",
+        runs=state.runs if state else 0,
+        failures=state.failures if state else 0,
+        consecutive_failures=state.consecutive_failures if state else 0,
+        snapshot_age_hours=age if age is not None else -1.0,
+        # Stale means "older than two refresh intervals": one missed run is a blip, two
+        # is a pattern worth showing somebody.
+        stale=bool(age is not None and interval and age > interval * 2),
+        last_run=_run_view(state.last_run) if state and state.last_run else None,
+        history=[_run_view(r) for r in (state.history if state else [])],
+    )
+
+
+@router.get("/refresh", response_model=RefreshStatusView)
+def refresh_status(
+    request: Request, services: Services = Depends(get_services)
+) -> RefreshStatusView:
+    """Whether the meta is keeping itself current. Never 503s."""
+    return _refresh_status(request, services)
+
+
+@router.post("/refresh", response_model=RefreshStatusView)
+async def refresh_now(
+    request: Request, services: Services = Depends(get_services)
+) -> RefreshStatusView:
+    """Harvest now rather than waiting for the timer.
+
+    The honest answer to "run the meta pipeline" for somebody who is looking at a web
+    page and does not want to find a terminal. Returns as soon as the run finishes;
+    a concurrent request is told a run is already in flight rather than starting a
+    second one.
+    """
+    scheduler = _scheduler(request)
+    record = await scheduler.run_once()
+    if record is None:
+        raise HTTPException(
+            status_code=409,
+            detail="A refresh is already running. Check back in a moment.",
+        )
+    # The snapshot on disk has changed; drop everything derived from the old one.
+    reset_services()
+    return _refresh_status(request, get_services())

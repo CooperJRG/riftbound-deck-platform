@@ -25,6 +25,8 @@ import type {
 import {
   acceptSmartDeck,
   closeSmartSession,
+  openSmartDecks,
+  refreshMetaNow,
   saveSmartCollection,
   setSmartAnswer,
   setSmartLegendQuery,
@@ -32,7 +34,7 @@ import {
   submitSmartRound,
 } from "../state/actions";
 import { store } from "../state/store";
-import { h, replace } from "../ui/dom";
+import { fragment, h, replace } from "../ui/dom";
 
 /** Battlefield art is landscape; the tile rotates it to match every other card. */
 function isLandscape(zone: string): boolean {
@@ -343,6 +345,96 @@ function legendCard(legend: LegendChoice, busy: boolean): HTMLElement {
   );
 }
 
+/**
+ * Why there are no legends, when there are none.
+ *
+ * Three different causes with three different fixes, and telling them apart matters:
+ * a failed request is not missing data, and sending somebody to run a pipeline when
+ * the real fault was a stale server wastes their afternoon.
+ */
+function emptyPicker(): HTMLElement {
+  const { smartLegendsError, refreshBusy } = store.state;
+
+  if (smartLegendsError) {
+    return h(
+      "div",
+      { class: "smart-empty" },
+      h("strong", {}, "Could not load the legend list."),
+      h("p", { class: "smart-lede" }, smartLegendsError),
+      h(
+        "p",
+        { class: "smart-optin" },
+        "This is a request that failed, not missing data - the meta may well be fine.",
+      ),
+      h(
+        "button",
+        { type: "button", on: { click: () => void openSmartDecks() } },
+        "Try again",
+      ),
+    );
+  }
+
+  return h(
+    "div",
+    { class: "smart-empty" },
+    h("strong", {}, "No meta decks yet."),
+    h(
+      "p",
+      { class: "smart-lede" },
+      "The wizard builds from what the field is playing, so it needs a harvest first. " +
+        "This normally happens on a timer.",
+    ),
+    h(
+      "button",
+      {
+        class: "primary",
+        type: "button",
+        disabled: refreshBusy,
+        on: { click: () => void refreshMetaNow() },
+      },
+      refreshBusy ? "Harvesting..." : "Fetch decks now",
+    ),
+    h(
+      "p",
+      { class: "smart-optin" },
+      "It takes a few minutes and reads from the tournament and deck APIs.",
+    ),
+  );
+}
+
+/** How current the data behind all of this is, and when it will next be checked. */
+function freshnessLine(): HTMLElement | null {
+  const { refresh, refreshBusy } = store.state;
+  if (!refresh) return null;
+
+  const age = refresh.snapshotAgeHours;
+  const when =
+    age < 0
+      ? "never harvested"
+      : age < 1
+        ? "updated in the last hour"
+        : `updated ${Math.round(age)} hours ago`;
+  const cadence = refresh.enabled
+    ? `checking every ${refresh.intervalHours} hours`
+    : "automatic refresh is off";
+
+  return h(
+    "p",
+    { class: `smart-freshness${refresh.stale ? " is-stale" : ""}` },
+    `Meta ${when}, ${cadence}.`,
+    h(
+      "button",
+      {
+        class: "step",
+        type: "button",
+        disabled: refreshBusy || refresh.status === "running",
+        on: { click: () => void refreshMetaNow() },
+      },
+      refreshBusy || refresh.status === "running" ? "Harvesting..." : "Refresh now",
+    ),
+  );
+}
+
 function legendPicker(): HTMLElement {
   const { smartLegends, smartBusy, smartLegendQuery } = store.state;
   const needle = smartLegendQuery.trim().toLowerCase();
@@ -360,23 +452,24 @@ function legendPicker(): HTMLElement {
       "Pick a legend and answer a couple of rounds about what you own. " +
         "You do not need to have entered your collection.",
     ),
-    h("input", {
-      class: "smart-search",
-      type: "search",
-      placeholder: "Filter legends",
-      value: smartLegendQuery,
-      on: {
-        input: (event) => setSmartLegendQuery((event.target as HTMLInputElement).value),
-      },
-    }),
-    smartLegends.length === 0 && !smartBusy
-      ? h(
-          "p",
-          { class: "empty" },
-          "No meta decks are loaded, so there is nothing to build from yet. " +
-            "Run the meta pipeline and this list fills in.",
-        )
-      : h("div", { class: "legend-grid" }, ...shown.map((l) => legendCard(l, smartBusy))),
+    freshnessLine(),
+    smartLegends.length === 0
+      ? smartBusy
+        ? h("p", { class: "empty" }, "Loading...")
+        : emptyPicker()
+      : fragment(
+          h("input", {
+            class: "smart-search",
+            type: "search",
+            placeholder: "Filter legends",
+            value: smartLegendQuery,
+            on: {
+              input: (event) =>
+                setSmartLegendQuery((event.target as HTMLInputElement).value),
+            },
+          }),
+          h("div", { class: "legend-grid" }, ...shown.map((l) => legendCard(l, smartBusy))),
+        ),
   );
 }
 
