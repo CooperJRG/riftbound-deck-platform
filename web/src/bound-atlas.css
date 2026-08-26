@@ -733,7 +733,39 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .decision-zone > header p, .decision-zone > header > span { margin: 0; color: var(--atlas-muted); font-size: 0.7rem; }
 .decision-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 0.8rem; }
 .decision-card { display: flex; min-width: 0; flex-direction: column; padding: 0.6rem; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius); background: var(--atlas-canvas); }
-.decision-card.is-short { border-color: var(--atlas-warning); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas-warning) 35%, transparent); }
+/* Three states, because they mean three different things to the player.
+
+   `awaiting` is a question we have not had an answer to. It is the only one that wants
+   attention, and it gets it with the analysis accent rather than a warning colour --
+   nothing is wrong, we are asking.
+
+   `gap` is a settled fact: they told us they are short and we will build around it.
+   Quiet and slightly recessed. Colouring this as a warning was the bug -- a card the
+   player had already ruled out came back looking like a mistake they had to fix.
+
+   `ready` is confirmation and should recede furthest. */
+.decision-card.is-awaiting {
+  border-color: color-mix(in srgb, var(--atlas-teal) 55%, var(--atlas-border));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--atlas-teal) 22%, transparent);
+}
+.decision-card.is-gap {
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--atlas-muted) 45%, var(--atlas-border));
+  background: color-mix(in srgb, var(--atlas-raised) 55%, var(--atlas-canvas));
+}
+.decision-card.is-gap .decision-card-art { opacity: 0.55; }
+.decision-card.is-ready { border-color: var(--atlas-border); }
+
+.req-note { display: block; margin-top: 0.15rem; font-size: 0.72rem; line-height: 1.3; }
+.req-note.is-awaiting { color: var(--atlas-teal); }
+.req-note.is-gap { color: var(--atlas-muted); }
+/* Confirmation is the least interesting thing on the page; keep it available to anyone
+   scanning for it and invisible to everyone else. */
+.req-note.is-ready { color: color-mix(in srgb, var(--atlas-muted) 60%, transparent); }
+
+.zone-status { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; font-size: 0.8rem; color: var(--atlas-muted); }
+.zone-status small { font-size: 0.7rem; opacity: 0.75; }
+.zone-status.is-asking { color: var(--atlas-teal); font-weight: 600; }
 .decision-card-art { width: 100%; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 4.8% / 3.5%; background: #0c0e10; }
 .decision-card-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .decision-card .req-body { min-height: 64px; padding: 0.6rem 0.15rem 0.3rem; }

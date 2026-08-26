@@ -539,7 +539,7 @@ class Engine:
             return Proposal(
                 phase=PHASE_PROPOSE, deck=deck, conservative=conservative, free=free,
                 floor=floor, feasibility=feasibility,
-                reason=self._reason(session, deck),
+                reason=self._reason(session, deck, has_floor=floor is not None),
             )
 
         if floor is not None:
@@ -621,13 +621,26 @@ class Engine:
                 score += needed * prior
         return score / total
 
-    def _reason(self, session: Session, deck: MetaDeck) -> str:
+    def _reason(self, session: Session, deck: MetaDeck, *, has_floor: bool = False) -> str:
+        """Why this deck is on screen, said to the player rather than about ourselves.
+
+        "Asks about 4 cards we have not covered yet" describes our information problem;
+        the player's question is whether this round is worth their time. Once a deck is
+        already secured that answer is "only if you want a better one", and saying so is
+        what makes the round feel optional instead of endless.
+        """
         if not session.asked:
             return "The strongest recent deck for this legend."
-        unknown = len(unknown_cards(deck.deck, session.knowledge))
-        if unknown:
-            return f"Asks about {unknown} cards we have not covered yet."
-        return "The closest remaining deck to what you already own."
+        if has_floor:
+            # No card count here. A deck round assumes you own what it does not ask
+            # about, so those cards look identical on screen -- quoting a number the
+            # player cannot point at makes the whole page feel less trustworthy, not
+            # more informed.
+            return (
+                "You already have a deck you can build. This one could be better — "
+                "mark anything you are missing, or stop here and keep what you have."
+            )
+        return "Closer to what you own. Mark anything you are missing."
 
     # -- the closing question -------------------------------------------------
 

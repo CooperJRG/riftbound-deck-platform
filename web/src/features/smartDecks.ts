@@ -37,6 +37,12 @@ import {
 import { store } from "../state/store";
 import { fragment, h, replace } from "../ui/dom";
 
+/** "1 card", not "1 cards". Small, and the wizard is asking for effort while it speaks. */
+function plural(count: number, one: string, many = ""): string {
+  const word = count === 1 ? one : many || `${one}s`;
+  return `${count} ${word}`;
+}
+
 function cardThumb(row: RequirementRow): HTMLElement {
   const art = row.imageUrl
     ? h("img", { src: row.imageUrl, alt: `${row.name} card`, loading: "lazy" })
@@ -107,11 +113,48 @@ function counter(row: RequirementRow, value: number): HTMLElement {
   return h("div", { class: "req-counter" }, ...options);
 }
 
+/**
+ * The state a row is in, which is not the same question as "is the number below the
+ * requirement".
+ *
+ * One visual state used to cover three situations and mislead in all of them. A
+ * checklist row defaults to zero, so an untouched screen rendered every card as a
+ * warning: twelve problems reported before the player had done anything. A card they
+ * had already told us they lack came back in the same alarm colour as a question, which
+ * reads as nagging -- or worse, as the wizard not having listened.
+ *
+ * So: `awaiting` is a question, `gap` is a settled fact we will work around, and `ready`
+ * is confirmation. Only one of the three is the player's problem, and none of them is
+ * an error.
+ */
+type RowState = "awaiting" | "gap" | "ready";
+
+function rowState(row: RequirementRow, value: number): RowState {
+  // "Answered" includes this round, not just previous ones. `row.have` is the value the
+  // server seeded the control with, so any other value is the player having moved it --
+  // and a card they have just set to zero must not keep asking "how many do you have?".
+  const answered = row.known || value !== row.have;
+  if (!answered && value < row.needed) return "awaiting";
+  return value < row.needed ? "gap" : "ready";
+}
+
+function rowNote(row: RequirementRow, state: RowState, value: number): string {
+  if (state === "awaiting") return "How many do you have?";
+  if (state === "gap") {
+    // Say what happens next. A shortfall with no consequence attached reads as a
+    // failure the player is expected to fix before they may continue.
+    return value === 0
+      ? "You do not have this — we will build around it"
+      : `You have ${value} of ${row.needed} — we will build around the rest`;
+  }
+  return row.known ? "You have these" : "Assuming you have these";
+}
+
 function requirementRow(row: RequirementRow, value: number): HTMLElement {
-  const short = value < row.needed;
+  const state = rowState(row, value);
   return h(
     "li",
-    { class: `decision-card${short ? " is-short" : ""}${row.known ? " is-known" : ""}` },
+    { class: `decision-card is-${state}` },
     cardThumb(row),
     h(
       "div",
@@ -122,19 +165,20 @@ function requirementRow(row: RequirementRow, value: number): HTMLElement {
         { class: "req-meta" },
         row.needed === 1 ? "Need 1" : `Need ${row.needed}`,
         row.rarity ? ` · ${row.rarity}` : "",
-        row.known ? " · already answered" : "",
       ),
+      h("span", { class: `req-note is-${state}` }, rowNote(row, state, value)),
     ),
     counter(row, value),
   );
 }
 
 /**
- * The rows for this round, split into what is genuinely new and what we already know.
+ * The deck, grouped so the round reads as one object rather than a quiz.
  *
- * Known rows are collapsed rather than dropped: they still need to be visible (a player
- * may have miscounted, or opened a booster since) but they should not be re-read every
- * round. Only the new rows carry attention.
+ * Within each zone the cards we are actually asking about come first. A card the player
+ * has already settled stays visible -- they may have miscounted, or bought singles since
+ * -- but it does not compete for attention with a question, and it never repeats the
+ * question it already answered.
  */
 function requirementList(rows: RequirementRow[], answers: Map<string, number>): HTMLElement {
   const groups: { zone: RequirementRow["zone"]; title: string; note: string }[] = [
@@ -144,18 +188,58 @@ function requirementList(rows: RequirementRow[], answers: Map<string, number>): 
     { zone: "battlefields", title: "Battlefields", note: "Field package" },
     { zone: "ask", title: "Possible swaps", note: "Cards that can change the build" },
   ];
+
+  const valueOf = (row: RequirementRow) => answers.get(row.cardId) ?? row.have;
+  const rank: Record<RowState, number> = { awaiting: 0, gap: 1, ready: 2 };
+
   return h(
     "div",
     { class: "decision-map" },
     ...groups.map((group) => {
       const members = rows.filter((row) => row.zone === group.zone);
       if (!members.length) return null;
+
+      const ordered = [...members].sort(
+        (a, b) => rank[rowState(a, valueOf(a))] - rank[rowState(b, valueOf(b))],
+      );
+      const asking = members.filter(
+        (row) => rowState(row, valueOf(row)) === "awaiting",
+      ).length;
+      const gaps = members.filter((row) => rowState(row, valueOf(row)) === "gap").length;
       const copies = members.reduce((sum, row) => sum + row.needed, 0);
+
+      // Say what this section wants from the player, rather than only how big it is.
+      // "All set" would overstate an untouched deck round: nothing has been confirmed,
+      // we are assuming, and the player needs to know they are being asked for
+      // exceptions rather than congratulated.
+      const anyKnown = members.some((row) => row.known);
+      const summary = asking
+        ? `${asking} to answer`
+        : gaps
+          ? `${gaps} we will build around`
+          : anyKnown
+            ? "All set"
+            : "Mark anything you lack";
+
       return h(
         "section",
         { class: `decision-zone decision-zone-${group.zone}` },
-        h("header", {}, h("div", {}, h("h4", {}, group.title), h("p", {}, group.note)), h("span", {}, `${members.length} cards · ${copies} copies`)),
-        h("ul", { class: "req-list decision-grid" }, ...members.map((row) => requirementRow(row, answers.get(row.cardId) ?? row.have))),
+        h(
+          "header",
+          {},
+          h("div", {}, h("h4", {}, group.title), h("p", {}, group.note)),
+          h(
+            "span",
+            { class: asking ? "zone-status is-asking" : "zone-status" },
+            summary,
+            h("small", {}, `${plural(members.length, "card")} · ${plural(copies, "copy", "copies")}`),
+          ),
+        ),
+        h(
+          "ul",
+          { class: "req-list decision-grid" },
+          ...ordered.map((row) => requirementRow(row, valueOf(row))),
+        ),
       );
     }),
   );
