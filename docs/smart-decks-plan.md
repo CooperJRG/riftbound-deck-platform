@@ -323,9 +323,29 @@ UI should render those as a grid rather than a list.
 
    *Steps 1-4 are done and passing; see 8.1 for the measured result.*
 
-5. **Persistence + API** — migration, repository, routes.
-6. **UI** — legend picker, review screen, floor banner, finish.
-7. **Collection write-back** — opt-in.
+5. **Persistence + API** — migration, repository, routes. *Done.*
+6. **UI** — legend picker, review screen, floor banner, finish. *Done.*
+7. **Collection write-back** — opt-in. *Done.*
+
+### 9.1 What the UI pass caught
+
+Driving the finished wizard in a browser against the live snapshot found a defect the
+whole test suite and the 980-session acceptance run could not: the checklist round
+pre-selected three copies of every card. It asked "which of these do you own" and
+answered "all of them" on the player's behalf, so anyone clicking through would be told
+they can build a deck they cannot.
+
+Worth recording because of *why* it was invisible. The harness answers every question
+truthfully from a known collection, so it never exercises a default. The engine was
+correct; the screen in front of it lied. It is a **false positive** — the exact mirror
+of the false negative the engine is built to avoid — and the two need guarding in
+different places.
+
+The rule now: a **deck** round assumes you have its cards and asks for exceptions
+(the list is real, the question is "what are you short of"); a **checklist** assumes
+nothing (the cards are unasked, the question is "what do you own"). Cards an earlier
+round established keep what was learned. Locked in by
+`test_a_checklist_does_not_answer_itself`.
 
 Steps 1–4 are where the difficulty lives and all of them are pure functions, so they can be
 driven entirely by tests and the harness. Steps 5–7 are ordinary plumbing over the existing
