@@ -501,6 +501,57 @@ def test_tournaments_are_listed(meta_client):
     assert tournaments[0]["players"] == 257
 
 
+def test_trend_overview_keeps_published_lists_separate_from_the_field(meta_client):
+    body = meta_client.get(
+        "/api/meta/trends/overview",
+        params={"dimension": "champion", "from": "2026-08-01", "to": "2026-08-31"},
+    ).json()
+
+    assert body["tournamentCount"] == 1
+    assert body["knownFieldPlayers"] == 257
+    assert body["publishedDeckCount"] == 1
+    assert body["series"][0]["entityId"] == "vi-destructive"
+
+
+def test_champion_trends_explain_pairings_and_card_adoption(meta_client):
+    response = meta_client.get(
+        "/api/meta/trends/champions/vi-destructive",
+        params={"from": "2026-08-01", "to": "2026-08-31"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["championName"] == "Vi - Destructive"
+    assert body["pairings"][0]["entityId"] == "vi-piltover-enforcer"
+    assert body["cards"], "published lists should produce an adoption table"
+    assert body["recentDecks"][0]["tournamentName"] == "Big Event"
+
+
+def test_legend_trends_keep_champions_and_staples_in_context(meta_client):
+    response = meta_client.get(
+        "/api/meta/trends/legends/vi-piltover-enforcer",
+        params={"from": "2026-08-01", "to": "2026-08-31"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["legendName"] == "Vi - Piltover Enforcer"
+    assert body["champions"][0]["entityId"] == "vi-destructive"
+    assert body["champions"][0]["imageUrl"] == ""
+    assert body["cards"][0]["imageUrl"] == ""
+    assert all(card["name"] != "Vi - Destructive" for card in body["cards"])
+
+
+def test_tournament_detail_labels_list_coverage(meta_client):
+    response = meta_client.get("/api/meta/tournaments/big")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["players"] == 257
+    assert body["knownDeckCount"] == 1
+    assert body["decks"][0]["placement"] == 1
+
+
 def test_a_meta_deck_can_be_imported_into_the_library(meta_client):
     created = meta_client.post("/api/meta/decks/winner/import")
     assert created.status_code == 201

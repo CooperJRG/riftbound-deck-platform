@@ -1,56 +1,67 @@
 /** Saved decks: new, save, load, delete. */
 
-import { deleteDeck, loadDeck, newDeck, saveDeck } from "../state/actions";
+import { deleteDeck, loadDeck, newDeck, saveDeck, setView } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
-export function renderDeckLibrary(root: HTMLElement): void {
-  const { savedDecks, deckId, dirty } = store.state;
-
+export function renderDeckActions(root: HTMLElement): void {
+  const { dirty } = store.state;
   replace(
     root,
     h(
       "div",
       { class: "library-actions" },
-      h("button", { class: "btn", type: "button", on: { click: () => newDeck() } }, "New"),
+      h("button", { class: "quiet-button", type: "button", on: { click: () => newDeck() } }, "New deck"),
       h(
         "button",
-        {
-          class: `btn btn-primary${dirty ? " is-dirty" : ""}`,
-          type: "button",
-          on: { click: () => void saveDeck() },
-        },
-        dirty ? "Save •" : "Save",
+        { class: `primary${dirty ? " is-dirty" : ""}`, type: "button", on: { click: () => void saveDeck() } },
+        dirty ? "Save changes •" : "Save deck",
       ),
     ),
+  );
+}
+
+export function renderDeckLibrary(root: HTMLElement): void {
+  const { savedDecks, deckId } = store.state;
+
+  replace(
+    root,
+    h(
+      "header",
+      { class: "page-hero library-hero" },
+      h("div", {}, h("p", { class: "eyebrow" }, "Your workshop"), h("h1", {}, "My decks"), h("p", { class: "page-lede" }, "Return to a list, make a copy your own, or start with a clean page.")),
+      h("button", { class: "primary", type: "button", on: { click: () => { newDeck(); setView("build"); } } }, "New deck"),
+    ),
     savedDecks.length === 0
-      ? h("p", { class: "muted small" }, "No saved decks yet.")
+      ? h("section", { class: "library-empty" }, h("span", { class: "onboarding-number" }, "01"), h("h2", {}, "Your first deck starts here."), h("p", {}, "Find a proven tournament list or build one from the card pool."), h("div", {}, h("button", { class: "primary", type: "button", on: { click: () => setView("find") } }, "Find a deck"), h("button", { class: "quiet-button", type: "button", on: { click: () => { newDeck(); setView("build"); } } }, "Build from scratch")))
       : h(
-          "ul",
-          { class: "library-list" },
+          "div",
+          { class: "deck-library-grid" },
           ...savedDecks.map((deck) =>
             h(
-              "li",
-              { class: `library-row${deck.deckId === deckId ? " is-current" : ""}` },
+              "article",
+              { class: `library-card${deck.deckId === deckId ? " is-current" : ""}` },
+              h("p", { class: "eyebrow" }, deck.format),
+              h("h2", { class: "library-name" }, deck.name),
+              h("p", { class: "library-card-meta" }, `${deck.mainTotal} main-deck cards`, deck.updatedAt ? ` · Updated ${new Date(deck.updatedAt).toLocaleDateString()}` : ""),
               h(
                 "button",
                 {
-                  class: "library-open",
+                  class: "primary",
                   type: "button",
-                  on: { click: () => void loadDeck(deck.deckId) },
+                  on: { click: () => { void loadDeck(deck.deckId); setView("build"); } },
                 },
-                h("span", { class: "library-name" }, deck.name),
-                h("span", { class: "muted small" }, `${deck.mainTotal} cards`),
+                "Open in builder",
               ),
               h(
                 "button",
                 {
-                  class: "step",
+                  class: "quiet-button danger-button",
                   type: "button",
                   aria: { label: `Delete ${deck.name}` },
                   on: { click: () => void deleteDeck(deck.deckId) },
                 },
-                "×",
+                "Delete",
               ),
             ),
           ),

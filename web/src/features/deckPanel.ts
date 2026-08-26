@@ -7,7 +7,7 @@
  */
 
 import type { Issue, Validation, Zone } from "../api/types";
-import { adjustCard, setChampion, setDeckName, setLegend } from "../state/actions";
+import { adjustCard, setBuilderReview, setChampion, setDeckName, setLegend } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
@@ -145,7 +145,16 @@ function deckNameInput(name: string): HTMLInputElement {
 }
 
 export function renderDeckPanel(root: HTMLElement): void {
-  const { deck, validation } = store.state;
+  const { deck, validation, builderReview } = store.state;
+  const hasStarted = Boolean(
+    deck.legendId || deck.championId || Object.keys(deck.main).length ||
+      Object.keys(deck.runes).length || deck.battlefields.length || Object.keys(deck.sideboard).length,
+  );
+  const completedSteps = validation
+    ? Number(Boolean(deck.legendId)) + Number(Boolean(deck.championId)) +
+      Number(validation.mainTotal === 40) + Number(validation.runeTotal === 12) +
+      Number(validation.battlefieldCount === 3)
+    : 0;
 
   const header = h(
     "div",
@@ -153,9 +162,25 @@ export function renderDeckPanel(root: HTMLElement): void {
     deckNameInput(deck.name),
     validation
       ? h("span", { class: `legal-badge${validation.legal ? " is-legal" : ""}` },
-          validation.legal ? "Legal" : "Not legal")
+          validation.legal ? "Ready to play" : builderReview ? "Needs attention" : `${completedSteps} / 5 ready`)
       : null,
   );
+
+  if (!hasStarted) {
+    replace(
+      root,
+      header,
+      h(
+        "section",
+        { class: "builder-onboarding" },
+        h("span", { class: "onboarding-number" }, "01"),
+        h("h2", {}, "Start with a legend."),
+        h("p", {}, "Use the card search to choose a legend. Bound Atlas will keep the deck requirements in view as your list takes shape."),
+        h("ol", {}, h("li", {}, "Choose a legend"), h("li", {}, "Add a champion and main deck"), h("li", {}, "Finish runes and battlefields"), h("li", {}, "Review before you play")),
+      ),
+    );
+    return;
+  }
 
   const identity = h(
     "section",
@@ -200,13 +225,13 @@ export function renderDeckPanel(root: HTMLElement): void {
   const problems = (validation?.issues ?? []).filter((i) => i.severity !== "notice");
   const notices = (validation?.issues ?? []).filter((i) => i.severity === "notice");
 
-  const issues = problems.length > 0
+  const issues = builderReview && problems.length > 0
     ? h("section", { class: "issues" },
         h("h3", { class: "zone-title" }, "Legality"),
         h("ul", { class: "issue-list" }, ...problems.map(issueItem)))
     : null;
 
-  const beforeYouPlay = notices.length > 0
+  const beforeYouPlay = builderReview && notices.length > 0
     ? h("section", { class: "issues" },
         h("h3", { class: "zone-title" }, "Before you play"),
         h("ul", { class: "issue-list" }, ...notices.map(issueItem)))
@@ -221,7 +246,13 @@ export function renderDeckPanel(root: HTMLElement): void {
     zoneSection("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
     battlefieldSection(deck.battlefields, 3),
     zoneSection("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null),
-    validation ? coveragePanel(validation) : null,
+    h(
+      "section",
+      { class: "review-callout" },
+      h("div", {}, h("strong", {}, builderReview ? "Reviewing your list" : "Ready for a rules check?"), h("span", {}, builderReview ? "Fix the items below, then review again." : "Build freely; detailed rules stay out of the way until you ask.")),
+      h("button", { type: "button", class: builderReview ? "quiet-button" : "primary", on: { click: () => setBuilderReview(!builderReview) } }, builderReview ? "Hide review" : "Review deck"),
+    ),
+    validation && validation.coverage.totalCopies > 0 && builderReview ? coveragePanel(validation) : null,
     issues,
     beforeYouPlay,
   );

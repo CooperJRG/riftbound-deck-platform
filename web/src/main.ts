@@ -4,29 +4,32 @@ import {
   boot,
   dismissError,
   dismissNotice,
-  openSmartDecks,
   setView,
 } from "./state/actions";
 import { store } from "./state/store";
 import { renderAvailability } from "./features/availability";
 import { renderCardBrowser } from "./features/cardBrowser";
-import { renderDeckLibrary } from "./features/deckLibrary";
+import { renderDeckActions, renderDeckLibrary } from "./features/deckLibrary";
 import { renderDeckPanel } from "./features/deckPanel";
-import { renderMeta } from "./features/meta";
+import { renderExplore } from "./features/explore";
 import { renderSmartDecks } from "./features/smartDecks";
 import { h, query, replace } from "./ui/dom";
+import { currentTheme, toggleTheme } from "./ui/theme";
 import "./styles.css";
+import "./bound-atlas.css";
 
 const availabilityRoot = query("#availability");
 const browserRoot = query("#browser");
 const deckRoot = query("#deck");
-const libraryRoot = query("#library");
+const deckActionsRoot = query("#deck-actions");
+const libraryRoot = query("#decks");
 const errorRoot = query("#error");
 const noticeRoot = query("#notice");
-const metaRoot = query("#meta");
-const smartRoot = query("#smart");
+const exploreRoot = query("#explore");
+const findRoot = query("#find");
 const buildRoot = query("#build");
 const tabsRoot = query("#tabs");
+const themeRoot = query<HTMLButtonElement>("#theme-toggle");
 
 function renderError(message: string): void {
   if (!message) {
@@ -55,25 +58,36 @@ function renderNotice(message: string): void {
   );
 }
 
+function renderThemeButton(): void {
+  const dark = currentTheme() === "dark";
+  replace(themeRoot, h("span", { aria: { hidden: "true" } }, dark ? "☀" : "◐"), h("span", { class: "theme-label" }, dark ? "Light" : "Dark"));
+  themeRoot.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+}
+
+themeRoot.addEventListener("click", () => {
+  toggleTheme();
+  renderThemeButton();
+});
+renderThemeButton();
+
 function renderTabs(current: string): void {
-  const tab = (name: "build" | "meta" | "smart", label: string) =>
+  const tab = (name: "find" | "explore" | "build" | "decks", label: string) =>
     h(
       "button",
       {
         class: `tab${current === name ? " is-active" : ""}`,
         type: "button",
         aria: { pressed: String(current === name) },
-        // Smart Decks loads its legend list on first open rather than at boot: it is
-        // the one view that needs the meta snapshot, and boot must not depend on it.
-        on: { click: () => (name === "smart" ? void openSmartDecks() : setView(name)) },
+        on: { click: () => setView(name) },
       },
       label,
     );
   replace(
     tabsRoot,
+    tab("find", "Find a deck"),
+    tab("explore", "Explore"),
     tab("build", "Build"),
-    tab("smart", "Smart Decks"),
-    tab("meta", "Meta"),
+    tab("decks", "My decks"),
   );
 }
 
@@ -84,20 +98,23 @@ store.subscribe((state) => {
 
   renderTabs(state.view);
   buildRoot.hidden = state.view !== "build";
-  metaRoot.hidden = state.view !== "meta";
-  smartRoot.hidden = state.view !== "smart";
+  exploreRoot.hidden = state.view !== "explore";
+  findRoot.hidden = state.view !== "find";
+  libraryRoot.hidden = state.view !== "decks";
 
   // The availability control drives both views, so it always renders.
   renderAvailability(availabilityRoot);
   if (state.view === "build") {
     renderCardBrowser(browserRoot);
     renderDeckPanel(deckRoot);
+    renderDeckActions(deckActionsRoot);
+  } else if (state.view === "find") {
+    renderSmartDecks(findRoot);
+  } else if (state.view === "explore") {
+    renderExplore(exploreRoot);
+  } else if (state.view === "decks") {
     renderDeckLibrary(libraryRoot);
-  } else if (state.view === "smart") {
-    renderSmartDecks(smartRoot);
-  } else {
-    renderMeta(metaRoot);
   }
 });
 
-void boot();
+void boot().then(() => setView(store.state.view));

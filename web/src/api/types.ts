@@ -259,6 +259,143 @@ export interface Tournament {
   decksPublished: number;
 }
 
+export type TrendDimension = "champion" | "legend" | "archetype";
+export type TrendBucket = "week" | "month";
+
+export interface TrendPoint {
+  period: string;
+  decks: number;
+  totalDecks: number;
+  share: number;
+  /**
+   * Whether this interval carries enough lists to be worth drawing.
+   *
+   * Decided by the server, so the threshold lives next to the tests that pin it and
+   * every client draws the same line. Do not re-derive it here.
+   */
+  charted: boolean;
+}
+
+export interface TrendSeries {
+  entityId: string;
+  name: string;
+  deckCount: number;
+  eventCount: number;
+  share: number;
+  momentum: number | null;
+  confidence: "high" | "moderate" | "limited";
+  points: TrendPoint[];
+}
+
+export interface TrendOverview {
+  fromDate: string;
+  toDate: string;
+  format: string;
+  dimension: TrendDimension;
+  tournamentCount: number;
+  standingCount: number;
+  publishedDeckCount: number;
+  /** The population the shares are divided by; may be lower than publishedDeckCount. */
+  chartedDeckCount: number;
+  knownFieldPlayers: number;
+  publishedCoverage: number;
+  formats: string[];
+  series: TrendSeries[];
+}
+
+export interface Pairing {
+  entityId: string;
+  name: string;
+  imageUrl: string;
+  decks: number;
+  share: number;
+}
+
+export interface CardAdoption {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  decks: number;
+  inclusion: number;
+  averageCopies: number;
+}
+
+export interface TrendDeck {
+  deckId: string;
+  name: string;
+  legendId: string;
+  legendName: string;
+  championId: string;
+  championName: string;
+  legendImageUrl: string;
+  championImageUrl: string;
+  tournamentSlug: string;
+  tournamentName: string;
+  tournamentDate: string;
+  placement: number;
+  fieldSize: number;
+  placementStrength: number;
+  sourceUrl: string;
+}
+
+export interface ChampionMeta {
+  championId: string;
+  championName: string;
+  imageUrl: string;
+  domains: string[];
+  overview: TrendSeries;
+  tournamentCount: number;
+  topEight: number;
+  topSixteen: number;
+  bestPlacement: number;
+  bestFieldSize: number;
+  averagePlacementStrength: number;
+  pairings: Pairing[];
+  cards: CardAdoption[];
+  recentDecks: TrendDeck[];
+}
+
+export interface LegendMeta {
+  legendId: string;
+  legendName: string;
+  imageUrl: string;
+  domains: string[];
+  overview: TrendSeries;
+  tournamentCount: number;
+  topEight: number;
+  topSixteen: number;
+  bestPlacement: number;
+  bestFieldSize: number;
+  averagePlacementStrength: number;
+  champions: Pairing[];
+  cards: CardAdoption[];
+  recentDecks: TrendDeck[];
+}
+
+export interface TournamentEntity {
+  entityId: string;
+  name: string;
+  decks: number;
+  share: number;
+}
+
+export interface TournamentDetail {
+  slug: string;
+  name: string;
+  date: string;
+  format: string;
+  players: number;
+  winner: string;
+  decksPublished: number;
+  knownDeckCount: number;
+  /** Complete lists that named a champion; the denominator of every champion share. */
+  chartedDeckCount: number;
+  publishedCoverage: number;
+  confidence: "high" | "moderate" | "limited";
+  champions: TournamentEntity[];
+  decks: TrendDeck[];
+}
+
 /** A credit the meta data's source requires the app to display. */
 export interface Attribution {
   source: string;

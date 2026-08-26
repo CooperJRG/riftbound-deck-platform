@@ -30,26 +30,18 @@ import {
   saveSmartCollection,
   setSmartAnswer,
   setSmartLegendQuery,
+  setView,
   startSmartSession,
   submitSmartRound,
 } from "../state/actions";
 import { store } from "../state/store";
 import { fragment, h, replace } from "../ui/dom";
 
-/** Battlefield art is landscape; the tile rotates it to match every other card. */
-function isLandscape(zone: string): boolean {
-  return zone === "battlefields";
-}
-
 function cardThumb(row: RequirementRow): HTMLElement {
   const art = row.imageUrl
-    ? h("img", { src: row.imageUrl, alt: "", loading: "lazy" })
+    ? h("img", { src: row.imageUrl, alt: `${row.name} card`, loading: "lazy" })
     : h("div", { class: "tile-art-empty" }, row.name.slice(0, 1));
-  return h(
-    "div",
-    { class: `req-art${isLandscape(row.zone) ? " tile-art is-landscape" : " tile-art"}` },
-    art,
-  );
+  return h("div", { class: "decision-card-art" }, art);
 }
 
 // -- the counter --------------------------------------------------------------
@@ -119,7 +111,7 @@ function requirementRow(row: RequirementRow, value: number): HTMLElement {
   const short = value < row.needed;
   return h(
     "li",
-    { class: `req${short ? " is-short" : ""}${row.known ? " is-known" : ""}` },
+    { class: `decision-card${short ? " is-short" : ""}${row.known ? " is-known" : ""}` },
     cardThumb(row),
     h(
       "div",
@@ -145,27 +137,28 @@ function requirementRow(row: RequirementRow, value: number): HTMLElement {
  * round. Only the new rows carry attention.
  */
 function requirementList(rows: RequirementRow[], answers: Map<string, number>): HTMLElement {
-  const fresh = rows.filter((row) => !row.known);
-  const known = rows.filter((row) => row.known);
-  const render = (list: RequirementRow[]) =>
-    list.map((row) => requirementRow(row, answers.get(row.cardId) ?? row.have));
-
-  const parts: HTMLElement[] = [h("ul", { class: "req-list" }, ...render(fresh))];
-  if (known.length) {
-    parts.push(
-      h(
-        "details",
-        { class: "req-known" },
-        h(
-          "summary",
-          {},
-          `${known.length} card${known.length === 1 ? "" : "s"} you have already answered for`,
-        ),
-        h("ul", { class: "req-list" }, ...render(known)),
-      ),
-    );
-  }
-  return h("div", { class: "req-groups" }, ...parts);
+  const groups: { zone: RequirementRow["zone"]; title: string; note: string }[] = [
+    { zone: "legend", title: "Identity", note: "Legend and deck identity" },
+    { zone: "main", title: "Main deck", note: "The complete game plan" },
+    { zone: "runes", title: "Runes", note: "Resource base" },
+    { zone: "battlefields", title: "Battlefields", note: "Field package" },
+    { zone: "ask", title: "Possible swaps", note: "Cards that can change the build" },
+  ];
+  return h(
+    "div",
+    { class: "decision-map" },
+    ...groups.map((group) => {
+      const members = rows.filter((row) => row.zone === group.zone);
+      if (!members.length) return null;
+      const copies = members.reduce((sum, row) => sum + row.needed, 0);
+      return h(
+        "section",
+        { class: `decision-zone decision-zone-${group.zone}` },
+        h("header", {}, h("div", {}, h("h4", {}, group.title), h("p", {}, group.note)), h("span", {}, `${members.length} cards · ${copies} copies`)),
+        h("ul", { class: "req-list decision-grid" }, ...members.map((row) => requirementRow(row, answers.get(row.cardId) ?? row.have))),
+      );
+    }),
+  );
 }
 
 // -- the floor ----------------------------------------------------------------
@@ -183,7 +176,7 @@ function floorBanner(proposal: Proposal, knownCards: number, busy: boolean): HTM
     // nothing" when what it means is "we have not asked yet".
     const detail = knownCards
       ? proposal.feasibility
-      : "Answer this round and we will tell you what you can build.";
+      : "Mark any shortages in the complete list and we will tell you what you can build.";
     return h(
       "div",
       { class: "floor floor-none" },
@@ -467,16 +460,17 @@ function legendPicker(): HTMLElement {
   const needle = smartLegendQuery.trim().toLowerCase();
   const shown = needle
     ? smartLegends.filter((legend) => legend.name.toLowerCase().includes(needle))
-    : smartLegends;
+    : smartLegends.slice(0, 18);
 
   return h(
     "section",
     { class: "smart-picker" },
+    h("p", { class: "eyebrow" }, "Find a deck"),
     h("h2", {}, "Which legend do you want to build?"),
     h(
       "p",
       { class: "smart-lede" },
-      "Pick a legend and answer a couple of rounds about what you own. " +
+      "Pick a legend, then scan one complete candidate list with every card kept in context. " +
         "You do not need to have entered your collection.",
     ),
     freshnessLine(),
@@ -495,6 +489,9 @@ function legendPicker(): HTMLElement {
                 setSmartLegendQuery((event.target as HTMLInputElement).value),
             },
           }),
+          !needle && smartLegends.length > shown.length
+            ? h("p", { class: "picker-hint" }, `Showing the leading ${shown.length}. Search to explore all ${smartLegends.length} legends.`)
+            : null,
           h("div", { class: "legend-grid" }, ...shown.map((l) => legendCard(l, smartBusy))),
         ),
   );
@@ -519,7 +516,7 @@ function roundHeader(session: SmartSession, proposal: Proposal): HTMLElement {
     h(
       "div",
       { class: "smart-progress" },
-      h("span", { class: "smart-round" }, `Round ${proposal.round + 1}`),
+      h("span", { class: "smart-round" }, "Whole deck"),
       h("span", { class: "smart-known" }, `${session.knownCards} cards known`),
       h(
         "button",
@@ -538,12 +535,17 @@ function finishedPanel(): HTMLElement {
     h(
       "p",
       {},
-      "It is open in the builder. You can also keep what this session learned, " +
+      "Open it in the builder when you are ready. You can also keep what this session learned, " +
         "which is usually far quicker than entering a collection by hand.",
     ),
     h(
       "div",
       { class: "smart-finish-actions" },
+      h(
+        "button",
+        { class: "primary", type: "button", on: { click: () => setView("build") } },
+        "Open in builder",
+      ),
       h(
         "button",
         {
@@ -647,6 +649,7 @@ function runView(session: SmartSession): HTMLElement {
               : null,
           )
         : null,
+      h("p", { class: "decision-instruction" }, "This is the whole list. Every card starts at the requested count—change only the cards you are short of, with the surrounding package still visible."),
       requirementList(rows, smartAnswers),
       h(
         "div",

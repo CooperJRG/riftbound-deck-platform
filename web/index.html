@@ -3,29 +3,48 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Riftbound Deck Builder</title>
+    <meta name="theme-color" content="#f5f1e8" />
+    <title>Bound Atlas · Riftbound field guide</title>
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("bound-atlas-theme") === "dark" ? "dark" : "light";
+      } catch (_) {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
   </head>
   <body>
     <div id="error" class="error-bar" hidden></div>
     <div id="notice" class="notice-bar" hidden></div>
 
     <header class="app-header">
-      <h1 class="app-title">Riftbound</h1>
+      <div class="brand-lockup" aria-label="Bound Atlas home">
+        <span class="brand-mark" aria-hidden="true">BA</span>
+        <span><strong>Bound Atlas</strong><small>Riftbound field guide</small></span>
+      </div>
       <nav id="tabs" class="tabs" aria-label="Views"></nav>
-      <div id="availability" class="availability"></div>
+      <div class="header-actions">
+        <details class="access-menu">
+          <summary>Card access</summary>
+          <div id="availability" class="availability"></div>
+        </details>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode"></button>
+      </div>
     </header>
+
+    <main id="find" class="panel panel-smart" aria-label="Find a deck" hidden></main>
+
+    <main id="explore" class="panel panel-explore" aria-label="Explore tournament trends" hidden></main>
 
     <main id="build" class="app-body">
       <section id="browser" class="panel panel-browser" aria-label="Card browser"></section>
       <aside class="panel panel-deck">
         <div id="deck" class="deck"></div>
-        <div id="library" class="library"></div>
+        <div id="deck-actions" class="library"></div>
       </aside>
     </main>
 
-    <main id="smart" class="panel panel-smart" aria-label="Smart Decks" hidden></main>
-
-    <main id="meta" class="panel panel-meta" aria-label="Meta" hidden></main>
+    <main id="decks" class="panel panel-library" aria-label="My decks" hidden></main>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

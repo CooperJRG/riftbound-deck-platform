@@ -14,11 +14,17 @@ import type {
   MetaDeck,
   MetaStatus,
   LegendChoice,
+  LegendMeta,
   RefreshStatus,
   RuleKinds,
   SaveCollectionResult,
   SmartSession,
   Tournament,
+  TournamentDetail,
+  TrendBucket,
+  TrendDimension,
+  TrendOverview,
+  ChampionMeta,
   Validation,
 } from "./types";
 
@@ -150,6 +156,35 @@ export const api = {
   } = {}) => request<MetaDeck[]>(`/api/meta/decks${queryString({ ...params })}`),
   metaTournaments: (limit = 30) =>
     request<Tournament[]>(`/api/meta/tournaments${queryString({ limit })}`),
+  trendOverview: (params: {
+    dimension: TrendDimension;
+    from?: string;
+    to?: string;
+    format?: string;
+    minPlayers?: number;
+    bucket?: TrendBucket;
+    limit?: number;
+  }) => request<TrendOverview>(`/api/meta/trends/overview${queryString({ ...params })}`),
+  championTrend: (championId: string, params: {
+    from?: string;
+    to?: string;
+    format?: string;
+    minPlayers?: number;
+    bucket?: TrendBucket;
+  }) => request<ChampionMeta>(
+    `/api/meta/trends/champions/${encodeURIComponent(championId)}${queryString({ ...params })}`,
+  ),
+  legendTrend: (legendId: string, params: {
+    from?: string;
+    to?: string;
+    format?: string;
+    minPlayers?: number;
+    bucket?: TrendBucket;
+  }) => request<LegendMeta>(
+    `/api/meta/trends/legends/${encodeURIComponent(legendId)}${queryString({ ...params })}`,
+  ),
+  tournamentDetail: (slug: string) =>
+    request<TournamentDetail>(`/api/meta/tournaments/${encodeURIComponent(slug)}`),
   importMetaDeck: (deckId: string) =>
     request<{ deckId: string; name: string; source: string }>(
       `/api/meta/decks/${deckId}/import`,

@@ -14,17 +14,26 @@ to someone else's tier list.
 
 from __future__ import annotations
 
+from collections import Counter
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from ...domain.availability import deck_coverage
 from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
+from ...domain.meta_trends import (
+    TrendFilter,
+    champion_meta,
+    default_range,
+    legend_meta,
+    overview as trend_overview,
+    parse_date,
+    tournament_detail as build_tournament_detail,
+)
 from ...data.scheduler import snapshot_age_hours
 from ...services import Services, get_services, reset_services
 from ..identity import Identity, current_identity
 from ..schemas import (
-    RefreshRunView,
-    RefreshStatusView,
     RefreshRunView,
     RefreshStatusView,
     ArchetypeView,
@@ -32,6 +41,10 @@ from ..schemas import (
     MetaDeckView,
     MetaStatusView,
     TournamentView,
+    ChampionMetaView,
+    LegendMetaView,
+    TournamentDetailView,
+    TrendOverviewView,
 )
 from ..views import meta_deck_view, tournament_view
 
@@ -91,6 +104,148 @@ def list_tournaments(
 ) -> list[TournamentView]:
     snapshot = _require_meta(services)
     return [tournament_view(t) for t in snapshot.tournaments[:limit]]
+
+
+def _trend_filter(
+    snapshot,
+    *,
+    from_date: str,
+    to_date: str,
+    format: str,
+    min_players: int,
+    bucket: str,
+) -> TrendFilter:
+    default_from, default_to = default_range(snapshot.tournaments)
+    start = parse_date(from_date) if from_date else default_from
+    end = parse_date(to_date) if to_date else default_to
+    if start is None or end is None:
+        raise HTTPException(status_code=400, detail="from and to must be ISO dates")
+    if start > end:
+        raise HTTPException(status_code=400, detail="from must not be after to")
+    if bucket not in ("week", "month"):
+        raise HTTPException(status_code=400, detail="bucket must be week or month")
+    return TrendFilter(
+        from_date=start,
+        to_date=end,
+        format=format,
+        min_players=min_players,
+        bucket=bucket,
+    )
+
+
+def _standing_counts(snapshot) -> Counter[str]:
+    return Counter(row.tournament_slug for row in snapshot.standings)
+
+
+@router.get("/trends/overview", response_model=TrendOverviewView)
+def trends_overview(
+    dimension: str = Query(default="champion", pattern="^(champion|legend|archetype)$"),
+    from_date: str = Query(default="", alias="from"),
+    to_date: str = Query(default="", alias="to"),
+    format: str = Query(default="", max_length=40),
+    min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
+    bucket: str = Query(default="week"),
+    limit: int = Query(default=12, ge=1, le=50),
+    services: Services = Depends(get_services),
+) -> TrendOverviewView:
+    snapshot = _require_meta(services)
+    trend_filter = _trend_filter(
+        snapshot,
+        from_date=from_date,
+        to_date=to_date,
+        format=format,
+        min_players=min_players,
+        bucket=bucket,
+    )
+    result = trend_overview(
+        decks=snapshot.decks,
+        tournaments=snapshot.tournaments,
+        standing_count_by_tournament=_standing_counts(snapshot),
+        catalog=services.catalog,
+        trend_filter=trend_filter,
+        dimension=dimension,
+        limit=limit,
+    )
+    return TrendOverviewView.model_validate(result, from_attributes=True)
+
+
+@router.get("/trends/champions/{champion_id}", response_model=ChampionMetaView)
+def champion_trends(
+    champion_id: str,
+    from_date: str = Query(default="", alias="from"),
+    to_date: str = Query(default="", alias="to"),
+    format: str = Query(default="", max_length=40),
+    min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
+    bucket: str = Query(default="week"),
+    services: Services = Depends(get_services),
+) -> ChampionMetaView:
+    snapshot = _require_meta(services)
+    result = champion_meta(
+        champion_id=champion_id,
+        decks=snapshot.decks,
+        tournaments=snapshot.tournaments,
+        standing_count_by_tournament=_standing_counts(snapshot),
+        catalog=services.catalog,
+        trend_filter=_trend_filter(
+            snapshot,
+            from_date=from_date,
+            to_date=to_date,
+            format=format,
+            min_players=min_players,
+            bucket=bucket,
+        ),
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"No tournament data for champion {champion_id!r}")
+    return ChampionMetaView.model_validate(result, from_attributes=True)
+
+
+@router.get("/trends/legends/{legend_id}", response_model=LegendMetaView)
+def legend_trends(
+    legend_id: str,
+    from_date: str = Query(default="", alias="from"),
+    to_date: str = Query(default="", alias="to"),
+    format: str = Query(default="", max_length=40),
+    min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
+    bucket: str = Query(default="week"),
+    services: Services = Depends(get_services),
+) -> LegendMetaView:
+    snapshot = _require_meta(services)
+    result = legend_meta(
+        legend_id=legend_id,
+        decks=snapshot.decks,
+        tournaments=snapshot.tournaments,
+        standing_count_by_tournament=_standing_counts(snapshot),
+        catalog=services.catalog,
+        trend_filter=_trend_filter(
+            snapshot,
+            from_date=from_date,
+            to_date=to_date,
+            format=format,
+            min_players=min_players,
+            bucket=bucket,
+        ),
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"No tournament data for legend {legend_id!r}")
+    return LegendMetaView.model_validate(result, from_attributes=True)
+
+
+@router.get("/tournaments/{slug:path}", response_model=TournamentDetailView)
+def tournament_detail(
+    slug: str,
+    services: Services = Depends(get_services),
+) -> TournamentDetailView:
+    snapshot = _require_meta(services)
+    result = build_tournament_detail(
+        slug=slug,
+        tournaments=snapshot.tournaments,
+        decks=snapshot.decks,
+        catalog=services.catalog,
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"No tournament {slug!r}")
+    return TournamentDetailView.model_validate(result, from_attributes=True)
 
 
 def _ranked(services: Services) -> tuple[list[MetaDeck], dict]:

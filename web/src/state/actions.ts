@@ -6,6 +6,7 @@ import type {
   CardAvailability,
   DeckPayload,
   SmartSession,
+  TrendBucket,
   Zone,
   AvailabilityMode,
 } from "../api/types";
@@ -54,10 +55,10 @@ export async function boot(): Promise<void> {
 // -- cards --------------------------------------------------------------------
 
 export async function refreshCards(): Promise<void> {
-  const { filters } = store.state;
+  const { filters, cardLimit } = store.state;
   store.set({ cardsLoading: true });
   try {
-    const page = await api.cards({ ...filters, limit: 120 });
+    const page = await api.cards({ ...filters, limit: cardLimit });
     store.set({ cards: page.cards, cardTotal: page.total, cardsLoading: false });
     indexDeckCards(page.cards);
   } catch (error) {
@@ -72,8 +73,13 @@ export function setFilter<K extends keyof typeof store.state.filters>(
   key: K,
   value: (typeof store.state.filters)[K],
 ): void {
-  store.set({ filters: { ...store.state.filters, [key]: value } });
+  store.set({ filters: { ...store.state.filters, [key]: value }, cardLimit: 24 });
   refreshCardsDebounced();
+}
+
+export function showMoreCards(): void {
+  store.set({ cardLimit: Math.min(store.state.cardLimit + 24, 120) });
+  void refreshCards();
 }
 
 /**
@@ -229,8 +235,12 @@ export async function deleteDeck(deckId: string): Promise<void> {
 }
 
 export function newDeck(): void {
-  store.set({ deckId: "", deck: emptyDeck(), dirty: false });
+  store.set({ deckId: "", deck: emptyDeck(), dirty: false, builderReview: false });
   void revalidate();
+}
+
+export function setBuilderReview(reviewing: boolean): void {
+  store.set({ builderReview: reviewing });
 }
 
 // -- availability -------------------------------------------------------------
@@ -304,11 +314,90 @@ export function dismissError(): void {
 
 export function setView(view: ViewName): void {
   store.set({ view });
-  if (view === "meta" && store.state.metaStatus === null) void loadMeta();
+  if (view === "find") void openSmartDecks();
+  if (view === "explore" && store.state.trendOverview === null) void loadExplore();
 }
 
 export function dismissNotice(): void {
   store.set({ notice: "" });
+}
+
+// -- explorer ----------------------------------------------------------------
+
+function exploreParams(): {
+  from?: string;
+  to?: string;
+  format?: string;
+  minPlayers: number;
+  bucket: TrendBucket;
+} {
+  const state = store.state;
+  return {
+    ...(state.exploreFrom ? { from: state.exploreFrom } : {}),
+    ...(state.exploreTo ? { to: state.exploreTo } : {}),
+    ...(state.exploreFormat ? { format: state.exploreFormat } : {}),
+    minPlayers: state.exploreMinPlayers,
+    bucket: state.exploreBucket,
+  };
+}
+
+export async function loadExplore(): Promise<void> {
+  store.set({ exploreLoading: true, exploreError: "", championMeta: null, legendMeta: null, tournamentDetail: null });
+  try {
+    const [trendOverview, smartLegends] = await Promise.all([
+      api.trendOverview({ dimension: "legend", ...exploreParams(), limit: 50 }),
+      store.state.smartLegends.length ? Promise.resolve(store.state.smartLegends) : api.smartLegends(),
+    ]);
+    store.set({ trendOverview, smartLegends, smartLegendsLoaded: true, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export function setExploreFilter(
+  key: "exploreFormat" | "exploreFrom" | "exploreTo" | "exploreMinPlayers" | "exploreBucket",
+  value: string | number,
+): void {
+  store.set({ [key]: value } as Partial<typeof store.state>);
+  void loadExplore();
+}
+
+export async function openChampion(championId: string): Promise<void> {
+  store.set({ exploreLoading: true, exploreError: "", legendMeta: null, tournamentDetail: null });
+  try {
+    const championMeta = await api.championTrend(championId, exploreParams());
+    store.set({ championMeta, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export async function openLegend(legendId: string): Promise<void> {
+  store.set({ exploreLoading: true, exploreError: "", championMeta: null, tournamentDetail: null });
+  try {
+    const legendMeta = await api.legendTrend(legendId, exploreParams());
+    store.set({ legendMeta, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export async function openTournament(slug: string): Promise<void> {
+  store.set({ exploreLoading: true, exploreError: "" });
+  try {
+    const tournamentDetail = await api.tournamentDetail(slug);
+    store.set({ tournamentDetail, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export function closeExploreDetail(): void {
+  store.set({ championMeta: null, legendMeta: null, tournamentDetail: null });
 }
 
 // -- meta ---------------------------------------------------------------------
@@ -387,7 +476,7 @@ function seedAnswers(session: SmartSession | null): Map<string, number> {
 }
 
 export async function openSmartDecks(options: { retry?: boolean } = {}): Promise<void> {
-  store.set({ view: "smart" });
+  store.set({ view: "find" });
   if (store.state.smartLegendsLoaded && store.state.smartLegends.length) return;
 
   // A retry keeps the error panel on screen and marks the button busy, rather than

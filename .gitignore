@@ -39,3 +39,8 @@ Thumbs.db
 var/
 data/meta/*
 !data/meta/.gitkeep
+
+# Browser-automation scratch from UI verification runs. Screenshots and traces are
+# evidence for one session, not source.
+output/
+.playwright-cli/

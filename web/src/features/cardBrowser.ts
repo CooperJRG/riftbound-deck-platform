@@ -10,7 +10,7 @@
  */
 
 import type { Card, CardAvailability, CardFacets } from "../api/types";
-import { addCard, excludeCard, setFilter, zoneFor } from "../state/actions";
+import { addCard, excludeCard, setFilter, showMoreCards, zoneFor } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
@@ -127,6 +127,7 @@ interface Controls {
   root: HTMLElement;
   count: HTMLElement;
   grid: HTMLElement;
+  more: HTMLButtonElement;
   selects: Record<FilterKey, HTMLSelectElement>;
   facetsFilled: boolean;
 }
@@ -169,24 +170,38 @@ function buildControls(root: HTMLElement): Controls {
 
   const count = h("p", { class: "browser-count muted small" });
   const grid = h("div", { class: "tile-grid" });
+  const more = h("button", {
+    class: "show-more",
+    type: "button",
+    on: { click: showMoreCards },
+  }, "Show more cards");
 
   replace(
     root,
+    h(
+      "header",
+      { class: "builder-heading" },
+      h("div", {}, h("p", { class: "eyebrow" }, "Deck workshop"), h("h1", {}, "Build one choice at a time.")),
+      h("p", {}, "Search, add, and tune. Review legality when the list is ready."),
+    ),
     h(
       "div",
       { class: "browser-controls" },
       search,
       selects.cardType,
-      selects.domain,
-      selects.setCode,
-      selects.rarity,
-      sort,
+      h(
+        "details",
+        { class: "advanced-filters" },
+        h("summary", {}, "More filters"),
+        h("div", { class: "advanced-filter-grid" }, selects.domain, selects.setCode, selects.rarity, sort),
+      ),
     ),
     count,
     grid,
+    more,
   );
 
-  return { root, count, grid, selects, facetsFilled: false };
+  return { root, count, grid, more, selects, facetsFilled: false };
 }
 
 function applyFacets(state: Controls, facets: CardFacets): void {
@@ -221,4 +236,5 @@ export function renderCardBrowser(root: HTMLElement): void {
   } else {
     replace(controls.grid, ...cards.map(cardTile));
   }
+  controls.more.hidden = cardsLoading || cards.length >= cardTotal;
 }

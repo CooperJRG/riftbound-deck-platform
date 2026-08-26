@@ -15,10 +15,16 @@ import type {
   DeckSummary,
   FormatView,
   LegendChoice,
+  LegendMeta,
   MetaDeck,
   MetaStatus,
   RefreshStatus,
   SmartSession,
+  ChampionMeta,
+  TournamentDetail,
+  TrendBucket,
+  TrendDimension,
+  TrendOverview,
   Validation,
 } from "../api/types";
 
@@ -33,7 +39,7 @@ export interface CardFilters {
 }
 
 /** Which top-level view is showing. */
-export type ViewName = "build" | "meta" | "smart";
+export type ViewName = "find" | "explore" | "build" | "decks";
 
 export interface AppState {
   ready: boolean;
@@ -55,6 +61,8 @@ export interface AppState {
   cards: CardAvailability[];
   cardTotal: number;
   cardsLoading: boolean;
+  cardLimit: number;
+  builderReview: boolean;
   /** Cards referenced by the deck, resolved for display. */
   deckCards: Map<string, CardAvailability>;
 
@@ -94,6 +102,20 @@ export interface AppState {
   smartLegendsRetrying: boolean;
   refresh: RefreshStatus | null;
   refreshBusy: boolean;
+
+  exploreDimension: TrendDimension;
+  exploreFormat: string;
+  exploreFrom: string;
+  exploreTo: string;
+  exploreMinPlayers: number;
+  exploreBucket: TrendBucket;
+  trendOverview: TrendOverview | null;
+  championMeta: ChampionMeta | null;
+  legendMeta: LegendMeta | null;
+  tournamentDetail: TournamentDetail | null;
+  exploreLoading: boolean;
+  exploreError: string;
+
 }
 
 export function emptyDeck(): DeckPayload {
@@ -112,7 +134,7 @@ export function emptyDeck(): DeckPayload {
 const initial: AppState = {
   ready: false,
   error: "",
-  view: "build",
+  view: "find",
   notice: "",
   formats: [],
   facets: null,
@@ -137,6 +159,8 @@ const initial: AppState = {
   cards: [],
   cardTotal: 0,
   cardsLoading: false,
+  cardLimit: 24,
+  builderReview: false,
   deckCards: new Map(),
 
   metaStatus: null,
@@ -158,6 +182,20 @@ const initial: AppState = {
   smartLegendsRetrying: false,
   refresh: null,
   refreshBusy: false,
+
+  exploreDimension: "champion",
+  exploreFormat: "",
+  exploreFrom: "",
+  exploreTo: "",
+  exploreMinPlayers: 16,
+  exploreBucket: "week",
+  trendOverview: null,
+  championMeta: null,
+  legendMeta: null,
+  tournamentDetail: null,
+  exploreLoading: false,
+  exploreError: "",
+
 };
 
 type Listener = (state: AppState) => void;
