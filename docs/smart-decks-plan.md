@@ -275,6 +275,38 @@ synthetic collection.
 to put on the dashboard. The reference point: v2's equivalent number was
 `strictBuildableEmptyResultRate: 0.814` — it failed four times in five.
 
+### 8.1 Measured result (steps 1-4 complete)
+
+`python -m riftbound.domain.smart_decks_accept` runs every legend in the snapshot against
+20 synthetic players and exits non-zero on failure, so it can gate a release the same way
+the bundle gate does. Against `2026-08-26T0713Z`, 49 legends x 20 players = 980 sessions:
+
+| metric | target | result |
+| --- | --- | --- |
+| solved when feasible | 100% | **100%** |
+| false negatives | 0 | **0** |
+| rounds to answer | median <=3, p90 <=5 | **median 2, p90 2** |
+| quality gap | <=10% | **median 0.0%** |
+
+The one false negative this run did surface is worth recording, because it was invisible
+to the earlier sweep and it was a real defect. The closing question sized itself from
+rarity priors describing an *average* collection, and the players who most need that
+question are the ones furthest from average: a thin collection over a wide legal pool got
+the same dozen names every round, answered "none" to all of them, and the session ran out
+of rounds still holding cards it had never asked about. Two changes:
+
+* the estimate is now **calibrated** against what the player has actually reported, so a
+  pessimistic collection widens the question instead of repeating it;
+* once a question has come back short, the next one asks the **whole remaining pool**.
+  Saying "you cannot build this" while holding unasked names is a guess, and it is the
+  one failure the acceptance criterion does not allow.
+
+The cost is question length, and it lands where it should. For players who *can* build —
+the case the criterion is about — a question is a median of 22 cards, p90 45, and the full
+sweep fires only 8% of the time. The long sweeps (p90 226) are concentrated in legends the
+player genuinely cannot build, where asking everything is the price of an honest no. The
+UI should render those as a grid rather than a list.
+
 ---
 
 ## 9. Build order
@@ -288,6 +320,9 @@ to put on the dashboard. The reference point: v2's equivalent number was
 4. **Session engine** (`domain/smart_decks.py`) — knowledge state, deck selection,
    repair, phase transitions. Pure; takes the index and knowledge, returns the next
    proposal.
+
+   *Steps 1-4 are done and passing; see 8.1 for the measured result.*
+
 5. **Persistence + API** — migration, repository, routes.
 6. **UI** — legend picker, review screen, floor banner, finish.
 7. **Collection write-back** — opt-in.
