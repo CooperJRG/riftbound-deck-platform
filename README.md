@@ -127,16 +127,35 @@ python -m riftbound.data.pipeline build --promote --source data/seed/cards-expor
 
 The UI is TypeScript built with Vite. For live reload:
 
-```bash
-python -m riftbound          # terminal 1 — API on :8020
-cd web && npm install && npm run dev   # terminal 2 — UI on :5173 (proxies /api)
+Terminal 1 — the API on :8020:
+
+```
+python -m riftbound
+```
+
+Terminal 2 — the UI on :5173, proxying `/api` to it:
+
+```
+cd web
+npm install
+npm run dev
 ```
 
 To produce the bundled UI that the Python server serves directly:
 
-```bash
-cd web && npm run build
 ```
+cd web
+npm run build
+```
+
+> One command per line on purpose. PowerShell 5.1 — the default shell on Windows —
+> rejects `&&` as a statement separator, so a chained one-liner fails on the platform
+> most likely to be running this.
+
+**If the app looks out of date, restart the server.** It serves `web/dist` from disk, so
+a rebuilt UI appears on refresh, but the Python routes are fixed at start-up. A page
+newer than its server shows up as an API call answered with the app shell; the UI now
+names that specific cause when it happens.
 
 Tests:
 
