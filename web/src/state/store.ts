@@ -83,6 +83,15 @@ export interface AppState {
    */
   smartLegendsError: string;
   smartLegendsLoaded: boolean;
+  /**
+   * How many times loading the legends has failed in a row.
+   *
+   * Drives the difference between "that did not work, try again" and "that has not
+   * worked twice, here is the thing to actually go and do". Without it a retry that
+   * fails identically looks like a button that does nothing.
+   */
+  smartLegendsAttempts: number;
+  smartLegendsRetrying: boolean;
   refresh: RefreshStatus | null;
   refreshBusy: boolean;
 }
@@ -145,6 +154,8 @@ const initial: AppState = {
   smartLegendQuery: "",
   smartLegendsError: "",
   smartLegendsLoaded: false,
+  smartLegendsAttempts: 0,
+  smartLegendsRetrying: false,
   refresh: null,
   refreshBusy: false,
 };

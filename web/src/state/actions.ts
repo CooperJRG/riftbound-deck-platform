@@ -386,10 +386,20 @@ function seedAnswers(session: SmartSession | null): Map<string, number> {
   return answers;
 }
 
-export async function openSmartDecks(): Promise<void> {
+export async function openSmartDecks(options: { retry?: boolean } = {}): Promise<void> {
   store.set({ view: "smart" });
   if (store.state.smartLegendsLoaded && store.state.smartLegends.length) return;
-  store.set({ smartBusy: true, smartLegendsError: "" });
+
+  // A retry keeps the error panel on screen and marks the button busy, rather than
+  // swapping in a loading state. Against a local server the request finishes in
+  // milliseconds, so a flash of "Loading..." followed by the identical error reads as
+  // a button that did nothing at all -- which is how a working retry got reported as
+  // broken.
+  store.set(
+    options.retry
+      ? { smartLegendsRetrying: true }
+      : { smartBusy: true, smartLegendsError: "" },
+  );
   try {
     const [smartLegends, refresh] = await Promise.all([
       api.smartLegends(),
@@ -400,16 +410,28 @@ export async function openSmartDecks(): Promise<void> {
       smartLegends,
       refresh,
       smartBusy: false,
+      smartLegendsRetrying: false,
       smartLegendsLoaded: true,
       smartLegendsError: "",
+      smartLegendsAttempts: 0,
     });
   } catch (error) {
     // Record why rather than falling through to an empty list. An empty picker after
     // a failed request is not "no decks are loaded", and saying so sends somebody to
     // run a pipeline that was never the problem.
     const message = error instanceof Error ? error.message : String(error);
-    store.set({ smartBusy: false, smartLegendsLoaded: true, smartLegendsError: message });
+    store.set({
+      smartBusy: false,
+      smartLegendsRetrying: false,
+      smartLegendsLoaded: true,
+      smartLegendsError: message,
+      smartLegendsAttempts: store.state.smartLegendsAttempts + 1,
+    });
   }
+}
+
+export function retrySmartLegends(): Promise<void> {
+  return openSmartDecks({ retry: true });
 }
 
 /**

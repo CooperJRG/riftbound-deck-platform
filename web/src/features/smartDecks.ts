@@ -25,8 +25,8 @@ import type {
 import {
   acceptSmartDeck,
   closeSmartSession,
-  openSmartDecks,
   refreshMetaNow,
+  retrySmartLegends,
   saveSmartCollection,
   setSmartAnswer,
   setSmartLegendQuery,
@@ -356,11 +356,34 @@ function emptyPicker(): HTMLElement {
   const { smartLegendsError, refreshBusy } = store.state;
 
   if (smartLegendsError) {
+    const { smartLegendsAttempts: attempts, smartLegendsRetrying: retrying } = store.state;
+    // A server that answers an /api path with the app shell is running older code than
+    // the page talking to it. Retrying cannot fix that, so after the first failure the
+    // advice has to stop being "try again" and start being the thing that works.
+    const staleServer = smartLegendsError.includes("instead of JSON");
+    const repeated = attempts > 1;
+
     return h(
       "div",
       { class: "smart-empty" },
-      h("strong", {}, "Could not load the legend list."),
-      h("p", { class: "smart-lede" }, smartLegendsError),
+      h(
+        "strong",
+        {},
+        repeated
+          ? `Still could not load the legend list (${attempts} attempts).`
+          : "Could not load the legend list.",
+      ),
+      staleServer
+        ? h(
+            "p",
+            { class: "smart-lede" },
+            "The server is running older code than this page: it answered an API " +
+              "request with the app itself. Restart the server and this will clear.",
+          )
+        : h("p", { class: "smart-lede" }, smartLegendsError),
+      staleServer
+        ? h("details", { class: "req-known" }, h("summary", {}, "Details"), h("p", {}, smartLegendsError))
+        : null,
       h(
         "p",
         { class: "smart-optin" },
@@ -368,8 +391,12 @@ function emptyPicker(): HTMLElement {
       ),
       h(
         "button",
-        { type: "button", on: { click: () => void openSmartDecks() } },
-        "Try again",
+        {
+          type: "button",
+          disabled: retrying,
+          on: { click: () => void retrySmartLegends() },
+        },
+        retrying ? "Trying..." : repeated ? "Try once more" : "Try again",
       ),
     );
   }
