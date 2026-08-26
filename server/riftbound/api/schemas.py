@@ -511,11 +511,26 @@ class SwapView(ApiModel):
     reason: str
 
 
+class RepairDeckCardView(ApiModel):
+    """One card of the finished deck, named so it can actually be shown."""
+    card_id: str
+    name: str
+    image_url: str
+    zone: str
+    copies: int
+    #: True for a card the repair brought in. A swap that names a card the player cannot
+    #: find anywhere on the page reads as the wizard talking about a deck it will not
+    #: show them.
+    added: bool
+
+
 class RepairView(ApiModel):
     kind: str               # 'none' | 'conservative' | 'free'
     drift: int              # copies changed
     swaps: list[SwapView]
     deck: dict[str, Any]
+    #: The finished list, resolved to names and art.
+    cards: list[RepairDeckCardView]
     legal: bool
 
 

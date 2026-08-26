@@ -152,9 +152,13 @@ function rowNote(row: RequirementRow, state: RowState, value: number): string {
 
 function requirementRow(row: RequirementRow, value: number): HTMLElement {
   const state = rowState(row, value);
+  // A card they have actually claimed is settled, and should look it. Still adjustable
+  // -- people miscount, and people buy singles -- but it must not read as another
+  // question, which is what an undifferentiated row does when there are twenty of them.
+  const claimed = state === "ready" && (row.known || value !== row.have);
   return h(
     "li",
-    { class: `decision-card is-${state}` },
+    { class: `decision-card is-${state}${claimed ? " is-claimed" : ""}` },
     cardThumb(row),
     h(
       "div",
@@ -342,6 +346,64 @@ function banPanel(notices: BanNotice[]): HTMLElement | null {
  * the deck that won, and a player is owed the difference before they take it to an
  * event and wonder why it plays differently.
  */
+/**
+ * The deck a repair actually produces.
+ *
+ * Collapsed, because most of it is the deck already on screen; open it and the swapped
+ * cards are at the top of each zone, marked as new. The reported symptom was a swap
+ * bringing in Rocket Barrage and Rocket Barrage appearing nowhere -- a swap list is a
+ * changelog, and a changelog is no substitute for the thing it describes.
+ */
+function finishedDeck(repair: Repair): HTMLElement {
+  const zones: { zone: string; title: string }[] = [
+    { zone: "main", title: "Main deck" },
+    { zone: "runes", title: "Runes" },
+    { zone: "battlefields", title: "Battlefields" },
+  ];
+  const added = repair.cards.filter((card) => card.added).length;
+
+  return h(
+    "details",
+    { class: "finished-deck" },
+    h(
+      "summary",
+      {},
+      "See the finished deck",
+      added
+        ? h("span", { class: "finished-new" }, `${plural(added, "new card")}`)
+        : null,
+    ),
+    ...zones.map((group) => {
+      const members = repair.cards.filter((card) => card.zone === group.zone);
+      if (!members.length) return null;
+      const copies = members.reduce((sum, card) => sum + card.copies, 0);
+      return h(
+        "div",
+        { class: "finished-zone" },
+        h(
+          "h5",
+          {},
+          group.title,
+          h("small", {}, `${plural(members.length, "card")} · ${plural(copies, "copy", "copies")}`),
+        ),
+        h(
+          "ul",
+          {},
+          ...members.map((card) =>
+            h(
+              "li",
+              { class: card.added ? "finished-card is-new" : "finished-card" },
+              h("span", { class: "finished-copies" }, `${card.copies}x`),
+              h("span", { class: "finished-name" }, card.name),
+              card.added ? h("span", { class: "finished-tag" }, "new") : null,
+            ),
+          ),
+        ),
+      );
+    }),
+  );
+}
+
 function repairPanel(repair: Repair, label: string, note: string, busy: boolean): HTMLElement {
   return h(
     "section",
@@ -376,6 +438,9 @@ function repairPanel(repair: Repair, label: string, note: string, busy: boolean)
           ),
         )
       : null,
+    // The finished list. Without it a swap names a card that appears nowhere on the
+    // page -- the wizard describing a deck it declines to show you.
+    repair.cards.length ? finishedDeck(repair) : null,
     h(
       "button",
       {

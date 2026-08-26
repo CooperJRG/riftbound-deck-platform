@@ -475,11 +475,23 @@ export interface Swap {
   reason: string;
 }
 
+export interface RepairDeckCard {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  zone: string;
+  copies: number;
+  /** Brought in by the repair, and therefore not anywhere in the deck on screen. */
+  added: boolean;
+}
+
 export interface Repair {
   kind: "none" | "conservative" | "free";
   drift: number;
   swaps: Swap[];
   deck: DeckPayload;
+  /** The finished list, named and illustrated, so a swap has somewhere to point. */
+  cards: RepairDeckCard[];
   legal: boolean;
 }
 

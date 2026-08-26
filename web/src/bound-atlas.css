@@ -842,3 +842,25 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .decision-card .req-counter { flex-wrap: wrap; }
   .decision-card .req-pip { min-width: 29px; }
 }
+
+/* A card the player has claimed is settled: quieter than a question, still adjustable.
+   People miscount and people buy singles, so it must never look disabled -- the point
+   is only that it should stop competing with the rows still being asked about. */
+.decision-card.is-claimed { opacity: 0.62; }
+.decision-card.is-claimed:hover,
+.decision-card.is-claimed:focus-within { opacity: 1; }
+.decision-card.is-claimed .req-name { color: var(--atlas-muted); }
+
+/* The finished deck a repair produces. Collapsed by default: most of it is the deck
+   already on screen, and the part that is not is pulled to the top of each zone. */
+.finished-deck { margin-top: 0.6rem; border-top: 1px solid var(--atlas-border); padding-top: 0.5rem; }
+.finished-deck > summary { cursor: pointer; font-size: 0.85rem; color: var(--atlas-teal); display: flex; gap: 0.5rem; align-items: baseline; }
+.finished-new { font-size: 0.75rem; color: var(--atlas-copper); }
+.finished-zone { margin-top: 0.55rem; }
+.finished-zone h5 { margin: 0 0 0.25rem; font-size: 0.8rem; display: flex; gap: 0.5rem; align-items: baseline; }
+.finished-zone h5 small { font-weight: 400; color: var(--atlas-muted); font-size: 0.72rem; }
+.finished-zone ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.15rem 0.8rem; }
+.finished-card { display: flex; gap: 0.4rem; align-items: baseline; font-size: 0.82rem; }
+.finished-copies { color: var(--atlas-muted); min-width: 1.6rem; }
+.finished-card.is-new .finished-name { color: var(--atlas-copper); font-weight: 600; }
+.finished-tag { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--atlas-copper); }

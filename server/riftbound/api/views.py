@@ -18,6 +18,7 @@ from .schemas import (
     IssueView,
     MetaDeckView,
     ProvenanceView,
+    RepairDeckCardView,
     RepairView,
     RequirementRowView,
     ScoreView,
@@ -263,7 +264,36 @@ def repair_view(repair, catalog: Catalog, *, legal: bool) -> RepairView:
         card = catalog.get(card_id)
         return card.name if card else card_id
 
+    added = {swap.in_card_id for swap in repair.swaps}
+
+    def rows(counts, zone: str) -> list[RepairDeckCardView]:
+        out = []
+        for card_id, copies in counts.items():
+            card = catalog.get(card_id)
+            out.append(
+                RepairDeckCardView(
+                    card_id=card_id,
+                    name=card.name if card else card_id,
+                    image_url=card.image_url if card else "",
+                    zone=zone,
+                    copies=int(copies),
+                    added=card_id in added,
+                )
+            )
+        # Brought-in cards first: they are what the player has not seen before, and the
+        # reason they are reading this list at all.
+        out.sort(key=lambda row: (not row.added, row.name))
+        return out
+
+    deck = repair.deck
+    cards = (
+        rows(deck.main, "main")
+        + rows(deck.runes, "runes")
+        + rows({b: 1 for b in deck.battlefields}, "battlefields")
+    )
+
     return RepairView(
+        cards=cards,
         kind=repair.kind,
         drift=repair.drift,
         swaps=[

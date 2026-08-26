@@ -42,6 +42,7 @@ from .deck_builder import (
 from .legend_index import LegendProfile, substitutes
 from .meta import MetaDeck
 from .rules import BoundRules
+from .validator import validate
 
 PHASE_PROPOSE = "propose"
 PHASE_CHECKLIST = "checklist"
@@ -225,10 +226,16 @@ def unknown_cards(deck: Deck, knowledge: Knowledge) -> tuple[str, ...]:
 
 @dataclass
 class _Zones:
-    """A deck's mutable zones during a repair, with the rules each one obeys."""
+    """A deck's mutable zones during a repair, with the rules each one obeys.
+
+    The sideboard is carried but never modified: the copy limit is a *combined*
+    main-plus-sideboard rule, so a repair that only counts main-deck copies will happily
+    add a fourth copy of a card already sitting in the sideboard.
+    """
     main: dict[str, int]
     runes: dict[str, int]
     battlefields: list[str]
+    sideboard: dict[str, int] = field(default_factory=dict)
 
     def container(self, zone: str):
         return {"main": self.main, "runes": self.runes}.get(zone)
@@ -237,6 +244,12 @@ class _Zones:
         if zone == "battlefields":
             return self.battlefields.count(card_id)
         return self.container(zone).get(card_id, 0)
+
+    def committed(self, zone: str, card_id: str) -> int:
+        """Copies that count against this card's limit, across every zone that shares it."""
+        if zone == "main":
+            return self.main.get(card_id, 0) + self.sideboard.get(card_id, 0)
+        return self.count(zone, card_id)
 
     def add(self, zone: str, card_id: str, copies: int) -> None:
         if zone == "battlefields":
@@ -288,7 +301,17 @@ def _zone_cap(card, zone: str, *, rules: BoundRules) -> int:
         return 1 if rules.bool_constraint("battlefield_unique_required", False) else 3
     if zone == "runes":
         return rules.int_constraint("rune_count_exact", 12)
-    return 1 if card.unique else rules.int_constraint("main_copy_limit", 3)
+    if card.unique:
+        return 1
+    # The tighter of the two, because both are real: a format may allow three in the
+    # main deck but only three across main and sideboard together.
+    return min(
+        rules.int_constraint("main_copy_limit", 3),
+        rules.int_constraint(
+            "combined_main_sideboard_copy_limit",
+            rules.int_constraint("main_copy_limit", 3),
+        ),
+    )
 
 
 def repair(
@@ -330,7 +353,8 @@ def repair(
         allowed = set(family.core) | set(family.flex)
 
     zones = _Zones(
-        main=dict(deck.main), runes=dict(deck.runes), battlefields=list(deck.battlefields)
+        main=dict(deck.main), runes=dict(deck.runes), battlefields=list(deck.battlefields),
+        sideboard=dict(deck.sideboard),
     )
     swaps: list[Swap] = []
     drift = 0
@@ -361,7 +385,9 @@ def repair(
             candidate = catalog.get(candidate_id)
             if candidate is None:
                 continue
-            already = zones.count(zone, candidate_id)
+            # Against the limit: every zone that shares it. Against what they own: the
+            # same, since a card in the sideboard is a copy already spoken for.
+            already = zones.committed(zone, candidate_id)
             room = min(
                 hole.short - filled,
                 owned.get(candidate_id, 0) - already,
@@ -389,6 +415,13 @@ def repair(
     # The champion must stay in the main deck; if a swap displaced it the deck is not
     # this deck any more.
     if deck.champion_id and deck.champion_id not in repaired.main:
+        return None
+    # The last word, and the reason this function may return None at all. Filling holes
+    # by count is not the same as producing a legal deck: a constraint this code does
+    # not model -- today the combined main-and-sideboard copy limit, tomorrow something
+    # else -- otherwise reaches the player as a deck labelled "not legal" that they are
+    # nonetheless invited to save. Rules live in the validator; ask it.
+    if not validate(repaired, rules=rules, catalog=catalog).legal:
         return None
     return Repair(
         deck=repaired, swaps=tuple(swaps),
