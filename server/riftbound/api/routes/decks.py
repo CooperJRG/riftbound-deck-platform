@@ -47,7 +47,7 @@ def _validate(deck: Deck, services: Services, user_id: str) -> ValidationView:
     for card_id, qty in deck.runes.items():
         counts[card_id] = counts.get(card_id, 0) + qty
     coverage = deck_coverage(counts, profile=profile, catalog=services.catalog)
-    return validation_view(result, coverage)
+    return validation_view(result, coverage, services.catalog)
 
 
 @router.post("/validate", response_model=ValidationView)

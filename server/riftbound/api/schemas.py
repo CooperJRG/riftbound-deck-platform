@@ -218,3 +218,81 @@ class BundleView(ApiModel):
     set_codes: list[str]
     sources: list[SourceHealthView]
     warnings: list[str]
+
+
+# -- meta ---------------------------------------------------------------------
+
+
+class ProvenanceView(ApiModel):
+    """Where a meta deck came from, and what backs it."""
+    source: str
+    url: str
+    evidence: str
+    summary: str            # human-readable, e.g. "3rd of 257 at Convergence #2"
+    author: str
+    published_at: str
+    views: int
+    tournament_slug: str
+    tournament_name: str
+    tournament_date: str
+    placement: int
+    field_size: int
+
+
+class ScoreView(ApiModel):
+    """A ranking with its parts, so the UI can explain itself."""
+    total: float
+    evidence: float
+    placement: float
+    recency: float
+    popularity: float
+
+
+class MetaDeckView(ApiModel):
+    deck_id: str
+    name: str
+    legend_id: str
+    legend_name: str
+    champion_id: str
+    champion_name: str
+    archetype_id: str
+    domains: list[str]
+    main_total: int
+    provenance: ProvenanceView
+    score: ScoreView
+    coverage: CoverageView
+    unresolved: list[str]
+    deck: dict[str, Any]
+
+
+class ArchetypeView(ApiModel):
+    archetype_id: str
+    name: str
+    legend_id: str
+    champion_id: str
+    deck_count: int
+    tournament_deck_count: int
+    best_placement: int
+    latest_date: str
+    score: float
+    best_deck: MetaDeckView | None = None
+
+
+class TournamentView(ApiModel):
+    slug: str
+    name: str
+    date: str
+    format: str
+    players: int
+    winner: str
+    decks_published: int
+
+
+class MetaStatusView(ApiModel):
+    available: bool
+    snapshot_id: str
+    created_at: str
+    deck_count: int
+    tournament_count: int
+    evidence_counts: dict[str, int]
+    warnings: list[str]

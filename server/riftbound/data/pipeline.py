@@ -256,6 +256,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    # Card and archetype names contain characters a cp1252 console cannot render.
+    # Fix the stream rather than degrading the data to ASCII.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
     args = build_parser().parse_args(argv)
     return int(args.func(args))
 

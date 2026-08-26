@@ -18,10 +18,9 @@ import json
 from pathlib import Path
 import time
 from typing import Any
-import urllib.error
-import urllib.request
 
 from .base import CardSource, FetchResult, RawCard
+from .http import HttpClient
 
 DEFAULT_URL = "https://api.dotgg.gg/cgfw/getcards?game=riftbound"
 DEFAULT_TIMEOUT = 45.0
@@ -41,11 +40,14 @@ class DotGGSource(CardSource):
         name: str = "dotgg",
         timeout: float = DEFAULT_TIMEOUT,
         cache_dir: Path | None = None,
+        client: HttpClient | None = None,
     ):
         self.name = name
         self._url = url
-        self._timeout = timeout
         self._cache_dir = cache_dir
+        self._http = client or HttpClient(
+            timeout=timeout, min_interval=0.25, referer="https://riftbound.gg/"
+        )
 
     def fetch(self) -> FetchResult:
         started = time.perf_counter()
@@ -78,18 +80,10 @@ class DotGGSource(CardSource):
     # -- internals --------------------------------------------------------------
 
     def _download(self) -> Any:
-        request = urllib.request.Request(
-            self._url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=self._timeout) as response:
-                raw = response.read()
-        except urllib.error.HTTPError as exc:
-            raise RuntimeError(f"HTTP {exc.code} from {self._url}") from exc
-        except urllib.error.URLError as exc:
-            raise RuntimeError(f"could not reach {self._url}: {exc.reason}") from exc
-
+        raw = self._http.get(self._url)
         self._cache(raw)
+        if raw[:1] not in (b"{", b"["):
+            raise RuntimeError(f"non-JSON response from {self._url}: {raw[:40]!r}")
         return json.loads(raw.decode("utf-8"))
 
     def _cache(self, raw: bytes) -> None:

@@ -92,6 +92,8 @@ export interface Issue {
 
 export interface MissingEntry {
   cardId: string;
+  /** Resolved by the server, so the UI never renders a bare id. */
+  name: string;
   copies: number;
   reason: string;
 }
@@ -182,4 +184,84 @@ export interface Health {
   cardCount: number;
   formats: string[];
   migrations: string[];
+}
+
+
+// -- meta ---------------------------------------------------------------------
+
+/** How strongly a deck's placement in the meta is evidenced. */
+export type Evidence = "tournament-placed" | "tournament-entry" | "community";
+
+export interface Provenance {
+  source: string;
+  url: string;
+  evidence: Evidence;
+  /** Human-readable, e.g. "3rd of 257 at Convergence #2". */
+  summary: string;
+  author: string;
+  publishedAt: string;
+  views: number;
+  tournamentSlug: string;
+  tournamentName: string;
+  tournamentDate: string;
+  placement: number;
+  fieldSize: number;
+}
+
+export interface Score {
+  total: number;
+  evidence: number;
+  placement: number;
+  recency: number;
+  popularity: number;
+}
+
+export interface MetaDeck {
+  deckId: string;
+  name: string;
+  legendId: string;
+  legendName: string;
+  championId: string;
+  championName: string;
+  archetypeId: string;
+  domains: string[];
+  mainTotal: number;
+  provenance: Provenance;
+  score: Score;
+  coverage: Coverage;
+  unresolved: string[];
+  deck: DeckPayload;
+}
+
+export interface Archetype {
+  archetypeId: string;
+  name: string;
+  legendId: string;
+  championId: string;
+  deckCount: number;
+  tournamentDeckCount: number;
+  bestPlacement: number;
+  latestDate: string;
+  score: number;
+  bestDeck: MetaDeck | null;
+}
+
+export interface Tournament {
+  slug: string;
+  name: string;
+  date: string;
+  format: string;
+  players: number;
+  winner: string;
+  decksPublished: number;
+}
+
+export interface MetaStatus {
+  available: boolean;
+  snapshotId: string;
+  createdAt: string;
+  deckCount: number;
+  tournamentCount: number;
+  evidenceCounts: Record<string, number>;
+  warnings: string[];
 }

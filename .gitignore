@@ -37,3 +37,5 @@ Thumbs.db
 
 # Raw ingest responses — cache, not source
 var/
+data/meta/*
+!data/meta/.gitkeep

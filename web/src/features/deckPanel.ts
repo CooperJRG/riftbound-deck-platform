@@ -116,7 +116,7 @@ function coveragePanel(validation: Validation): HTMLElement | null {
     h("ul", { class: "coverage-list" },
       ...coverage.missing.map((m) =>
         h("li", {},
-          `${m.copies}× ${cardName(m.cardId)}`,
+          `${m.copies}× ${m.name || cardName(m.cardId)}`,
           m.reason === "unknown-card"
             ? h("span", { class: "issue-refs" }, "not in current card data")
             : null))),

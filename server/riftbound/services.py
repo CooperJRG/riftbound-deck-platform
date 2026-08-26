@@ -20,6 +20,7 @@ import logging
 
 from .config import Config, ConfigError, load_config
 from .data.bundle import Bundle, load_current
+from .data.meta_snapshot import MetaSnapshot, load_current_meta
 from .domain.cards import Catalog
 from .domain.rules import BoundRules, FormatRules, load_format_rules_dir, normalize_format_name
 from .infra.db import Database
@@ -74,6 +75,28 @@ class Services:
             available = ", ".join(sorted(self.bound_formats))
             raise ConfigError(f"Unknown format {key!r}. Available formats: {available}")
         return rules
+
+    @cached_property
+    def meta(self) -> MetaSnapshot | None:
+        """The promoted meta snapshot, or None.
+
+        Optional by design: the deck builder must work with no meta data at all, so a
+        source outage degrades the meta view and nothing else. A corrupt snapshot is
+        logged and treated as absent rather than taking the app down.
+        """
+        try:
+            snapshot = load_current_meta(self.config.meta_dir)
+        except (FileNotFoundError, ValueError) as exc:
+            logger.warning("meta snapshot unreadable, continuing without it: %s", exc)
+            return None
+        if snapshot is not None:
+            logger.info(
+                "loaded meta snapshot %s (%d decks, %d tournaments)",
+                snapshot.manifest.snapshot_id,
+                snapshot.manifest.deck_count,
+                snapshot.manifest.tournament_count,
+            )
+        return snapshot
 
     @cached_property
     def db(self) -> Database:

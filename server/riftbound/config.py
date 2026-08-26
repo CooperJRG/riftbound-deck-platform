@@ -63,6 +63,7 @@ class Config:
     root: Path
     data_dir: Path
     bundles_dir: Path
+    meta_dir: Path
     rules_dir: Path
     db_path: Path
     web_dist: Path
@@ -122,6 +123,9 @@ def load_config() -> Config:
         root=ROOT,
         data_dir=data_dir,
         bundles_dir=data_dir / "bundles",
+        # Meta snapshots are optional: the builder works with none promoted, so a
+        # source outage degrades the meta view and nothing else.
+        meta_dir=data_dir / "meta",
         rules_dir=data_dir / "rules",
         db_path=_under_root(Path(_env_str("RB_DB_PATH") or data_dir / "riftbound.db"), name="RB_DB_PATH"),
         web_dist=ROOT / "web" / "dist",

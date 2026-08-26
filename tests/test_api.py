@@ -231,7 +231,12 @@ def test_coverage_names_the_cards_the_player_lacks(client):
     client.post("/api/availability/exclude/harpoon-squad")
     coverage = client.post("/api/decks/validate", json=deck_payload()).json()["coverage"]
     assert coverage["missing"] == [
-        {"cardId": "harpoon-squad", "copies": 3, "reason": "excluded:card"}
+        {
+            "cardId": "harpoon-squad",
+            "name": "Harpoon Squad",   # named by the server, never a bare id
+            "copies": 3,
+            "reason": "excluded:card",
+        }
     ]
 
 
@@ -292,3 +297,127 @@ def test_collection_mode_reports_owned_count(client):
     body = client.put("/api/availability", json={"mode": "collection"}).json()
     assert body["mode"] == "collection"
     assert body["ownedCardCount"] == 0
+
+
+# -- meta ---------------------------------------------------------------------
+
+
+@pytest.fixture()
+def meta_client(client, catalog, tmp_path):
+    """The app with a small promoted meta snapshot."""
+    from riftbound.data.meta_snapshot import promote_meta, write_snapshot
+    from riftbound.data.meta_normalize import normalize_meta_decks
+    from riftbound.domain.meta import Standing, Tournament
+    from riftbound.services import get_services
+    from tests.test_meta import deck_payload as meta_payload
+
+    services = get_services()
+    meta_dir = services.config.meta_dir
+    meta_dir.mkdir(parents=True, exist_ok=True)
+
+    tournaments = [Tournament("1", "big", "Big Event", "2026-08-15", "Constructed", 257)]
+    payloads = [meta_payload(catalog, slug="winner"), meta_payload(catalog, slug="casual")]
+    decks = normalize_meta_decks(
+        payloads, catalog=catalog,
+        standings=[Standing("big", 1, "Champ", "winner")],
+        tournaments=tournaments,
+    )
+    written = write_snapshot(meta_dir, decks, tournaments, [])
+    promote_meta(meta_dir, written.manifest.snapshot_id)
+    # Drop the cached (empty) snapshot so the app picks the promoted one up.
+    type(services).meta.fget.cache_clear() if hasattr(type(services).meta, "fget") else None
+    services.__dict__.pop("meta", None)
+    return client
+
+
+def test_meta_status_reports_absence_rather_than_failing(client):
+    """The builder must work with no meta data, so status is always answerable."""
+    body = client.get("/api/meta/status").json()
+    assert body["available"] is False
+    assert body["deckCount"] == 0
+
+
+def test_meta_endpoints_explain_how_to_populate_them(client):
+    response = client.get("/api/meta/decks")
+    assert response.status_code == 503
+    assert "meta_pipeline build" in response.json()["detail"]
+
+
+def test_health_reports_meta_absence(client):
+    assert client.get("/api/health").json()["metaSnapshotId"] == ""
+
+
+def test_meta_status_reports_a_promoted_snapshot(meta_client):
+    body = meta_client.get("/api/meta/status").json()
+    assert body["available"] is True
+    assert body["deckCount"] == 2
+    assert body["evidenceCounts"]["tournament-placed"] == 1
+
+
+def test_meta_decks_are_ranked_by_evidence(meta_client):
+    decks = meta_client.get("/api/meta/decks").json()
+    assert decks[0]["provenance"]["evidence"] == "tournament-placed"
+    assert decks[0]["score"]["total"] > decks[-1]["score"]["total"]
+
+
+def test_a_meta_deck_explains_its_pedigree(meta_client):
+    deck = meta_client.get("/api/meta/decks").json()[0]
+    assert deck["provenance"]["summary"] == "1st of 257 at Big Event"
+    assert deck["provenance"]["url"].startswith("https://riftbound.gg/decks/")
+
+
+def test_a_meta_deck_exposes_its_score_breakdown(meta_client):
+    """A ranking nobody can inspect is a ranking nobody should trust."""
+    score = meta_client.get("/api/meta/decks").json()[0]["score"]
+    assert set(score) == {"total", "evidence", "placement", "recency", "popularity"}
+
+
+def test_meta_decks_are_scored_against_what_you_can_field(meta_client):
+    """The join that makes meta tracking useful to a casual player."""
+    before = meta_client.get("/api/meta/decks").json()[0]
+    assert before["coverage"]["complete"] is True
+
+    meta_client.post("/api/availability/exclude/harpoon-squad")
+    after = meta_client.get("/api/meta/decks").json()[0]
+    assert after["coverage"]["complete"] is False
+    assert after["coverage"]["missing"][0]["name"] == "Harpoon Squad"
+
+
+def test_buildable_only_filters_by_the_availability_profile(meta_client):
+    meta_client.post("/api/availability/exclude/harpoon-squad")
+    assert meta_client.get("/api/meta/decks", params={"buildableOnly": True}).json() == []
+
+
+def test_archetypes_group_by_legend_and_champion(meta_client):
+    archetypes = meta_client.get("/api/meta/archetypes").json()
+    assert len(archetypes) == 1
+    assert archetypes[0]["deckCount"] == 2
+    assert archetypes[0]["bestPlacement"] == 1
+    assert archetypes[0]["bestDeck"]["provenance"]["evidence"] == "tournament-placed"
+
+
+def test_tournaments_are_listed(meta_client):
+    tournaments = meta_client.get("/api/meta/tournaments").json()
+    assert tournaments[0]["name"] == "Big Event"
+    assert tournaments[0]["players"] == 257
+
+
+def test_a_meta_deck_can_be_imported_into_the_library(meta_client):
+    created = meta_client.post("/api/meta/decks/winner/import")
+    assert created.status_code == 201
+    body = created.json()
+    assert body["name"].endswith("(imported)"), "an imported deck is labelled as one"
+    assert body["source"].startswith("https://riftbound.gg/decks/")
+
+    fetched = meta_client.get(f"/api/decks/{body['deckId']}").json()
+    assert fetched["deck"]["main"], "the imported list has cards"
+    assert fetched["validation"]["mainTotal"] == 40
+
+
+def test_importing_an_unknown_meta_deck_is_404(meta_client):
+    assert meta_client.post("/api/meta/decks/nope/import").status_code == 404
+
+
+def test_an_invalid_evidence_filter_is_rejected(meta_client):
+    response = meta_client.get("/api/meta/decks", params={"evidence": "nonsense"})
+    assert response.status_code == 400

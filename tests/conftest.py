@@ -9,6 +9,7 @@ touches the network, or imports a machine-learning library.
 
 from __future__ import annotations
 
+from itertools import count
 from pathlib import Path
 import sys
 
@@ -20,6 +21,12 @@ if str(SERVER) not in sys.path:
 
 from riftbound.domain.cards import Card, Printing, build_catalog  # noqa: E402
 from riftbound.domain.rules import FormatRules  # noqa: E402
+
+# Collector codes must be unique: decklists reference cards by code, so a fixture that
+# reuses a number silently collapses the catalogue. A counter rather than a hash of the
+# id, because Python randomises string hashing per process — that would make the whole
+# meta suite intermittently fail.
+_card_numbers = count(1)
 
 
 def make_card(
@@ -37,8 +44,10 @@ def make_card(
     unique: bool = False,
     rarity: str = "Common",
     set_code: str = "OGN",
+    number: str = "",
     promo: bool = False,
 ) -> Card:
+    card_number = number or f"{next(_card_numbers):04d}"
     return Card(
         card_id=card_id,
         name=name or card_id.replace("-", " ").title(),
@@ -55,12 +64,12 @@ def make_card(
         unique=unique,
         printings=(
             Printing(
-                print_id=f"{set_code.lower()}-001-{card_id}",
+                print_id=f"{set_code.lower()}-{card_number}-{card_id}",
                 card_id=card_id,
                 title=name or card_id,
                 set_code=set_code,
                 set_name=set_code,
-                card_number="001",
+                card_number=card_number,
                 rarity=rarity,
                 promo=promo,
                 image_url="",

@@ -27,6 +27,7 @@ from riftbound.data.normalize import (
 )
 from riftbound.data.sources.base import FetchResult
 from riftbound.data.sources.dotgg import DotGGSource
+from riftbound.data.sources.http import HttpClient, HttpError
 from riftbound.domain.cards import coerce_domains
 
 
@@ -72,6 +73,11 @@ def fake_urlopen(payload: object):
         return FakeResponse(json.dumps(payload).encode("utf-8"))
 
     return opener
+
+
+def impatient() -> HttpClient:
+    """A client that does not sleep, for tests about failure rather than retrying."""
+    return HttpClient(max_attempts=1, min_interval=0.0, base_backoff=0.0)
 
 
 # -- set codes must be derived, never enumerated ------------------------------
@@ -200,7 +206,7 @@ def test_a_network_failure_does_not_raise(monkeypatch):
         raise urllib.error.URLError("connection refused")
 
     monkeypatch.setattr("urllib.request.urlopen", boom)
-    result = DotGGSource().fetch()
+    result = DotGGSource(client=impatient()).fetch()
     assert isinstance(result, FetchResult)
     assert result.ok is False
     assert "could not reach" in result.error
@@ -211,7 +217,7 @@ def test_an_http_error_does_not_raise(monkeypatch):
         raise urllib.error.HTTPError("url", 503, "Service Unavailable", {}, None)
 
     monkeypatch.setattr("urllib.request.urlopen", boom)
-    result = DotGGSource().fetch()
+    result = DotGGSource(client=impatient()).fetch()
     assert result.ok is False
     assert "HTTP 503" in result.error
 
@@ -247,3 +253,77 @@ def test_an_unwritable_cache_never_fails_an_ingest(monkeypatch, tmp_path: Path):
     monkeypatch.setattr("urllib.request.urlopen", fake_urlopen(payload))
     monkeypatch.setattr(Path, "mkdir", lambda *a, **k: (_ for _ in ()).throw(OSError("read-only")))
     assert DotGGSource(cache_dir=tmp_path / "nope").fetch().ok is True
+
+
+# -- polite HTTP --------------------------------------------------------------
+
+
+def test_a_rate_limit_is_retried_then_succeeds(monkeypatch):
+    """429 is the normal response to a busy harvest, not a fatal error."""
+    calls = {"n": 0}
+
+    def flaky(request, timeout=None):  # noqa: ARG001
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
+        return FakeResponse(b'{"ok": true}')
+
+    monkeypatch.setattr("urllib.request.urlopen", flaky)
+    client = HttpClient(max_attempts=4, min_interval=0.0, base_backoff=0.001)
+    assert client.get_json("https://example.test/x") == {"ok": True}
+    assert calls["n"] == 3
+
+
+def test_retries_give_up_and_report(monkeypatch):
+    def always_429(request, timeout=None):  # noqa: ARG001
+        raise urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
+
+    monkeypatch.setattr("urllib.request.urlopen", always_429)
+    client = HttpClient(max_attempts=2, min_interval=0.0, base_backoff=0.001)
+    with pytest.raises(HttpError, match="HTTP 429"):
+        client.get("https://example.test/x")
+
+
+def test_a_client_error_is_not_retried(monkeypatch):
+    """404 will not become a 200 by asking again."""
+    calls = {"n": 0}
+
+    def not_found(request, timeout=None):  # noqa: ARG001
+        calls["n"] += 1
+        raise urllib.error.HTTPError("url", 404, "Not Found", {}, None)
+
+    monkeypatch.setattr("urllib.request.urlopen", not_found)
+    client = HttpClient(max_attempts=4, min_interval=0.0, base_backoff=0.001)
+    with pytest.raises(HttpError):
+        client.get("https://example.test/x")
+    assert calls["n"] == 1
+
+
+def test_an_empty_body_means_no_such_record(monkeypatch):
+    """Upstream answers a missing deck with an empty body rather than a 404."""
+    monkeypatch.setattr("urllib.request.urlopen", lambda r, timeout=None: FakeResponse(b""))
+    client = HttpClient(max_attempts=1, min_interval=0.0)
+    assert client.get_json("https://example.test/x") is None
+
+
+def test_a_non_json_body_is_an_error_not_data(monkeypatch):
+    """Some endpoints answer "Hacker! Go home!" with a 200."""
+    monkeypatch.setattr(
+        "urllib.request.urlopen", lambda r, timeout=None: FakeResponse(b"Hacker! Go home!")
+    )
+    client = HttpClient(max_attempts=1, min_interval=0.0)
+    with pytest.raises(HttpError, match="non-JSON"):
+        client.get_json("https://example.test/x")
+
+
+def test_throttling_spaces_requests_out(monkeypatch):
+    monkeypatch.setattr(
+        "urllib.request.urlopen", lambda r, timeout=None: FakeResponse(b"{}")
+    )
+    client = HttpClient(max_attempts=1, min_interval=0.05)
+    import time as _time
+
+    started = _time.monotonic()
+    for _ in range(4):
+        client.get("https://example.test/x")
+    assert _time.monotonic() - started >= 0.10

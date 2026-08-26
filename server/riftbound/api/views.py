@@ -5,6 +5,8 @@ from __future__ import annotations
 from ..domain.availability import Availability, AvailabilityProfile, DeckCoverage
 from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
+from ..domain.meta import MetaDeck, Tournament
+from ..domain.meta_scoring import ScoreBreakdown
 from ..domain.validator import ValidationResult
 from .schemas import (
     AvailabilityView,
@@ -14,6 +16,10 @@ from .schemas import (
     ExcludedCardView,
     ExclusionRuleView,
     IssueView,
+    MetaDeckView,
+    ProvenanceView,
+    ScoreView,
+    TournamentView,
     PrintingView,
     ValidationView,
 )
@@ -61,7 +67,17 @@ def card_availability_view(card: Card, state: Availability) -> CardAvailabilityV
     )
 
 
-def coverage_view(coverage: DeckCoverage) -> CoverageView:
+def coverage_view(coverage: DeckCoverage, catalog: Catalog | None = None) -> CoverageView:
+    """Coverage, with missing cards named.
+
+    The server owns the catalogue, so it resolves these names rather than leaving the
+    client to render a bare id for a card it has not happened to load. A card the
+    bundle no longer knows falls back to its id, so it stays visible.
+    """
+    def name_of(card_id: str) -> str:
+        card = catalog.get(card_id) if catalog is not None else None
+        return card.name if card else card_id
+
     return CoverageView(
         total_copies=coverage.total_copies,
         available_copies=coverage.available_copies,
@@ -69,13 +85,20 @@ def coverage_view(coverage: DeckCoverage) -> CoverageView:
         ratio=round(coverage.ratio, 4),
         complete=coverage.is_complete,
         missing=[
-            {"cardId": card_id, "copies": copies, "reason": reason}
+            {
+                "cardId": card_id,
+                "name": name_of(card_id),
+                "copies": copies,
+                "reason": reason,
+            }
             for card_id, copies, reason in coverage.missing
         ],
     )
 
 
-def validation_view(result: ValidationResult, coverage: DeckCoverage) -> ValidationView:
+def validation_view(
+    result: ValidationResult, coverage: DeckCoverage, catalog: Catalog | None = None
+) -> ValidationView:
     return ValidationView(
         legal=result.legal,
         issues=[
@@ -94,7 +117,7 @@ def validation_view(result: ValidationResult, coverage: DeckCoverage) -> Validat
         sideboard_total=result.sideboard_total,
         battlefield_count=result.battlefield_count,
         legend_domains=list(result.legend_domains),
-        coverage=coverage_view(coverage),
+        coverage=coverage_view(coverage, catalog),
     )
 
 
@@ -131,4 +154,47 @@ def availability_view(
             for r in profile.exclusion_rules
         ],
         owned_card_count=len(profile.owned),
+    )
+
+
+def tournament_view(t: Tournament) -> TournamentView:
+    return TournamentView(
+        slug=t.slug, name=t.name, date=t.date, format=t.format,
+        players=t.players, winner=t.winner, decks_published=t.decks_published,
+    )
+
+
+def meta_deck_view(
+    meta: MetaDeck,
+    score: ScoreBreakdown,
+    coverage: DeckCoverage,
+    catalog: Catalog,
+) -> MetaDeckView:
+    p = meta.provenance
+    legend = catalog.get(meta.deck.legend_id)
+    champion = catalog.get(meta.deck.champion_id)
+    return MetaDeckView(
+        deck_id=meta.deck_id,
+        name=meta.deck.name,
+        legend_id=meta.deck.legend_id,
+        legend_name=legend.name if legend else meta.deck.legend_id,
+        champion_id=meta.deck.champion_id,
+        champion_name=champion.name if champion else "",
+        archetype_id=meta.archetype_id,
+        domains=list(legend.domains) if legend else [],
+        main_total=meta.deck.main_total,
+        provenance=ProvenanceView(
+            source=p.source, url=p.url, evidence=p.evidence, summary=p.describe(),
+            author=p.author, published_at=p.published_at, views=p.views,
+            tournament_slug=p.tournament_slug, tournament_name=p.tournament_name,
+            tournament_date=p.tournament_date, placement=p.placement,
+            field_size=p.field_size,
+        ),
+        score=ScoreView(
+            total=score.total, evidence=score.evidence, placement=score.placement,
+            recency=score.recency, popularity=score.popularity,
+        ),
+        coverage=coverage_view(coverage, catalog),
+        unresolved=list(meta.unresolved),
+        deck=deck_dict(meta.deck),
     )

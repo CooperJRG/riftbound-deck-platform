@@ -7,12 +7,15 @@
  */
 
 import type {
+  Archetype,
   AvailabilityProfile,
   CardAvailability,
   CardFacets,
   DeckPayload,
   DeckSummary,
   FormatView,
+  MetaDeck,
+  MetaStatus,
   Validation,
 } from "../api/types";
 
@@ -26,9 +29,14 @@ export interface CardFilters {
   sort: "name" | "cost" | "availability";
 }
 
+/** Which top-level view is showing. */
+export type ViewName = "build" | "meta";
+
 export interface AppState {
   ready: boolean;
   error: string;
+  view: ViewName;
+  notice: string;
   formats: FormatView[];
   facets: CardFacets | null;
 
@@ -46,6 +54,14 @@ export interface AppState {
   cardsLoading: boolean;
   /** Cards referenced by the deck, resolved for display. */
   deckCards: Map<string, CardAvailability>;
+
+  metaStatus: MetaStatus | null;
+  archetypes: Archetype[];
+  metaDecks: MetaDeck[];
+  metaLoading: boolean;
+  /** Archetype currently expanded in the meta view; "" shows the ranked overview. */
+  metaArchetype: string;
+  metaBuildableOnly: boolean;
 }
 
 export function emptyDeck(): DeckPayload {
@@ -64,6 +80,8 @@ export function emptyDeck(): DeckPayload {
 const initial: AppState = {
   ready: false,
   error: "",
+  view: "build",
+  notice: "",
   formats: [],
   facets: null,
 
@@ -88,6 +106,13 @@ const initial: AppState = {
   cardTotal: 0,
   cardsLoading: false,
   deckCards: new Map(),
+
+  metaStatus: null,
+  archetypes: [],
+  metaDecks: [],
+  metaLoading: false,
+  metaArchetype: "",
+  metaBuildableOnly: false,
 };
 
 type Listener = (state: AppState) => void;

@@ -78,12 +78,27 @@ class Printing:
     print_id: str
     card_id: str
     title: str            # full title, including any promo suffix
-    set_code: str         # "OGN", "SFD", "UNL", "OGS", "ARC"
+    set_code: str         # "OGN", "SFD", "UNL", "OGS", "ARC", "VEN", ...
     set_name: str
     card_number: str
     rarity: str
     promo: bool
     image_url: str
+
+    @property
+    def code(self) -> str:
+        """Collector code, e.g. "OGN-068".
+
+        This is how decklists reference cards everywhere upstream, so it is the join
+        key when importing an external list. Upper-cased because upstream is not
+        internally consistent about case — the card list ships "VEN-R02a" while
+        decklists reference "VEN-R02A", and it even varies within one set
+        ("VEN-R04B-P" beside "VEN-R02b-P"). Matching case-sensitively silently loses
+        those cards from imported lists.
+        """
+        if not self.set_code or not self.card_number:
+            return ""
+        return f"{self.set_code}-{self.card_number}".upper()
 
 
 @dataclass(frozen=True)
@@ -146,6 +161,7 @@ class Catalog:
     _by_card_id: Mapping[str, Card]
     _by_print_id: Mapping[str, Printing]
     _by_search_key: Mapping[str, Card]
+    _by_code: Mapping[str, Card]
 
     def __iter__(self) -> Iterator[Card]:
         return iter(self.cards)
@@ -160,6 +176,14 @@ class Catalog:
     def printing(self, print_id: str) -> Printing | None:
         return self._by_print_id.get(str(print_id or "").strip().lower())
 
+    def by_code(self, code: str) -> Card | None:
+        """Resolve a collector code such as "OGN-068" to its gameplay card.
+
+        Imported decklists address cards this way. Unlike a name, a code is stable and
+        unambiguous, so an imported list survives renames and promo variants.
+        """
+        return self._by_code.get(str(code or "").strip().upper())
+
     def resolve(self, text: str) -> Card | None:
         """Best-effort lookup for a human- or importer-supplied name.
 
@@ -172,6 +196,9 @@ class Catalog:
         direct = self.get(raw)
         if direct is not None:
             return direct
+        by_code = self.by_code(raw)
+        if by_code is not None:
+            return by_code
         printing = self.printing(raw)
         if printing is not None:
             return self.get(printing.card_id)
@@ -189,11 +216,14 @@ def build_catalog(cards: Iterable[Card]) -> Catalog:
     by_card_id: dict[str, Card] = {}
     by_print_id: dict[str, Printing] = {}
     by_search: dict[str, Card] = {}
+    by_code: dict[str, Card] = {}
     for card in ordered:
         by_card_id[card.card_id] = card
         by_search.setdefault(search_key(card.name), card)
         for printing in card.printings:
             by_print_id[printing.print_id] = printing
+            if printing.code:
+                by_code.setdefault(printing.code, card)
             # Full promo titles resolve back to the gameplay card.
             by_search.setdefault(search_key(printing.title), card)
     return Catalog(
@@ -201,4 +231,5 @@ def build_catalog(cards: Iterable[Card]) -> Catalog:
         _by_card_id=by_card_id,
         _by_print_id=by_print_id,
         _by_search_key=by_search,
+        _by_code=by_code,
     )

@@ -1,6 +1,7 @@
 /** Typed API client. One place that knows about HTTP. */
 
 import type {
+  Archetype,
   AvailabilityProfile,
   AvailabilityUpdate,
   CardFacets,
@@ -10,7 +11,10 @@ import type {
   DeckView,
   FormatView,
   Health,
+  MetaDeck,
+  MetaStatus,
   RuleKinds,
+  Tournament,
   Validation,
 } from "./types";
 
@@ -114,4 +118,21 @@ export const api = {
       method: "DELETE",
     }),
   ruleKinds: () => request<RuleKinds>("/api/availability/rule-kinds"),
+
+  metaStatus: () => request<MetaStatus>("/api/meta/status"),
+  metaArchetypes: (limit = 20) =>
+    request<Archetype[]>(`/api/meta/archetypes${queryString({ limit })}`),
+  metaDecks: (params: {
+    archetype?: string;
+    evidence?: string;
+    buildableOnly?: boolean;
+    limit?: number;
+  } = {}) => request<MetaDeck[]>(`/api/meta/decks${queryString({ ...params })}`),
+  metaTournaments: (limit = 30) =>
+    request<Tournament[]>(`/api/meta/tournaments${queryString({ limit })}`),
+  importMetaDeck: (deckId: string) =>
+    request<{ deckId: string; name: string; source: string }>(
+      `/api/meta/decks/${deckId}/import`,
+      { method: "POST" },
+    ),
 };
