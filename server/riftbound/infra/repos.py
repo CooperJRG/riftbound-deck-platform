@@ -257,3 +257,173 @@ class AvailabilityRepository:
                     """,
                     rows,
                 )
+
+
+@dataclass(frozen=True)
+class WizardSessionRecord:
+    """A stored wizard session, ready to be turned back into a domain Session."""
+    session_id: str
+    legend_id: str
+    phase: str
+    checklists: int
+    exact: dict[str, int]
+    at_least: dict[str, int]
+    asked_deck_ids: tuple[str, ...]
+    saved_deck_id: str
+    created_at: str
+    updated_at: str
+
+
+class SmartDeckRepository:
+    """Wizard sessions.
+
+    The answers are the expensive part of a session -- three deck rounds pin down
+    roughly 75 cards -- so they are written every round rather than at the end. A closed
+    tab costs nothing.
+    """
+
+    def __init__(self, db: Database):
+        self._db = db
+
+    def create(self, *, user_id: str, legend_id: str) -> str:
+        now = utc_now_iso()
+        session_id = str(uuid4())
+        with self._db.transaction() as conn:
+            conn.execute(
+                """
+                INSERT INTO wizard_sessions
+                    (session_id, user_id, legend_id, phase, checklists, created_at, updated_at)
+                VALUES (?, ?, ?, 'propose', 0, ?, ?)
+                """,
+                (session_id, user_id, legend_id, now, now),
+            )
+        return session_id
+
+    def get(self, session_id: str, *, user_id: str) -> WizardSessionRecord | None:
+        with self._db.reading() as conn:
+            head = conn.execute(
+                "SELECT * FROM wizard_sessions WHERE session_id = ? AND user_id = ?",
+                (session_id, user_id),
+            ).fetchone()
+            if head is None:
+                return None
+            knowledge = conn.execute(
+                "SELECT card_id, state, qty FROM wizard_knowledge WHERE session_id = ?",
+                (session_id,),
+            ).fetchall()
+            rounds = conn.execute(
+                """
+                SELECT deck_id FROM wizard_rounds
+                WHERE session_id = ? AND kind = 'deck' AND deck_id <> ''
+                ORDER BY round_no
+                """,
+                (session_id,),
+            ).fetchall()
+        exact, at_least = {}, {}
+        for row in knowledge:
+            target = exact if row["state"] == "exact" else at_least
+            target[row["card_id"]] = int(row["qty"])
+        return WizardSessionRecord(
+            session_id=head["session_id"],
+            legend_id=head["legend_id"],
+            phase=head["phase"],
+            checklists=int(head["checklists"]),
+            exact=exact,
+            at_least=at_least,
+            asked_deck_ids=tuple(r["deck_id"] for r in rounds),
+            saved_deck_id=head["saved_deck_id"] or "",
+            created_at=head["created_at"],
+            updated_at=head["updated_at"],
+        )
+
+    def list(self, *, user_id: str, limit: int = 20) -> list[WizardSessionRecord]:
+        with self._db.reading() as conn:
+            ids = [
+                row["session_id"]
+                for row in conn.execute(
+                    """
+                    SELECT session_id FROM wizard_sessions
+                    WHERE user_id = ? ORDER BY updated_at DESC LIMIT ?
+                    """,
+                    (user_id, int(limit)),
+                )
+            ]
+        found = (self.get(sid, user_id=user_id) for sid in ids)
+        return [record for record in found if record is not None]
+
+    def record_round(
+        self,
+        session_id: str,
+        *,
+        user_id: str,
+        kind: str,
+        deck_id: str,
+        answers: dict[str, int],
+        exact: dict[str, int],
+        at_least: dict[str, int],
+        phase: str,
+        checklists: int,
+    ) -> None:
+        """Persist one answered round and the knowledge it produced.
+
+        Knowledge is replaced wholesale rather than merged here: the domain
+        :class:`Knowledge` has already done the merging, and it owns the rule for what
+        an answer means. Two places deciding that is how they drift apart.
+        """
+        now = utc_now_iso()
+        with self._db.transaction() as conn:
+            owned = conn.execute(
+                "SELECT 1 FROM wizard_sessions WHERE session_id = ? AND user_id = ?",
+                (session_id, user_id),
+            ).fetchone()
+            if owned is None:
+                raise KeyError(session_id)
+            row = conn.execute(
+                "SELECT COALESCE(MAX(round_no), 0) AS n FROM wizard_rounds WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()
+            round_no = int(row["n"]) + 1
+            conn.execute(
+                """
+                INSERT INTO wizard_rounds (session_id, round_no, kind, deck_id, created_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (session_id, round_no, kind, deck_id, now),
+            )
+            conn.executemany(
+                """
+                INSERT INTO wizard_round_answers (session_id, round_no, card_id, qty)
+                VALUES (?, ?, ?, ?)
+                """,
+                [(session_id, round_no, cid, int(n)) for cid, n in answers.items()],
+            )
+            conn.execute("DELETE FROM wizard_knowledge WHERE session_id = ?", (session_id,))
+            conn.executemany(
+                """
+                INSERT INTO wizard_knowledge (session_id, card_id, state, qty)
+                VALUES (?, ?, ?, ?)
+                """,
+                [(session_id, cid, "exact", int(n)) for cid, n in exact.items()]
+                + [(session_id, cid, "at_least", int(n)) for cid, n in at_least.items()],
+            )
+            conn.execute(
+                "UPDATE wizard_sessions SET phase = ?, checklists = ?, updated_at = ? "
+                "WHERE session_id = ?",
+                (phase, int(checklists), now, session_id),
+            )
+
+    def mark_saved(self, session_id: str, *, user_id: str, deck_id: str) -> None:
+        with self._db.transaction() as conn:
+            conn.execute(
+                "UPDATE wizard_sessions SET saved_deck_id = ?, phase = 'done', updated_at = ? "
+                "WHERE session_id = ? AND user_id = ?",
+                (deck_id, utc_now_iso(), session_id, user_id),
+            )
+
+    def delete(self, session_id: str, *, user_id: str) -> bool:
+        with self._db.transaction() as conn:
+            cursor = conn.execute(
+                "DELETE FROM wizard_sessions WHERE session_id = ? AND user_id = ?",
+                (session_id, user_id),
+            )
+            return cursor.rowcount > 0

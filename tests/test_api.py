@@ -324,9 +324,11 @@ def meta_client(client, catalog, tmp_path):
     )
     written = write_snapshot(meta_dir, decks, tournaments, [])
     promote_meta(meta_dir, written.manifest.snapshot_id)
-    # Drop the cached (empty) snapshot so the app picks the promoted one up.
-    type(services).meta.fget.cache_clear() if hasattr(type(services).meta, "fget") else None
-    services.__dict__.pop("meta", None)
+    # Drop the cached (empty) snapshot and everything derived from it, so the app picks
+    # the promoted one up. Anything cached off `meta` has to be listed here or it keeps
+    # answering from the snapshot that was absent when it was first asked.
+    for cached in ("meta", "deck_scores", "legend_index"):
+        services.__dict__.pop(cached, None)
     return client
 
 

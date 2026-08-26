@@ -18,7 +18,10 @@ from .schemas import (
     IssueView,
     MetaDeckView,
     ProvenanceView,
+    RepairView,
+    RequirementRowView,
     ScoreView,
+    SwapView,
     TournamentView,
     PrintingView,
     ValidationView,
@@ -197,4 +200,66 @@ def meta_deck_view(
         coverage=coverage_view(coverage, catalog),
         unresolved=list(meta.unresolved),
         deck=deck_dict(meta.deck),
+    )
+
+
+# -- smart decks --------------------------------------------------------------
+
+
+def _zone_label(card_id: str, deck: Deck) -> str:
+    if card_id == deck.legend_id:
+        return "legend"
+    if card_id in deck.runes:
+        return "runes"
+    if card_id in deck.battlefields:
+        return "battlefields"
+    return "main"
+
+
+def requirement_row(
+    card_id: str,
+    needed: int,
+    zone: str,
+    knowledge,
+    catalog: Catalog,
+) -> RequirementRowView:
+    """One card the player is being asked about.
+
+    ``have`` defaults to ``needed`` rather than zero, which is the whole ergonomic
+    argument for the review screen: the common answer is "yes, I have these", so the
+    common answer should require no clicks.
+    """
+    card = catalog.get(card_id)
+    known = knowledge.is_known(card_id)
+    return RequirementRowView(
+        card_id=card_id,
+        name=card.name if card else card_id,
+        zone=zone,
+        needed=needed,
+        image_url=card.image_url if card else "",
+        rarity=card.rarity if card else "",
+        known=known,
+        exact=knowledge.is_exact(card_id),
+        have=min(needed, knowledge.lower_bound(card_id)) if known else needed,
+    )
+
+
+def repair_view(repair, catalog: Catalog, *, legal: bool) -> RepairView:
+    def name_of(card_id: str) -> str:
+        card = catalog.get(card_id)
+        return card.name if card else card_id
+
+    return RepairView(
+        kind=repair.kind,
+        drift=repair.drift,
+        swaps=[
+            SwapView(
+                out_card_id=s.out_card_id, out_name=name_of(s.out_card_id),
+                in_card_id=s.in_card_id, in_name=name_of(s.in_card_id),
+                copies=s.copies, reason=s.reason,
+            )
+            for s in repair.swaps
+        ],
+        deck=deck_dict(repair.deck),
+        legal=legal,
     )

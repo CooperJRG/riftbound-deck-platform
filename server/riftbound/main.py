@@ -20,7 +20,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import ConfigError
 from .api.identity import build_identity_provider
-from .api.routes import availability, cards, decks, meta, system
+from .api.routes import availability, cards, decks, meta, smart_decks, system
 from .services import get_services
 
 logging.basicConfig(
@@ -98,6 +98,7 @@ def create_app() -> FastAPI:
     app.include_router(decks.router)
     app.include_router(availability.router)
     app.include_router(meta.router)
+    app.include_router(smart_decks.router)
 
     # The built UI, when it exists. Missing dist is normal during development,
     # where Vite serves the frontend and proxies /api here.

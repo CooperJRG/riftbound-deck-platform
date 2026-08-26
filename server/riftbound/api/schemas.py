@@ -305,3 +305,148 @@ class MetaStatusView(ApiModel):
     evidence_counts: dict[str, int]
     warnings: list[str]
     attribution: list[AttributionView] = Field(default_factory=list)
+
+
+# -- smart decks --------------------------------------------------------------
+
+
+class LegendChoiceView(ApiModel):
+    """A legend the wizard can build for, with what the meta knows about it."""
+    legend_id: str
+    name: str
+    domains: list[str]
+    image_url: str
+    deck_count: int
+    tournament_deck_count: int
+    best_score: float
+    #: Fraction of the legend's most-played cards the user already has. Advisory only:
+    #: a low number is a hint, never a bar, because the point of the wizard is to find
+    #: out what they can build rather than to guess in advance.
+    familiarity: float
+
+
+class RequirementRowView(ApiModel):
+    """One row of the review screen: `Need 3 - You have [0][1][2][3]`."""
+    card_id: str
+    name: str
+    zone: str
+    needed: int
+    image_url: str
+    rarity: str
+    #: What we already believe, so the row can be pre-filled and collapsed.
+    known: bool
+    exact: bool
+    have: int
+
+
+class SwapView(ApiModel):
+    out_card_id: str
+    out_name: str
+    in_card_id: str
+    in_name: str
+    copies: int
+    reason: str
+
+
+class RepairView(ApiModel):
+    kind: str               # 'none' | 'conservative' | 'free'
+    drift: int              # copies changed
+    swaps: list[SwapView]
+    deck: dict[str, Any]
+    legal: bool
+
+
+class GapView(ApiModel):
+    card_id: str
+    name: str
+    needed: int
+    have: int
+    short: int
+
+
+class FloorView(ApiModel):
+    """The best deck we can already promise. The banner reads from this."""
+    deck: dict[str, Any]
+    quality: float
+    summary: str
+
+
+class QuestionView(ApiModel):
+    reason: str
+    cards: list[RequirementRowView]
+
+
+class ProposalView(ApiModel):
+    """Everything the review screen needs for one round."""
+    phase: str
+    reason: str
+    round: int
+    #: The deck being shown, when there is one.
+    deck: MetaDeckView | None = None
+    requirements: list[RequirementRowView] = []
+    gaps: list[GapView] = []
+    conservative: RepairView | None = None
+    free: RepairView | None = None
+    question: QuestionView | None = None
+    floor: FloorView | None = None
+    #: Plain-English state of play, e.g. "Short by 3 more main."
+    feasibility: str = ""
+    can_build: bool = False
+
+
+class SmartSessionView(ApiModel):
+    session_id: str
+    legend_id: str
+    legend_name: str
+    phase: str
+    rounds: int
+    known_cards: int
+    saved_deck_id: str
+    created_at: str
+    updated_at: str
+    proposal: ProposalView | None = None
+
+
+class StartSessionRequest(StrictRequest):
+    legend_id: str
+
+
+class AnswerRequest(StrictRequest):
+    """One answered round.
+
+    ``deck_id`` names the deck that was on screen; omit it for a checklist answer, in
+    which case ``asked`` must list every card the question covered. The distinction
+    matters: an unticked card on a checklist means "I own none", while a card simply
+    absent from a deck answer means "I have what it asked for".
+    """
+    deck_id: str = ""
+    have: dict[str, int] = {}
+    asked: list[str] = []
+
+
+class AcceptRequest(StrictRequest):
+    """Copy a deck out of the wizard into the library."""
+    name: str = ""
+    #: 'floor' | 'conservative' | 'free' -- which of the offered decks to keep.
+    which: str = "floor"
+
+
+class SaveCollectionRequest(StrictRequest):
+    """Opt-in write-back of what the session learned.
+
+    ``exact_only`` defaults true: a lower bound ("I have at least the 6 this deck
+    wants") is not a collection count, and writing it as one would understate a player
+    who owns twelve.
+    """
+    exact_only: bool = True
+
+
+class SaveCollectionResult(ApiModel):
+    #: Cards recorded as owned. Counts only positive quantities, because "I wrote 14
+    #: cards" reading back as an empty collection is the kind of lie that costs trust.
+    cards_written: int
+    copies_written: int
+    #: Cards the session established they own none of. Recorded as a real answer, and
+    #: reported separately because clearing an entry is not the same as adding one.
+    cards_cleared: int
+    skipped_lower_bounds: int

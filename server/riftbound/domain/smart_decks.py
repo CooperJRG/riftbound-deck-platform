@@ -148,6 +148,15 @@ class Knowledge:
         return cls(exact={k: int(v) for k, v in owned.items() if int(v) > 0})
 
 
+def _plural(count: int, noun: str) -> str:
+    """"1 more card", not "1 more cards".
+
+    Trivial, and worth doing: this string is the wizard talking to a player at the exact
+    moment it is asking them for effort, and sloppy copy there reads as a sloppy answer.
+    """
+    return f"{count} {noun}" if count == 1 else f"{count} {noun}s"
+
+
 def deck_requirements(deck: Deck) -> dict[str, int]:
     """Every card a deck needs, with copies, across all zones."""
     required = dict(deck.main)
@@ -744,17 +753,17 @@ class Engine:
                 # Only a couple of rune types are ever legal for a legend, so every one
                 # of them fits in the same question.
                 asks.extend(ranked(zone_pool("Rune")))
-                wants.append(f"{requirement.short_by} more runes")
+                wants.append(_plural(requirement.short_by, "more rune"))
             elif requirement.name == REQ_BATTLEFIELDS:
                 asks.extend(ranked(zone_pool("Battlefield"))[:12])
-                wants.append(f"{requirement.short_by} more battlefields")
+                wants.append(_plural(requirement.short_by, "more battlefield"))
             elif requirement.name == REQ_MAIN:
                 pool = ranked(
                     c.card_id
                     for c in legal_main_pool(legend, catalog=self.catalog, rules=self.rules)
                 )
                 asks.extend(enough_to_close(pool, requirement.short_by))
-                wants.append(f"{requirement.short_by} more cards")
+                wants.append(_plural(requirement.short_by, "more card"))
 
         card_ids = tuple(dict.fromkeys(a for a in asks if not knowledge.is_exact(a)))
         if not card_ids:
