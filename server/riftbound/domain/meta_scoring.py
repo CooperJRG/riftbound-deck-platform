@@ -111,11 +111,26 @@ def recency_score(published_at: str, *, now: datetime | None = None) -> float:
     return float(0.5 ** (age_days / RECENCY_HALF_LIFE_DAYS))
 
 
-def popularity_score(views: int) -> float:
-    """Log-scaled views, saturating quickly. A weak signal, treated as one."""
-    if views <= 0:
-        return 0.0
-    return min(1.0, math.log10(1 + views) / 3.0)  # ~1000 views saturates
+#: Score for a deck whose source publishes no popularity signal at all. Neutral rather
+#: than zero, for the same reason an unknown date is: absence of evidence must not be
+#: scored as evidence of absence. Scoring it zero gave every deck from a source that
+#: publishes a quality score a systematic edge over one that does not — a difference
+#: between *sources*, not between decks.
+NO_POPULARITY_SIGNAL = 0.3
+
+
+def popularity_score(views: int, quality: float = 0.0) -> float:
+    """The weakest term: how well others rate this deck.
+
+    A curated quality score, where the source publishes one, answers that better than a
+    view count, so it wins. Either way this term carries only 5% of the total and cannot
+    lift a community deck past a real tournament result.
+    """
+    if quality > 0:
+        return max(0.0, min(1.0, quality / 100.0))
+    if views > 0:
+        return min(1.0, math.log10(1 + views) / 3.0)  # ~1000 views saturates
+    return NO_POPULARITY_SIGNAL
 
 
 def score_deck(deck: MetaDeck, *, now: datetime | None = None) -> ScoreBreakdown:
@@ -124,7 +139,7 @@ def score_deck(deck: MetaDeck, *, now: datetime | None = None) -> ScoreBreakdown
     evidence = EVIDENCE_WEIGHT.get(prov.evidence, EVIDENCE_WEIGHT[EVIDENCE_COMMUNITY])
     placement = placement_score(prov.placement, prov.field_size)
     recency = recency_score(prov.published_at or prov.tournament_date, now=now)
-    popularity = popularity_score(prov.views)
+    popularity = popularity_score(prov.views, prov.quality)
 
     total = (
         W_EVIDENCE * evidence

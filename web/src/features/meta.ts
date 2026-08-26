@@ -159,7 +159,9 @@ function archetypeRow(arch: Archetype): HTMLElement {
       { class: "archetype-meta muted small" },
       `${arch.deckCount} deck${arch.deckCount === 1 ? "" : "s"}`,
       arch.tournamentDeckCount > 0 ? ` · ${arch.tournamentDeckCount} from events` : "",
-      arch.bestPlacement > 0 ? ` · best finish #${arch.bestPlacement}` : "",
+      arch.bestPlacement > 0
+        ? ` · best #${arch.bestPlacement}${arch.bestFieldSize ? ` of ${arch.bestFieldSize}` : ""}`
+        : "",
     ),
     best ? coverageChip(best) : null,
   );

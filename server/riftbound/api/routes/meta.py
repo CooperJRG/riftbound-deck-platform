@@ -162,6 +162,7 @@ def list_archetypes(
                 deck_count=arch.deck_count,
                 tournament_deck_count=arch.tournament_deck_count,
                 best_placement=arch.best_placement,
+                best_field_size=arch.best_field_size,
                 latest_date=arch.latest_date,
                 score=round(arch.score, 4),
                 best_deck=(

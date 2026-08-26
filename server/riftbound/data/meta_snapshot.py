@@ -127,6 +127,7 @@ def deck_to_dict(deck: MetaDeck) -> dict[str, Any]:
         "provenance": {
             "source": p.source, "sourceSlug": p.source_slug, "url": p.url,
             "publishedAt": p.published_at, "author": p.author, "views": p.views,
+            "quality": p.quality,
             "evidence": p.evidence, "tournamentSlug": p.tournament_slug,
             "tournamentName": p.tournament_name, "tournamentDate": p.tournament_date,
             "placement": p.placement, "fieldSize": p.field_size,
@@ -149,6 +150,7 @@ def deck_from_dict(raw: dict[str, Any]) -> MetaDeck:
             source=str(p.get("source") or ""), source_slug=str(p.get("sourceSlug") or ""),
             url=str(p.get("url") or ""), published_at=str(p.get("publishedAt") or ""),
             author=str(p.get("author") or ""), views=int(p.get("views") or 0),
+            quality=float(p.get("quality") or 0.0),
             evidence=str(p.get("evidence") or "community"),
             tournament_slug=str(p.get("tournamentSlug") or ""),
             tournament_name=str(p.get("tournamentName") or ""),

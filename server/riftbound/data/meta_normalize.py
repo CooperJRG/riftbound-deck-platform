@@ -159,15 +159,38 @@ def _deck_from_zones(
     return deck, tuple(dict.fromkeys(unresolved))
 
 
+def _resolve_named_zones(
+    payload: Mapping[str, Any], *, catalog: Catalog
+) -> Mapping[str, Mapping[str, int]]:
+    """Convert name-keyed zones to code-keyed ones so one path handles both.
+
+    Some sources address cards by name rather than collector code. ``Catalog.resolve``
+    is punctuation-insensitive, which matters here: these names use commas
+    ("Irelia, Blade Dancer") where the catalogue uses dashes.
+    """
+    resolved: dict[str, dict[str, int]] = {}
+    for zone, entries in (payload.get("_named_zones") or {}).items():
+        bucket = resolved.setdefault(zone, {})
+        for name, qty in entries.items():
+            card = catalog.resolve(name)
+            # Unresolvable names keep their original text so they surface as unresolved
+            # rather than vanishing from the list.
+            key = card.printings[0].code if card and card.printings else str(name)
+            bucket[key] = bucket.get(key, 0) + int(qty)
+    return resolved
+
+
 def deck_from_payload(
     payload: Mapping[str, Any], *, catalog: Catalog
 ) -> tuple[Deck, tuple[str, ...]]:
     """Build a deck from a source payload.
 
-    Two shapes are accepted: a source that already separates zones (TopDeck), and a
-    flat collector-code map where zones must be recovered from each card's type
-    (dotgg). Both end at the same :class:`Deck`.
+    Three shapes are accepted and all end at the same :class:`Deck`: zones keyed by
+    collector code (TopDeck), zones keyed by card name (the local deck API), and a flat
+    code map where zones must be recovered from each card's type (dotgg).
     """
+    if payload.get("_named_zones"):
+        payload = {**payload, "_zones": _resolve_named_zones(payload, catalog=catalog)}
     if payload.get("_zones"):
         return _deck_from_zones(payload, catalog=catalog)
 
@@ -259,9 +282,13 @@ def normalize_meta_decks(
                     source=source,
                     source_slug=slug,
                     url=url,
-                    published_at=_iso_date(payload.get("date_edited") or payload.get("date")),
+                    published_at=(
+                        str(payload.get("published_date") or "").strip()
+                        or _iso_date(payload.get("date_edited") or payload.get("date"))
+                    ),
                     author=str(payload.get("authornick") or "").strip(),
                     views=_int(payload.get("views")),
+                    quality=float(payload.get("_quality") or 0.0),
                     evidence=evidence,
                     tournament_slug=standing.tournament_slug if standing else "",
                     tournament_name=tournament.name if tournament else "",

@@ -273,6 +273,7 @@ class ArchetypeView(ApiModel):
     deck_count: int
     tournament_deck_count: int
     best_placement: int
+    best_field_size: int
     latest_date: str
     score: float
     best_deck: MetaDeckView | None = None

@@ -12,6 +12,7 @@ deliberate — a source outage must degrade the meta view, never the builder.
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass, field as dataclasses_field
 from pathlib import Path
 import sys
 from typing import Sequence
@@ -35,6 +36,7 @@ from .meta_snapshot import (
     write_snapshot,
 )
 from .sources.dotgg_meta import DotGGMetaSource
+from .sources.local_deck_api import ATTRIBUTION as RIFTDECKS_ATTRIBUTION, LocalDeckApiSource
 from .sources.meta_replay import MetaReplaySource
 from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION, MissingApiKey, TopDeckSource
 
@@ -60,43 +62,26 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(message, flush=True)
 
     if args.replay:
-        source = MetaReplaySource(INGEST_CACHE)
+        sources = [MetaReplaySource(INGEST_CACHE)]
         print(f"Replaying the cached harvest from {INGEST_CACHE} (no network)...")
-    elif args.source == "topdeck":
-        source = TopDeckSource(
-            days=args.days,
-            min_players=args.min_players,
-            cache_dir=INGEST_CACHE,
-        )
-        print(
-            f"Harvesting {args.days} days of TopDeck.gg tournaments"
-            + (f" with {args.min_players}+ players" if args.min_players else "")
-            + " (one bulk request)..."
-        )
     else:
-        source = DotGGMetaSource(
-            max_tournaments=args.tournaments,
-            max_decks=args.decks,
-            since=args.since or "",
-            budget_seconds=args.budget,
-            progress=progress,
-            cache_dir=INGEST_CACHE,
-        )
-        print(
-            f"Harvesting meta (up to {args.tournaments} tournaments, {args.decks} decks)..."
-        )
-    result = source.fetch()
-    status = "ok" if result.ok else "FAILED"
-    print(
-        f"  {source.name:<14} {status:>6}  {len(result.tournaments):>3} tournaments  "
-        f"{len(result.standings):>5} standings  {len(result.decks):>4} deck payloads  "
-        f"{result.duration_ms:>6} ms"
-    )
-    if not result.ok:
-        print(f"      {result.error}")
-    for note in result.notes:
-        print(f"      note: {note}")
+        sources = _build_sources(args, progress)
+        print(f"Harvesting from {len(sources)} source(s)...")
 
+    results = [s.fetch() for s in sources]
+    for result in results:
+        status = "ok" if result.ok else "FAILED"
+        print(
+            f"  {result.name:<16} {status:>6}  {len(result.tournaments):>4} events  "
+            f"{len(result.standings):>5} standings  {len(result.decks):>5} decks  "
+            f"{result.duration_ms:>6} ms"
+        )
+        if not result.ok:
+            print(f"      {result.error}")
+        for note in result.notes:
+            print(f"      note: {note}")
+
+    result = _merge(results)
     tournaments = tournaments_from(result.tournaments)
     standings = standings_from(result.standings)
     warnings: list[str] = []
@@ -119,7 +104,9 @@ def cmd_build(args: argparse.Namespace) -> int:
         print("\nTop archetypes:")
         for arch in archetypes[:8]:
             backing = (
-                f"best {arch.best_placement}" if arch.best_placement
+                f"best #{arch.best_placement} of {arch.best_field_size}"
+                if arch.best_placement and arch.best_field_size
+                else f"best #{arch.best_placement}" if arch.best_placement
                 else f"{arch.deck_count} deck{'s' if arch.deck_count != 1 else ''}"
             )
             print(f"  {arch.score:.3f}  {arch.name[:46]:<48} {backing}")
@@ -159,6 +146,71 @@ def cmd_build(args: argparse.Namespace) -> int:
             f"  python -m riftbound.data.meta_pipeline promote {snapshot.manifest.snapshot_id}"
         )
     return 0
+
+
+@dataclass
+class _Harvest:
+    """The union of several sources' output, in the shape normalisation expects."""
+    tournaments: list = dataclasses_field(default_factory=list)
+    standings: list = dataclasses_field(default_factory=list)
+    decks: list = dataclasses_field(default_factory=list)
+    notes: list = dataclasses_field(default_factory=list)
+    ok: bool = True
+    error: str = ""
+
+
+def _build_sources(args: argparse.Namespace, progress):
+    """The sources a build runs, in the order their data should be trusted.
+
+    Sources are independent: one failing is recorded and the rest still contribute, so a
+    local service being down costs the community decks and nothing else.
+    """
+    chosen = args.source
+    wanted = ("topdeck", "riftdecks") if chosen == "all" else (chosen,)
+    sources: list = []
+    if "topdeck" in wanted:
+        sources.append(TopDeckSource(
+            days=args.days, min_players=args.min_players, cache_dir=INGEST_CACHE,
+        ))
+    if "riftdecks" in wanted:
+        sources.append(LocalDeckApiSource(
+            min_quality=args.min_quality, since=args.since or "",
+            limit=args.decks, cache_dir=INGEST_CACHE,
+        ))
+    if "dotgg" in wanted:
+        sources.append(DotGGMetaSource(
+            max_tournaments=args.tournaments, max_decks=args.decks,
+            since=args.since or "", budget_seconds=args.budget,
+            progress=progress, cache_dir=INGEST_CACHE,
+        ))
+    return sources
+
+
+def _merge(results: Sequence) -> _Harvest:
+    """Combine several sources into one harvest.
+
+    A source that failed contributes nothing but is not fatal — the gate decides whether
+    what survived is worth promoting. Deck slugs are namespaced per source, so two
+    sources describing the same physical deck stay distinct rather than colliding.
+    """
+    merged = _Harvest()
+    healthy = 0
+    for result in results:
+        if result.ok:
+            healthy += 1
+        else:
+            merged.notes.append(f"{result.name} failed: {result.error}")
+            continue
+        merged.tournaments.extend(result.tournaments)
+        merged.standings.extend(result.standings)
+        merged.decks.extend(result.decks)
+        merged.notes.extend(f"{result.name}: {n}" for n in result.notes)
+    if results and healthy == 0:
+        merged.ok = False
+        merged.error = "; ".join(
+            f"{r.name}: {r.error}" for r in results if not r.ok
+        ) or "every source failed"
+    return merged
 
 
 #: A constraint is only called stale when this much of the recent field breaks it.
@@ -250,6 +302,8 @@ def _attribution_for(decks) -> list[dict[str, str]]:
     credits: list[dict[str, str]] = []
     if "topdeck" in sources:
         credits.append(dict(TOPDECK_ATTRIBUTION))
+    if "riftdecks" in sources:
+        credits.append(dict(RIFTDECKS_ATTRIBUTION))
     return credits
 
 
@@ -326,8 +380,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="rebuild from the cached harvest in var/ingest instead of fetching",
     )
     p.add_argument(
-        "--source", choices=("topdeck", "dotgg"), default="topdeck",
-        help="topdeck: bulk tournament decks (fast). dotgg: community decks (slow)",
+        "--source", choices=("all", "topdeck", "riftdecks", "dotgg"), default="all",
+        help=(
+            "all: topdeck tournaments + riftdecks community decks (default). "
+            "topdeck: tournament decks only. riftdecks: the local deck API. "
+            "dotgg: the slow per-deck crawl"
+        ),
+    )
+    p.add_argument(
+        "--min-quality", type=int, default=0, dest="min_quality",
+        help="riftdecks: ignore decks scored below this (0-100)",
     )
     p.add_argument("--days", type=int, default=180, help="topdeck: how far back to look")
     p.add_argument(

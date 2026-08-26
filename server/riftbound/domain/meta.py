@@ -77,6 +77,9 @@ class Provenance:
     published_at: str = ""            # ISO date
     author: str = ""
     views: int = 0
+    #: A 0-100 quality score where the source publishes one. A better popularity signal
+    #: than a view count, but still only a tiebreak — it never outranks real evidence.
+    quality: float = 0.0
     evidence: str = EVIDENCE_COMMUNITY
     tournament_slug: str = ""
     tournament_name: str = ""
@@ -96,6 +99,8 @@ class Provenance:
             return f"{place}{field} at {self.tournament_name}"
         if self.evidence == EVIDENCE_TOURNAMENT_ENTRY:
             return f"Played at {self.tournament_name}"
+        if self.quality:
+            return f"Community deck · quality {self.quality:.0f}"
         return "Community deck" + (f" · {self.views} views" if self.views else "")
 
 
@@ -157,6 +162,10 @@ class Archetype:
     deck_count: int
     tournament_deck_count: int
     best_placement: int          # 0 when never placed
+    #: Field size of the event that best placement came from. A placement without it is
+    #: meaningless — "111th" is a top-5% finish at a 2,224-player regional and a poor
+    #: one at a 120-player local.
+    best_field_size: int
     latest_date: str
     score: float
     decks: tuple[MetaDeck, ...] = field(default_factory=tuple)
@@ -185,7 +194,13 @@ def build_archetypes(
                 champion.name if champion else "",
             ) if part
         )
-        placed = [m.provenance.placement for m in members if m.provenance.placement > 0]
+        placed = [m for m in members if m.provenance.placement > 0]
+        # "Best" is the strongest *relative* finish, not the smallest number.
+        best = min(
+            placed,
+            key=lambda m: m.provenance.placement / max(1, m.provenance.field_size),
+            default=None,
+        )
         ranked = sorted(members, key=lambda m: scores.get(m.deck_id, 0.0), reverse=True)
         out.append(
             Archetype(
@@ -195,7 +210,8 @@ def build_archetypes(
                 name=name,
                 deck_count=len(members),
                 tournament_deck_count=sum(1 for m in members if m.provenance.is_tournament),
-                best_placement=min(placed) if placed else 0,
+                best_placement=best.provenance.placement if best else 0,
+                best_field_size=best.provenance.field_size if best else 0,
                 latest_date=max(
                     (m.provenance.published_at for m in members if m.provenance.published_at),
                     default="",

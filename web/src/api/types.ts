@@ -241,6 +241,8 @@ export interface Archetype {
   deckCount: number;
   tournamentDeckCount: number;
   bestPlacement: number;
+  /** Field size the best placement came from; a placement alone says little. */
+  bestFieldSize: number;
   latestDate: string;
   score: number;
   bestDeck: MetaDeck | null;
