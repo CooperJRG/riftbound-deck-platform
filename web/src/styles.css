@@ -1331,3 +1331,56 @@ h4 {
   margin: 6px 0 0;
   max-width: 70ch;
 }
+
+/* -- ban notices ----------------------------------------------------------- */
+
+/* Warned, not enforced: styled as caution rather than error, because a banned card is
+   only a problem in the format that banned it, and we do not know what the player is
+   sitting down to play. */
+.bans {
+  background: var(--bg-panel);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.bans-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.bans-head h4 {
+  margin: 0;
+  color: var(--warn);
+}
+.bans-count {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.ban-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ban {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 8px;
+  border-left: 2px solid var(--warn);
+}
+/* The card data's flag names no format, so it earns a quieter mark than our own list. */
+.ban-upstream {
+  border-left-color: var(--text-faint);
+}
+.ban-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+.ban-why {
+  font-size: 12px;
+  color: var(--text-dim);
+}

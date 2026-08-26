@@ -13,6 +13,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from ...domain.availability import deck_coverage
+from ...domain.bans import notices_for
 from ...domain.deck import Deck
 from ...domain.meta_scoring import score_deck
 from ...domain.smart_decks import (
@@ -30,6 +31,7 @@ from ..identity import Identity, current_identity
 from ..schemas import (
     AcceptRequest,
     AnswerRequest,
+    BanNoticeView,
     FloorView,
     GapView,
     LegendChoiceView,
@@ -169,6 +171,25 @@ def _proposal_view(
         if fix is not None:
             legal = validate(fix.deck, rules=rules, catalog=catalog).legal
             setattr(view, field_name, repair_view(fix, catalog, legal=legal))
+
+    # Ban warnings, for the deck we would hand over and for the published list we are
+    # asking about. Both matter and they say different things: one is "this is in your
+    # deck", the other "this is why our version differs from the original".
+    considered = list(deck_requirements(proposal.deck.deck)) if proposal.deck else []
+    notices = notices_for(
+        proposal.floor, rules=rules, catalog=catalog, considered=considered
+    )
+    view.ban_notices = [
+        BanNoticeView(
+            card_id=notice.card_id,
+            name=notice.name,
+            source=notice.source,
+            enforced=notice.enforced,
+            in_deck=notice.in_deck,
+            message=notice.describe(rules.format_name),
+        )
+        for notice in notices
+    ]
 
     if proposal.question is not None:
         view.question = QuestionView(

@@ -376,6 +376,20 @@ class QuestionView(ApiModel):
     cards: list[RequirementRowView]
 
 
+class BanNoticeView(ApiModel):
+    """A ban worth telling the player about.
+
+    Reported rather than enforced wherever we can, because we do not know which format
+    they are playing. `enforced` says whether our profile actually acted on it.
+    """
+    card_id: str
+    name: str
+    source: str        # 'profile' | 'upstream'
+    enforced: bool
+    in_deck: bool
+    message: str
+
+
 class ProposalView(ApiModel):
     """Everything the review screen needs for one round."""
     phase: str
@@ -392,6 +406,8 @@ class ProposalView(ApiModel):
     #: Plain-English state of play, e.g. "Short by 3 more main."
     feasibility: str = ""
     can_build: bool = False
+    #: Ban warnings for the deck on screen and the deck we would hand over.
+    ban_notices: list[BanNoticeView] = []
 
 
 class SmartSessionView(ApiModel):

@@ -340,6 +340,16 @@ export interface Question {
   cards: RequirementRow[];
 }
 
+/** A ban worth telling the player about. Reported, not silently applied. */
+export interface BanNotice {
+  cardId: string;
+  name: string;
+  source: "profile" | "upstream";
+  enforced: boolean;
+  inDeck: boolean;
+  message: string;
+}
+
 export interface Proposal {
   phase: "propose" | "checklist" | "done";
   reason: string;
@@ -353,6 +363,7 @@ export interface Proposal {
   floor: Floor | null;
   feasibility: string;
   canBuild: boolean;
+  banNotices: BanNotice[];
 }
 
 export interface SmartSession {

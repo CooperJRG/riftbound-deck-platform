@@ -107,7 +107,23 @@ def create_app() -> FastAPI:
         app.mount("/assets", StaticFiles(directory=str(dist / "assets")), name="assets")
 
         @app.get("/{full_path:path}", include_in_schema=False)
-        async def spa(full_path: str) -> FileResponse:
+        async def spa(full_path: str):
+            # An unknown /api path is a bug, not a page. Serving the app shell here
+            # hands the caller HTML where it asked for JSON, and the failure surfaces
+            # as `Unexpected token '<', "<!doctype "... is not valid JSON` -- which
+            # says nothing about the actual problem (usually a stale server that does
+            # not have the route yet). Fail as JSON, in the shape every other error
+            # in this API uses.
+            if full_path == "api" or full_path.startswith("api/"):
+                return JSONResponse(
+                    status_code=404,
+                    content={
+                        "detail": (
+                            f"No API route for /{full_path}. If the UI is newer than "
+                            "the running server, restart the server."
+                        )
+                    },
+                )
             return FileResponse(dist / "index.html")
 
     return app

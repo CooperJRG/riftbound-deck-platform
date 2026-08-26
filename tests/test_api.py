@@ -299,6 +299,53 @@ def test_collection_mode_reports_owned_count(client):
     assert body["ownedCardCount"] == 0
 
 
+@pytest.fixture()
+def served_client(client, tmp_path):
+    """The app with a built UI in place, which is when the SPA fallback exists at all.
+
+    Worth the extra fixture: the fallback is the thing under test, and without a dist
+    directory the route is never registered, so a test using the plain client would
+    pass while proving nothing.
+    """
+    dist = tmp_path / "web" / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<!doctype html><title>app</title>", encoding="utf-8")
+    reset_services()
+
+    from riftbound.main import create_app
+
+    with TestClient(create_app()) as served:
+        yield served
+    reset_services()
+
+
+def test_an_unknown_api_path_is_json_not_the_app_shell(served_client):
+    """The SPA fallback must not answer for /api.
+
+    Serving index.html to a fetch that asked for JSON surfaces as
+    `Unexpected token '<', "<!doctype "... is not valid JSON`, which points whoever
+    reads it at the parser rather than at the real cause -- usually a running server
+    older than the page talking to it.
+    """
+    response = served_client.get("/api/not-a-real-route")
+    assert response.status_code == 404
+    assert response.headers["content-type"].startswith("application/json")
+    assert "restart the server" in response.json()["detail"]
+
+
+def test_the_app_shell_still_answers_for_real_pages(served_client):
+    """The rule is scoped to /api; deep links into the SPA must keep working."""
+    response = served_client.get("/decks/some-deck-id")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+
+
+def test_a_real_api_route_is_untouched_by_the_fallback(served_client):
+    response = served_client.get("/api/health")
+    assert response.status_code == 200
+    assert response.json()["ok"] is True
+
+
 # -- meta ---------------------------------------------------------------------
 
 

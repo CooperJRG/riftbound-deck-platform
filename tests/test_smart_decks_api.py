@@ -263,6 +263,34 @@ def test_write_back_reports_the_lower_bounds_it_skipped(meta_client):
     assert result["skippedLowerBounds"] >= 1
 
 
+# -- bans ---------------------------------------------------------------------
+
+
+def test_a_proposal_carries_ban_warnings(meta_client):
+    """Told, not enforced -- we do not know which format they are playing."""
+    session = start_wizard(meta_client)
+    assert "banNotices" in session["proposal"]
+
+
+def test_a_banned_card_the_wizard_left_out_explains_itself(meta_client, monkeypatch):
+    """Otherwise the player compares against the original and assumes we slipped up."""
+    from riftbound.services import get_services
+
+    catalog = get_services().catalog
+    card = catalog.get("harpoon-squad")
+    object.__setattr__(card, "banned_upstream", True)
+    try:
+        session = start_wizard(meta_client)
+        notices = session["proposal"]["banNotices"]
+        entry = next((n for n in notices if n["cardId"] == "harpoon-squad"), None)
+        assert entry is not None
+        assert entry["source"] == "upstream"
+        assert entry["enforced"] is False
+        assert "check your event" in entry["message"]
+    finally:
+        object.__setattr__(card, "banned_upstream", False)
+
+
 # -- housekeeping -------------------------------------------------------------
 
 

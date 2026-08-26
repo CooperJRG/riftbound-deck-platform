@@ -14,7 +14,14 @@
  *   explain itself is indistinguishable from one that is guessing.
  */
 
-import type { LegendChoice, Proposal, Repair, RequirementRow, SmartSession } from "../api/types";
+import type {
+  BanNotice,
+  LegendChoice,
+  Proposal,
+  Repair,
+  RequirementRow,
+  SmartSession,
+} from "../api/types";
 import {
   acceptSmartDeck,
   closeSmartSession,
@@ -196,6 +203,53 @@ function floorBanner(proposal: Proposal, knownCards: number, busy: boolean): HTM
         on: { click: () => void acceptSmartDeck("floor") },
       },
       "Save this deck",
+    ),
+  );
+}
+
+// -- bans ---------------------------------------------------------------------
+
+/**
+ * Ban warnings, told rather than enforced.
+ *
+ * We do not know what the player is doing with the deck. Somebody building for a casual
+ * pod, a local format, or an older event is not wrong to want a card that constructed
+ * has banned, so removing it silently -- or keeping it silently -- makes the app the
+ * least trustworthy thing in the room. Saying so costs a line; guessing costs a game.
+ */
+function banPanel(notices: BanNotice[]): HTMLElement | null {
+  if (!notices.length) return null;
+  const enforced = notices.filter((n) => n.enforced);
+  return h(
+    "section",
+    { class: "bans" },
+    h(
+      "header",
+      { class: "bans-head" },
+      h("h4", {}, enforced.length ? "Banned cards" : "Worth checking"),
+      h(
+        "span",
+        { class: "bans-count" },
+        `${notices.length} card${notices.length === 1 ? "" : "s"}`,
+      ),
+    ),
+    h(
+      "ul",
+      { class: "ban-list" },
+      ...notices.map((notice) =>
+        h(
+          "li",
+          { class: `ban ban-${notice.source}` },
+          h("span", { class: "ban-name" }, notice.name),
+          h("span", { class: "ban-why" }, notice.message),
+        ),
+      ),
+    ),
+    h(
+      "p",
+      { class: "smart-optin" },
+      "Ban lists move, and this one is for constructed. If you are playing another " +
+        "format these may be fine - we are telling you, not deciding for you.",
     ),
   );
 }
@@ -437,6 +491,8 @@ function runView(session: SmartSession): HTMLElement {
         ),
       ),
     );
+    const doneBans = banPanel(proposal.banNotices);
+    if (doneBans) parts.push(doneBans);
     return h("div", { class: "smart-run" }, ...parts);
   }
 
@@ -509,6 +565,8 @@ function runView(session: SmartSession): HTMLElement {
       ),
     );
   }
+  const bans = banPanel(proposal.banNotices);
+  if (bans) parts.push(bans);
   parts.push(sideboardNotice());
   return h("div", { class: "smart-run" }, ...parts);
 }

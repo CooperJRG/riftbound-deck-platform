@@ -43,7 +43,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (response.status === 204) return undefined as T;
 
   const text = await response.text();
-  const payload: unknown = text ? JSON.parse(text) : null;
+
+  // A response that is not JSON is nearly always the SPA fallback catching an /api
+  // path the server does not have -- a stale server, or a typo. Parsing it blind
+  // reports `Unexpected token '<', "<!doctype "... is not valid JSON`, which sends
+  // whoever reads it looking in entirely the wrong place.
+  let payload: unknown = null;
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      throw new ApiError(
+        `${path} returned ${response.status} as ${response.headers.get("content-type") ?? "an unknown type"} ` +
+          "instead of JSON. If the page is newer than the server, restart the server.",
+        response.status,
+      );
+    }
+  }
 
   if (!response.ok) {
     const detail =
