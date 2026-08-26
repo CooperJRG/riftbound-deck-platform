@@ -8,8 +8,10 @@ placements are free text ("1st", "Top256", "111th").
 from __future__ import annotations
 
 import json
+from datetime import UTC
 
 import pytest
+from tests.test_sources import FakeResponse
 
 from riftbound.data.meta_normalize import deck_from_payload, normalize_meta_decks
 from riftbound.data.sources.http import HttpClient
@@ -19,7 +21,6 @@ from riftbound.data.sources.local_deck_api import (
     parse_placement,
     section_zones,
 )
-from tests.test_sources import FakeResponse
 
 
 def card(name, section, quantity=1):
@@ -63,7 +64,7 @@ def fake_api(catalog, details=None, total=None):
     details = details or [deck_detail(catalog)]
     by_id = {str(d["id"]): d for d in details}
 
-    def opener(request, timeout=None):  # noqa: ARG001
+    def opener(request, timeout=None):
         url = request.full_url if hasattr(request, "full_url") else str(request)
         if "/v1/decks/" in url:
             deck_id = url.rsplit("/", 1)[-1]
@@ -222,11 +223,12 @@ def test_quality_stands_in_for_a_view_count(catalog):
 
 def test_quality_cannot_outrank_real_evidence(catalog):
     """The popularity term is 5% of the score; it must not reorder the tiers."""
-    from datetime import datetime, timezone
+    from datetime import datetime
+
     from riftbound.domain.meta import Standing, Tournament
     from riftbound.domain.meta_scoring import score_deck
 
-    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 25, tzinfo=UTC)
     zones, _ = section_zones(deck_detail(catalog)["cards"])
     base = {"_named_zones": zones, "_source": "riftdecks", "public": "1"}
 
@@ -247,7 +249,7 @@ def test_quality_cannot_outrank_real_evidence(catalog):
 def test_the_source_reports_an_unreachable_service(monkeypatch):
     import urllib.error
 
-    def refused(request, timeout=None):  # noqa: ARG001
+    def refused(request, timeout=None):
         raise urllib.error.URLError("connection refused")
 
     monkeypatch.setattr("urllib.request.urlopen", refused)
@@ -283,11 +285,12 @@ def test_a_source_without_a_popularity_signal_is_not_penalised():
 
 def test_winning_a_major_still_beats_a_top_five_percent_finish(catalog):
     """1st of 257 should outrank 111th of 2224 once source bias is removed."""
-    from datetime import datetime, timezone
+    from datetime import datetime
+
     from riftbound.domain.meta import Standing, Tournament
     from riftbound.domain.meta_scoring import score_deck
 
-    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 25, tzinfo=UTC)
     zones, _ = section_zones(deck_detail(catalog)["cards"])
     base = {"_named_zones": zones, "public": "1", "published_date": "2026-08-20"}
 
@@ -308,11 +311,12 @@ def test_popularity_does_not_apply_to_decks_with_a_real_finish(catalog):
     """Only some sources publish a quality rating, so letting it count for placed decks
     compares sources rather than decks. Two identical finishes must score identically
     whether or not their source rates them."""
-    from datetime import datetime, timezone
+    from datetime import datetime
+
     from riftbound.domain.meta import Standing, Tournament
     from riftbound.domain.meta_scoring import score_deck
 
-    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 25, tzinfo=UTC)
     zones, _ = section_zones(deck_detail(catalog)["cards"])
     base = {"_named_zones": zones, "public": "1", "published_date": "2026-08-20"}
     events = [Tournament("1", "e", "Event", "2026-08-20", "Constructed", 200)]
@@ -329,10 +333,11 @@ def test_popularity_does_not_apply_to_decks_with_a_real_finish(catalog):
 
 
 def test_quality_still_separates_community_decks(catalog):
-    from datetime import datetime, timezone
+    from datetime import datetime
+
     from riftbound.domain.meta_scoring import score_deck
 
-    now = datetime(2026, 8, 25, tzinfo=timezone.utc)
+    now = datetime(2026, 8, 25, tzinfo=UTC)
     zones, _ = section_zones(deck_detail(catalog)["cards"])
     base = {"_named_zones": zones, "public": "1", "published_date": "2026-08-20",
             "_source": "riftdecks"}

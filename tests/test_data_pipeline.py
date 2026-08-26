@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from riftbound.data.bundle import read_bundle, resolve_current, write_bundle, promote
+from riftbound.data.bundle import SourceHealth, promote, read_bundle, resolve_current, write_bundle
 from riftbound.data.gate import (
     MAX_CARD_LOSS_RATIO,
     check_against_previous,
@@ -24,9 +24,8 @@ from riftbound.data.normalize import (
     set_code_for,
     unpack_tags,
 )
-from riftbound.data.sources.base import RawCard, FetchResult
+from riftbound.data.sources.base import FetchResult, RawCard
 from riftbound.data.sources.json_export import JsonExportSource
-from riftbound.data.bundle import SourceHealth
 
 
 def raw(title, slug="", **kw):
@@ -205,7 +204,7 @@ def test_gate_warns_when_a_source_starts_dropping_rows():
 
 def test_gate_catches_duplicate_print_ids():
     cards = make_cards(3)
-    duped = list(cards) + [cards[0].__class__(**{**cards[0].__dict__, "card_id": "other-id"})]
+    duped = [*list(cards), cards[0].__class__(**{**cards[0].__dict__, "card_id": "other-id"})]
     report = check_structure(duped)
     assert not report.passed
 

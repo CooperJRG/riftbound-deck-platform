@@ -20,9 +20,9 @@ is punctuation-insensitive, so both land on one card.
 
 from __future__ import annotations
 
-from collections import defaultdict
 import re
-from typing import Iterable, Sequence
+from collections import defaultdict
+from collections.abc import Iterable, Sequence
 
 from ..domain.cards import Card, Printing, coerce_domains
 from ..domain.ids import card_id_for, clean_text, oracle_name, print_id_for

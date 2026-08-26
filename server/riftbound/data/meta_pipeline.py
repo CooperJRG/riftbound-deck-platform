@@ -12,10 +12,10 @@ deliberate — a source outage must degrade the meta view, never the builder.
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass, field as dataclasses_field
-from pathlib import Path
 import sys
-from typing import Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
+from dataclasses import field as dataclasses_field
 
 from ..config import ROOT, ConfigError, load_config, load_dotenv
 from ..domain.meta import build_archetypes
@@ -36,9 +36,11 @@ from .meta_snapshot import (
     write_snapshot,
 )
 from .sources.dotgg_meta import DotGGMetaSource
-from .sources.local_deck_api import ATTRIBUTION as RIFTDECKS_ATTRIBUTION, LocalDeckApiSource
+from .sources.local_deck_api import ATTRIBUTION as RIFTDECKS_ATTRIBUTION
+from .sources.local_deck_api import LocalDeckApiSource
 from .sources.meta_replay import MetaReplaySource
-from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION, MissingApiKey, TopDeckSource
+from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION
+from .sources.topdeck import TopDeckSource
 
 INGEST_CACHE = ROOT / "var" / "ingest"
 

@@ -7,8 +7,8 @@ orphaned itself out of every saved deck. Nothing here stores a name.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field, replace
-from typing import Iterable, Mapping
 
 ZONE_MAIN = "main"
 ZONE_RUNES = "runes"
@@ -55,7 +55,7 @@ class Deck:
         runes: Mapping[str, int] | None = None,
         battlefields: Iterable[str] = (),
         sideboard: Mapping[str, int] | None = None,
-    ) -> "Deck":
+    ) -> Deck:
         return cls(
             name=str(name or "Untitled Deck").strip() or "Untitled Deck",
             format=str(format or "constructed").strip().lower(),
@@ -88,6 +88,21 @@ class Deck:
             ZONE_SIDEBOARD: self.sideboard,
         }.get(zone, {})
 
+    def zone_of(self, card_id: str) -> str:
+        """Which zone this deck holds a card in.
+
+        On the deck because the deck is what knows. This answer had been copied into
+        two presentation modules, which is two places to update when a zone is added and
+        one of them to forget.
+        """
+        if card_id and card_id == self.legend_id:
+            return "legend"
+        if card_id in self.runes:
+            return ZONE_RUNES
+        if card_id in self.battlefields:
+            return ZONE_BATTLEFIELDS
+        return ZONE_MAIN
+
     def all_card_ids(self) -> set[str]:
         """Every card the deck references, across all zones."""
         ids = set(self.main) | set(self.runes) | set(self.sideboard) | set(self.battlefields)
@@ -99,7 +114,7 @@ class Deck:
 
     # -- edits ------------------------------------------------------------------
 
-    def with_card(self, card_id: str, qty: int, *, zone: str = ZONE_MAIN) -> "Deck":
+    def with_card(self, card_id: str, qty: int, *, zone: str = ZONE_MAIN) -> Deck:
         """Set the number of copies of a card in a zone (0 removes it)."""
         card_id = str(card_id or "").strip().lower()
         if not card_id:
@@ -122,5 +137,5 @@ class Deck:
             return replace(self, sideboard=counts)
         return self
 
-    def with_meta(self, **kwargs: object) -> "Deck":
+    def with_meta(self, **kwargs: object) -> Deck:
         return replace(self, **kwargs)  # type: ignore[arg-type]

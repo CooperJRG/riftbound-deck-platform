@@ -13,8 +13,8 @@ is its guard.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import urllib.error
+from pathlib import Path
 
 import pytest
 
@@ -69,7 +69,7 @@ class FakeResponse:
 
 
 def fake_urlopen(payload: object):
-    def opener(request, timeout=None):  # noqa: ARG001
+    def opener(request, timeout=None):
         return FakeResponse(json.dumps(payload).encode("utf-8"))
 
     return opener
@@ -202,7 +202,7 @@ def test_a_successful_fetch_reports_row_counts(monkeypatch):
 
 
 def test_a_network_failure_does_not_raise(monkeypatch):
-    def boom(request, timeout=None):  # noqa: ARG001
+    def boom(request, timeout=None):
         raise urllib.error.URLError("connection refused")
 
     monkeypatch.setattr("urllib.request.urlopen", boom)
@@ -213,7 +213,7 @@ def test_a_network_failure_does_not_raise(monkeypatch):
 
 
 def test_an_http_error_does_not_raise(monkeypatch):
-    def boom(request, timeout=None):  # noqa: ARG001
+    def boom(request, timeout=None):
         raise urllib.error.HTTPError("url", 503, "Service Unavailable", {}, None)
 
     monkeypatch.setattr("urllib.request.urlopen", boom)
@@ -262,7 +262,7 @@ def test_a_rate_limit_is_retried_then_succeeds(monkeypatch):
     """429 is the normal response to a busy harvest, not a fatal error."""
     calls = {"n": 0}
 
-    def flaky(request, timeout=None):  # noqa: ARG001
+    def flaky(request, timeout=None):
         calls["n"] += 1
         if calls["n"] < 3:
             raise urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
@@ -275,7 +275,7 @@ def test_a_rate_limit_is_retried_then_succeeds(monkeypatch):
 
 
 def test_retries_give_up_and_report(monkeypatch):
-    def always_429(request, timeout=None):  # noqa: ARG001
+    def always_429(request, timeout=None):
         raise urllib.error.HTTPError("url", 429, "Too Many Requests", {}, None)
 
     monkeypatch.setattr("urllib.request.urlopen", always_429)
@@ -288,7 +288,7 @@ def test_a_client_error_is_not_retried(monkeypatch):
     """404 will not become a 200 by asking again."""
     calls = {"n": 0}
 
-    def not_found(request, timeout=None):  # noqa: ARG001
+    def not_found(request, timeout=None):
         calls["n"] += 1
         raise urllib.error.HTTPError("url", 404, "Not Found", {}, None)
 

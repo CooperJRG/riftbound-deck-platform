@@ -31,9 +31,9 @@ from riftbound.domain.meta import (
     Tournament,
 )
 from riftbound.domain.meta_trends import (
-    MIN_DECKS_FOR_CHART_POINT,
     HIGH_CONFIDENCE_DECKS,
     HIGH_CONFIDENCE_EVENTS,
+    MIN_DECKS_FOR_CHART_POINT,
     MIN_DECKS_FOR_MOMENTUM,
     MODERATE_CONFIDENCE_DECKS,
     TrendFilter,

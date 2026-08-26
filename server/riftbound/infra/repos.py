@@ -6,13 +6,12 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from ..domain.availability import (
-    AvailabilityProfile,
-    ExclusionRule,
     MODE_COLLECTION,
     MODE_EXCLUSION,
-    MODE_OPEN,
+    AvailabilityProfile,
+    ExclusionRule,
 )
-from ..domain.deck import Deck, ZONE_BATTLEFIELDS, ZONES
+from ..domain.deck import ZONE_BATTLEFIELDS, ZONES, Deck
 from .db import Database, utc_now_iso
 
 

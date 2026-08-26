@@ -12,8 +12,8 @@ games add cards; a sudden drop means the source broke, not that the game shrank.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 from ..domain.cards import Card
 from .bundle import Bundle, SourceHealth
@@ -38,7 +38,7 @@ class GateReport:
     def passed(self) -> bool:
         return not self.errors
 
-    def merge(self, other: "GateReport") -> "GateReport":
+    def merge(self, other: GateReport) -> GateReport:
         self.errors.extend(other.errors)
         self.warnings.extend(other.warnings)
         return self

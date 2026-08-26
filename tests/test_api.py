@@ -8,58 +8,6 @@ tests covering auth, decks and collections.
 
 from __future__ import annotations
 
-import json
-import shutil
-
-import pytest
-from fastapi.testclient import TestClient
-
-from riftbound.data.bundle import promote, write_bundle
-from riftbound.services import reset_services
-
-
-@pytest.fixture()
-def client(tmp_path, catalog, monkeypatch):
-    data_dir = tmp_path / "data"
-    (data_dir / "bundles").mkdir(parents=True)
-    (data_dir / "rules").mkdir(parents=True)
-
-    written = write_bundle(data_dir / "bundles", list(catalog))
-    promote(data_dir / "bundles", written.manifest.bundle_id)
-
-    (data_dir / "rules" / "constructed.json").write_text(
-        json.dumps({
-            "format": "constructed",
-            "description": "test",
-            "constraints": {
-                "legend_required": True, "legend_card_type": "Legend",
-                "chosen_champion_required": True, "champion_super_type": "Champion",
-                "main_deck_size_exact": 40, "rune_count_exact": 12,
-                "battlefield_count_exact": 3, "battlefield_unique_required": True,
-                "main_copy_limit": 3, "combined_main_sideboard_copy_limit": 3,
-                "sideboard_max": 8, "domain_identity_enforced": True,
-                "rune_card_type": "Rune", "battlefield_card_type": "Battlefield",
-                "allowed_main_card_types": ["Unit", "Gear", "Spell"],
-                "allowed_sideboard_card_types": ["Unit", "Gear", "Spell"],
-                "banned_cards": ["Banned Blade"],
-            },
-            "rule_refs": {"main_deck_size": ["TR 402.1"]},
-        }),
-        encoding="utf-8",
-    )
-
-    monkeypatch.setenv("RB_MODE", "local")
-    monkeypatch.setenv("RB_DATA_DIR", str(data_dir))
-    monkeypatch.setenv("RB_DB_PATH", str(data_dir / "test.db"))
-    monkeypatch.setattr("riftbound.config.ROOT", tmp_path)
-    reset_services()
-
-    from riftbound.main import create_app
-
-    with TestClient(create_app()) as test_client:
-        yield test_client
-    reset_services()
-
 
 def deck_payload(**overrides):
     main = {"vi-destructive": 3, "brazen-buccaneer": 3, "harpoon-squad": 3,
@@ -299,76 +247,6 @@ def test_collection_mode_reports_owned_count(client):
     assert body["ownedCardCount"] == 0
 
 
-@pytest.fixture()
-def served_client(client, tmp_path):
-    """The app with a built UI in place, which is when the SPA fallback exists at all.
-
-    Worth the extra fixture: the fallback is the thing under test, and without a dist
-    directory the route is never registered, so a test using the plain client would
-    pass while proving nothing.
-    """
-    dist = tmp_path / "web" / "dist"
-    (dist / "assets").mkdir(parents=True)
-    (dist / "index.html").write_text("<!doctype html><title>app</title>", encoding="utf-8")
-    reset_services()
-
-    from riftbound.main import create_app
-
-    with TestClient(create_app()) as served:
-        yield served
-    reset_services()
-
-
-def test_refresh_status_answers_even_with_no_meta(client):
-    """A stale snapshot looks exactly like a fresh one from outside, so this must
-    always be answerable -- including when there is nothing to be fresh about."""
-    body = client.get("/api/meta/refresh").json()
-    assert body["snapshotAgeHours"] == -1.0
-    assert body["stale"] is False, "nothing cannot be stale"
-    assert body["lastRun"] is None
-
-
-def test_refresh_status_reports_the_schedule(client):
-    body = client.get("/api/meta/refresh").json()
-    assert body["enabled"] is True, "local mode keeps its own data current"
-    assert body["intervalHours"] > 0
-    assert body["status"] in {"idle", "running", "off"}
-
-
-def test_a_refresh_can_be_triggered_without_a_terminal(client, monkeypatch):
-    """The honest answer to "run the meta pipeline" for somebody on a web page."""
-    from riftbound.data.scheduler import RunRecord
-
-    record = RunRecord(
-        started_at="2026-08-26T00:00:00+00:00", finished_at="2026-08-26T00:01:00+00:00",
-        ok=True, promoted=True, snapshot_id="snap-test", deck_count=1234,
-        duration_ms=1000, message="",
-    )
-    monkeypatch.setattr(
-        "riftbound.data.scheduler.run_refresh", lambda config, budget: record
-    )
-    response = client.post("/api/meta/refresh")
-    assert response.status_code == 200, response.text
-    body = response.json()
-    assert body["lastRun"]["snapshotId"] == "snap-test"
-    assert body["lastRun"]["deckCount"] == 1234
-    assert body["runs"] == 1
-
-
-def test_a_failed_refresh_is_reported_not_raised(client, monkeypatch):
-    """Meta is optional data; a bad harvest degrades the meta view and nothing else."""
-    def explode(config, budget):
-        raise RuntimeError("upstream unreachable")
-
-    monkeypatch.setattr("riftbound.data.scheduler.run_refresh", explode)
-    response = client.post("/api/meta/refresh")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["lastRun"]["ok"] is False
-    assert "upstream unreachable" in body["lastRun"]["message"]
-    assert body["consecutiveFailures"] == 1
-
-
 def test_an_unknown_api_path_is_json_not_the_app_shell(served_client):
     """The SPA fallback must not answer for /api.
 
@@ -397,36 +275,6 @@ def test_a_real_api_route_is_untouched_by_the_fallback(served_client):
 
 
 # -- meta ---------------------------------------------------------------------
-
-
-@pytest.fixture()
-def meta_client(client, catalog, tmp_path):
-    """The app with a small promoted meta snapshot."""
-    from riftbound.data.meta_snapshot import promote_meta, write_snapshot
-    from riftbound.data.meta_normalize import normalize_meta_decks
-    from riftbound.domain.meta import Standing, Tournament
-    from riftbound.services import get_services
-    from tests.test_meta import deck_payload as meta_payload
-
-    services = get_services()
-    meta_dir = services.config.meta_dir
-    meta_dir.mkdir(parents=True, exist_ok=True)
-
-    tournaments = [Tournament("1", "big", "Big Event", "2026-08-15", "Constructed", 257)]
-    payloads = [meta_payload(catalog, slug="winner"), meta_payload(catalog, slug="casual")]
-    decks = normalize_meta_decks(
-        payloads, catalog=catalog,
-        standings=[Standing("big", 1, "Champ", "winner")],
-        tournaments=tournaments,
-    )
-    written = write_snapshot(meta_dir, decks, tournaments, [])
-    promote_meta(meta_dir, written.manifest.snapshot_id)
-    # Drop the cached (empty) snapshot and everything derived from it, so the app picks
-    # the promoted one up. Anything cached off `meta` has to be listed here or it keeps
-    # answering from the snapshot that was absent when it was first asked.
-    for cached in ("meta", "deck_scores", "legend_index"):
-        services.__dict__.pop(cached, None)
-    return client
 
 
 def test_meta_status_reports_absence_rather_than_failing(client):

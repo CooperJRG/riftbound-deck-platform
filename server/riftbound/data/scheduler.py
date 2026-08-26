@@ -28,12 +28,13 @@ install step is one more thing to get wrong on a machine that already works.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field, replace
-from datetime import datetime, timedelta, timezone
+import contextlib
 import logging
 import threading
 import time
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 
 from ..config import Config
 
@@ -53,7 +54,7 @@ STATUS_OFF = "off"
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 @dataclass(frozen=True)
@@ -101,7 +102,7 @@ class MetaScheduler:
         config: Config,
         *,
         refresh: Callable[[float], RunRecord] | None = None,
-        sleep: Callable[[float], "asyncio.Future[None]"] | None = None,
+        sleep: Callable[[float], asyncio.Future[None]] | None = None,
     ):
         self._config = config
         self._refresh = refresh or (lambda budget: run_refresh(config, budget))
@@ -131,10 +132,11 @@ class MetaScheduler:
         if task is None:
             return
         task.cancel()
-        try:
+        # Both, deliberately: CancelledError derives from BaseException, so catching
+        # Exception alone would let the cancellation we just requested escape. Shutdown
+        # is best effort -- nothing here is worth failing a process exit over.
+        with contextlib.suppress(asyncio.CancelledError, Exception):
             await task
-        except (asyncio.CancelledError, Exception):  # noqa: BLE001 - shutdown is best effort
-            pass
 
     # -- the loop -------------------------------------------------------------
 
@@ -180,7 +182,7 @@ class MetaScheduler:
             )
         except asyncio.CancelledError:
             raise
-        except Exception as exc:  # noqa: BLE001 - a refresh must never take the app down
+        except Exception as exc:
             record = RunRecord(
                 started_at=_now().isoformat(), finished_at=_now().isoformat(),
                 ok=False, promoted=False, snapshot_id="", deck_count=0,
@@ -262,5 +264,5 @@ def snapshot_age_hours(created_at: str) -> float | None:
     except ValueError:
         return None
     if stamp.tzinfo is None:
-        stamp = stamp.replace(tzinfo=timezone.utc)
+        stamp = stamp.replace(tzinfo=UTC)
     return max(0.0, (_now() - stamp).total_seconds() / 3600.0)

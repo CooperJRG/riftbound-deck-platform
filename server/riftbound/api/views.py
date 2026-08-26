@@ -17,6 +17,7 @@ from .schemas import (
     ExclusionRuleView,
     IssueView,
     MetaDeckView,
+    PrintingView,
     ProvenanceView,
     RepairDeckCardView,
     RepairView,
@@ -24,7 +25,6 @@ from .schemas import (
     ScoreView,
     SwapView,
     TournamentView,
-    PrintingView,
     ValidationView,
 )
 
@@ -205,16 +205,6 @@ def meta_deck_view(
 
 
 # -- smart decks --------------------------------------------------------------
-
-
-def _zone_label(card_id: str, deck: Deck) -> str:
-    if card_id == deck.legend_id:
-        return "legend"
-    if card_id in deck.runes:
-        return "runes"
-    if card_id in deck.battlefields:
-        return "battlefields"
-    return "main"
 
 
 def requirement_row(

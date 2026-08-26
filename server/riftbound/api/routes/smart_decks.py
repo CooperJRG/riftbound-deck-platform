@@ -84,16 +84,6 @@ def _load(services: Services, session_id: str, user_id: str) -> WizardSessionRec
     return record
 
 
-def _zone_for(card_id: str, deck: Deck) -> str:
-    if card_id == deck.legend_id:
-        return "legend"
-    if card_id in deck.runes:
-        return "runes"
-    if card_id in deck.battlefields:
-        return "battlefields"
-    return "main"
-
-
 def _checklist_ceiling(card_id: str, catalog) -> int:
     """How many copies a checklist row should offer.
 
@@ -151,7 +141,7 @@ def _proposal_view(
             catalog,
         )
         view.requirements = [
-            requirement_row(card_id, needed, _zone_for(card_id, meta.deck), knowledge, catalog)
+            requirement_row(card_id, needed, meta.deck.zone_of(card_id), knowledge, catalog)
             for card_id, needed in required.items()
         ]
         view.gaps = [

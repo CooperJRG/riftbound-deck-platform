@@ -21,8 +21,8 @@ the one with rulebook citations behind it), and everything either source flags i
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, Mapping
 
 from .cards import Catalog
 from .deck import Deck
@@ -128,7 +128,3 @@ def drift(catalog: Catalog, rules: BoundRules) -> tuple[str, ...]:
             if card.banned_upstream and not rules.is_banned(card.card_id)
         )
     )
-
-
-def deck_card_ids(counts: Mapping[str, int]) -> tuple[str, ...]:
-    return tuple(counts)

@@ -18,10 +18,10 @@ from __future__ import annotations
 
 import pytest
 
+from riftbound.domain.deck import Deck
 from riftbound.domain.deck_builder import Preference, build
 from riftbound.domain.legend_index import Cluster, LegendProfile, build_profile
 from riftbound.domain.meta import MetaDeck, Provenance
-from riftbound.domain.deck import Deck
 
 LEGEND = "vi-piltover-enforcer"
 CHAMPION = "vi-destructive"

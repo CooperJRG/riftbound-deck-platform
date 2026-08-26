@@ -14,15 +14,15 @@ Standard library only, so the base install stays small.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
 import random
 import threading
 import time
-from typing import Any
 import urllib.error
 import urllib.parse
 import urllib.request
+from dataclasses import dataclass
+from typing import Any
 
 USER_AGENT = "riftbound-deck-builder/0.1 (+local deck building tool)"
 
@@ -132,10 +132,10 @@ class HttpClient:
                 if attempt == self._max_attempts:
                     raise HttpError(f"could not reach {url}: {exc.reason}") from exc
                 self._limiter.penalise(host, self._backoff(attempt))
-            except TimeoutError:
+            except TimeoutError as exc:
                 last_error = "timed out"
                 if attempt == self._max_attempts:
-                    raise HttpError(f"timed out fetching {url}")
+                    raise HttpError(f"timed out fetching {url}") from exc
                 self._limiter.penalise(host, self._backoff(attempt))
         raise HttpError(f"{url} failed after {self._max_attempts} attempts ({last_error})")
 

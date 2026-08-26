@@ -22,9 +22,8 @@ for more than one played in an also-ran.
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
-import math
-from typing import Iterable, Mapping, Sequence
 
 from .cards import Catalog
 from .deck_builder import Preference
@@ -91,7 +90,7 @@ class LegendProfile:
     _card_weight: Mapping[str, float] = field(default_factory=dict)
     _total_weight: float = 0.0
 
-    def preference(self, cluster: "Cluster | None" = None) -> Preference:
+    def preference(self, cluster: Cluster | None = None) -> Preference:
         """The signal :func:`deck_builder.build` fills from.
 
         Given a cluster, the family's own cards are promoted above the legend's general
@@ -122,7 +121,7 @@ class LegendProfile:
             return 0.0
         return self._pair_counts.get(card_id, {}).get(partner_id, 0.0) / weight
 
-    def coverage(self, cluster: "Cluster", owned: Mapping[str, int]) -> float:
+    def coverage(self, cluster: Cluster, owned: Mapping[str, int]) -> float:
         """How much of a family's defining core this collection can actually field.
 
         Partial credit per card, because two of a three-of is most of the way there and
@@ -138,7 +137,7 @@ class LegendProfile:
 
     def best_cluster(
         self, owned: Mapping[str, int], *, minimum: float = 0.0
-    ) -> "Cluster | None":
+    ) -> Cluster | None:
         """The strongest family this collection can actually support.
 
         The heart of the user-facing point: owning none of the enabler a plan is built

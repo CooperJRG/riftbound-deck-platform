@@ -13,7 +13,9 @@ score is penalised for it (see ``meta_scoring``).
 from __future__ import annotations
 
 from collections import Counter
-from typing import Any, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC
+from typing import Any
 
 from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
@@ -307,10 +309,10 @@ def normalize_meta_decks(
 
 
 def _iso_date(value: object) -> str:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     try:
-        return datetime.fromtimestamp(int(str(value)), tz=timezone.utc).date().isoformat()
+        return datetime.fromtimestamp(int(str(value)), tz=UTC).date().isoformat()
     except (TypeError, ValueError):
         return ""
 

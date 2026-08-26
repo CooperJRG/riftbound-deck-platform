@@ -5,15 +5,10 @@ is the boundary, where the interesting failures are different: knowledge survivi
 round trip, an answer meaning the same thing after being written to SQLite and read
 back, and the two write actions at the end staying opt-in.
 
-The fixtures come from `test_api`, which is where the app-with-a-bundle and the
-app-with-a-meta-snapshot are already assembled.
+The app fixtures (`client`, `meta_client`) come from `conftest`.
 """
 
 from __future__ import annotations
-
-import pytest
-
-from tests.test_api import client, meta_client  # noqa: F401  (fixtures)
 
 LEGEND_ID = "vi-piltover-enforcer"
 

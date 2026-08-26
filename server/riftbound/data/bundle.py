@@ -19,13 +19,13 @@ is repointing a symlink.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import json
-import os
+from collections.abc import Iterable
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from ..domain.cards import Card, Catalog, Printing, build_catalog
 
@@ -34,7 +34,7 @@ CURRENT_LINK_NAME = "current"
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def content_hash(payload: object) -> str:
@@ -92,7 +92,7 @@ class BundleManifest:
         }
 
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> "BundleManifest":
+    def from_dict(cls, raw: dict[str, Any]) -> BundleManifest:
         return cls(
             bundle_id=str(raw.get("bundleId") or ""),
             format_version=int(raw.get("formatVersion") or 0),

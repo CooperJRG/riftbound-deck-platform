@@ -15,8 +15,8 @@ source going down is visible rather than silently shrinking the card pool.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from .base import CardSource, FetchResult, RawCard

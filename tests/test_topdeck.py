@@ -10,9 +10,10 @@ from __future__ import annotations
 import json
 
 import pytest
+from tests.test_sources import FakeResponse
 
 from riftbound.data.meta_normalize import deck_from_payload, normalize_meta_decks
-from riftbound.data.sources.http import HttpClient, HttpError
+from riftbound.data.sources.http import HttpClient
 from riftbound.data.sources.topdeck import (
     ATTRIBUTION,
     MissingApiKey,
@@ -20,7 +21,6 @@ from riftbound.data.sources.topdeck import (
     api_key_from_env,
     parse_deck_object,
 )
-from tests.test_sources import FakeResponse
 
 
 def deck_obj(**overrides):
@@ -60,7 +60,7 @@ def event(**overrides):
 
 
 def fake_post(payload):
-    def opener(request, timeout=None):  # noqa: ARG001
+    def opener(request, timeout=None):
         return FakeResponse(json.dumps(payload).encode("utf-8"))
 
     return opener
@@ -229,7 +229,7 @@ def test_the_api_key_never_appears_in_an_error(monkeypatch):
     """An error string can reach a log line and a snapshot manifest."""
     import urllib.error
 
-    def boom(request, timeout=None):  # noqa: ARG001
+    def boom(request, timeout=None):
         raise urllib.error.HTTPError("https://topdeck.gg/api/v2/tournaments?k=sekrit",
                                      401, "Unauthorized", {}, None)
 
@@ -249,7 +249,7 @@ def test_a_non_array_response_is_a_failure(monkeypatch):
 def test_the_key_is_sent_as_the_authorization_header(monkeypatch):
     seen: dict[str, str] = {}
 
-    def capture(request, timeout=None):  # noqa: ARG001
+    def capture(request, timeout=None):
         seen.update(request.headers)
         return FakeResponse(b"[]")
 

@@ -26,8 +26,8 @@ restriction for the "what can I build *right now*, tonight" question.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping
 
 from .cards import Card, Catalog
 
@@ -121,7 +121,7 @@ class AvailabilityProfile:
     # -- construction -----------------------------------------------------------
 
     @classmethod
-    def open_profile(cls) -> "AvailabilityProfile":
+    def open_profile(cls) -> AvailabilityProfile:
         """No constraints -- every card fully available."""
         return cls(mode=MODE_OPEN)
 
@@ -132,7 +132,7 @@ class AvailabilityProfile:
         *,
         strict: bool = False,
         penalty: float = DEFAULT_PENALTY,
-    ) -> "AvailabilityProfile":
+    ) -> AvailabilityProfile:
         clean = {
             str(k).strip().lower(): max(0, int(v))
             for k, v in owned.items()
@@ -153,7 +153,7 @@ class AvailabilityProfile:
         *,
         strict: bool = False,
         penalty: float = DEFAULT_PENALTY,
-    ) -> "AvailabilityProfile":
+    ) -> AvailabilityProfile:
         return cls(
             mode=MODE_EXCLUSION,
             excluded_cards=frozenset(

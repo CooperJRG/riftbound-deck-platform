@@ -9,9 +9,9 @@ here by construction.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
-import os
 
 # server/riftbound/config.py -> server/riftbound -> server -> ROOT
 ROOT = Path(__file__).resolve().parents[2]

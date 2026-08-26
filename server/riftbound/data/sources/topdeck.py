@@ -30,12 +30,14 @@ logged, or included in a cached response.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
 import os
-from pathlib import Path
 import time
-from typing import Any, Iterable, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from datetime import UTC
+from pathlib import Path
+from typing import Any
 
 from .http import HttpClient, HttpError
 
@@ -109,10 +111,10 @@ def _int(value: object, default: int = 0) -> int:
 
 
 def _iso_from_epoch(value: object) -> str:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     try:
-        return datetime.fromtimestamp(int(str(value)), tz=timezone.utc).date().isoformat()
+        return datetime.fromtimestamp(int(str(value)), tz=UTC).date().isoformat()
     except (TypeError, ValueError):
         return ""
 

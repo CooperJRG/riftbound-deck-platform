@@ -7,8 +7,6 @@ re-implementation of the rules living in the test.
 
 from __future__ import annotations
 
-import pytest
-
 from riftbound.domain.deck_builder import (
     REQ_BATTLEFIELDS,
     REQ_CHAMPION,
@@ -147,8 +145,9 @@ def test_a_unique_card_counts_once(catalog, bound_rules):
 
 def test_a_pool_of_signatures_cannot_fill_a_deck(catalog, bound_rules):
     """The signature cap binds as a group, so raw copy count overstates capacity."""
-    from riftbound.domain.cards import build_catalog
     from tests.conftest import make_card
+
+    from riftbound.domain.cards import build_catalog
 
     signatures = [
         make_card(f"sig-{i:02d}", f"Sig {i:02d}", super_type="Signature", domains=("Fury",))

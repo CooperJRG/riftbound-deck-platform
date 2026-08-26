@@ -7,7 +7,7 @@ deck, standings that carry no decklist.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -41,7 +41,7 @@ from riftbound.domain.meta_scoring import (
     totals,
 )
 
-NOW = datetime(2026, 8, 25, tzinfo=timezone.utc)
+NOW = datetime(2026, 8, 25, tzinfo=UTC)
 
 
 # -- fixtures ----------------------------------------------------------------
@@ -321,7 +321,7 @@ def test_gate_warns_when_nothing_has_a_known_finish(coded_catalog):
 
 def test_gate_rejects_duplicate_deck_ids(coded_catalog):
     decks = make_decks(coded_catalog, 20)
-    report = run_meta_gate(list(decks) + [decks[0]], [], source_ok=True)
+    report = run_meta_gate([*list(decks), decks[0]], [], source_ok=True)
     assert not report.passed
 
 
@@ -417,6 +417,7 @@ def test_rules_drift_spots_a_stale_constraint(coded_catalog, tmp_path, monkeypat
     recent field breaks is reported as probably stale.
     """
     import json as _json
+
     from riftbound.data.meta_pipeline import _rules_drift
 
     rules_dir = tmp_path / "rules"
@@ -432,7 +433,8 @@ def test_rules_drift_spots_a_stale_constraint(coded_catalog, tmp_path, monkeypat
 
     bundles = tmp_path / "bundles"
     bundles.mkdir()
-    from riftbound.data.bundle import promote as promote_bundle, write_bundle
+    from riftbound.data.bundle import promote as promote_bundle
+    from riftbound.data.bundle import write_bundle
     written = write_bundle(bundles, list(coded_catalog))
     promote_bundle(bundles, written.manifest.bundle_id)
 
@@ -465,8 +467,10 @@ def test_rules_drift_spots_a_stale_constraint(coded_catalog, tmp_path, monkeypat
 
 def test_rules_drift_is_quiet_when_the_profile_matches(coded_catalog, tmp_path):
     import json as _json
+
+    from riftbound.data.bundle import promote as promote_bundle
+    from riftbound.data.bundle import write_bundle
     from riftbound.data.meta_pipeline import _rules_drift
-    from riftbound.data.bundle import promote as promote_bundle, write_bundle
 
     rules_dir = tmp_path / "rules"
     rules_dir.mkdir()

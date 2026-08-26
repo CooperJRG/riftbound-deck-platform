@@ -12,12 +12,12 @@ import random
 import pytest
 
 from riftbound.domain.deck import Deck
-from riftbound.domain.legend_index import build_index, build_profile
-from riftbound.domain.meta import MetaDeck, Provenance
 from riftbound.domain.deck_builder import (
     legal_main_pool,
     legal_zone_pool,
 )
+from riftbound.domain.legend_index import build_index, build_profile
+from riftbound.domain.meta import MetaDeck, Provenance
 from riftbound.domain.smart_decks import (
     PHASE_CHECKLIST,
     PHASE_DONE,

@@ -25,17 +25,17 @@ measured it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import random
 import statistics
-from typing import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 
 from .cards import Catalog
 from .deck_builder import assess, build
 from .legend_index import LegendIndex
 from .meta import MetaDeck
 from .rules import BoundRules
-from .smart_decks import Engine, Knowledge, run_to_completion
+from .smart_decks import Engine, run_to_completion
 
 #: How likely a player owns a card of each rarity, for generated collections.
 OWNERSHIP_BY_RARITY = {

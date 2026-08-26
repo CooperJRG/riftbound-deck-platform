@@ -8,17 +8,17 @@ inside a transaction, and each application is recorded.
 
 from __future__ import annotations
 
-from contextlib import contextmanager
-from datetime import datetime, timezone
-from pathlib import Path
 import sqlite3
-from typing import Iterator
+from collections.abc import Iterator
+from contextlib import contextmanager
+from datetime import UTC, datetime
+from pathlib import Path
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
 
 
 def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def split_statements(sql: str) -> list[str]:

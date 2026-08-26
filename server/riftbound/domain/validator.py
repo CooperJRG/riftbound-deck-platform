@@ -12,8 +12,8 @@ sees "this card is no longer in the card data" and keeps their list.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, field
-from typing import Mapping
+from collections.abc import Mapping
+from dataclasses import dataclass
 
 from .cards import Card, Catalog
 from .deck import Deck

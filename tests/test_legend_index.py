@@ -225,7 +225,7 @@ def test_the_index_profiles_every_legend_present():
         deck=Deck.make(legend_id="other-legend", main={"filler-01": 3}),
         provenance=Provenance(source="t", source_slug="b", url=""),
     )
-    index = build_index(decks + [other], {"a": 1.0, "b": 0.5})
+    index = build_index([*decks, other], {"a": 1.0, "b": 0.5})
     assert set(index.profiles) == {LEGEND, "other-legend"}
     assert index.legends()[0] == LEGEND, "ordered by deck count"
 

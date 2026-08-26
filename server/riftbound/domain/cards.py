@@ -10,8 +10,8 @@ it as a *reported* problem rather than an exception or a silent drop.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Iterable, Iterator, Mapping
 
 from .ids import card_id_for, search_key
 

@@ -11,14 +11,14 @@ they abandon. Every case here came from walking the flow and finding it confusin
 The visual half lives in `web/src/features/smartDecks.ts`; what is pinned here is the
 text the server supplies and the knowledge that drives it, because that is what decides
 whether a row is a question, a settled fact, or confirmation.
+
+The app fixtures come from `conftest`.
 """
 
 from __future__ import annotations
 
 import pytest
-
-from tests.test_api import client, meta_client  # noqa: F401  (fixtures)
-from tests.test_smart_decks_api import LEGEND_ID, first_deck_id, start_wizard
+from tests.test_smart_decks_api import first_deck_id, start_wizard
 
 
 def answer(client, session_id, **payload):

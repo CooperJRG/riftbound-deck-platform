@@ -22,14 +22,15 @@ Two upstream behaviours worth knowing, both verified:
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import json
-from pathlib import Path
 import re
 import time
-from typing import Any, Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from .http import HttpClient, HttpError
 
@@ -41,9 +42,11 @@ DEFAULT_TIMEOUT = 45.0
 
 #: Sitemap shards holding deck URLs. "latest" first — an incremental refresh usually
 #: needs nothing else.
-DECK_SITEMAPS = ("decks-latest-sitemap.xml",) + tuple(
-    f"decks{i}-sitemap.xml" for i in range(1, 12)
-) + ("decks-sitemap.xml",)
+DECK_SITEMAPS = (
+    "decks-latest-sitemap.xml",
+    *(f"decks{i}-sitemap.xml" for i in range(1, 12)),
+    "decks-sitemap.xml",
+)
 
 #: Prefix upstream gives a deck the moment someone clicks "new deck"; most are never
 #: filled in. Not excluded, only deprioritised.
@@ -70,7 +73,7 @@ class MetaFetchResult:
 
 def _iso_from_epoch(value: object) -> str:
     try:
-        return datetime.fromtimestamp(int(str(value)), tz=timezone.utc).date().isoformat()
+        return datetime.fromtimestamp(int(str(value)), tz=UTC).date().isoformat()
     except (TypeError, ValueError):
         return ""
 
@@ -97,7 +100,7 @@ class DotGGMetaSource:
         timeout: float = DEFAULT_TIMEOUT,
         min_interval: float = 0.35,
         budget_seconds: float = 240.0,
-        progress: "Callable[[str], None] | None" = None,
+        progress: Callable[[str], None] | None = None,
         cache_dir: Path | None = None,
         client: HttpClient | None = None,
     ):

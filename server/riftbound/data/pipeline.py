@@ -16,9 +16,9 @@ only ``--promote`` (and only when the gate passes) points the app at it.
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import sys
-from typing import Sequence
+from collections.abc import Sequence
+from pathlib import Path
 
 from ..config import ROOT, load_config, load_dotenv
 from .bundle import (

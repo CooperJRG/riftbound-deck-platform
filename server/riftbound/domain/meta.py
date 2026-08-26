@@ -18,9 +18,9 @@ player can see *why* a deck is being recommended.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Iterable, Mapping
+from datetime import UTC, datetime
 
 from .cards import Catalog
 from .deck import Deck
@@ -228,4 +228,4 @@ def build_archetypes(
 
 
 def utc_today() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)

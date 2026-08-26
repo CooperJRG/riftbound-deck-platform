@@ -153,10 +153,11 @@ def test_an_empty_deck_validates_without_raising(bound_rules, catalog):
 def test_cards_with_unparseable_domains_do_not_block(legal_deck, bound_rules, catalog):
     """9 real cards have no colour field. They must not be judged out of identity."""
     from tests.conftest import make_card
+
     from riftbound.domain.cards import build_catalog
 
     odd = make_card("mystery-card", "Mystery Card", domains=(), domains_ok=False)
-    wider = build_catalog(list(catalog) + [odd])
+    wider = build_catalog([*list(catalog), odd])
     deck = legal_deck.with_card("filler-01", 0).with_card("mystery-card", 3)
     result = validate(deck, rules=bound_rules, catalog=wider)
     assert "MAIN_DOMAIN" not in codes(result)
@@ -234,6 +235,7 @@ def test_a_profile_without_advisories_emits_none(legal_deck, bound_rules, catalo
 def test_the_shipped_profile_allows_ten_and_advises_eight(catalog):
     """What the field plays, with the caution the rulebook may still want."""
     from pathlib import Path
+
     from riftbound.domain.rules import load_format_rules
 
     profile = load_format_rules(Path("data/rules/constructed.json"))

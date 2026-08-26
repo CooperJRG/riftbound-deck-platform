@@ -21,8 +21,8 @@ is the difference between four rounds and fifteen.
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
-from typing import Iterable, Mapping, Sequence
 
 from .cards import Catalog
 from .deck import Deck
@@ -127,7 +127,7 @@ class Knowledge:
 
     def with_answer(
         self, required: Mapping[str, int], have: Mapping[str, int]
-    ) -> "Knowledge":
+    ) -> Knowledge:
         """Fold one round's answers in.
 
         A deck answer only ever reveals ownership *up to what that deck asked for*. The
@@ -151,7 +151,7 @@ class Knowledge:
         return Knowledge(exact=exact, at_least=at_least)
 
     @classmethod
-    def from_collection(cls, owned: Mapping[str, int]) -> "Knowledge":
+    def from_collection(cls, owned: Mapping[str, int]) -> Knowledge:
         """Seed from a recorded collection, which is exact by definition."""
         return cls(exact={k: int(v) for k, v in owned.items() if int(v) > 0})
 
@@ -513,7 +513,7 @@ class Engine:
         if deck is None:
             return session
         knowledge = session.knowledge.with_answer(deck_requirements(deck.deck), have)
-        asked = session.asked if deck_id in session.asked else session.asked + (deck_id,)
+        asked = session.asked if deck_id in session.asked else (*session.asked, deck_id)
         return replace(session, knowledge=knowledge, asked=asked)
 
     def answer_question(

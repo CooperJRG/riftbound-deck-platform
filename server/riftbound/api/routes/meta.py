@@ -18,6 +18,7 @@ from collections import Counter
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from ...data.scheduler import snapshot_age_hours
 from ...domain.availability import deck_coverage
 from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
@@ -26,24 +27,27 @@ from ...domain.meta_trends import (
     champion_meta,
     default_range,
     legend_meta,
-    overview as trend_overview,
     parse_date,
+)
+from ...domain.meta_trends import (
+    overview as trend_overview,
+)
+from ...domain.meta_trends import (
     tournament_detail as build_tournament_detail,
 )
-from ...data.scheduler import snapshot_age_hours
 from ...services import Services, get_services, reset_services
 from ..identity import Identity, current_identity
 from ..schemas import (
-    RefreshRunView,
-    RefreshStatusView,
     ArchetypeView,
     AttributionView,
-    MetaDeckView,
-    MetaStatusView,
-    TournamentView,
     ChampionMetaView,
     LegendMetaView,
+    MetaDeckView,
+    MetaStatusView,
+    RefreshRunView,
+    RefreshStatusView,
     TournamentDetailView,
+    TournamentView,
     TrendOverviewView,
 )
 from ..views import meta_deck_view, tournament_view

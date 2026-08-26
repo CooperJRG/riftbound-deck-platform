@@ -23,13 +23,14 @@ for whoever runs that service.
 
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
 import json
 import os
-from pathlib import Path
 import time
-from typing import Any, Sequence
+from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
 from .http import HttpClient, HttpError
 

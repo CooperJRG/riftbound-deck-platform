@@ -20,6 +20,7 @@ dependencies = [
 dev = [
     "pytest>=8.3",
     "httpx2>=0.29",         # starlette TestClient transport
+    "ruff>=0.16",           # lint + import hygiene; config below
 ]
 
 [project.scripts]
@@ -40,3 +41,31 @@ testpaths = ["tests"]
 pythonpath = [".", "server"]
 addopts = "-q --strict-markers"
 filterwarnings = ["error::DeprecationWarning", "error::UserWarning"]
+
+[tool.ruff]
+line-length = 100
+src = ["server", "tests"]
+
+[tool.ruff.lint]
+select = ["F", "E", "E402", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+    # FastAPI's whole idiom is `x: T = Depends(...)` / `Query(...)` in a signature.
+    # Flagging it would mean 60 suppressions describing the framework, not a defect.
+    "B008",
+    # Prose in user-facing strings uses real em dashes and typographic quotes. They are
+    # not confusable characters here; they are the correct ones.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    # Long lines are wrapped by hand where it helps readability. A hard cap would
+    # reformat comments that are deliberately laid out.
+    "E501",
+    # Both places this fires would become a nested ternary, which is shorter and harder
+    # to read than the if-block it replaces. Brevity is not the goal.
+    "SIM108",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Fixtures are requested by name, so a test signature shadows the import that supplies
+# it. That is how pytest works, not a redefinition to fix.
+"tests/*" = ["F811"]

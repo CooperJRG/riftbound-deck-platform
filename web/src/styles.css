@@ -94,14 +94,6 @@ h4 {
   flex-wrap: wrap;
 }
 
-.app-title {
-  font-size: 17px;
-  letter-spacing: 0.02em;
-  color: var(--accent);
-  white-space: nowrap;
-  padding-top: 4px;
-}
-
 .availability {
   flex: 1;
   min-width: 280px;
@@ -758,16 +750,6 @@ h4 {
 .notice-bar[hidden] {
   display: none;
 }
-
-/* -- meta view ------------------------------------------------------------- */
-
-.panel-meta {
-  margin: var(--gap);
-  display: block;
-}
-.panel-meta[hidden] {
-  display: none;
-}
 #build[hidden] {
   display: none;
 }
@@ -1143,12 +1125,6 @@ h4 {
   margin: 0 0 4px;
 }
 
-.req-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .req-list {
   list-style: none;
   margin: 0;
@@ -1174,13 +1150,6 @@ h4 {
 }
 .req.is-known {
   opacity: 0.75;
-}
-
-.req-art {
-  width: 34px;
-  flex: 0 0 auto;
-  border-radius: 3px;
-  overflow: hidden;
 }
 
 .req-body {

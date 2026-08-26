@@ -12,14 +12,15 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import replace
+from datetime import UTC
 
 import pytest
 
 from riftbound.config import load_config
 from riftbound.data.scheduler import (
+    HISTORY_LIMIT,
     MIN_INTERVAL_HOURS,
     STATUS_OFF,
-    HISTORY_LIMIT,
     MetaScheduler,
     RunRecord,
     snapshot_age_hours,
@@ -197,18 +198,18 @@ def test_snapshot_age_handles_a_missing_or_broken_timestamp():
 
 
 def test_snapshot_age_is_measured_in_hours():
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    stamp = (datetime.now(timezone.utc) - timedelta(hours=5)).isoformat()
+    stamp = (datetime.now(UTC) - timedelta(hours=5)).isoformat()
     age = snapshot_age_hours(stamp)
     assert age is not None and 4.9 < age < 5.1
 
 
 def test_a_naive_timestamp_is_read_as_utc():
     """Snapshots are written in UTC; a stamp without a zone is not a reason to guess."""
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
-    naive = (datetime.now(timezone.utc) - timedelta(hours=2)).replace(tzinfo=None)
+    naive = (datetime.now(UTC) - timedelta(hours=2)).replace(tzinfo=None)
     age = snapshot_age_hours(naive.isoformat())
     assert age is not None and 1.9 < age < 2.1
 

@@ -14,17 +14,16 @@ it can be shared freely and reloaded only when the operator promotes a new one.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from functools import cached_property
-import logging
+from typing import TYPE_CHECKING
 
 from .config import Config, ConfigError, load_config
 from .data.bundle import Bundle, load_current
 from .data.meta_snapshot import MetaSnapshot, load_current_meta
 from .domain.cards import Catalog
 from .domain.legend_index import LegendIndex
-from typing import TYPE_CHECKING
-
 from .domain.rules import BoundRules, FormatRules, load_format_rules_dir, normalize_format_name
 from .infra.db import Database
 
@@ -159,7 +158,7 @@ class Services:
             return LegendIndex(profiles={})
         return build_index(self.meta.decks, self.deck_scores)
 
-    def engine_for(self, legend_id: str) -> "Engine | None":
+    def engine_for(self, legend_id: str) -> Engine | None:
         """A wizard engine bound to one legend, or None if the meta knows nothing of it."""
         from .domain.smart_decks import Engine
 

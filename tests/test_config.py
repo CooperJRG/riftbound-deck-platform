@@ -11,11 +11,13 @@ These encode two rules that v2 broke, so they must not silently regress:
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-from riftbound.api.identity import HostedIdentityProvider, LocalIdentityProvider, build_identity_provider
+from riftbound.api.identity import (
+    HostedIdentityProvider,
+    LocalIdentityProvider,
+    build_identity_provider,
+)
 from riftbound.config import Config, ConfigError, load_config
 
 

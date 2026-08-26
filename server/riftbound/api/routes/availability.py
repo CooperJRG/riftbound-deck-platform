@@ -11,11 +11,11 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 
 from ...domain.availability import (
-    AvailabilityProfile,
-    ExclusionRule,
     MODE_COLLECTION,
     MODE_EXCLUSION,
     RULE_KINDS,
+    AvailabilityProfile,
+    ExclusionRule,
 )
 from ...services import Services, get_services
 from ..identity import Identity, current_identity

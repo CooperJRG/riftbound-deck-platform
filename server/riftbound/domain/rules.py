@@ -13,13 +13,13 @@ hardcoded ban list in the solver, which is exactly the drift this prevents.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .cards import Catalog
-from .ids import card_id_for
 
 
 def normalize_format_name(value: object) -> str:
@@ -76,7 +76,7 @@ class FormatRules:
             return ()
         return tuple(str(v).strip() for v in value if str(v).strip())
 
-    def bind(self, catalog: Catalog) -> "BoundRules":
+    def bind(self, catalog: Catalog) -> BoundRules:
         """Resolve name-based constraints against a catalogue."""
         banned: set[str] = set()
         unresolved: list[str] = []

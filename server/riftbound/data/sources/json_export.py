@@ -12,8 +12,8 @@ raise.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import time
+from pathlib import Path
 
 from .base import CardSource, FetchResult, RawCard
 

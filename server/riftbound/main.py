@@ -7,10 +7,10 @@ booting happily and rendering empty screens.
 
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 import json
 import logging
 import time
+from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -18,10 +18,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .config import ConfigError
-from .data.scheduler import MetaScheduler
 from .api.identity import build_identity_provider
 from .api.routes import availability, cards, decks, meta, smart_decks, system
+from .config import ConfigError
+from .data.scheduler import MetaScheduler
 from .services import get_services
 
 logging.basicConfig(

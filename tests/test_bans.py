@@ -8,8 +8,6 @@ no standing to decide. It tells; the player chooses.
 
 from __future__ import annotations
 
-import pytest
-
 from riftbound.domain.bans import (
     SOURCE_PROFILE,
     SOURCE_UPSTREAM,

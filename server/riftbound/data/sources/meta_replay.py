@@ -17,8 +17,8 @@ silently falls back to it — that is how stale data becomes invisible.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any
 
 from .dotgg_meta import MetaFetchResult

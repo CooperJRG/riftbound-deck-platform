@@ -10,11 +10,12 @@ the payload and the validation rules differ.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
 import json
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from ..domain.cards import Catalog
 from ..domain.deck import Deck
@@ -74,7 +75,7 @@ class MetaManifest:
         }
 
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> "MetaManifest":
+    def from_dict(cls, raw: dict[str, Any]) -> MetaManifest:
         return cls(
             snapshot_id=str(raw.get("snapshotId") or ""),
             format_version=int(raw.get("formatVersion") or 0),
@@ -215,7 +216,7 @@ def write_snapshot(
         "standings": [_standing_to_dict(s) for s in standings],
     }
     digest = content_hash(payload)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     snapshot_id = f"{now.strftime('%Y-%m-%dT%H%MZ')}-{digest[:6]}"
 
     counts: dict[str, int] = {}

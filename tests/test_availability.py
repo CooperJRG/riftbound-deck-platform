@@ -11,14 +11,13 @@ import pytest
 
 from riftbound.domain.availability import (
     DEFAULT_PENALTY,
-    ExclusionRule,
-    AvailabilityProfile,
     RULE_PROMO_ONLY,
     RULE_RARITY,
     RULE_SET,
+    AvailabilityProfile,
+    ExclusionRule,
     deck_coverage,
 )
-
 
 # -- open mode ----------------------------------------------------------------
 

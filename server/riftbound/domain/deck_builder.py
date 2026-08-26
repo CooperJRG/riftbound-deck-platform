@@ -21,8 +21,8 @@ shown to the player.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Callable, Iterable, Mapping, Sequence
 
 from .cards import Card, Catalog
 from .deck import Deck
@@ -264,7 +264,7 @@ class Preference:
         return max(1, int(self.copies.get(card_id, default)))
 
     @classmethod
-    def empty(cls) -> "Preference":
+    def empty(cls) -> Preference:
         return cls(play_rate={}, copies={})
 
 

@@ -22,10 +22,10 @@ list current between rebuilds.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import math
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
+from datetime import UTC, datetime
 
 from .meta import (
     EVIDENCE_COMMUNITY,
@@ -105,8 +105,8 @@ def recency_score(published_at: str, *, now: datetime | None = None) -> float:
     except ValueError:
         return 0.3
     if when.tzinfo is None:
-        when = when.replace(tzinfo=timezone.utc)
-    reference = now or datetime.now(timezone.utc)
+        when = when.replace(tzinfo=UTC)
+    reference = now or datetime.now(UTC)
     age_days = max(0.0, (reference - when).total_seconds() / 86400.0)
     return float(0.5 ** (age_days / RECENCY_HALF_LIFE_DAYS))
 
