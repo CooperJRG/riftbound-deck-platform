@@ -5,6 +5,7 @@ import type {
   Card,
   CardAvailability,
   DeckPayload,
+  SmartSession,
   Zone,
   AvailabilityMode,
 } from "../api/types";
@@ -364,4 +365,138 @@ export async function importMetaDeck(deckId: string): Promise<void> {
   } catch (error) {
     reportError(error);
   }
+}
+
+// -- smart decks --------------------------------------------------------------
+
+/**
+ * The answers for the round on screen.
+ *
+ * Seeded from the requirement rows, which default to "you have what this asks for".
+ * That default is the whole ergonomic argument: the common answer is yes, so the
+ * common answer should cost no clicks, and the player only touches the rows where
+ * they are short.
+ */
+function seedAnswers(session: SmartSession | null): Map<string, number> {
+  const answers = new Map<string, number>();
+  const proposal = session?.proposal;
+  if (!proposal) return answers;
+  const rows = proposal.question ? proposal.question.cards : proposal.requirements;
+  for (const row of rows) answers.set(row.cardId, row.have);
+  return answers;
+}
+
+export async function openSmartDecks(): Promise<void> {
+  store.set({ view: "smart" });
+  if (store.state.smartLegends.length) return;
+  store.set({ smartBusy: true });
+  try {
+    store.set({ smartLegends: await api.smartLegends(), smartBusy: false });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+export function setSmartLegendQuery(query: string): void {
+  store.set({ smartLegendQuery: query });
+}
+
+export async function startSmartSession(legendId: string): Promise<void> {
+  store.set({ smartBusy: true, smartFinished: false });
+  try {
+    const session = await api.startSmartSession(legendId);
+    store.set({ smartSession: session, smartAnswers: seedAnswers(session), smartBusy: false });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+/** Record one card's count for the round on screen. Nothing is sent until submit. */
+export function setSmartAnswer(cardId: string, count: number): void {
+  const answers = new Map(store.state.smartAnswers);
+  answers.set(cardId, Math.max(0, count));
+  store.set({ smartAnswers: answers });
+}
+
+export async function submitSmartRound(): Promise<void> {
+  const { smartSession, smartAnswers } = store.state;
+  const proposal = smartSession?.proposal;
+  if (!smartSession || !proposal) return;
+
+  const have: Record<string, number> = {};
+  for (const [cardId, count] of smartAnswers) have[cardId] = count;
+
+  store.set({ smartBusy: true });
+  try {
+    const next = await api.answerSmartSession(
+      smartSession.sessionId,
+      proposal.question
+        ? // A checklist must name every card it showed. Without that, a card left at
+          // zero is indistinguishable from one never asked about.
+          { have, asked: proposal.question.cards.map((row) => row.cardId) }
+        : { deckId: proposal.deck?.deckId ?? "", have },
+    );
+    store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+/** Take one of the offered decks into the library and open it in the builder. */
+export async function acceptSmartDeck(which: "floor" | "conservative" | "free"): Promise<void> {
+  const { smartSession } = store.state;
+  if (!smartSession) return;
+  store.set({ smartBusy: true });
+  try {
+    const finished = await api.acceptSmartDeck(smartSession.sessionId, which);
+    store.set({
+      smartSession: finished,
+      smartFinished: true,
+      smartBusy: false,
+      savedDecks: await api.listDecks(),
+      notice: "Saved to your decks.",
+    });
+    await loadDeck(finished.savedDeckId);
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+/**
+ * Opt-in write-back of what the session learned.
+ *
+ * Only ever called from an explicit button. "I don't have this, for this deck, right
+ * now" is not the same claim as "I do not own this card", and someone answering
+ * quickly to get a deck should not have a permanent fact recorded on their behalf.
+ */
+export async function saveSmartCollection(): Promise<void> {
+  const { smartSession } = store.state;
+  if (!smartSession) return;
+  store.set({ smartBusy: true });
+  try {
+    const result = await api.saveSmartCollection(smartSession.sessionId);
+    const skipped = result.skippedLowerBounds
+      ? ` ${result.skippedLowerBounds} left alone, because "I have them all" is not a count.`
+      : "";
+    store.set({
+      smartBusy: false,
+      availability: await api.availability(),
+      notice: `Saved ${result.copiesWritten} copies of ${result.cardsWritten} cards to your collection.${skipped}`,
+    });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+export function closeSmartSession(): void {
+  store.set({
+    smartSession: null,
+    smartAnswers: new Map(),
+    smartFinished: false,
+  });
 }

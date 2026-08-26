@@ -119,6 +119,39 @@ def test_saying_you_have_them_all_does_not_cap_your_collection(meta_client):
     assert not [g for g in body["proposal"]["gaps"] if g["cardId"] == "fury-rune"]
 
 
+def test_a_checklist_does_not_answer_itself(meta_client):
+    """The mirror of the false negative, and the one a truthful harness cannot catch.
+
+    A deck round shows a list somebody really played and asks what you are short of, so
+    "I have these" is the right default. A checklist shows cards nobody has been asked
+    about and reads "which of these do you own" -- defaulting those to owned answers the
+    question on the player's behalf, and hands anyone who clicks straight through a deck
+    they cannot build.
+    """
+    session = start_wizard(meta_client)
+    session_id = session["sessionId"]
+    for row in session["proposal"]["requirements"]:
+        assert row["have"] == row["needed"], "a deck round assumes you have its cards"
+
+    # Drive the session to a checklist by coming up short.
+    meta_client.post(
+        f"/api/smart-decks/sessions/{session_id}/answer",
+        json={"deckId": first_deck_id(session), "have": {"harpoon-squad": 0}},
+    )
+    body = meta_client.get(f"/api/smart-decks/sessions/{session_id}").json()
+    question = body["proposal"]["question"]
+    assert question, "expected a direct question once the decks ran out"
+    assert question["cards"], "a question with no cards is not a question"
+    unknown = [row for row in question["cards"] if not row["known"]]
+    assert unknown, "expected the question to cover cards we have not asked about"
+    for row in unknown:
+        assert row["have"] == 0, f"{row['cardId']} was answered for the player"
+    # A card an earlier round did establish keeps what we learned; that is not a guess.
+    for row in question["cards"]:
+        if row["known"]:
+            assert row["have"] > 0
+
+
 def test_a_checklist_answer_must_say_what_it_asked(meta_client):
     """Unticked means none; absent means unasked. Conflating them is the false negative."""
     session = start_wizard(meta_client)

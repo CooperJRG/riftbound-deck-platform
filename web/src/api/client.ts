@@ -13,7 +13,10 @@ import type {
   Health,
   MetaDeck,
   MetaStatus,
+  LegendChoice,
   RuleKinds,
+  SaveCollectionResult,
+  SmartSession,
   Tournament,
   Validation,
 } from "./types";
@@ -135,4 +138,42 @@ export const api = {
       `/api/meta/decks/${deckId}/import`,
       { method: "POST" },
     ),
+
+  smartLegends: () => request<LegendChoice[]>("/api/smart-decks/legends"),
+  smartSessions: () => request<SmartSession[]>("/api/smart-decks/sessions"),
+  startSmartSession: (legendId: string) =>
+    request<SmartSession>("/api/smart-decks/sessions", {
+      method: "POST",
+      body: JSON.stringify({ legendId }),
+    }),
+  getSmartSession: (sessionId: string) =>
+    request<SmartSession>(`/api/smart-decks/sessions/${sessionId}`),
+  /**
+   * Answer one round.
+   *
+   * `asked` is required for a checklist and must list every card the question showed:
+   * a card left at zero means "I own none", while a card that was never asked means
+   * "we do not know". Dropping the distinction is what produces a wrong "you cannot
+   * build this".
+   */
+  answerSmartSession: (
+    sessionId: string,
+    answer: { deckId?: string; have: Record<string, number>; asked?: string[] },
+  ) =>
+    request<SmartSession>(`/api/smart-decks/sessions/${sessionId}/answer`, {
+      method: "POST",
+      body: JSON.stringify(answer),
+    }),
+  acceptSmartDeck: (sessionId: string, which: string, name?: string) =>
+    request<SmartSession>(`/api/smart-decks/sessions/${sessionId}/accept`, {
+      method: "POST",
+      body: JSON.stringify({ which, ...(name ? { name } : {}) }),
+    }),
+  saveSmartCollection: (sessionId: string) =>
+    request<SaveCollectionResult>(
+      `/api/smart-decks/sessions/${sessionId}/save-collection`,
+      { method: "POST", body: JSON.stringify({}) },
+    ),
+  deleteSmartSession: (sessionId: string) =>
+    request<void>(`/api/smart-decks/sessions/${sessionId}`, { method: "DELETE" }),
 };

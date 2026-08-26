@@ -222,15 +222,29 @@ def requirement_row(
     zone: str,
     knowledge,
     catalog: Catalog,
+    *,
+    assume_owned: bool = True,
 ) -> RequirementRowView:
     """One card the player is being asked about.
 
-    ``have`` defaults to ``needed`` rather than zero, which is the whole ergonomic
-    argument for the review screen: the common answer is "yes, I have these", so the
-    common answer should require no clicks.
+    The default answer is the whole ergonomic argument of the review screen, and it is
+    not the same in both places the screen is used:
+
+    * Showing a **deck**, ``assume_owned`` is true. The list is a real deck somebody
+      played; the question is "what are you short of", so the default is "I have these"
+      and the player only touches the exceptions.
+    * Showing a **checklist**, it is false. These are cards nobody has been asked about,
+      the question reads "which of these do you own", and answering "all of them" on the
+      player's behalf would hand someone a deck they cannot build. Defaulting to owned
+      there is a false positive -- the mirror of the false negative the engine works so
+      hard to avoid, and invisible to a harness that answers truthfully.
     """
     card = catalog.get(card_id)
     known = knowledge.is_known(card_id)
+    if known:
+        have = min(needed, knowledge.lower_bound(card_id))
+    else:
+        have = needed if assume_owned else 0
     return RequirementRowView(
         card_id=card_id,
         name=card.name if card else card_id,
@@ -240,7 +254,7 @@ def requirement_row(
         rarity=card.rarity if card else "",
         known=known,
         exact=knowledge.is_exact(card_id),
-        have=min(needed, knowledge.lower_bound(card_id)) if known else needed,
+        have=have,
     )
 
 

@@ -14,8 +14,10 @@ import type {
   DeckPayload,
   DeckSummary,
   FormatView,
+  LegendChoice,
   MetaDeck,
   MetaStatus,
+  SmartSession,
   Validation,
 } from "../api/types";
 
@@ -30,7 +32,7 @@ export interface CardFilters {
 }
 
 /** Which top-level view is showing. */
-export type ViewName = "build" | "meta";
+export type ViewName = "build" | "meta" | "smart";
 
 export interface AppState {
   ready: boolean;
@@ -62,6 +64,15 @@ export interface AppState {
   /** Archetype currently expanded in the meta view; "" shows the ranked overview. */
   metaArchetype: string;
   metaBuildableOnly: boolean;
+
+  /** Smart Decks. `smartAnswers` is the in-progress round, keyed by cardId. */
+  smartLegends: LegendChoice[];
+  smartSession: SmartSession | null;
+  smartAnswers: Map<string, number>;
+  smartBusy: boolean;
+  smartFinished: boolean;
+  /** Legend picker filter, so a 49-legend list stays navigable. */
+  smartLegendQuery: string;
 }
 
 export function emptyDeck(): DeckPayload {
@@ -113,6 +124,13 @@ const initial: AppState = {
   metaLoading: false,
   metaArchetype: "",
   metaBuildableOnly: false,
+
+  smartLegends: [],
+  smartSession: null,
+  smartAnswers: new Map(),
+  smartBusy: false,
+  smartFinished: false,
+  smartLegendQuery: "",
 };
 
 type Listener = (state: AppState) => void;

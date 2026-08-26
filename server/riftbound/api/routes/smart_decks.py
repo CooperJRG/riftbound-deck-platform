@@ -175,7 +175,12 @@ def _proposal_view(
             reason=proposal.question.reason,
             cards=[
                 requirement_row(
-                    card_id, _checklist_ceiling(card_id, catalog), "ask", knowledge, catalog
+                    card_id,
+                    _checklist_ceiling(card_id, catalog),
+                    "ask",
+                    knowledge,
+                    catalog,
+                    assume_owned=False,
                 )
                 for card_id in proposal.question.card_ids
             ],

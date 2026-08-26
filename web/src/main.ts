@@ -1,12 +1,19 @@
 /** Entry point: wire the store to the views, then boot. */
 
-import { boot, dismissError, dismissNotice, setView } from "./state/actions";
+import {
+  boot,
+  dismissError,
+  dismissNotice,
+  openSmartDecks,
+  setView,
+} from "./state/actions";
 import { store } from "./state/store";
 import { renderAvailability } from "./features/availability";
 import { renderCardBrowser } from "./features/cardBrowser";
 import { renderDeckLibrary } from "./features/deckLibrary";
 import { renderDeckPanel } from "./features/deckPanel";
 import { renderMeta } from "./features/meta";
+import { renderSmartDecks } from "./features/smartDecks";
 import { h, query, replace } from "./ui/dom";
 import "./styles.css";
 
@@ -17,6 +24,7 @@ const libraryRoot = query("#library");
 const errorRoot = query("#error");
 const noticeRoot = query("#notice");
 const metaRoot = query("#meta");
+const smartRoot = query("#smart");
 const buildRoot = query("#build");
 const tabsRoot = query("#tabs");
 
@@ -48,18 +56,25 @@ function renderNotice(message: string): void {
 }
 
 function renderTabs(current: string): void {
-  const tab = (name: "build" | "meta", label: string) =>
+  const tab = (name: "build" | "meta" | "smart", label: string) =>
     h(
       "button",
       {
         class: `tab${current === name ? " is-active" : ""}`,
         type: "button",
         aria: { pressed: String(current === name) },
-        on: { click: () => setView(name) },
+        // Smart Decks loads its legend list on first open rather than at boot: it is
+        // the one view that needs the meta snapshot, and boot must not depend on it.
+        on: { click: () => (name === "smart" ? void openSmartDecks() : setView(name)) },
       },
       label,
     );
-  replace(tabsRoot, tab("build", "Build"), tab("meta", "Meta"));
+  replace(
+    tabsRoot,
+    tab("build", "Build"),
+    tab("smart", "Smart Decks"),
+    tab("meta", "Meta"),
+  );
 }
 
 store.subscribe((state) => {
@@ -70,6 +85,7 @@ store.subscribe((state) => {
   renderTabs(state.view);
   buildRoot.hidden = state.view !== "build";
   metaRoot.hidden = state.view !== "meta";
+  smartRoot.hidden = state.view !== "smart";
 
   // The availability control drives both views, so it always renders.
   renderAvailability(availabilityRoot);
@@ -77,6 +93,8 @@ store.subscribe((state) => {
     renderCardBrowser(browserRoot);
     renderDeckPanel(deckRoot);
     renderDeckLibrary(libraryRoot);
+  } else if (state.view === "smart") {
+    renderSmartDecks(smartRoot);
   } else {
     renderMeta(metaRoot);
   }

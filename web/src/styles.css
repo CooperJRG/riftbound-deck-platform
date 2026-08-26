@@ -989,3 +989,345 @@ h4 {
   border-left-color: var(--domain-calm);
   background: rgba(56, 189, 248, 0.08);
 }
+
+/* -- smart decks ----------------------------------------------------------- */
+
+.panel-smart {
+  margin: var(--gap);
+  display: block;
+  max-width: 1100px;
+}
+.panel-smart[hidden] {
+  display: none;
+}
+
+.smart-lede {
+  color: var(--text-dim);
+  margin: 4px 0 12px;
+  max-width: 60ch;
+}
+
+.smart-search {
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 14px;
+}
+
+/* -- legend picker -- */
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.legend-card {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+  padding: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.legend-card:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.legend-card:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.legend-art {
+  width: 44px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex: 0 0 auto;
+}
+
+.legend-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.legend-name {
+  font-weight: 600;
+}
+.legend-meta,
+.legend-known {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.legend-known {
+  color: var(--text-faint);
+}
+
+/* -- a round -- */
+
+.smart-run {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.smart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.smart-why {
+  color: var(--text-dim);
+  margin: 2px 0 0;
+  max-width: 60ch;
+}
+.smart-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.smart-round {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.smart-source {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0 0 10px;
+  display: flex;
+  gap: 8px;
+}
+
+/* The floor is the promise the wizard is making, so it reads as a banner rather than
+   a line of body text: a player scanning the page should find "can I stop now?"
+   without hunting for it. */
+.floor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+}
+.floor-ready {
+  border-color: var(--ok);
+}
+.floor-none {
+  border-color: var(--line);
+}
+.floor-detail {
+  color: var(--text-dim);
+  font-size: 13px;
+  flex: 1 1 auto;
+}
+
+.smart-round-body {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.smart-round-body h3 {
+  margin: 0 0 4px;
+}
+
+.req-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.req-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 6px;
+}
+
+.req {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+}
+/* Short rows are the ones that change the answer, so they are the ones that stand
+   out -- not the ones that are fine. */
+.req.is-short {
+  border-color: var(--warn);
+}
+.req.is-known {
+  opacity: 0.75;
+}
+
+.req-art {
+  width: 34px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.req-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.req-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.req-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.req-counter {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+.req-counter-wide {
+  align-items: center;
+}
+.req-count {
+  font-size: 12px;
+  color: var(--text-dim);
+  min-width: 46px;
+  text-align: center;
+}
+
+.req-pip {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--bg-input);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 12px;
+  min-width: 26px;
+  padding: 3px 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.req-pip:hover {
+  border-color: var(--accent);
+}
+.req-pip.is-selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.req-known summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.smart-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+/* -- repairs -- */
+
+.repair {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.repair-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.repair-head h4 {
+  margin: 0;
+}
+.repair-note {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+.swap-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.swap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.swap-out {
+  color: var(--bad);
+  text-decoration: line-through;
+}
+.swap-arrow {
+  color: var(--text-faint);
+}
+.swap-in {
+  color: var(--ok);
+}
+.swap-why {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+/* -- finishing -- */
+
+.smart-finish,
+.smart-done {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.smart-finish h3,
+.smart-done h3 {
+  margin: 0 0 6px;
+}
+.smart-finish-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+/* The opt-in note is deliberately quiet but always present: it is the sentence that
+   makes the write-back honest, not a disclaimer to be tucked away. */
+.smart-optin {
+  color: var(--text-faint);
+  font-size: 12px;
+  margin: 6px 0 0;
+  max-width: 70ch;
+}
