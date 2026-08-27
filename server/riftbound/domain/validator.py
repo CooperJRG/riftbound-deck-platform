@@ -264,6 +264,8 @@ def validate(deck: Deck, *, rules: BoundRules, catalog: Catalog) -> ValidationRe
         combined.update(deck.sideboard)
         for card_id, total in combined.items():
             card = catalog.get(card_id)
+            if card is not None and card.unlimited_copies:
+                continue
             limit = 1 if (card is not None and card.unique) else combined_limit
             if total > limit:
                 collector.add(
@@ -382,7 +384,7 @@ def _check_zone(
                 f"'{card.name}' is outside your legend's domain identity.",
                 domain_ref, card_id=card_id,
             )
-        if copy_limit:
+        if copy_limit and not card.unlimited_copies:
             limit = 1 if card.unique else copy_limit
             if qty > limit:
                 collector.add(

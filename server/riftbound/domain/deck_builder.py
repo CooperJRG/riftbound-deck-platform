@@ -84,9 +84,16 @@ def _owned(owned: Mapping[str, int], card_id: str) -> int:
 
 
 def copy_cap(card: Card, *, rules: BoundRules) -> int:
-    """How many copies of a card a main deck may legally contain."""
+    """How many copies of a card a main deck may legally contain.
+
+    A card whose own text lifts the limit is bounded only by the deck size -- there is
+    no legal ceiling below that, and imposing one would make a whole archetype
+    unbuildable.
+    """
     if card.unique:
         return 1
+    if card.unlimited_copies:
+        return max(0, rules.int_constraint("main_deck_size_exact", 0)) or 99
     return max(0, rules.int_constraint("main_copy_limit", 3))
 
 

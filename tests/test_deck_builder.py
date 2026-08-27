@@ -16,6 +16,7 @@ from riftbound.domain.deck_builder import (
     Preference,
     assess,
     build,
+    copy_cap,
     legal_champions,
     legal_main_pool,
 )
@@ -267,3 +268,18 @@ def test_an_unknown_legend_is_reported_not_raised(catalog, bound_rules):
     assert not result.ok
     assert "not in the card data" in result.requirement(REQ_LEGEND).detail
     assert build("no-such-legend", {}, catalog=catalog, rules=bound_rules) is None
+
+
+def test_a_swarm_card_can_fill_more_than_three_slots(catalog, bound_rules):
+    """If the card's text lifts the limit, the builder must be able to use it.
+
+    Capping at three would make a whole archetype unbuildable: the wizard would tell a
+    player holding twenty Spiderlings that they cannot build the deck they own.
+    """
+    swarm = catalog.get("brazen-buccaneer")
+    object.__setattr__(swarm, "unlimited_copies", True)
+    try:
+        assert copy_cap(swarm, rules=bound_rules) > 3
+    finally:
+        object.__setattr__(swarm, "unlimited_copies", False)
+    assert copy_cap(swarm, rules=bound_rules) == 3

@@ -166,6 +166,17 @@ def _is_unique(effect: str) -> bool:
     return text.startswith("unique")
 
 
+def _allows_any_number(effect: str) -> bool:
+    """Does the card's own text let a deck run as many as it likes?
+
+    Riftbound prints these the way every game does -- Spiderling says "Your deck can
+    have any number of cards named Spiderling" -- and a format's copy limit does not
+    apply to them. Read from the text rather than kept as a list of card names, because
+    a list is a thing to forget the next time one is printed.
+    """
+    return "any number of cards named" in effect.casefold()
+
+
 def build_tag_vocabulary(all_tags: Iterable[str]) -> frozenset[str]:
     """The set of tags that are genuinely atomic, across the whole catalogue.
 
@@ -302,6 +313,7 @@ def normalize(
                 effect=effect,
                 flavor=_best_text([clean_rules_text(r.flavor) for r in rows]),
                 unique=_is_unique(effect),
+                unlimited_copies=_allows_any_number(effect),
                 banned_upstream=any(r.banned for r in rows),
                 printings=tuple(printings),
             )
@@ -347,6 +359,7 @@ def _replace_tags(card: Card, champion_tags: tuple[str, ...]) -> Card:
         effect=card.effect,
         flavor=card.flavor,
         unique=card.unique,
+        unlimited_copies=card.unlimited_copies,
         banned_upstream=card.banned_upstream,
         printings=card.printings,
     )

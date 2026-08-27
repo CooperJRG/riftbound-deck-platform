@@ -243,3 +243,38 @@ def test_the_shipped_profile_allows_ten_and_advises_eight(catalog):
     advisory = profile.advisory("sideboard_max")
     assert advisory is not None
     assert advisory["recommended_max"] == 8
+
+
+def test_a_card_whose_text_lifts_the_copy_limit_may_be_played_in_bulk(catalog, bound_rules):
+    """Spiderling says "Your deck can have any number of cards named Spiderling".
+
+    Two real tournament decks ran twenty of them and this validator called both illegal.
+    The format's copy limit is a default; the card's own text outranks it. Read from the
+    card rather than kept as a list of names, because a list is a thing to forget the
+    next time one is printed.
+    """
+    from riftbound.domain.deck import Deck
+
+    swarm = catalog.get("brazen-buccaneer")
+    object.__setattr__(swarm, "unlimited_copies", True)
+    try:
+        main = {"vi-destructive": 3, swarm.card_id: 20, "showcase-only": 3}
+        main.update({f"filler-{i:02d}": 3 for i in range(1, 6)})
+        deck = Deck.make(
+            legend_id="vi-piltover-enforcer", champion_id="vi-destructive", main=main,
+            runes={"fury-rune": 12},
+            battlefields=["the-arena", "the-forge", "the-spire"],
+        )
+        result = validate(deck, rules=bound_rules, catalog=catalog)
+        assert not [i for i in result.issues if i.code == "MAIN_COPY_LIMIT"]
+    finally:
+        object.__setattr__(swarm, "unlimited_copies", False)
+
+
+def test_the_limit_still_applies_to_everything_else(catalog, bound_rules, legal_deck):
+    """The exception is per card, not a hole in the rule."""
+    from dataclasses import replace
+
+    over = replace(legal_deck, main={**legal_deck.main, "brazen-buccaneer": 8})
+    result = validate(over, rules=bound_rules, catalog=catalog)
+    assert [i for i in result.issues if i.code == "MAIN_COPY_LIMIT"]

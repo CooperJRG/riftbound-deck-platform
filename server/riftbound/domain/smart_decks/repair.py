@@ -147,6 +147,9 @@ def _zone_cap(card, zone: str, *, rules: BoundRules) -> int:
         return rules.int_constraint("rune_count_exact", 12)
     if card.unique:
         return 1
+    if card.unlimited_copies:
+        # The card's own text outranks the format's limit.
+        return rules.int_constraint("main_deck_size_exact", 0) or 99
     # The tighter of the two, because both are real: a format may allow three in the
     # main deck but only three across main and sideboard together.
     return min(

@@ -144,6 +144,7 @@ def card_to_dict(card: Card) -> dict[str, Any]:
         "effect": card.effect,
         "flavor": card.flavor,
         "unique": card.unique,
+        "unlimitedCopies": card.unlimited_copies,
         "bannedUpstream": card.banned_upstream,
         "printings": [
             {
@@ -191,6 +192,7 @@ def card_from_dict(raw: dict[str, Any]) -> Card:
         effect=str(raw.get("effect") or ""),
         flavor=str(raw.get("flavor") or ""),
         unique=bool(raw.get("unique")),
+        unlimited_copies=bool(raw.get("unlimitedCopies")),
         banned_upstream=bool(raw.get("bannedUpstream")),
         printings=printings,
     )

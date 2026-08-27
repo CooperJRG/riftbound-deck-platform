@@ -117,6 +117,11 @@ class Card:
     effect: str
     flavor: str
     unique: bool
+    #: The card's own text lifts the format's copy limit ("Your deck can have any
+    #: number of cards named X"). A property of the card, not of the format, so it
+    #: travels with the card rather than living in a rules profile that would go stale
+    #: the moment another one is printed.
+    unlimited_copies: bool = False
     #: The source's own ban flag. Advisory only — a format's rules profile decides
     #: legality. Kept so the pipeline can report when the two have drifted apart,
     #: because ban lists go stale exactly the way set lists do.
