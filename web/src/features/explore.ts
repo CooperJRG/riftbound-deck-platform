@@ -23,7 +23,7 @@ import { store, type ExploreMode } from "../state/store";
 import { h, replace } from "../ui/dom";
 import { cardView, cardWall } from "./cardMeta";
 
-type Tier = "S" | "A" | "B" | "C" | "U";
+type Tier = "S" | "A" | "B" | "C" | "D" | "U";
 
 interface RankedLegend {
   legend: LegendChoice;
@@ -37,6 +37,7 @@ const TIER_COPY: Record<Tier, { title: string; note: string }> = {
   A: { title: "A", note: "Established contenders" },
   B: { title: "B", note: "Firmly in the mix" },
   C: { title: "C", note: "Rogue and emerging" },
+  D: { title: "D", note: "Rarely seen in the field" },
   U: { title: "—", note: "No complete lists in range" },
 };
 
@@ -115,7 +116,15 @@ function rankLegends(legends: LegendChoice[], trends: TrendSeries[]): RankedLege
   const evidenced = ranked.filter((row) => row.trend).sort((a, b) => b.score - a.score);
   evidenced.forEach((row, index) => {
     const position = index / Math.max(1, evidenced.length);
-    row.tier = position < 0.125 ? "S" : position < 0.35 ? "A" : position < 0.67 ? "B" : "C";
+    // Cut points, not counts, so the shape holds whatever the date range returns.
+    // The old bands left C holding a third of the field on its own -- a bin rather than
+    // a tier -- so the tail is split and the top three tighten slightly to match.
+    row.tier =
+      position < 0.12 ? "S"
+        : position < 0.32 ? "A"
+          : position < 0.58 ? "B"
+            : position < 0.80 ? "C"
+              : "D";
   });
   return [...evidenced, ...ranked.filter((row) => !row.trend)];
 }
@@ -403,7 +412,9 @@ function tierOverview(): HTMLElement {
       ? h(
           "div",
           { class: `tier-board${exploreLoading ? " is-updating" : ""}` },
-          ...(["S", "A", "B", "C", "U"] as Tier[]).map((tier) => tierRow(tier, ranked.filter((row) => row.tier === tier))),
+          ...(["S", "A", "B", "C", "D", "U"] as Tier[]).map((tier) =>
+            tierRow(tier, ranked.filter((row) => row.tier === tier)),
+          ),
         )
       : null,
   );

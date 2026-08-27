@@ -566,11 +566,15 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .tier-a .tier-label { color: #755017; background: #efd18c; }
 .tier-b .tier-label { color: #235f58; background: #9ed3c9; }
 .tier-c .tier-label { color: #4c5263; background: #c9cbd3; }
+/* D sits between C and the uncharted row, so it reads cooler and quieter than C
+   without becoming the grey that means "no data". */
+.tier-d .tier-label { color: #5a5560; background: #ddd7dd; }
 .tier-u .tier-label { color: var(--atlas-muted); background: var(--atlas-raised); }
 :root[data-theme="dark"] .tier-s .tier-label { color: #ffd9ca; background: #6f3026; }
 :root[data-theme="dark"] .tier-a .tier-label { color: #ffe3a5; background: #61481d; }
 :root[data-theme="dark"] .tier-b .tier-label { color: #c5fff7; background: #24554f; }
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
+:root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
 .tier-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.7rem; padding: 0.85rem; align-items: start; }
 .tier-card {
   display: flex;
