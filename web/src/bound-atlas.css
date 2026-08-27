@@ -626,6 +626,33 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
 :root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
 
+/* Two deck scores, side by side.
+   The champion score leads at full size because it is the one the player is asking about
+   mid-build, and the one the wizard used to choose this deck; the format score sits
+   beside it, quieter, because it answers a different question. Both in the serif, so
+   they read as figures rather than as interface chrome. */
+.deck-scores { display: flex; gap: 1.4rem; align-items: baseline; margin: 0.5rem 0 0.9rem; }
+.deck-score { display: flex; flex-direction: column; gap: 0.1rem; }
+.deck-score b {
+  font-family: var(--atlas-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--atlas-muted);
+}
+.deck-score i {
+  color: var(--atlas-muted);
+  font-size: 0.64rem;
+  font-style: normal;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+/* The one that decided the deck. */
+.deck-score.is-primary b { color: var(--atlas-copper); font-size: 1.9rem; }
+/* A champion with no published lists is not a champion that scores badly. */
+.deck-scores.is-unscored .deck-score b { color: var(--atlas-muted); }
+
 /* The rating — the number the tier letter is a grouping of.
    Set in the serif at a size that reads as a headline figure, with the rank beside it
    in the muted interface face so the two never compete. Ink rather than an accent:

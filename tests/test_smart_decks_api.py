@@ -310,3 +310,32 @@ def test_one_users_session_is_not_another_users(meta_client):
 
     services = get_services()
     assert services.smart_decks.get(session["sessionId"], user_id="someone-else") is None
+
+
+# -- the wizard chooses, and shows its working ---------------------------------
+
+
+def test_a_proposal_carries_both_scores(meta_client):
+    """The player is owed the numbers the app decided on."""
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    proposal = session["proposal"]
+    score = proposal["deckScore"]
+    assert score is not None
+    assert set(score) >= {"meta", "champion", "strength", "scored", "summary"}
+    assert score["summary"]
+
+
+def test_the_wizard_picks_a_repair_rather_than_asking(meta_client):
+    """It used to render both and leave the player to arbitrate between two lists they
+    had never seen played. `chosen` names the one to show."""
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    proposal = session["proposal"]
+    assert proposal["chosen"] in ("", "conservative", "free")
+    if proposal["chosen"]:
+        picked = proposal[proposal["chosen"]]
+        assert picked is not None, "chosen must name a repair that is actually present"
+        assert picked["score"] is not None

@@ -32,6 +32,7 @@ from ..schemas import (
     AcceptRequest,
     AnswerRequest,
     BanNoticeView,
+    DeckScoreView,
     FloorView,
     GapView,
     LegendChoiceView,
@@ -101,7 +102,19 @@ def _checklist_ceiling(card_id: str, catalog) -> int:
     return 3
 
 
-def _floor_view(deck: Deck | None, engine: Engine) -> FloorView | None:
+def _score_view(score) -> DeckScoreView | None:
+    if score is None:
+        return None
+    return DeckScoreView(
+        meta=round(score.meta, 1),
+        champion=round(score.champion, 1),
+        strength=round(score.strength, 3),
+        scored=score.scored,
+        summary=score.describe(),
+    )
+
+
+def _floor_view(deck: Deck | None, engine: Engine, score=None) -> FloorView | None:
     if deck is None:
         return None
     play_rate = engine.profile.play_rate
@@ -113,6 +126,7 @@ def _floor_view(deck: Deck | None, engine: Engine) -> FloorView | None:
             f"{sum(deck.main.values())} cards you can field today, "
             f"{staples} of them staples the field plays for this legend."
         ),
+        score=_score_view(score),
     )
 
 
@@ -125,7 +139,9 @@ def _proposal_view(
         phase=proposal.phase,
         reason=proposal.reason,
         round=session.rounds + session.checklists,
-        floor=_floor_view(proposal.floor, engine),
+        floor=_floor_view(proposal.floor, engine, proposal.floor_score),
+        chosen=proposal.chosen,
+        deck_score=_score_view(proposal.deck_score),
         feasibility=proposal.feasibility.describe() if proposal.feasibility else "",
         can_build=bool(proposal.feasibility and proposal.feasibility.ok),
     )
@@ -160,7 +176,9 @@ def _proposal_view(
         fix = getattr(proposal, field_name)
         if fix is not None:
             legal = validate(fix.deck, rules=rules, catalog=catalog).legal
-            setattr(view, field_name, repair_view(fix, catalog, legal=legal))
+            built = repair_view(fix, catalog, legal=legal)
+            built.score = _score_view(getattr(proposal, f"{field_name}_score"))
+            setattr(view, field_name, built)
 
     # Ban warnings, for the deck we would hand over and for the published list we are
     # asking about. Both matter and they say different things: one is "this is in your

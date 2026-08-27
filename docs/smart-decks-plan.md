@@ -420,8 +420,47 @@ Clusters keep their place in **selection** (which deck to show, which swap to of
 
 | question | decision | why |
 |---|---|---|
-| repair aggressiveness | offer both, labelled | the conservative and free builds are different products; blurring them misleads |
+| repair aggressiveness | ~~offer both, labelled~~ → **the app chooses, and labels what it chose** | superseded. The original reasoning stands — they *are* different products — but it does not follow that the player should arbitrate. See §9.4 |
 | collection write-back | opt-in on finish | answering about one deck is not a permanent claim about the collection |
+
+## 9.4 Two scores, and the wizard making the choice
+
+Every deck the wizard shows now carries two numbers, and the wizard picks between the
+repairs itself rather than asking.
+
+**The scores.** `meta_scoring.score_deck` reads a deck's *pedigree* — evidence tier,
+placement, recency — which a repaired deck does not have: the moment a card is swapped it
+stops being the list that placed 3rd of 257. So both scores are computed from contents
+instead: how much of what the field plays does this list contain. That works identically
+for a published list, a repair, and a build from the collection alone, which is the only
+way the three can sit side by side and be compared honestly.
+
+One strength function, two denominators:
+
+- **meta score** — against the strongest deck in the format;
+- **champion score** — against the strongest published list for that champion, which is
+  100 by construction.
+
+The play rate behind them is format-wide, not per-legend. Per legend, the strongest deck
+of a single-champion legend is simultaneously the best deck of its champion and the best
+deck the scoreboard knows, so both scores read 100 and the second says nothing. Measured
+against the whole field they diverge usefully: a good build of a fringe champion reads
+**79 for its champion and 32 in the format**, and only one of those answers "should I take
+this to an event". A champion with no published lists is *unscored*, never zero.
+
+**The choice.** The wizard used to render the conservative and the free repair side by
+side with a button under each. That asked a player to arbitrate between two lists they had
+never seen played, in the middle of telling us what they own — while the app was the one
+holding the numbers to decide it. It now picks, on the **champion** score: a repair
+competes with other ways of building the same deck, never with the format, and measuring
+it against the format's best would let a swap that is clearly right for a fringe champion
+lose on a denominator neither deck can influence.
+
+What survives from §10's original reasoning is the disclosure. The two really are
+different products — one is the tournament deck adapted, the other a legal deck in the
+same colours — so the chosen deck still says which it is, along with how far it drifted
+and what changed. Choosing for someone is not the same as not telling them what they are
+holding.
 
 ## 11. Risks and open questions
 

@@ -66,6 +66,26 @@ class RepairDeckCardView(ApiModel):
     added: bool
 
 
+class DeckScoreView(ApiModel):
+    """How strong a deck is, on the two scales a player can act on.
+
+    Both measure the same thing -- how much of what the field plays this list contains --
+    and differ only in what they are measured against. `meta` compares it to the
+    strongest deck in the format; `champion` compares it to the strongest published list
+    for its champion, which is 100 by construction.
+
+    `-1` on either means there was nothing to measure against, and must be rendered as
+    "not scored" rather than as a zero: a champion nobody has published is not a champion
+    that scores badly.
+    """
+    meta: float
+    champion: float
+    strength: float
+    scored: bool
+    #: One line, phrased server-side so two clients cannot describe it differently.
+    summary: str
+
+
 class RepairView(ApiModel):
     kind: str               # 'none' | 'conservative' | 'free'
     drift: int              # copies changed
@@ -74,6 +94,7 @@ class RepairView(ApiModel):
     #: The finished list, resolved to names and art.
     cards: list[RepairDeckCardView]
     legal: bool
+    score: DeckScoreView | None = None
 
 
 class GapView(ApiModel):
@@ -89,6 +110,7 @@ class FloorView(ApiModel):
     deck: dict[str, Any]
     quality: float
     summary: str
+    score: DeckScoreView | None = None
 
 
 class QuestionView(ApiModel):
@@ -121,6 +143,13 @@ class ProposalView(ApiModel):
     gaps: list[GapView] = []
     conservative: RepairView | None = None
     free: RepairView | None = None
+    #: Which repair the wizard picked: 'conservative', 'free', or '' when neither was
+    #: needed. The client renders that one rather than offering the choice — but still
+    #: labels which kind it is, because choosing for someone is not the same as not
+    #: telling them what they are holding.
+    chosen: str = ""
+    #: Score of the deck being shown, on both scales.
+    deck_score: DeckScoreView | None = None
     question: QuestionView | None = None
     floor: FloorView | None = None
     #: Plain-English state of play, e.g. "Short by 3 more main."

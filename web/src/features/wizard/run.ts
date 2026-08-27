@@ -18,7 +18,7 @@ import {
 import { store } from "../../state/store";
 import { h, replace } from "../../ui/dom";
 import { legendPicker } from "./picker";
-import { repairPanel } from "./repairs";
+import { repairPanel, scorePanel } from "./repairs";
 import { requirementList } from "./rows";
 
 /**
@@ -46,6 +46,7 @@ function floorBanner(proposal: Proposal, knownCards: number, busy: boolean): HTM
     "div",
     { class: "floor floor-ready" },
     h("strong", {}, "Best deck you can build right now"),
+    scorePanel(proposal.floor.score),
     h("span", { class: "floor-detail" }, proposal.floor.summary),
     h(
       "button",
@@ -237,6 +238,7 @@ function runView(session: SmartSession): HTMLElement {
       "section",
       { class: "smart-round-body" },
       h("h3", {}, heading),
+      scorePanel(proposal.deckScore),
       proposal.deck
         ? h(
             "p",
@@ -274,22 +276,26 @@ function runView(session: SmartSession): HTMLElement {
     ),
   );
 
-  if (proposal.conservative && proposal.conservative.drift > 0) {
+  // One deck, already chosen.
+  //
+  // This used to render both repairs with a button under each and leave the player to
+  // arbitrate between two lists they had never seen played, in the middle of telling us
+  // what they own. The app is the one holding the numbers, so it decides -- on the
+  // champion score, because a repair competes with other builds of the same deck rather
+  // than with the format.
+  //
+  // It still says which kind it picked. Choosing for someone is not the same as not
+  // telling them what they are holding, and the two are genuinely different products:
+  // one is the tournament deck adapted, the other a legal deck in the same colours.
+  const chosen = proposal.chosen === "free" ? proposal.free : proposal.conservative;
+  if (chosen && (chosen.drift > 0 || proposal.chosen === "free")) {
     parts.push(
       repairPanel(
-        proposal.conservative,
-        "Closest to the original",
-        "Swaps only the flexible slots, so it still plays like the deck that won.",
-        smartBusy,
-      ),
-    );
-  }
-  if (proposal.free) {
-    parts.push(
-      repairPanel(
-        proposal.free,
-        "Best from what you own",
-        "Uses anything legal in your collection. Further from the original, but stronger for you.",
+        chosen,
+        "Your deck",
+        proposal.chosen === "free"
+          ? "Built from what you own. Further from the original list, and the stronger of the two for your collection."
+          : "The same deck with your gaps filled from cards the field plays alongside it, so it still plays like the list that won.",
         smartBusy,
       ),
     );

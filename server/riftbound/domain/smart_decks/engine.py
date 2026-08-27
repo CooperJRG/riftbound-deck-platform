@@ -38,6 +38,7 @@ from .knowledge import (
     unknown_cards,
 )
 from .repair import REPAIRABLE_COPIES, Repair, repair
+from .scoring import DeckScore, Scoreboard, build_scoreboard, choose
 
 PHASE_PROPOSE = "propose"
 PHASE_CHECKLIST = "checklist"
@@ -127,9 +128,26 @@ class Proposal:
     phase: str
     deck: MetaDeck | None = None
     #: The proposed deck adjusted to what they own. Conservative keeps the deck's
-    #: identity; free will use any legal owned card. Different products, labelled.
+    #: identity; free will use any legal owned card. Both are computed; the wizard picks
+    #: between them rather than asking the player to (see ``chosen``).
     conservative: Repair | None = None
     free: Repair | None = None
+    #: Which of the two to hand over: "conservative", "free", or "" when neither was
+    #: needed. Decided on the champion score, because a repair competes with other ways
+    #: of building the same deck and not with the format at large.
+    #:
+    #: The wizard used to render both and leave the choice open. That asked the player
+    #: to arbitrate between two lists they had not seen played, in the middle of telling
+    #: us what they own -- and the app is the one holding the numbers to decide it. The
+    #: kind is still labelled on screen, because being chosen for is not the same as
+    #: not being told which deck you are holding.
+    chosen: str = ""
+    #: Score of the deck on screen, and of each repair. Two scales: against the format,
+    #: and against the best published list for this champion.
+    deck_score: DeckScore | None = None
+    conservative_score: DeckScore | None = None
+    free_score: DeckScore | None = None
+    floor_score: DeckScore | None = None
     #: The best deck they can definitely build from what we already know.
     floor: Deck | None = None
     feasibility: Feasibility | None = None
@@ -150,6 +168,12 @@ class Engine:
     profile: LegendProfile
     decks: Mapping[str, MetaDeck]
     scores: Mapping[str, float]
+    #: Format-wide baselines for the two deck scores. Supplied rather than derived from
+    #: ``decks``, which holds only this legend's lists -- a legend-scoped board would
+    #: make the meta score and the champion score the same number for any legend with
+    #: one champion. Defaults to an empty board so a caller that does not score still
+    #: works; every deck then reports "not scored" rather than a fabricated zero.
+    scoreboard: Scoreboard = field(default_factory=lambda: build_scoreboard([], {}))
 
     # -- lifecycle ------------------------------------------------------------
 
@@ -234,8 +258,21 @@ class Engine:
                     deck.deck, session.knowledge, profile=self.profile,
                     catalog=self.catalog, rules=self.rules, conservative=False,
                 )
+            board = self.scoreboard
+            chosen = choose(
+                [
+                    ("conservative", conservative.deck if conservative else None),
+                    ("free", free.deck if free else None),
+                ],
+                board,
+            )
             return Proposal(
                 phase=PHASE_PROPOSE, deck=deck, conservative=conservative, free=free,
+                chosen=chosen,
+                deck_score=board.score(deck.deck),
+                conservative_score=board.score(conservative.deck) if conservative else None,
+                free_score=board.score(free.deck) if free else None,
+                floor_score=board.score(floor) if floor is not None else None,
                 floor=floor, feasibility=feasibility,
                 reason=self._reason(session, deck, has_floor=floor is not None),
             )
@@ -243,6 +280,7 @@ class Engine:
         if floor is not None:
             return Proposal(
                 phase=PHASE_DONE, floor=floor, feasibility=feasibility,
+                floor_score=self.scoreboard.score(floor),
                 reason="This is the best deck your collection supports for this legend.",
             )
 

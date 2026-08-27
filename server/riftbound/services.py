@@ -165,6 +165,26 @@ class Services:
         era = eras_for_format(self.rules_for("constructed")).current
         return build_scoped_index(self.meta.decks, self.deck_scores, era)
 
+    @cached_property
+    def deck_scoreboard(self):
+        """Baselines for the two wizard scores, over the whole current-era field.
+
+        Format-wide on purpose. Built per legend, the best deck of a single-champion
+        legend would be both the best deck for its champion and the best deck known, so
+        both scores would read 100 and the second would say nothing.
+        """
+        from .domain.eras import eras_for_format
+        from .domain.smart_decks.scoring import build_scoreboard, format_play_rate
+
+        if self.meta is None:
+            return build_scoreboard([], {})
+        era = eras_for_format(self.rules_for("constructed")).current
+        current = [
+            deck for deck in self.meta.decks
+            if era.contains(deck.provenance.tournament_date or deck.provenance.published_at)
+        ]
+        return build_scoreboard(current, format_play_rate(current))
+
     def engine_for(self, legend_id: str) -> Engine | None:
         """A wizard engine bound to one legend, or None if the meta knows nothing of it."""
         from .domain.smart_decks import Engine
@@ -183,6 +203,7 @@ class Services:
             profile=profile,
             decks=decks,
             scores=self.deck_scores,
+            scoreboard=self.deck_scoreboard,
         )
 
     def warm(self) -> None:

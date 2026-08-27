@@ -47,6 +47,26 @@ export interface RepairDeckCard {
   added: boolean;
 }
 
+/**
+ * How strong a deck is, on the two scales a player can act on.
+ *
+ * Both measure the same thing — how much of what the field plays this list contains —
+ * and differ only in what they are measured against. `meta` compares it to the strongest
+ * deck in the format; `champion` compares it to the strongest published list for its
+ * champion, which is 100 by construction.
+ *
+ * `scored` is false when that champion has no published lists at all. Render that as
+ * "not scored", never as a zero: a champion nobody has published is not a champion that
+ * scores badly, and `meta`/`champion` carry -1 in that case.
+ */
+export interface DeckScore {
+  meta: number;
+  champion: number;
+  strength: number;
+  scored: boolean;
+  summary: string;
+}
+
 export interface Repair {
   kind: "none" | "conservative" | "free";
   drift: number;
@@ -55,6 +75,7 @@ export interface Repair {
   /** The finished list, named and illustrated, so a swap has somewhere to point. */
   cards: RepairDeckCard[];
   legal: boolean;
+  score: DeckScore | null;
 }
 
 export interface Gap {
@@ -69,6 +90,7 @@ export interface Floor {
   deck: DeckPayload;
   quality: number;
   summary: string;
+  score: DeckScore | null;
 }
 
 export interface Question {
@@ -95,6 +117,12 @@ export interface Proposal {
   gaps: Gap[];
   conservative: Repair | null;
   free: Repair | null;
+  /**
+   * Which repair the wizard picked: the client renders that one instead of offering the
+   * choice. Empty when no repair was needed.
+   */
+  chosen: "" | "conservative" | "free";
+  deckScore: DeckScore | null;
   question: Question | null;
   floor: Floor | null;
   feasibility: string;
