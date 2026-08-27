@@ -23,6 +23,11 @@ class LegendChoiceView(ApiModel):
     #: a low number is a hint, never a bar, because the point of the wizard is to find
     #: out what they can build rather than to guess in advance.
     familiarity: float
+    #: The format era whose lists this legend's deck would be built from. Normally the
+    #: current one. `"all"` means the era has no lists for it at all and the build falls
+    #: back to the whole archive — a legal deck, but assembled from a format that may no
+    #: longer be played, which the player is entitled to see rather than infer.
+    era_id: str = ""
 
 
 class RequirementRowView(ApiModel):

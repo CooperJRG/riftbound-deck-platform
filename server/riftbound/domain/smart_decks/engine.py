@@ -186,18 +186,18 @@ class Engine:
     def floor(self, session: Session) -> Deck | None:
         """The best deck they can definitely build right now.
 
-        Built inside a single archetype rather than from the legend's overall play
-        rates. Filling forty slots by popularity produces an average of every plan the
-        legend supports -- a pile of individually strong cards that do not work
-        together. We pick the strongest family this collection can actually field and
-        build within it.
+        Coherence comes from the pairing signal, which scores every candidate against
+        what is already in the deck rather than against the format in general -- so the
+        result is a plan rather than forty individually popular cards. It used to also
+        steer toward a chosen archetype; that was measured to make decks *less* like the
+        ones people actually play, and the note above ``CORE_SHARE`` in ``legend_index``
+        records the numbers.
         """
         owned = session.knowledge.owned()
-        cluster = self.profile.best_cluster(owned)
         return build(
             session.legend_id, owned,
             catalog=self.catalog, rules=self.rules,
-            preference=self.profile.preference(cluster),
+            preference=self.profile.preference(),
         )
 
     def feasibility(self, session: Session) -> Feasibility:

@@ -27,6 +27,7 @@ from dataclasses import dataclass, field
 
 from .cards import Catalog
 from .deck_builder import Preference
+from .eras import Era
 from .meta import MetaDeck
 
 #: Two decks belong to the same family above this main-deck overlap. Chosen from the
@@ -37,15 +38,33 @@ CLUSTER_THRESHOLD = 0.62
 #: A card is part of a cluster's identity when this much of the cluster plays it.
 CORE_SHARE = 0.8
 
-#: How much a family's own cards outrank the legend's general staples when building
-#: within that family. High enough to keep a plan coherent, low enough that a genuinely
-#: ubiquitous card is still picked up.
-CLUSTER_BOOST = 2.5
-
-#: How much "can they field this family's core" counts against "how strong is it" when
-#: choosing an archetype. Weighted toward coverage: the strongest deck in the format is
-#: worth nothing to somebody who cannot field the half of it that makes it work.
-COVERAGE_WEIGHT = 0.65
+#: Archetype coherence is **not** applied when filling a deck, and this is the record of
+#: why -- because the obvious change is to put it back.
+#:
+#: There used to be a ``CLUSTER_BOOST`` here that promoted a chosen family's cards above
+#: the legend's general staples, and :meth:`LegendProfile.preference` took a cluster to
+#: apply it. It did nothing: the boost multiplies ``play_rate``, and ``COHERENCE_WEIGHT``
+#: leaves ``play_rate`` carrying 10% of a pick, measured never enough to flip a decision.
+#:
+#: Fixing it was worse than leaving it. Judged by ``deck_fidelity`` -- overlap with the
+#: real lists of the current era -- every way of making the family matter more made the
+#: deck less like the ones people actually play:
+#:
+#:   no cluster at all                    0.888
+#:   the shipped boost                    0.879
+#:   family used as the candidate pool     0.884
+#:   coherence routed through the pairing term, at rising strength:
+#:     x1  0.880   x3  0.877   x10  0.866   x30  0.864
+#:
+#: Monotonic in the wrong direction. And the harm lands where the old docstring claimed
+#: protection: legends with fewer than 20 published lists scored 0.777 under the boost
+#: against 0.806 without it.
+#:
+#: The reading is that greedy Jaccard families are not sharp enough to steer a build, and
+#: that the pairing signal already carries archetype coherence better than a cluster label
+#: does -- a card that belongs to the plan is a card the field plays alongside the plan.
+#: Clusters keep their place in *selection* (which deck to show, which swap to offer);
+#: they have no place in *construction*.
 
 #: How much a same-type, same-cost-band card is worth when nothing better is owned.
 #: Small on purpose: it should never outrank a card the field actually plays here.
@@ -86,29 +105,26 @@ class LegendProfile:
     play_rate: Mapping[str, float]
     copies: Mapping[str, int]
     clusters: tuple[Cluster, ...]
+    #: The format era this profile's evidence comes from. Normally the current one; a
+    #: legend with no lists since the last ban falls back to the whole archive and says
+    #: so here, because a deck built from a format nobody plays is a different claim and
+    #: the player is entitled to know which they are holding.
+    era_id: str = ""
     _pair_counts: Mapping[str, Mapping[str, float]] = field(default_factory=dict)
     _card_weight: Mapping[str, float] = field(default_factory=dict)
     _total_weight: float = 0.0
 
-    def preference(self, cluster: Cluster | None = None) -> Preference:
+    def preference(self) -> Preference:
         """The signal :func:`deck_builder.build` fills from.
 
-        Given a cluster, the family's own cards are promoted above the legend's general
-        staples. This is what stops a constructed deck being an average of every plan
-        the legend can support: cards are chosen because they belong together, not
-        because each is individually popular.
+        Play rate ranks which cards to reach for, copies says how many, and the pairing
+        function decides everything else -- it carries 90% of each pick. There is
+        deliberately no archetype argument; see the note above ``CORE_SHARE`` for the
+        measurements that removed it.
         """
-        if cluster is None:
-            return Preference(
-                play_rate=self.play_rate, copies=self.copies, pair=self.pair_strength
-            )
-
-        family = set(cluster.core) | set(cluster.flex)
-        promoted = {
-            card_id: rate * (CLUSTER_BOOST if card_id in family else 1.0)
-            for card_id, rate in self.play_rate.items()
-        }
-        return Preference(play_rate=promoted, copies=self.copies, pair=self.pair_strength)
+        return Preference(
+            play_rate=self.play_rate, copies=self.copies, pair=self.pair_strength
+        )
 
     def pair_strength(self, card_id: str, partner_id: str) -> float:
         """How often the field plays `card_id` in decks that contain `partner_id`.
@@ -134,28 +150,6 @@ class LegendProfile:
             want = max(1, self.copies.get(card_id, 1))
             total += min(1.0, owned.get(card_id, 0) / want)
         return total / len(cluster.core)
-
-    def best_cluster(
-        self, owned: Mapping[str, int], *, minimum: float = 0.0
-    ) -> Cluster | None:
-        """The strongest family this collection can actually support.
-
-        The heart of the user-facing point: owning none of the enabler a plan is built
-        around does not mean playing that plan without it. It means playing a different
-        plan. Strength still counts -- we are not steering somebody to a weak deck they
-        happen to own -- but it is weighed against whether the core is there at all.
-        """
-        best, best_score = None, -1.0
-        for cluster in self.clusters:
-            if not cluster.core:
-                continue
-            covered = self.coverage(cluster, owned)
-            if covered < minimum:
-                continue
-            score = covered * COVERAGE_WEIGHT + cluster.score * (1.0 - COVERAGE_WEIGHT)
-            if score > best_score:
-                best, best_score = cluster, score
-        return best
 
     def cluster_of(self, deck_id: str) -> Cluster | None:
         return next((c for c in self.clusters if deck_id in c.deck_ids), None)
@@ -265,7 +259,11 @@ def _cluster(
 
 
 def build_profile(
-    legend_id: str, decks: Sequence[MetaDeck], scores: Mapping[str, float]
+    legend_id: str,
+    decks: Sequence[MetaDeck],
+    scores: Mapping[str, float],
+    *,
+    era_id: str = "",
 ) -> LegendProfile:
     """Summarise what the meta plays with one legend."""
     weights = {d.deck_id: max(1e-6, scores.get(d.deck_id, 0.0)) for d in decks}
@@ -299,6 +297,7 @@ def build_profile(
     return LegendProfile(
         legend_id=legend_id,
         deck_count=len(decks),
+        era_id=era_id,
         play_rate=play_rate,
         copies=copies,
         clusters=_cluster(decks, scores),
@@ -309,7 +308,7 @@ def build_profile(
 
 
 def build_index(
-    decks: Iterable[MetaDeck], scores: Mapping[str, float]
+    decks: Iterable[MetaDeck], scores: Mapping[str, float], *, era_id: str = ""
 ) -> LegendIndex:
     """Profile every legend present in a meta snapshot."""
     by_legend: dict[str, list[MetaDeck]] = defaultdict(list)
@@ -318,10 +317,51 @@ def build_index(
             by_legend[deck.deck.legend_id].append(deck)
     return LegendIndex(
         profiles={
-            legend_id: build_profile(legend_id, group, scores)
+            legend_id: build_profile(legend_id, group, scores, era_id=era_id)
             for legend_id, group in by_legend.items()
         }
     )
+
+
+def build_scoped_index(
+    decks: Sequence[MetaDeck], scores: Mapping[str, float], era: Era
+) -> LegendIndex:
+    """Profile every legend from **one era's** evidence, falling back only when there is
+    none at all.
+
+    The archive spans a banning, and a third of it describes a format that no longer
+    exists. Built over everything, the signal this index carries -- play rates, clusters,
+    the pairing counts a deck is filled from -- is an average of two formats, and the
+    builder hands the player the average. Measured against the real lists of the current
+    era, scoping the index moved the closest-match score from 0.837 to 0.879 and changed
+    the deck for 43-54% of collections; for Annie the built deck was 68% different.
+
+    **There is no evidence threshold, and that was a surprise worth recording.** The
+    obvious design is to keep the all-time signal for legends with only a handful of
+    recent lists. Measured, that is strictly worse: requiring 10 era decks before
+    trusting them drops the closest match to 0.875, requiring 30 drops it to 0.855 and
+    cuts the improved legends from 17 to 7. Eight current lists describe the current
+    format better than thirty-seven pre-ban ones do. So the only fallback is the
+    degenerate case -- a legend with *nothing* in this era, where there is no signal to
+    prefer -- and that profile is tagged with ``era_id="all"`` rather than quietly
+    passing as current.
+    """
+    scoped: list[MetaDeck] = []
+    for deck in decks:
+        when = deck.provenance.tournament_date or deck.provenance.published_at
+        if era.era_id == "all" or era.contains(when):
+            scoped.append(deck)
+
+    current = build_index(scoped, scores, era_id=era.era_id)
+    if era.era_id == "all":
+        return current
+
+    missing = build_index(
+        [d for d in decks if d.deck.legend_id not in current.profiles],
+        scores,
+        era_id="all",
+    )
+    return LegendIndex(profiles={**missing.profiles, **current.profiles})
 
 
 def role_of(card_id: str, catalog: Catalog) -> tuple[str, tuple[int, int]]:

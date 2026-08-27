@@ -272,6 +272,7 @@ def list_legends(
                 name=card.name,
                 domains=list(card.domains),
                 image_url=card.image_url,
+                era_id=profile.era_id,
                 deck_count=profile.deck_count,
                 tournament_deck_count=tournament_counts.get(legend_id, 0),
                 best_score=best,

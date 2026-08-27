@@ -278,17 +278,30 @@ class Preference:
 #: How much "does this sit with what we have chosen" counts against "how often is this
 #: played at all".
 #:
-#: Swept against the live snapshot, measuring the share of a built deck the field pairs
-#: with the rest less often than chance:
+#: Judged by ``deck_fidelity`` -- overlap with the real lists of the current era -- on the
+#: era-scoped index:
 #:
-#:   weight   0.00    0.35    0.55    0.75    0.90    0.95    1.00
-#:   orphans  50.1%   49.1%   48.8%   47.9%   46.7%   46.1%   46.0%
-#:   meta     21.64   21.70   21.72   21.74   21.74   21.73   21.66
+#:   weight        0.75     0.90     0.95     1.00
+#:   all legends  0.8800   0.8872   0.8872   0.8872
+#:   thin (<20)   0.8168   0.8389   0.8389   0.8389
 #:
-#: There is no trade to make until the very top: coherence improves both measures,
-#: because cards that belong together are also the cards the field plays. Stopping at
-#: 0.9 rather than 0.95 keeps a real popularity term, which matters for a legend with
-#: few published decks where the pairing counts are thin enough to be noise.
+#: Two things to read off that, and the second corrects what used to be written here.
+#:
+#: Coherence earns its keep: dropping to 0.75 costs real fidelity, and most of the loss
+#: lands on legends with thin evidence.
+#:
+#: But **0.90, 0.95 and 1.00 are identical, to four decimals, including on the thin
+#: legends.** The old comment justified stopping at 0.9 as keeping "a real popularity
+#: term, which matters for a legend with few published decks where the pairing counts are
+#: thin enough to be noise". That is not what happens. Above 0.9 the pairing term so
+#: dominates that the remaining popularity weight never flips a pick, so the term the
+#: comment was protecting does nothing at all. 0.9 is kept because it is measured equal to
+#: the alternatives and changing a constant for no measured gain is churn -- not because
+#: the popularity term is doing the work the old note claimed.
+#:
+#: (The figures that used to sit here -- an orphan-share sweep -- predated both era
+#: scoping and the removal of the archetype steer, and no longer described the builder
+#: they were annotating.)
 COHERENCE_WEIGHT = 0.9
 
 

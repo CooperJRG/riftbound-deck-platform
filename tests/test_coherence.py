@@ -6,12 +6,16 @@ expensive units and throws away the thing that was buying them time -- so the pl
 ends up with a deck of costly cards and no plan, assembled by a tool that never asked
 whether the plan still worked.
 
-Two mechanisms answer it, and both are tested here:
+**Pairing** is the mechanism that answers it, and the one tested here: each card is
+chosen against what is already in the deck rather than against the format in general, so
+an enabler and its payoff travel together.
 
-* **pairing** -- each card is chosen against what is already in the deck rather than
-  against the format in general, so an enabler and its payoff travel together;
-* **archetype selection** -- when the core of one family is out of reach, the strongest
-  family the collection *can* field is preferred over patching one it cannot.
+There used to be a second mechanism -- steering the build toward a chosen archetype
+family -- and it was removed after measurement, not on taste. It never acted (the boost
+multiplied a term carrying 10% of a pick), and every way of making it act made the deck
+*less* like the lists people actually play, monotonically with strength. Clusters keep
+their place in *selection*, deciding which deck to show and which swap to offer; the
+coverage arithmetic that serves those is still tested below.
 """
 
 from __future__ import annotations
@@ -151,22 +155,34 @@ def test_coverage_of_a_coreless_cluster_is_zero_not_a_crash(paired_profile):
     assert paired_profile.coverage(empty, {ENABLER: 3}) == 0.0
 
 
-def test_the_strongest_fieldable_archetype_is_chosen(paired_profile):
-    """Strength still counts, but not on its own.
+def test_construction_no_longer_steers_toward_an_archetype(paired_profile):
+    """The removal, pinned so it is not reinstated by reflex.
 
-    Owning none of the enabler a plan is built around does not mean playing that plan
-    without it; it means playing a different plan.
+    ``preference()`` takes no archetype. Judged against the real lists of the current
+    era, steering the fill toward a family scored 0.879 where not steering scored 0.888,
+    and pushing harder only widened the gap -- 0.864 at thirty times the strength. The
+    harm concentrated on exactly the legends the mechanism claimed to protect: those with
+    fewer than twenty published lists went 0.806 -> 0.777.
     """
-    chosen = paired_profile.best_cluster({STANDALONE: 3, CHAMPION: 3})
-    assert chosen is not None
-    assert ENABLER not in chosen.core, "picked a family whose core they cannot field"
+    import inspect
+
+    signature = inspect.signature(paired_profile.preference)
+    assert not signature.parameters, "construction must not take an archetype again"
+    assert not hasattr(paired_profile, "best_cluster")
 
 
-def test_best_cluster_survives_an_empty_collection(paired_profile):
-    """Before anything is known we still need somewhere to start."""
-    assert paired_profile.best_cluster({}) is not None
+def test_coverage_still_serves_the_parts_that_kept_clusters(paired_profile):
+    """Selection still asks 'can they field this deck's own family', so the arithmetic
+    behind that question has to keep working."""
+    cluster = Cluster(
+        cluster_id="c", deck_ids=("pair-0",), core=frozenset({ENABLER, PAYOFF}),
+        flex=frozenset(), score=1.0,
+    )
+    assert paired_profile.coverage(cluster, {ENABLER: 3, PAYOFF: 3}) == pytest.approx(1.0)
+    assert paired_profile.coverage(cluster, {ENABLER: 3}) == pytest.approx(0.5)
 
-
-def test_a_minimum_can_rule_every_archetype_out(paired_profile):
-    """Asking for a coverage nobody meets returns nothing rather than a bad guess."""
-    assert paired_profile.best_cluster({}, minimum=0.5) is None
+    # ...and the deck -> family lookup selection reaches it through.
+    family = paired_profile.cluster_of("pair-0")
+    assert family is not None
+    assert "pair-0" in family.deck_ids
+    assert paired_profile.cluster_of("no-such-deck") is None

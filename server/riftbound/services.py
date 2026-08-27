@@ -145,18 +145,25 @@ class Services:
 
     @cached_property
     def legend_index(self) -> LegendIndex:
-        """Per-legend meta summaries, built once.
+        """Per-legend meta summaries, built once, **scoped to the current format era**.
 
         Derived from the snapshot rather than stored: it is a pure function of data we
         already have, and a cache that can disagree with its source is a bug waiting to
         be filed. Measured at 0.14s for 3,322 decks, which is cheap enough to pay on
         first use and forget about.
+
+        The era scope is the point. Built over the whole archive this index averaged two
+        formats -- a third of the decks predate the March 2026 bans -- and the builder
+        handed the player that average. See :func:`legend_index.build_scoped_index` for
+        the measurements, and ``deck_fidelity`` for the gate that guards it.
         """
-        from .domain.legend_index import build_index
+        from .domain.eras import eras_for_format
+        from .domain.legend_index import build_scoped_index
 
         if self.meta is None:
             return LegendIndex(profiles={})
-        return build_index(self.meta.decks, self.deck_scores)
+        era = eras_for_format(self.rules_for("constructed")).current
+        return build_scoped_index(self.meta.decks, self.deck_scores, era)
 
     def engine_for(self, legend_id: str) -> Engine | None:
         """A wizard engine bound to one legend, or None if the meta knows nothing of it."""
