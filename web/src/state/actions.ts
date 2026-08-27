@@ -11,7 +11,7 @@ import type {
   AvailabilityMode,
 } from "../api/types";
 import { debounce } from "../ui/dom";
-import { emptyDeck, store, type ViewName } from "./store";
+import { emptyDeck, store, type ExploreMode, type ViewName } from "./store";
 
 /**
  * Where a card belongs, from its type. One "add" affordance, right zone.
@@ -662,4 +662,57 @@ export function closeSmartSession(): void {
     smartAnswers: new Map(),
     smartFinished: false,
   });
+}
+
+// -- cards in the meta --------------------------------------------------------
+
+/**
+ * The card wall.
+ *
+ * Tracked separately from legends and champions because the numbers mean different
+ * things: a champion's share is a partition of the field, a card's adoption is not.
+ * Keeping them in different state, fetched from different endpoints, is what stops one
+ * being rendered with the other's labels.
+ */
+export async function loadCardTrends(): Promise<void> {
+  store.set({ exploreLoading: true, exploreError: "", cardDetail: null });
+  try {
+    const cardTrends = await api.cardTrends({
+      ...exploreParams(),
+      ...(store.state.exploreCardType ? { cardType: store.state.exploreCardType } : {}),
+      limit: 60,
+    });
+    store.set({ cardTrends, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export async function openCard(cardId: string): Promise<void> {
+  store.set({
+    exploreLoading: true, exploreError: "",
+    legendMeta: null, championMeta: null, tournamentDetail: null,
+  });
+  try {
+    const cardDetail = await api.cardTrendDetail(cardId, exploreParams());
+    store.set({ cardDetail, exploreLoading: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    store.set({ exploreLoading: false, exploreError: message });
+  }
+}
+
+export function setExploreCardType(cardType: string): Promise<void> {
+  store.set({ exploreCardType: cardType });
+  return loadCardTrends();
+}
+
+export function closeCard(): void {
+  store.set({ cardDetail: null });
+}
+
+export async function setExploreMode(mode: ExploreMode): Promise<void> {
+  store.set({ exploreMode: mode, cardDetail: null });
+  if (mode === "cards" && !store.state.cardTrends) await loadCardTrends();
 }

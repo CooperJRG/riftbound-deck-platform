@@ -13,6 +13,8 @@ import type {
   Health,
   MetaDeck,
   MetaStatus,
+  CardDetail,
+  CardTrendOverview,
   LegendChoice,
   LegendMeta,
   RefreshStatus,
@@ -197,6 +199,17 @@ export const api = {
     request<{ deckId: string; name: string; source: string }>(
       `/api/meta/decks/${deckId}/import`,
       { method: "POST" },
+    ),
+
+  cardTrends: (params: {
+    from?: string; to?: string; format?: string; minPlayers?: number;
+    bucket?: string; cardType?: string; limit?: number;
+  } = {}) => request<CardTrendOverview>(`/api/meta/trends/cards${queryString({ ...params })}`),
+  cardTrendDetail: (cardId: string, params: {
+    from?: string; to?: string; format?: string; minPlayers?: number; bucket?: string;
+  } = {}) =>
+    request<CardDetail>(
+      `/api/meta/trends/cards/${encodeURIComponent(cardId)}${queryString({ ...params })}`,
     ),
 
   refreshStatus: () => request<RefreshStatus>("/api/meta/refresh"),

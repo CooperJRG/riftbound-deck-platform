@@ -39,6 +39,8 @@ from riftbound.domain.meta_trends import (
     TrendFilter,
     _confidence,
     _coverage,
+    card_detail,
+    card_trends,
     champion_meta,
     default_range,
     legend_meta,
@@ -69,11 +71,17 @@ def a_deck(
     complete=True,
     evidence=EVIDENCE_TOURNAMENT_PLACED,
     index=0,
+    main_override: dict[str, int] | None = None,
 ) -> MetaDeck:
     """A published tournament list, complete unless asked otherwise."""
     main = {champion: 3, "brazen-buccaneer": 3, "harpoon-squad": 3, "singular-relic": 1,
             "showcase-only": 3}
     main.update({f"filler-{i:02d}": 3 for i in range(1, 10)})
+    for card_id, copies in (main_override or {}).items():
+        if copies <= 0:
+            main.pop(card_id, None)
+        else:
+            main[card_id] = copies
     deck = Deck.make(
         name=f"list-{index}", legend_id=legend, champion_id=champion,
         main=main if complete else {champion: 3},
@@ -510,3 +518,115 @@ def test_a_legend_guide_reports_the_champions_played_under_it(catalog):
     assert result is not None
     assert {entry.entity_id for entry in result.champions} == {CHAMPION, "other-champ"}
     assert result.overview.deck_count == 2
+
+
+# -- cards --------------------------------------------------------------------
+
+
+def card_run(decks, tournaments, *, catalog, **kw):
+    return card_trends(
+        decks=decks, tournaments=tournaments, catalog=catalog, trend_filter=WINDOW, **kw
+    )
+
+
+def test_adoption_is_not_a_share_and_does_not_pretend_to_be(catalog):
+    """The distinction the card types exist for.
+
+    A champion's share is a partition -- one per list, summing to 1. A card's adoption
+    is not: a list plays forty of them. Naming both "share" would invite dividing one by
+    the other, which is the arithmetic this module exists to prevent.
+    """
+    result = card_run([a_deck(index=0)], [a_tournament()], catalog=catalog)
+    assert result.charted_deck_count == 1
+    total = sum(entry.adoption for entry in result.series)
+    assert total > 1.0, "one list adopts many cards; this is not a partition"
+    assert all(entry.adoption <= 1.0 for entry in result.series)
+    assert not hasattr(result.series[0], "share")
+
+
+def test_a_card_in_every_list_has_full_adoption(catalog):
+    decks = [a_deck(index=i) for i in range(4)]
+    result = card_run(decks, [a_tournament()], catalog=catalog)
+    entry = next(e for e in result.series if e.card_id == "brazen-buccaneer")
+    assert entry.decks == 4
+    assert entry.adoption == pytest.approx(1.0)
+
+
+def test_runes_and_battlefields_are_tracked_too(catalog):
+    """They are cards people have to own, and the wizard asks about them."""
+    result = card_run([a_deck(index=0)], [a_tournament()], catalog=catalog)
+    tracked = {entry.card_id for entry in result.series}
+    assert "fury-rune" in tracked
+    assert "the-arena" in tracked
+
+
+def test_average_copies_reflects_what_the_field_runs(catalog):
+    result = card_run([a_deck(index=0)], [a_tournament()], catalog=catalog)
+    by_id = {entry.card_id: entry for entry in result.series}
+    assert by_id["brazen-buccaneer"].average_copies == pytest.approx(3.0)
+    assert by_id["singular-relic"].average_copies == pytest.approx(1.0)
+    assert by_id["fury-rune"].average_copies == pytest.approx(12.0)
+
+
+def test_card_movement_obeys_the_same_restraint_as_everything_else(catalog):
+    """A thin interval cannot produce a direction here either."""
+    decks = [a_deck(index=i) for i in range(3)]
+    result = card_run(decks, [a_tournament()], catalog=catalog)
+    assert all(entry.momentum is None for entry in result.series)
+
+
+def test_cards_can_be_filtered_to_one_type(catalog):
+    result = card_run([a_deck(index=0)], [a_tournament()], catalog=catalog, card_type="Rune")
+    assert result.series
+    assert {entry.card_type for entry in result.series} == {"Rune"}
+
+
+# -- one card -----------------------------------------------------------------
+
+
+def test_a_card_nobody_played_has_no_page(catalog):
+    """An honest absence beats a page of zeroes that reads like a result."""
+    assert card_detail(
+        card_id="calm-intruder", decks=[a_deck(index=0)], tournaments=[a_tournament()],
+        catalog=catalog, trend_filter=WINDOW,
+    ) is None
+
+
+def test_the_copies_split_shows_what_the_average_hides(catalog):
+    """A card played as a one-of is a different card to one played as a three-of."""
+    ones = [a_deck(index=i, main_override={"harpoon-squad": 1}) for i in range(3)]
+    threes = [a_deck(index=10 + i) for i in range(3)]
+    detail = card_detail(
+        card_id="harpoon-squad", decks=ones + threes, tournaments=[a_tournament()],
+        catalog=catalog, trend_filter=WINDOW,
+    )
+    assert detail is not None
+    assert dict(detail.copies_split) == {1: 3, 3: 3}
+    assert detail.trend.average_copies == pytest.approx(2.0), "which nobody actually plays"
+
+
+def test_partners_are_ranked_by_lift_not_by_ubiquity(catalog):
+    """Otherwise the most-played card in the format tops every card's partner list and
+    tells nobody anything."""
+    together = [a_deck(index=i) for i in range(6)]
+    apart = [
+        a_deck(index=20 + i, main_override={"harpoon-squad": 0, "calm-intruder": 0})
+        for i in range(6)
+    ]
+    detail = card_detail(
+        card_id="harpoon-squad", decks=together + apart, tournaments=[a_tournament()],
+        catalog=catalog, trend_filter=WINDOW,
+    )
+    assert detail is not None
+    assert detail.partners
+    assert all(partner.lift >= 1.0 for partner in detail.partners[:3])
+
+
+def test_a_cards_homes_add_up_to_where_it_is_played(catalog):
+    detail = card_detail(
+        card_id="brazen-buccaneer", decks=[a_deck(index=i) for i in range(3)],
+        tournaments=[a_tournament()], catalog=catalog, trend_filter=WINDOW,
+    )
+    assert detail is not None
+    assert sum(home.decks for home in detail.legends) == detail.trend.decks
+    assert detail.legends[0].share_of_card == pytest.approx(1.0)

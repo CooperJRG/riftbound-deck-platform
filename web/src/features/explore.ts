@@ -16,9 +16,11 @@ import {
   openLegend,
   openTournament,
   setExploreFilter,
+  setExploreMode,
 } from "../state/actions";
-import { store } from "../state/store";
+import { store, type ExploreMode } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { cardView, cardWall } from "./cardMeta";
 
 type Tier = "S" | "A" | "B" | "C" | "U";
 
@@ -530,16 +532,47 @@ function tournamentView(tournament: TournamentDetail): HTMLElement {
   );
 }
 
+/**
+ * The two questions Explore answers, kept apart.
+ *
+ * "What is winning" and "what is being played" are measured differently -- one is a
+ * share of the field, the other an adoption rate that does not sum to it -- so they get
+ * separate modes rather than a shared table with a swapped column.
+ */
+function modeSwitch(): HTMLElement {
+  const current = store.state.exploreMode;
+  const tab = (mode: ExploreMode, label: string, note: string) =>
+    h(
+      "button",
+      {
+        class: `mode-tab${current === mode ? " is-active" : ""}`,
+        type: "button",
+        aria: { pressed: String(current === mode) },
+        on: { click: () => void setExploreMode(mode) },
+      },
+      h("strong", {}, label),
+      h("span", {}, note),
+    );
+  return h(
+    "nav",
+    { class: "mode-switch", aria: { label: "Explore mode" } },
+    tab("legends", "Legends & champions", "What is winning"),
+    tab("cards", "Cards", "What is being played"),
+  );
+}
+
 export function renderExplore(root: HTMLElement): void {
-  const { championMeta, legendMeta, tournamentDetail } = store.state;
+  const { championMeta, legendMeta, tournamentDetail, exploreMode, cardDetail } = store.state;
+
+  // A drill-down owns the page; the switch belongs to the overviews it came from.
+  if (tournamentDetail) return replace(root, tournamentView(tournamentDetail));
+  if (championMeta) return replace(root, championView(championMeta));
+  if (legendMeta) return replace(root, legendView(legendMeta));
+  if (exploreMode === "cards" && cardDetail) return replace(root, cardView(cardDetail));
+
   replace(
     root,
-    tournamentDetail
-      ? tournamentView(tournamentDetail)
-      : championMeta
-        ? championView(championMeta)
-        : legendMeta
-          ? legendView(legendMeta)
-          : tierOverview(),
+    modeSwitch(),
+    exploreMode === "cards" ? cardWall() : tierOverview(),
   );
 }

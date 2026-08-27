@@ -20,6 +20,8 @@ import type {
   MetaStatus,
   RefreshStatus,
   SmartSession,
+  CardDetail,
+  CardTrendOverview,
   ChampionMeta,
   TournamentDetail,
   TrendBucket,
@@ -40,6 +42,15 @@ export interface CardFilters {
 
 /** Which top-level view is showing. */
 export type ViewName = "find" | "explore" | "build" | "decks";
+
+/**
+ * Explore answers two different questions and must not blur them.
+ *
+ * "legends" ranks the field by what is winning -- shares that partition the metagame.
+ * "cards" reports what is being played -- adoption, which does not. Same page, same
+ * filters, deliberately separate numbers.
+ */
+export type ExploreMode = "legends" | "cards";
 
 export interface AppState {
   ready: boolean;
@@ -117,6 +128,12 @@ export interface AppState {
   exploreMinPlayers: number;
   exploreBucket: TrendBucket;
   trendOverview: TrendOverview | null;
+  /** Which question Explore is answering: what is winning, or what is being played. */
+  exploreMode: ExploreMode;
+  /** The card wall, and the one card being read. */
+  cardTrends: CardTrendOverview | null;
+  cardDetail: CardDetail | null;
+  exploreCardType: string;
   championMeta: ChampionMeta | null;
   legendMeta: LegendMeta | null;
   tournamentDetail: TournamentDetail | null;
@@ -191,6 +208,10 @@ const initial: AppState = {
   refresh: null,
   refreshBusy: false,
 
+  exploreMode: "legends",
+  cardTrends: null,
+  cardDetail: null,
+  exploreCardType: "",
   exploreDimension: "champion",
   exploreFormat: "",
   exploreFrom: "",

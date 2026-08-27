@@ -24,6 +24,8 @@ from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
 from ...domain.meta_trends import (
     TrendFilter,
+    card_detail,
+    card_trends,
     champion_meta,
     default_range,
     legend_meta,
@@ -40,6 +42,8 @@ from ..identity import Identity, current_identity
 from ..schemas import (
     ArchetypeView,
     AttributionView,
+    CardDetailView,
+    CardTrendOverviewView,
     ChampionMetaView,
     LegendMetaView,
     MetaDeckView,
@@ -465,3 +469,65 @@ async def refresh_now(
     # The snapshot on disk has changed; drop everything derived from the old one.
     reset_services()
     return _refresh_status(request, get_services())
+
+
+# -- cards --------------------------------------------------------------------
+
+
+@router.get("/trends/cards", response_model=CardTrendOverviewView)
+def card_trend_overview(
+    from_date: str = Query(default="", alias="from"),
+    to_date: str = Query(default="", alias="to"),
+    format: str = Query(default="", max_length=40),
+    min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
+    bucket: str = Query(default="week"),
+    card_type: str = Query(default="", max_length=20, alias="cardType"),
+    limit: int = Query(default=40, ge=1, le=200),
+    services: Services = Depends(get_services),
+) -> CardTrendOverviewView:
+    """How often the field plays each card, and which way that is moving."""
+    snapshot = _require_meta(services)
+    result = card_trends(
+        decks=snapshot.decks,
+        tournaments=snapshot.tournaments,
+        catalog=services.catalog,
+        trend_filter=_trend_filter(
+            snapshot, from_date=from_date, to_date=to_date, format=format,
+            min_players=min_players, bucket=bucket,
+        ),
+        limit=limit,
+        card_type=card_type,
+    )
+    return CardTrendOverviewView.model_validate(result, from_attributes=True)
+
+
+@router.get("/trends/cards/{card_id}", response_model=CardDetailView)
+def card_trend_detail(
+    card_id: str,
+    from_date: str = Query(default="", alias="from"),
+    to_date: str = Query(default="", alias="to"),
+    format: str = Query(default="", max_length=40),
+    min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
+    bucket: str = Query(default="week"),
+    services: Services = Depends(get_services),
+) -> CardDetailView:
+    snapshot = _require_meta(services)
+    result = card_detail(
+        card_id=card_id,
+        decks=snapshot.decks,
+        tournaments=snapshot.tournaments,
+        catalog=services.catalog,
+        trend_filter=_trend_filter(
+            snapshot, from_date=from_date, to_date=to_date, format=format,
+            min_players=min_players, bucket=bucket,
+        ),
+    )
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No published list in this window plays {card_id!r}. Widen the date "
+                "range or lower the minimum event size."
+            ),
+        )
+    return CardDetailView.model_validate(result, from_attributes=True)

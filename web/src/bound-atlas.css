@@ -843,3 +843,80 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .finished-copies { color: var(--atlas-muted); min-width: 1.6rem; }
 .finished-card.is-new .finished-name { color: var(--atlas-copper); font-weight: 600; }
 .finished-tag { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--atlas-copper); }
+
+/* Cards in the meta ---------------------------------------------------------- */
+
+/* The two questions Explore answers are measured differently, so the switch between
+   them says which is which rather than relying on the reader to remember. */
+.mode-switch { display: flex; gap: 0.5rem; margin-bottom: 2rem; }
+.mode-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: flex-start;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+  text-align: left;
+}
+.mode-tab strong { font-family: var(--atlas-serif); font-size: 1rem; }
+.mode-tab span { color: var(--atlas-muted); font-size: 0.74rem; }
+.mode-tab.is-active { border-color: var(--atlas-copper); background: var(--atlas-raised); }
+.mode-tab.is-active strong { color: var(--atlas-copper); }
+
+.card-type-filter { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+.chip-toggle {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: 999px;
+  background: var(--atlas-surface);
+  color: var(--atlas-muted);
+  font-size: 0.78rem;
+}
+.chip-toggle.is-active { border-color: var(--atlas-teal); color: var(--atlas-teal); background: var(--atlas-teal-soft); }
+
+.meta-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 1rem; }
+.meta-card-tile {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.meta-card-art { width: 100%; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 4.8% / 3.5%; background: #0c0e10; }
+.meta-card-art img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.meta-card-tile:hover .meta-card-art { box-shadow: 0 10px 24px rgba(10, 12, 14, 0.22); }
+.meta-card-body { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.55rem 0.15rem; }
+.meta-card-name { overflow: hidden; font-family: var(--atlas-serif); font-size: 0.9rem; text-overflow: ellipsis; white-space: nowrap; }
+.meta-card-stats { font-size: 0.86rem; }
+.meta-card-stats strong { color: var(--atlas-copper); }
+.meta-card-stats span { color: var(--atlas-muted); font-size: 0.75rem; }
+.meta-card-sub { display: flex; gap: 0.4rem; align-items: baseline; color: var(--atlas-muted); font-size: 0.72rem; }
+
+/* One card ------------------------------------------------------------------- */
+
+.atlas-panel { padding: 1.1rem 1.2rem; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius-lg); background: var(--atlas-surface); }
+.atlas-panel h3 { margin: 0 0 0.7rem; font-family: var(--atlas-serif); font-size: 1.1rem; }
+.atlas-note { margin: 0.7rem 0 0; color: var(--atlas-muted); font-size: 0.76rem; }
+
+.copies-split { display: flex; flex-direction: column; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+.copies-split li { display: grid; grid-template-columns: 2rem minmax(0, 1fr) 3rem; gap: 0.6rem; align-items: center; }
+.copies-label { color: var(--atlas-muted); font-size: 0.85rem; }
+.copies-track { height: 10px; overflow: hidden; border-radius: 999px; background: var(--atlas-raised); }
+.copies-fill { display: block; height: 100%; border-radius: 999px; background: var(--atlas-teal); }
+.copies-value { color: var(--atlas-ink); font-size: 0.8rem; text-align: right; }
+
+.home-list, .partner-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.home-row, .partner-row { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 0.7rem; align-items: center; }
+.partner-row { cursor: pointer; padding: 0.2rem; border-radius: 8px; }
+.partner-row:hover { background: var(--atlas-raised); }
+.home-art { width: 42px; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 3px; background: #0c0e10; }
+.home-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.home-copy { display: flex; flex-direction: column; min-width: 0; }
+.home-name { overflow: hidden; font-size: 0.86rem; text-overflow: ellipsis; white-space: nowrap; }
+.home-meta { color: var(--atlas-muted); font-size: 0.73rem; }
+/* Lift is the reason a pairing is worth reading, so a strong one is marked. */
+.lift-strong { color: var(--atlas-copper); font-weight: 650; }
+.lift-mild { color: var(--atlas-muted); }

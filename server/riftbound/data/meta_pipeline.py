@@ -121,12 +121,23 @@ def cmd_build(args: argparse.Namespace) -> int:
         print("  The rules profile decides legality; edit it deliberately to act on this.")
 
     previous = load_current_meta(cfg.meta_dir)
+    # The gate compares the *fresh* harvest against the previous snapshot, before any
+    # carry-forward. Comparing the merged set would make it blind: an archive that never
+    # shrinks always passes a "did we lose decks" check, which is the one check that
+    # matters when a source quietly stops returning anything.
     report = run_meta_gate(
         decks, tournaments, source_ok=result.ok, source_error=result.error,
         previous=previous, catalog=catalog,
     )
     print("\nValidation gate:")
     print(report.render())
+
+    decks, tournaments, carried = _carry_forward(decks, tournaments, previous)
+    if carried:
+        print(
+            f"\nCarried forward {carried['decks']} decks and {carried['tournaments']} "
+            "events the sources no longer return."
+        )
 
     snapshot = write_snapshot(
         cfg.meta_dir, decks, tournaments, standings,
@@ -186,6 +197,56 @@ def _build_sources(args: argparse.Namespace, progress):
             progress=progress, cache_dir=INGEST_CACHE,
         ))
     return sources
+
+
+#: How much history the archive keeps. Upstream only serves a rolling window -- TopDeck
+#: defaults to 180 days -- so without this the tracker's past silently erodes: every
+#: harvest would drop whatever aged out since the last one, and a trend view would be
+#: permanently stuck at the width of the narrowest source.
+ARCHIVE_DAYS = 730
+
+
+def _carry_forward(decks, tournaments, previous):
+    """Keep what the sources have stopped returning.
+
+    A meta tracker's value is the shape of a change over time, and you cannot see the
+    shape of something you only ever hold the last 180 days of. Fresh copies always win
+    -- a re-harvested deck may have gained a placement or a corrected list -- so this
+    only adds what is genuinely absent.
+    """
+    if previous is None:
+        return decks, tournaments, {}
+
+    from datetime import date, timedelta
+
+    horizon = date.today() - timedelta(days=ARCHIVE_DAYS)
+
+    def recent_enough(value: str) -> bool:
+        try:
+            return date.fromisoformat(value) >= horizon
+        except (TypeError, ValueError):
+            return False
+
+    known_decks = {deck.deck_id for deck in decks}
+    known_events = {row.slug for row in tournaments}
+
+    kept_decks = [
+        deck for deck in previous.decks
+        if deck.deck_id not in known_decks
+        and recent_enough(deck.provenance.tournament_date)
+    ]
+    kept_events = [
+        row for row in previous.tournaments
+        if row.slug not in known_events and recent_enough(row.date)
+    ]
+    if not kept_decks and not kept_events:
+        return decks, tournaments, {}
+
+    return (
+        [*decks, *kept_decks],
+        [*tournaments, *kept_events],
+        {"decks": len(kept_decks), "tournaments": len(kept_events)},
+    )
 
 
 def _merge(results: Sequence) -> _Harvest:
