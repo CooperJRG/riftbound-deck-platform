@@ -113,6 +113,9 @@ class FloorView(ApiModel):
     quality: float
     summary: str
     score: DeckScoreView | None = None
+    #: The finished list, named and illustrated. The finish screen shows the deck a
+    #: player is being handed; a payload of card ids is not a deck they can look at.
+    cards: list[RepairDeckCardView] = []
 
 
 class QuestionView(ApiModel):
@@ -161,6 +164,13 @@ class ProposalView(ApiModel):
     ban_notices: list[BanNoticeView] = []
 
 
+class DeclinedCardView(ApiModel):
+    """A card ruled out by preference, so the UI can show it and offer it back."""
+    card_id: str
+    name: str
+    image_url: str
+
+
 class SmartSessionView(ApiModel):
     session_id: str
     legend_id: str
@@ -172,6 +182,9 @@ class SmartSessionView(ApiModel):
     created_at: str
     updated_at: str
     proposal: ProposalView | None = None
+    #: Cards the player has ruled out by preference. Shown so a decline is visible and
+    #: reversible rather than a thing the deck silently stopped containing.
+    declined: list[DeclinedCardView] = []
 
 
 class StartSessionRequest(StrictRequest):
@@ -189,6 +202,15 @@ class AnswerRequest(StrictRequest):
     deck_id: str = ""
     have: dict[str, int] = {}
     asked: list[str] = []
+
+
+class DeclineRequest(StrictRequest):
+    """Cards the player does not want to play.
+
+    The whole set, not a delta: taking a decline back is then the same call as adding
+    one, and the client never has to send a difference it might compute wrongly.
+    """
+    card_ids: list[str] = []
 
 
 class AcceptRequest(StrictRequest):

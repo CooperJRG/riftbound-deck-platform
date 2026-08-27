@@ -339,3 +339,50 @@ def test_the_wizard_picks_a_repair_rather_than_asking(meta_client):
         picked = proposal[proposal["chosen"]]
         assert picked is not None, "chosen must name a repair that is actually present"
         assert picked["score"] is not None
+
+
+def test_a_card_can_be_declined_and_taken_back(meta_client):
+    """The endpoint that was shipped broken once: nothing exercised the writer, so a
+    call to a method the Database does not have passed every test and 500'd live."""
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    session_id = session["sessionId"]
+    assert session["declined"] == []
+
+    card = session["proposal"]["requirements"][0]["cardId"]
+    declined = meta_client.post(
+        f"/api/smart-decks/sessions/{session_id}/decline", json={"cardIds": [card]}
+    ).json()
+    assert [row["cardId"] for row in declined["declined"]] == [card]
+    assert declined["declined"][0]["name"], "a decline has to be nameable to be shown"
+
+    # The whole set, not a delta -- so taking one back is the same call.
+    restored = meta_client.post(
+        f"/api/smart-decks/sessions/{session_id}/decline", json={"cardIds": []}
+    ).json()
+    assert restored["declined"] == []
+
+
+def test_a_decline_survives_reloading_the_session(meta_client):
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    session_id = session["sessionId"]
+    card = session["proposal"]["requirements"][0]["cardId"]
+    meta_client.post(
+        f"/api/smart-decks/sessions/{session_id}/decline", json={"cardIds": [card]}
+    )
+    reloaded = meta_client.get(f"/api/smart-decks/sessions/{session_id}").json()
+    assert [row["cardId"] for row in reloaded["declined"]] == [card]
+
+
+def test_the_floor_arrives_with_cards_to_show(meta_client):
+    """The finish screen shows the deck; a payload of card ids is not one."""
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    floor = session["proposal"].get("floor")
+    if floor is not None:
+        assert floor["cards"], "a floor must be renderable, not just a card-id map"
+        assert all(row["name"] for row in floor["cards"])

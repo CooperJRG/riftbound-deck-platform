@@ -249,6 +249,40 @@ def requirement_row(
     )
 
 
+def deck_card_rows(deck, catalog: Catalog, *, added: set[str] | None = None) -> list[RepairDeckCardView]:
+    """A deck resolved to names and art, grouped by zone.
+
+    Shared by the repair panel and the finish screen, so the deck a player is handed is
+    rendered by one code path however they arrived at it.
+    """
+    brought_in = added or set()
+
+    def rows(counts, zone: str) -> list[RepairDeckCardView]:
+        out = []
+        for card_id, copies in counts.items():
+            card = catalog.get(card_id)
+            out.append(
+                RepairDeckCardView(
+                    card_id=card_id,
+                    name=card.name if card else card_id,
+                    image_url=card.image_url if card else "",
+                    zone=zone,
+                    copies=int(copies),
+                    added=card_id in brought_in,
+                )
+            )
+        # Brought-in cards first: they are what the player has not seen before, and the
+        # reason they are reading this list at all.
+        out.sort(key=lambda row: (not row.added, row.name))
+        return out
+
+    return (
+        rows(deck.main, "main")
+        + rows(deck.runes, "runes")
+        + rows({b: 1 for b in deck.battlefields}, "battlefields")
+    )
+
+
 def repair_view(repair, catalog: Catalog, *, legal: bool) -> RepairView:
     def name_of(card_id: str) -> str:
         card = catalog.get(card_id)

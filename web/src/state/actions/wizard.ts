@@ -148,22 +148,48 @@ export async function submitSmartRound(): Promise<void> {
     );
     store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
 
-    // The replacement round is the last question there is. Once it is answered the app
-    // knows which deck it is handing over -- it picked between the repairs itself -- so
-    // asking the player to press a further button to see it is asking them to confirm a
-    // decision they were not part of. Take them to the deck.
+    // The replacement round is the last question there is, so the next thing the player
+    // sees is the deck itself -- shown, with what changed and why, and one more pass to
+    // rule out anything they would rather not play.
+    //
+    // It used to jump straight to the builder here. That is a card-search workspace with
+    // a deck panel down one side: a place to work on a deck, not a place to be shown
+    // one, and arriving there after answering questions made it hard to tell what the
+    // app had decided.
     //
     // Only after a checklist: a deck round is a review the player is still working
     // through, and jumping them out of it would take away the choice to keep looking.
-    if (wasChecklist) {
-      const landing = next.proposal?.chosen || (next.proposal?.floor ? "floor" : "");
-      if (landing) await acceptSmartDeck(landing as "floor" | "conservative" | "free");
+    if (wasChecklist && (next.proposal?.chosen || next.proposal?.floor)) {
+      store.set({ smartShowing: "finish" });
     }
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
   }
 }
+
+/**
+ * Rule cards out by preference and rebuild around them.
+ *
+ * Deliberately not folded into the ownership answers. "I do not want to play this" is a
+ * claim about a person; "I have none of these" is a claim about a collection. Recording
+ * the first as the second would have the wizard tell somebody they cannot build a deck
+ * they own every card for, and would write "does not own" into their collection on the
+ * opt-in save.
+ */
+export async function declineSmartCards(cardIds: string[]): Promise<void> {
+  const { smartSession } = store.state;
+  if (!smartSession) return;
+  store.set({ smartBusy: true });
+  try {
+    const next = await api.declineSmartCards(smartSession.sessionId, cardIds);
+    store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
 
 /** Take one of the offered decks into the library and open it in the builder. */
 export async function acceptSmartDeck(which: "floor" | "conservative" | "free"): Promise<void> {
@@ -227,5 +253,6 @@ export function closeSmartSession(): void {
     smartSession: null,
     smartAnswers: new Map(),
     smartFinished: false,
+    smartShowing: "rounds",
   });
 }

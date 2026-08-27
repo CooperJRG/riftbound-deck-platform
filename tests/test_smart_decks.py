@@ -497,3 +497,53 @@ def test_a_clean_deck_is_passed_through_untouched(catalog, bound_rules, profile)
     )
     shown = engine.propose(engine.start(LEGEND)).deck
     assert shown is engine.decks["d1"]
+
+
+# -- "I don't want to play this" ------------------------------------------------
+#
+# A different claim from "I haven't got this", and the wizard has to keep them apart.
+# Folding a preference in as `exact 0` would make it tell someone they cannot build a
+# deck they own every card for, and would write "does not own" into their collection on
+# the opt-in save. The point of the feature: a tool that can only hear the second can
+# only ever build the meta back at you.
+
+
+def test_a_declined_card_is_not_built_with():
+    knowledge = Knowledge(exact={"a": 3, "b": 3})
+    assert knowledge.owned() == {"a": 3, "b": 3}
+    assert knowledge.declining(["a"]).owned() == {"b": 3}
+
+
+def test_declining_does_not_claim_the_player_lacks_the_card():
+    """The distinction the separate state exists for."""
+    knowledge = Knowledge(exact={"a": 3}).declining(["a"])
+    assert knowledge.is_declined("a")
+    # The ownership record is untouched: they still told us they have three.
+    assert knowledge.exact["a"] == 3
+
+
+def test_a_decline_can_be_taken_back():
+    knowledge = Knowledge(exact={"a": 3}).declining(["a"])
+    assert knowledge.allowing(["a"]).owned() == {"a": 3}
+    assert not knowledge.allowing(["a"]).is_declined("a")
+
+
+def test_declines_accumulate_across_passes():
+    knowledge = Knowledge(exact={"a": 3, "b": 3, "c": 3})
+    twice = knowledge.declining(["a"]).declining(["b"])
+    assert twice.declined == frozenset({"a", "b"})
+    assert twice.owned() == {"c": 3}
+
+
+def test_answering_a_round_keeps_what_was_declined():
+    """A later answer must not quietly reinstate a card the player ruled out."""
+    knowledge = Knowledge(exact={"a": 3}).declining(["a"])
+    after = knowledge.with_answer({"a": 3, "b": 3}, {"a": 3, "b": 3})
+    assert after.is_declined("a")
+    assert "a" not in after.owned()
+
+
+def test_declining_nothing_changes_nothing():
+    knowledge = Knowledge(exact={"a": 3})
+    assert knowledge.declining([]) is knowledge
+    assert knowledge.allowing(["never-declined"]) is knowledge

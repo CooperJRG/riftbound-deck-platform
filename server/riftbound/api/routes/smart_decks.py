@@ -33,6 +33,8 @@ from ..schemas import (
     AnswerRequest,
     BanNoticeView,
     DeckScoreView,
+    DeclinedCardView,
+    DeclineRequest,
     FloorView,
     GapView,
     LegendChoiceView,
@@ -43,7 +45,7 @@ from ..schemas import (
     SmartSessionView,
     StartSessionRequest,
 )
-from ..views import deck_dict, meta_deck_view, repair_view, requirement_row
+from ..views import deck_card_rows, deck_dict, meta_deck_view, repair_view, requirement_row
 
 router = APIRouter(prefix="/api/smart-decks", tags=["smart-decks"])
 
@@ -71,7 +73,11 @@ def _engine(services: Services, legend_id: str) -> Engine:
 def _session_of(record: WizardSessionRecord) -> Session:
     return Session(
         legend_id=record.legend_id,
-        knowledge=Knowledge(exact=dict(record.exact), at_least=dict(record.at_least)),
+        knowledge=Knowledge(
+            exact=dict(record.exact),
+            at_least=dict(record.at_least),
+            declined=frozenset(record.declined),
+        ),
         asked=record.asked_deck_ids,
         phase=record.phase,
         checklists=record.checklists,
@@ -114,7 +120,9 @@ def _score_view(score) -> DeckScoreView | None:
     )
 
 
-def _floor_view(deck: Deck | None, engine: Engine, score=None) -> FloorView | None:
+def _floor_view(
+    deck: Deck | None, engine: Engine, score=None, catalog=None
+) -> FloorView | None:
     if deck is None:
         return None
     play_rate = engine.profile.play_rate
@@ -127,6 +135,7 @@ def _floor_view(deck: Deck | None, engine: Engine, score=None) -> FloorView | No
             f"{staples} of them staples the field plays for this legend."
         ),
         score=_score_view(score),
+        cards=deck_card_rows(deck, catalog) if catalog is not None else [],
     )
 
 
@@ -139,7 +148,7 @@ def _proposal_view(
         phase=proposal.phase,
         reason=proposal.reason,
         round=session.rounds + session.checklists,
-        floor=_floor_view(proposal.floor, engine, proposal.floor_score),
+        floor=_floor_view(proposal.floor, engine, proposal.floor_score, catalog),
         chosen=proposal.chosen,
         deck_score=_score_view(proposal.deck_score),
         feasibility=proposal.feasibility.describe() if proposal.feasibility else "",
@@ -243,6 +252,14 @@ def _session_view(
         created_at=record.created_at,
         updated_at=record.updated_at,
         proposal=proposal,
+        declined=[
+            DeclinedCardView(
+                card_id=card_id,
+                name=getattr(services.catalog.get(card_id), "name", card_id),
+                image_url=getattr(services.catalog.get(card_id), "image_url", ""),
+            )
+            for card_id in record.declined
+        ],
     )
 
 
@@ -384,6 +401,39 @@ def answer(
         at_least=dict(updated.knowledge.at_least),
         phase=engine.propose(updated).phase,
         checklists=updated.checklists,
+    )
+    return _session_view(
+        _load(services, session_id, identity.user_id), services, identity.user_id
+    )
+
+
+@router.post("/sessions/{session_id}/decline", response_model=SmartSessionView)
+def decline(
+    session_id: str,
+    payload: DeclineRequest,
+    services: Services = Depends(get_services),
+    identity: Identity = Depends(current_identity),
+) -> SmartSessionView:
+    """Rule cards out by preference and rebuild around them.
+
+    Not the same as saying you do not own something, and deliberately a separate
+    endpoint. "I have none of these" is a fact about a collection, which the wizard
+    stores as knowledge and can offer to write back; "I do not want to play this" is a
+    fact about a person, which it stores separately and never writes anywhere. Filing
+    the second as the first would make the app tell somebody they cannot build a deck
+    they own every card for.
+
+    The payload is the whole set rather than a delta, so taking a decline back is the
+    same call as adding one.
+    """
+    record = _load(services, session_id, identity.user_id)
+    if record.saved_deck_id:
+        raise HTTPException(
+            status_code=409,
+            detail="This session already finished. Start another to build again.",
+        )
+    services.smart_decks.set_declined(
+        session_id, user_id=identity.user_id, declined=payload.card_ids
     )
     return _session_view(
         _load(services, session_id, identity.user_id), services, identity.user_id

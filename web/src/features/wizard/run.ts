@@ -18,6 +18,7 @@ import {
 import { store } from "../../state/store";
 import { h, replace } from "../../ui/dom";
 import { legendPicker } from "./picker";
+import { finishView } from "./finish";
 import { repairPanel, scorePanel } from "./repairs";
 import { requirementList } from "./rows";
 
@@ -191,6 +192,13 @@ function runView(session: SmartSession): HTMLElement {
   const { smartAnswers, smartBusy, smartFinished } = store.state;
 
   if (smartFinished || session.savedDeckId) return finishedPanel();
+  // The deck it built, once the questions are done. Falls through to the rounds if the
+  // proposal has nothing to hand over yet, so this can never strand the player on an
+  // empty screen.
+  if (store.state.smartShowing === "finish") {
+    const finish = finishView(session);
+    if (finish) return finish;
+  }
   if (!proposal) return h("p", { class: "empty" }, "Loading...");
 
   const parts: HTMLElement[] = [

@@ -92,6 +92,15 @@ export interface Floor {
   quality: number;
   summary: string;
   score: DeckScore | null;
+  /** The finished list, named and illustrated, so the finish screen can show it. */
+  cards: RepairDeckCard[];
+}
+
+/** A card ruled out by preference, not by ownership. Reversible. */
+export interface DeclinedCard {
+  cardId: string;
+  name: string;
+  imageUrl: string;
 }
 
 export interface Question {
@@ -132,6 +141,7 @@ export interface Proposal {
 }
 
 export interface SmartSession {
+  declined: DeclinedCard[];
   sessionId: string;
   legendId: string;
   legendName: string;

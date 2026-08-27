@@ -253,6 +253,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify(answer),
     }),
+  /** Rule cards out by preference. The whole set, not a delta. */
+  declineSmartCards: (sessionId: string, cardIds: string[]) =>
+    request<SmartSession>(`/api/smart-decks/sessions/${sessionId}/decline`, {
+      method: "POST",
+      body: JSON.stringify({ cardIds }),
+    }),
   acceptSmartDeck: (sessionId: string, which: string, name?: string) =>
     request<SmartSession>(`/api/smart-decks/sessions/${sessionId}/accept`, {
       method: "POST",

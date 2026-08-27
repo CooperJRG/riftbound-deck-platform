@@ -8,7 +8,7 @@ shortfall is ever exact.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
 from ..deck import Deck
@@ -34,9 +34,23 @@ class Knowledge:
     """
     exact: Mapping[str, int] = field(default_factory=dict)
     at_least: Mapping[str, int] = field(default_factory=dict)
+    #: Cards the player owns, or might, and does not want to play.
+    #:
+    #: A different kind of claim from anything above it. `exact` and `at_least` are facts
+    #: about a collection; this is a fact about a person, and the two must not be
+    #: conflated. Recording a decline as `exact 0` would make the wizard tell someone
+    #: they cannot build a deck they own every card for, and would write "does not own"
+    #: into their collection on the opt-in save.
+    #:
+    #: The whole point of the feature: the field's best deck is not everybody's best
+    #: deck, and a tool that can only hear "I don't have that" can only ever build the
+    #: meta back at you.
+    declined: frozenset[str] = frozenset()
 
     def lower_bound(self, card_id: str) -> int:
         """The most copies we can safely assume. Never over-claims."""
+        if card_id in self.declined:
+            return 0
         return max(int(self.exact.get(card_id, 0)), int(self.at_least.get(card_id, 0)))
 
     def is_exact(self, card_id: str) -> bool:
@@ -46,9 +60,40 @@ class Knowledge:
         return card_id in self.exact or card_id in self.at_least
 
     def owned(self) -> dict[str, int]:
-        """A collection the constructor may build from — lower bounds only."""
+        """A collection the constructor may build from — lower bounds only.
+
+        Declined cards are absent. The constructor cannot reach for them, but the
+        *reason* they are absent stays visible on the knowledge itself, so a caller can
+        tell "you have not got it" from "you said no" -- which are the same shortfall and
+        very different sentences.
+        """
         cards = set(self.exact) | set(self.at_least)
         return {c: self.lower_bound(c) for c in cards if self.lower_bound(c) > 0}
+
+    def is_declined(self, card_id: str) -> bool:
+        return card_id in self.declined
+
+    def declining(self, card_ids: Iterable[str]) -> Knowledge:
+        """Rule cards out by preference. Additive, so passes accumulate."""
+        wanted = {str(c) for c in card_ids if str(c)}
+        if not wanted:
+            return self
+        return Knowledge(
+            exact=dict(self.exact),
+            at_least=dict(self.at_least),
+            declined=self.declined | wanted,
+        )
+
+    def allowing(self, card_ids: Iterable[str]) -> Knowledge:
+        """Take a decline back. A playstyle is allowed to change its mind."""
+        forgiven = {str(c) for c in card_ids if str(c)}
+        if not forgiven & self.declined:
+            return self
+        return Knowledge(
+            exact=dict(self.exact),
+            at_least=dict(self.at_least),
+            declined=self.declined - forgiven,
+        )
 
     def with_answer(
         self, required: Mapping[str, int], have: Mapping[str, int]
@@ -73,7 +118,7 @@ class Knowledge:
                 at_least.pop(card_id, None)
             elif card_id not in exact:
                 at_least[card_id] = max(int(at_least.get(card_id, 0)), int(needed))
-        return Knowledge(exact=exact, at_least=at_least)
+        return Knowledge(exact=exact, at_least=at_least, declined=self.declined)
 
     @classmethod
     def from_collection(cls, owned: Mapping[str, int]) -> Knowledge:

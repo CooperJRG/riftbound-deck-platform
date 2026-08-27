@@ -19,6 +19,11 @@
      as the same caution. Dark mode needs no darker variant -- its amber already sits
      at 7.75:1 -- so the two themes point at different values on purpose. */
   --atlas-warning-ink: #8a5410;
+  /* Copper for small text sitting on --atlas-copper-soft. The accent itself measures
+     3.49:1 there, which is under AA for the 0.6rem uppercase labels that use it; this is
+     5.39:1. Dark mode needs no variant -- its copper on its own soft ground is 4.89:1 --
+     so the two themes point at different values deliberately. */
+  --atlas-copper-ink: #8a4310;
   --atlas-error: #b74747;
   --atlas-shadow: 0 16px 44px rgba(51, 40, 25, 0.09);
   --atlas-serif: Georgia, "Times New Roman", serif;
@@ -42,6 +47,7 @@
   --atlas-muted: #a7b0b0;
   --atlas-copper: #e38a45;
   --atlas-copper-soft: #432d1f;
+  --atlas-copper-ink: #e38a45;
   --atlas-teal: #62bdb4;
   --atlas-teal-soft: #203d3b;
   --atlas-border: #343b3c;
@@ -625,6 +631,87 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 :root[data-theme="dark"] .tier-b .tier-label { color: #c5fff7; background: #24554f; }
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
 :root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
+
+/* The finish screen — the deck the wizard built.
+   Card art at a size you can actually read, because the complaint that produced this
+   screen was that the builder made it hard to tell what had happened. Brought-in cards
+   carry a copper edge so "what changed" is legible without reading the swap list. */
+.smart-finish { display: flex; flex-direction: column; gap: 1.6rem; }
+.finish-head h2 { margin: 0.2rem 0 0.4rem; font-family: var(--atlas-serif); font-size: clamp(1.6rem, 3vw, 2.3rem); }
+.finish-lede { max-width: 66ch; color: var(--atlas-muted); }
+.finish-note { max-width: 70ch; color: var(--atlas-muted); font-size: 0.82rem; }
+.finish-swaps h4, .finish-declined h4, .finish-zone h4 {
+  margin: 0 0 0.35rem;
+  font-family: var(--atlas-serif);
+  font-size: 1.05rem;
+}
+.finish-zone h4 small { margin-left: 0.6rem; color: var(--atlas-muted); font-size: 0.7rem; font-weight: 400; }
+.finish-deck { display: flex; flex-direction: column; gap: 1.3rem; }
+.finish-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.finish-card {
+  display: grid;
+  grid-template-columns: 42px auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-sm);
+  background: var(--atlas-surface);
+}
+.finish-card img { width: 42px; height: 42px; border-radius: 4px; object-fit: cover; object-position: top center; }
+.finish-card-art-empty {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  border-radius: 4px;
+  background: var(--atlas-raised);
+  color: var(--atlas-muted);
+  font-size: 0.7rem;
+  place-items: center;
+}
+.finish-card.is-new { border-color: var(--atlas-copper); }
+.finish-copies { color: var(--atlas-muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.finish-name { overflow: hidden; font-size: 0.82rem; text-overflow: ellipsis; white-space: nowrap; }
+.finish-card .finish-tag {
+  padding: 0.05rem 0.3rem;
+  border-radius: 999px;
+  background: var(--atlas-copper-soft);
+  color: var(--atlas-copper-ink);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+/* The control this screen exists for. Quiet until reached for -- it is an escape hatch,
+   not the primary action -- but always present, because a preference nobody can express
+   is a preference the tool does not have. */
+.finish-decline {
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--atlas-muted);
+  font-size: 0.66rem;
+  cursor: pointer;
+}
+.finish-decline:hover { border-color: var(--atlas-error); color: var(--atlas-error); }
+.finish-declined ul { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.4rem 0 0; padding: 0; list-style: none; }
+.finish-declined li {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.25rem 0.3rem 0.25rem 0.6rem;
+  border: 1px dashed var(--atlas-border);
+  border-radius: 999px;
+  color: var(--atlas-muted);
+  font-size: 0.76rem;
+}
+.finish-actions { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-start; }
 
 /* Two deck scores, side by side.
    The champion score leads at full size because it is the one the player is asking about

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from uuid import uuid4
 
@@ -267,6 +268,8 @@ class WizardSessionRecord:
     checklists: int
     exact: dict[str, int]
     at_least: dict[str, int]
+    #: Cards the player has ruled out by preference, not by ownership.
+    declined: tuple[str, ...]
     asked_deck_ids: tuple[str, ...]
     saved_deck_id: str
     created_at: str
@@ -318,6 +321,10 @@ class SmartDeckRepository:
                 """,
                 (session_id,),
             ).fetchall()
+            declined = conn.execute(
+                "SELECT card_id FROM wizard_declined WHERE session_id = ? ORDER BY card_id",
+                (session_id,),
+            ).fetchall()
         exact, at_least = {}, {}
         for row in knowledge:
             target = exact if row["state"] == "exact" else at_least
@@ -329,6 +336,7 @@ class SmartDeckRepository:
             checklists=int(head["checklists"]),
             exact=exact,
             at_least=at_least,
+            declined=tuple(r["card_id"] for r in declined),
             asked_deck_ids=tuple(r["deck_id"] for r in rounds),
             saved_deck_id=head["saved_deck_id"] or "",
             created_at=head["created_at"],
@@ -349,6 +357,33 @@ class SmartDeckRepository:
             ]
         found = (self.get(sid, user_id=user_id) for sid in ids)
         return [record for record in found if record is not None]
+
+    def set_declined(
+        self, session_id: str, *, user_id: str, declined: Iterable[str]
+    ) -> None:
+        """Replace the set of cards the player has ruled out.
+
+        Replace rather than append, so taking a decline back is the same operation as
+        adding one and the client never has to send a delta it might get wrong.
+        """
+        wanted = sorted({str(c) for c in declined if str(c)})
+        now = utc_now_iso()
+        with self._db.transaction() as conn:
+            owned = conn.execute(
+                "SELECT 1 FROM wizard_sessions WHERE session_id = ? AND user_id = ?",
+                (session_id, user_id),
+            ).fetchone()
+            if owned is None:
+                return
+            conn.execute("DELETE FROM wizard_declined WHERE session_id = ?", (session_id,))
+            conn.executemany(
+                "INSERT INTO wizard_declined (session_id, card_id, created_at) VALUES (?, ?, ?)",
+                [(session_id, card_id, now) for card_id in wanted],
+            )
+            conn.execute(
+                "UPDATE wizard_sessions SET updated_at = ? WHERE session_id = ?",
+                (now, session_id),
+            )
 
     def record_round(
         self,

@@ -416,6 +416,43 @@ Clusters keep their place in **selection** (which deck to show, which swap to of
 `coverage` for "can they field this deck's own family"); they have no place in
 **construction**.
 
+## 9.5 The finish screen, and saying no
+
+The wizard used to hand the player straight to the builder once the questions were done.
+That is a card-search workspace with a deck panel down one side — a place to *work on* a
+deck, not a place to be shown one — and arriving there after answering questions made it
+hard to tell what had happened or what the app had decided.
+
+There is now a finish screen, and it does three things the builder cannot.
+
+**It shows the deck.** Full card art, grouped by zone, brought-in cards first. A deck is
+a thing you look at.
+
+**It says what changed and why.** Every swap named on both sides with its reason. A
+player is owed the difference between the list that won and the list they are holding
+before they take it to an event and wonder why it plays differently.
+
+**It lets them say no.** Not "I don't own this" — the wizard has asked that several times
+already — but *"I don't want to play this"*. That is the point of the screen, and it is a
+third kind of claim the model could not previously express.
+
+`Knowledge` gains `declined`, kept apart from `exact` and `at_least` and stored in its own
+table. The separation is not tidiness. Recording a preference as `exact 0` would make the
+wizard tell somebody they cannot build a deck they own every card for, and would write
+"does not own" into their collection on the opt-in save. Ownership is a fact about a
+collection that the app offers to remember; taste is a fact about a person that it keeps
+for this build and writes nowhere.
+
+Declining is reversible, accumulates across passes, and survives a reload. The deck
+rebuilds around it and the score moves honestly: ruling out a card in a live session took
+the champion score from 63 to 55, and taking it back restored it. The app reports what a
+preference costs rather than pretending it is free — and then builds what was asked for
+anyway.
+
+That last part is the whole design intent. A tool that can only hear "I haven't got that"
+can only ever build the meta back at you, and most people are not trying to arrive at the
+same forty cards as everyone else.
+
 ## 10. Decisions taken
 
 | question | decision | why |

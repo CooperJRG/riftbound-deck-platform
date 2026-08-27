@@ -98,6 +98,11 @@ export interface AppState {
   smartAnswers: Map<string, number>;
   smartBusy: boolean;
   smartFinished: boolean;
+  /**
+   * Which wizard screen to show. "rounds" is the question flow; "finish" is the deck it
+   * produced, with what changed and a last pass to rule cards out.
+   */
+  smartShowing: "rounds" | "finish";
   /** Legend picker filter, so a 49-legend list stays navigable. */
   smartLegendQuery: string;
   /**
@@ -208,6 +213,7 @@ const initial: AppState = {
   smartAnswers: new Map(),
   smartBusy: false,
   smartFinished: false,
+  smartShowing: "rounds",
   smartLegendQuery: "",
   smartLegendsError: "",
   smartLegendsLoaded: false,
