@@ -263,6 +263,12 @@ class TopDeckSource:
                     "place": index,
                     "player_name": player,
                     "record": _record_of(standing),
+                    # The integers as well as the rendered string: the record is the
+                    # only outcome signal richer than placement, and re-parsing a
+                    # display field to recover it is how it went unused for so long.
+                    "wins": _int(standing.get("wins")),
+                    "losses": _int(standing.get("losses")),
+                    "draws": _int(standing.get("draws")),
                     "deck_slug": deck_slug,
                 })
 

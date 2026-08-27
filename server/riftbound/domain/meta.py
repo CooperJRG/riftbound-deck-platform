@@ -60,12 +60,72 @@ class Tournament:
 
 @dataclass(frozen=True)
 class Standing:
-    """A player's finish. Present far more often than their decklist."""
+    """A player's finish, and how they got there.
+
+    The match record is the richest outcome signal in the corpus and the one that went
+    unread longest. Upstream publishes ``wins``/``losses``/``draws`` as integers on
+    every standing; they were being formatted into a ``"3-0"`` string at ingest and
+    never parsed back, so 20,783 matches sat in the snapshot behind a display field.
+
+    They are typed here, and ``record`` is kept as the display form. :attr:`match_record`
+    prefers the integers and falls back to parsing the string, so a snapshot promoted
+    before this change keeps working without a re-harvest.
+
+    What is *not* here, and cannot be: the opponent. No source records who anyone
+    played, so deck performance is available and head-to-head matchups are not.
+    """
     tournament_slug: str
     place: int
     player_name: str
     deck_slug: str = ""       # empty when the list was not published
     record: str = ""
+    wins: int = 0
+    losses: int = 0
+    draws: int = 0
+
+    @property
+    def match_record(self) -> tuple[int, int, int]:
+        """``(wins, losses, draws)``, from the typed fields or the legacy string."""
+        if self.wins or self.losses or self.draws:
+            return (max(0, self.wins), max(0, self.losses), max(0, self.draws))
+        return parse_record(self.record)
+
+    @property
+    def has_record(self) -> bool:
+        return self.matches > 0
+
+    @property
+    def matches(self) -> int:
+        """Matches this standing represents. Zero when the source recorded none."""
+        wins, losses, draws = self.match_record
+        return wins + losses + draws
+
+    @property
+    def decisive(self) -> int:
+        """Matches with a winner -- the denominator for a win rate. Draws are neither."""
+        wins, losses, _draws = self.match_record
+        return wins + losses
+
+
+def parse_record(value: str) -> tuple[int, int, int]:
+    """Read a ``"3-1"`` or ``"3-1-1"`` record. Anything else is no record at all.
+
+    Only needed for snapshots written before match counts were typed; new ingests carry
+    the integers. Returns zeros rather than raising, because an unreadable record means
+    "we do not know", and a standing without one is an ordinary thing.
+    """
+    parts = str(value or "").strip().split("-")
+    if len(parts) not in (2, 3):
+        return (0, 0, 0)
+    try:
+        numbers = [int(part.strip()) for part in parts]
+    except ValueError:
+        return (0, 0, 0)
+    if any(number < 0 for number in numbers):
+        return (0, 0, 0)
+    while len(numbers) < 3:
+        numbers.append(0)
+    return (numbers[0], numbers[1], numbers[2])
 
 
 @dataclass(frozen=True)

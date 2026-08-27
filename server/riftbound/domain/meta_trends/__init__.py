@@ -65,13 +65,27 @@ from .dossiers import (
     tournament_detail,
 )
 from .entities import overview
+from .performance import (
+    MAX_PILOT_SHARE,
+    MIN_EVENTS,
+    MIN_MATCHES,
+    Performance,
+    PerformanceBasis,
+    PerformanceTable,
+    performance,
+    signal_to_noise,
+    wilson,
+)
 
 __all__ = [
     "HIGH_CONFIDENCE_COVERAGE",
     "HIGH_CONFIDENCE_DECKS",
     "HIGH_CONFIDENCE_EVENTS",
+    "MAX_PILOT_SHARE",
     "MIN_DECKS_FOR_CHART_POINT",
     "MIN_DECKS_FOR_MOMENTUM",
+    "MIN_EVENTS",
+    "MIN_MATCHES",
     "MODERATE_CONFIDENCE_DECKS",
     "MODERATE_CONFIDENCE_EVENTS",
     "Bucket",
@@ -87,6 +101,9 @@ __all__ = [
     "EntityTrend",
     "LegendMeta",
     "Pairing",
+    "Performance",
+    "PerformanceBasis",
+    "PerformanceTable",
     "TournamentDetail",
     "TournamentEntity",
     "TrendDeck",
@@ -101,5 +118,8 @@ __all__ = [
     "legend_meta",
     "overview",
     "parse_date",
+    "performance",
+    "signal_to_noise",
     "tournament_detail",
+    "wilson",
 ]

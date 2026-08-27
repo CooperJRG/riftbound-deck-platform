@@ -153,5 +153,36 @@
         "TR 601.1.c.1"
       ]
     }
+  },
+  "eras": {
+    "description": "Windows in which the banned list did not change. A win rate or a play rate averaged across a ban is a number about a format that no longer exists, so every meta statistic declares which era it describes.",
+    "periods": [
+      {
+        "id": "launch",
+        "name": "Launch",
+        "from": "",
+        "to": "2026-03-28",
+        "bans_introduced": [],
+        "evidence": "Every deck in the archive dated on or before 2026-03-28 predates the first banning. 82-87% of decks in each month of this window play at least one card banned today.",
+        "source": ""
+      },
+      {
+        "id": "2026-03-bans",
+        "name": "March 2026 bans",
+        "from": "2026-03-29",
+        "to": "",
+        "bans_introduced": [
+          "Called Shot",
+          "Draven - Vanquisher",
+          "Fight or Flight",
+          "Obelisk of Power",
+          "Reaver's Row",
+          "Scrapheap",
+          "The Dreaming Tree"
+        ],
+        "evidence": "Derived from the archive, not from an announcement: across 4,218 published lists the last deck containing any of these cards is dated 2026-03-28 and the first list without them is dated 2026-03-29, with zero exceptions on either side. Replace 'source' with the official announcement URL when one is to hand and correct the date if it disagrees.",
+        "source": ""
+      }
+    ]
   }
 }

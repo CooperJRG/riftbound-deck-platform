@@ -70,6 +70,9 @@ def standings_from(rows: Iterable[Mapping[str, Any]]) -> list[Standing]:
             player_name=str(row.get("player_name") or "").strip(),
             deck_slug=str(row.get("deck_slug") or "").strip(),
             record=str(row.get("record") or "").strip(),
+            wins=_int(row.get("wins")),
+            losses=_int(row.get("losses")),
+            draws=_int(row.get("draws")),
         )
         for row in rows
         if str(row.get("tournament_slug") or "")

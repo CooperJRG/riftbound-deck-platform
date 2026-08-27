@@ -35,6 +35,23 @@ MAX_DECK_LOSS_RATIO = 0.5
 #: Below this, the snapshot is not worth promoting over whatever is already live.
 MIN_PLAUSIBLE_DECKS = 10
 
+#: How much of the previous promoted snapshot the merged archive may lose before it is
+#: refused rather than warned about.
+#:
+#: This is the check that was missing. `run_meta_gate` deliberately runs *before*
+#: carry-forward, so it sees only the fresh harvest -- which legitimately covers a
+#: shorter window than the archive and is expected to look smaller. That left nothing at
+#: all watching the number that matters: whether the thing about to be promoted holds
+#: less than the thing already live.
+#:
+#: It cost a real outage. A refresh that could not reach one source carried its decks
+#: forward and dropped its standings, so the deck count matched exactly -- 4,359 both
+#: sides -- while 13% of the standings and 2,030 match records disappeared, and the
+#: snapshot was promoted with `sourceOk: true`.
+#:
+#: Small tolerance rather than zero, because rows genuinely age out past ARCHIVE_DAYS.
+MAX_ARCHIVE_LOSS_RATIO = 0.02
+
 
 @dataclass(frozen=True)
 class MetaManifest:
@@ -180,17 +197,24 @@ def _tournament_from_dict(raw: dict[str, Any]) -> Tournament:
 
 
 def _standing_to_dict(s: Standing) -> dict[str, Any]:
+    wins, losses, draws = s.match_record
     return {
         "tournamentSlug": s.tournament_slug, "place": s.place,
         "playerName": s.player_name, "deckSlug": s.deck_slug, "record": s.record,
+        "wins": wins, "losses": losses, "draws": draws,
     }
 
 
 def _standing_from_dict(raw: dict[str, Any]) -> Standing:
+    # A snapshot written before match counts were typed carries only the string. The
+    # zeros fall through to Standing.match_record, which parses it -- so an older
+    # promoted snapshot keeps its records without a re-harvest.
     return Standing(
         tournament_slug=str(raw.get("tournamentSlug") or ""), place=int(raw.get("place") or 0),
         player_name=str(raw.get("playerName") or ""), deck_slug=str(raw.get("deckSlug") or ""),
         record=str(raw.get("record") or ""),
+        wins=int(raw.get("wins") or 0), losses=int(raw.get("losses") or 0),
+        draws=int(raw.get("draws") or 0),
     )
 
 
@@ -323,6 +347,45 @@ class MetaGateReport:
         lines = [f"  FAIL  {e}" for e in self.errors]
         lines += [f"  warn  {w}" for w in self.warnings]
         return "\n".join(lines) if lines else "  all checks passed"
+
+
+def check_archive_retention(
+    decks: Sequence[MetaDeck],
+    tournaments: Sequence[Tournament],
+    standings: Sequence[Standing],
+    previous: MetaSnapshot | None,
+) -> MetaGateReport:
+    """Refuse a snapshot that holds materially less than the one already promoted.
+
+    Run *after* carry-forward, unlike :func:`run_meta_gate`, and that is the whole point:
+    the two ask different questions. The gate asks "is this harvest plausible"; this asks
+    "is the archive about to go backwards". Carry-forward is supposed to make the second
+    impossible, so a failure here means carry-forward has a hole in it -- which is
+    exactly how this check came to exist.
+
+    Each population is checked separately. Counting only decks is what let 2,030 match
+    records vanish behind an unchanged deck count.
+    """
+    report = MetaGateReport()
+    if previous is None:
+        return report
+
+    for label, fresh, before in (
+        ("decks", len(decks), previous.manifest.deck_count),
+        ("tournaments", len(tournaments), previous.manifest.tournament_count),
+        ("standings", len(standings), previous.manifest.standing_count),
+    ):
+        if before <= 0:
+            continue
+        lost = 1.0 - fresh / before
+        if lost > MAX_ARCHIVE_LOSS_RATIO:
+            report.errors.append(
+                f"the archive would lose {lost:.0%} of its {label} "
+                f"({before:,} -> {fresh:,}) — a promoted snapshot must not hold less "
+                f"than the one it replaces; check whether a source failed and its rows "
+                f"were carried forward"
+            )
+    return report
 
 
 def run_meta_gate(

@@ -39,6 +39,10 @@ class FormatRules:
     #: the app should not block a deck the whole field is playing, but it should not let
     #: a player walk into an event with an illegal list either.
     advisories: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
+    #: Windows in which the banned list did not change, as authored in the profile.
+    #: Read by :mod:`domain.eras`; nothing about *legality* depends on it, because an
+    #: era only decides which decks a meta statistic is computed over.
+    eras: Mapping[str, Any] = field(default_factory=dict)
     source_path: Path | None = None
 
     # -- typed constraint access ------------------------------------------------
@@ -125,6 +129,7 @@ def load_format_rules(path: Path) -> FormatRules:
         constraints=dict(raw.get("constraints") or {}),
         rule_refs=dict(raw.get("rule_refs") or {}),
         advisories=dict(raw.get("advisories") or {}),
+        eras=dict(raw.get("eras") or {}),
         source_path=Path(path),
     )
 
