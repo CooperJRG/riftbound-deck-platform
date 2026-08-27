@@ -337,9 +337,17 @@ function legendTile(row: RankedLegend): HTMLElement {
             "span",
             {},
             `${row.trend.deckCount} lists · ${row.trend.eventCount} events`,
+            // The standing, then the change to it. A delta on its own says how far
+            // something moved without saying where it moved from, and two points is a
+            // different story at 3% than at 30%.
+            h("b", { class: "tier-card-share" }, ` ${(row.trend.share * 100).toFixed(1)} pts`),
             movement === null
               ? null
-              : h("b", { class: movement >= 0 ? "trend-up" : "trend-down" }, `${movement >= 0 ? " ↑" : " ↓"}${Math.abs(movement * 100).toFixed(1)} pts`),
+              : h(
+                  "b",
+                  { class: movement >= 0 ? "trend-up" : "trend-down" },
+                  `${movement >= 0 ? " ↑" : " ↓"}${Math.abs(movement * 100).toFixed(1)}`,
+                ),
           )
         : h("span", {}, "Uncharted in this range"),
     ),

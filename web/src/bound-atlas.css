@@ -575,6 +575,9 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 :root[data-theme="dark"] .tier-b .tier-label { color: #c5fff7; background: #24554f; }
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
 :root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
+/* The standing reads as the fact; the movement beside it is the annotation. */
+.tier-card-share { color: var(--atlas-ink); font-weight: 650; }
+
 .tier-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.7rem; padding: 0.85rem; align-items: start; }
 .tier-card {
   display: flex;
