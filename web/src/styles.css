@@ -975,9 +975,9 @@ h4 {
 /* -- smart decks ----------------------------------------------------------- */
 
 .panel-smart {
-  margin: var(--gap);
   display: block;
-  max-width: 1100px;
+  /* Width is the shell's business (see --atlas-max). A cap here would silently
+     override it, because max-width beats width whichever sheet loaded last. */
 }
 .panel-smart[hidden] {
   display: none;

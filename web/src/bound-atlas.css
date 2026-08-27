@@ -21,7 +21,11 @@
   --atlas-radius-sm: 8px;
   --atlas-radius: 14px;
   --atlas-radius-lg: 22px;
-  --atlas-max: 1440px;
+  /* The shell. Wide enough to use a modern monitor: the content here is grids of card
+     art, which get better with more columns, not worse. Prose keeps its own measure
+     below -- widening a paragraph past ~70 characters makes it harder to read, which is
+     why the caps are on the text and not on the page. */
+  --atlas-max: 1720px;
 }
 
 :root[data-theme="dark"] {
@@ -224,7 +228,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Find a deck -------------------------------------------------------------- */
 
-.smart-picker { max-width: 1180px; margin: 0 auto; }
+.smart-picker { max-width: none; }
 .smart-picker > h2 { max-width: 740px; margin-bottom: 0.75rem; font-size: clamp(2.25rem, 5vw, 4.5rem); }
 .smart-lede { max-width: 660px; color: var(--atlas-muted); font-size: 1.05rem; }
 .smart-freshness { display: inline-flex; align-items: center; gap: 0.6rem; margin: 1rem 0 2rem; padding: 0.4rem 0.55rem 0.4rem 0.8rem; border: 1px solid var(--atlas-border); border-radius: 999px; color: var(--atlas-muted); background: var(--atlas-surface); font-size: 0.78rem; }
@@ -238,7 +242,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   background: var(--atlas-surface);
 }
 .picker-hint { margin-bottom: 1.25rem; color: var(--atlas-muted); font-size: 0.8rem; }
-.legend-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
 .legend-card {
   display: grid;
   grid-template-columns: 76px minmax(0, 1fr);
@@ -255,7 +259,8 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .legend-name { color: var(--atlas-ink); font-family: var(--atlas-serif); font-size: 1.06rem; }
 .legend-meta, .legend-known { margin-top: 0.25rem; color: var(--atlas-muted); font-size: 0.73rem; font-weight: 500; }
 .legend-known { color: var(--atlas-teal); }
-.smart-run { width: min(960px, 100%); margin: 0 auto; }
+/* The wizard is a grid of cards, so it earns the width the shell gives it. */
+.smart-run { width: min(1360px, 100%); margin: 0 auto; }
 .smart-head, .detail-hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 2rem; }
 .smart-progress { display: flex; align-items: center; gap: 0.6rem; }
 .smart-round, .smart-known { color: var(--atlas-muted); font-size: 0.76rem; }
@@ -285,7 +290,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Explorer ----------------------------------------------------------------- */
 
-.explore-page { width: min(1240px, 100%); margin: 0 auto; }
+.explore-page { width: min(1640px, 100%); margin: 0 auto; }
 .atlas-filter-fields { display: grid; grid-template-columns: 1.1fr repeat(2, minmax(140px, 0.8fr)) repeat(2, minmax(130px, 0.7fr)); gap: 0.65rem; }
 .atlas-field > span { display: block; margin-bottom: 0.25rem; color: var(--atlas-muted); font-size: 0.7rem; font-weight: 700; }
 .atlas-field select, .atlas-field input { width: 100%; height: 40px; padding: 0 0.6rem; }
@@ -321,7 +326,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .app-body {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(330px, 420px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
   width: min(var(--atlas-max), calc(100% - 2rem));
   min-height: calc(100vh - 73px);
   height: auto;
@@ -349,6 +354,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .tile:hover { border-color: var(--atlas-copper); transform: none; }
 .tile-art { position: relative; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: var(--atlas-raised); }
 .tile-art img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+/* This frame is landscape (5/4), so battlefield art already fits it unrotated. */
 .tile-art.is-landscape img { width: 100%; height: 100%; transform: none; object-fit: cover; }
 .tile-body { padding: 0.7rem; }
 .tile-name { margin: 0; overflow: hidden; font-family: var(--atlas-serif); font-size: 0.95rem; text-overflow: ellipsis; white-space: nowrap; }
@@ -390,7 +396,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .panel-library { width: min(1180px, calc(100% - 2rem)); }
 .library-hero { display: flex; max-width: none; align-items: flex-end; justify-content: space-between; gap: 2rem; }
 .library-hero h1 { margin-bottom: 0.75rem; }
-.deck-library-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.deck-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
 .library-card { display: grid; min-height: 250px; grid-template-rows: auto auto 1fr auto; padding: 1.25rem; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius-lg); background: var(--atlas-surface); }
 .library-card.is-current { border-color: var(--atlas-teal); box-shadow: inset 0 0 0 1px var(--atlas-teal); }
 .library-card h2 { font-size: 1.45rem; }
@@ -491,7 +497,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Legend tier wall */
 
-.tier-page { max-width: 1540px; }
+.tier-page { max-width: none; }
 .tier-hero {
   position: relative;
   display: grid;
@@ -589,7 +595,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Legend and champion dossiers */
 
-.dossier-page { max-width: 1380px; }
+.dossier-page { max-width: 1640px; }
 .dossier-hero { display: grid; grid-template-columns: 310px minmax(0, 1fr); align-items: center; gap: clamp(2rem, 6vw, 6rem); min-height: 460px; margin-bottom: 1.25rem; }
 .dossier-card { width: 100%; transform: rotate(-1.4deg); box-shadow: 0 28px 60px rgba(10, 12, 14, 0.28); }
 .dossier-copy h1 { margin: 0; font-size: clamp(3rem, 7vw, 6.8rem); line-height: 0.86; }
@@ -729,12 +735,32 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Builder cards are cards, not thumbnails */
 
-.tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.tile-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; }
 .tile { overflow: visible; border: 0; background: transparent; }
 .tile:hover { border-color: transparent; transform: translateY(-4px); }
-.tile-art { width: 100%; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 4.8% / 3.5%; background: #0c0e10; box-shadow: 0 10px 25px rgba(10, 12, 14, 0.18); }
-.tile-art img,
-.tile-art.is-landscape img { width: 100%; height: 100%; object-fit: contain; transform: none; }
+.tile-art { position: relative; width: 100%; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 4.8% / 3.5%; background: #0c0e10; box-shadow: 0 10px 25px rgba(10, 12, 14, 0.18); }
+.tile-art img { width: 100%; height: 100%; object-fit: contain; transform: none; }
+
+/* Battlefields are printed landscape while every other card is portrait, so in a
+   portrait frame they arrive letterboxed between two bars of dead space. Laying the
+   image out at the frame's inverted dimensions and turning it a quarter turn fills the
+   frame exactly, with no crop, so a battlefield keeps the same silhouette as every
+   other card in the grid.
+
+   The frame is 63/88, so the rotated image needs to be 88/63 of the frame's width and
+   63/88 of its height; the offsets centre that box before it rotates about its own
+   centre. Done with left/top rather than a percentage translate, which would depend on
+   whether the translate resolves before or after the rotation. */
+.tile-art.is-landscape img {
+  position: absolute;
+  width: 139.6825%;  /* 88/63 */
+  height: 71.5909%;  /* 63/88 */
+  left: -19.8413%;   /* (100% - 139.6825%) / 2 */
+  top: 14.2045%;     /* (100% -  71.5909%) / 2 */
+  object-fit: cover;
+  transform: rotate(90deg);
+  transform-origin: center center;
+}
 .tile-body { padding: 0.65rem 0.2rem 0.9rem; }
 .tile-name { font-size: 1.06rem; }
 .tile-actions button { min-height: 38px; }
