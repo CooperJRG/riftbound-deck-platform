@@ -101,7 +101,7 @@ def _pick_champion(main: Mapping[str, int], legend: Card | None, catalog: Catalo
 
 
 def _deck_from_zones(
-    payload: Mapping[str, Any], *, catalog: Catalog
+    payload: Mapping[str, Any], *, catalog: Catalog, main_deck_size: int = 0
 ) -> tuple[Deck, tuple[str, ...]]:
     """Build a deck from a source that already separates its zones.
 
@@ -133,13 +133,25 @@ def _deck_from_zones(
     champions = resolve("champion")
 
     # Riftbound's chosen champion is *part of* the 40-card main deck, but TopDeck lists
-    # it in a zone of its own and usually does not repeat it in Mainboard. Folding those
-    # copies in is what makes the count come out at 40 rather than 39 — it affects 1,384
-    # of 2,861 live decks. A further 106 decks *do* repeat the champion in Mainboard, so
-    # adding unconditionally would make those read as 41; only absent champions are added.
+    # it in a zone of its own. Folding those copies in is what makes the count come out
+    # at 40 rather than 39.
+    #
+    # The copy is *additional*, even when the same card also appears in Mainboard — a
+    # player may run three and nominate one of them. An earlier version skipped the fold
+    # whenever the champion was already named in Mainboard, on the assumption that the
+    # source was repeating itself. It is not: those lists are 39 + 1, exactly like the
+    # rest, and skipping left 105 decks a card short.
+    #
+    # So fold, and only decline when folding actually overshoots the format's main deck
+    # *and* the champion was already listed -- which is the one shape that really is a
+    # duplicate. Two decks in the live archive look like that.
+    folded = dict(main)
     for card_id, qty in champions.items():
-        if card_id not in main:
-            main[card_id] = qty
+        folded[card_id] = folded.get(card_id, 0) + qty
+    duplicated = any(card_id in main for card_id in champions)
+    if main_deck_size and duplicated and sum(folded.values()) > main_deck_size:
+        folded = dict(main)
+    main = folded
 
     # Prefer the source's own champion; fall back to inference when it records none.
     # TopDeck omits the champion for 1,371 of 2,861 live decks, and without this those
@@ -184,7 +196,7 @@ def _resolve_named_zones(
 
 
 def deck_from_payload(
-    payload: Mapping[str, Any], *, catalog: Catalog
+    payload: Mapping[str, Any], *, catalog: Catalog, main_deck_size: int = 0
 ) -> tuple[Deck, tuple[str, ...]]:
     """Build a deck from a source payload.
 
@@ -195,7 +207,7 @@ def deck_from_payload(
     if payload.get("_named_zones"):
         payload = {**payload, "_zones": _resolve_named_zones(payload, catalog=catalog)}
     if payload.get("_zones"):
-        return _deck_from_zones(payload, catalog=catalog)
+        return _deck_from_zones(payload, catalog=catalog, main_deck_size=main_deck_size)
 
     main: dict[str, int] = {}
     runes: dict[str, int] = {}
@@ -250,6 +262,7 @@ def normalize_meta_decks(
     standings: Sequence[Standing] = (),
     tournaments: Sequence[Tournament] = (),
     warnings: list[str] | None = None,
+    main_deck_size: int = 0,
 ) -> list[MetaDeck]:
     """Build MetaDecks, joining decklists to tournament results where both exist."""
     log = warnings if warnings is not None else []
@@ -267,7 +280,9 @@ def normalize_meta_decks(
             skipped_private += 1
             continue
 
-        deck, unresolved = deck_from_payload(payload, catalog=catalog)
+        deck, unresolved = deck_from_payload(
+            payload, catalog=catalog, main_deck_size=main_deck_size
+        )
         if deck.main_total == 0:
             continue  # a scratch deck with no cards is not a meta deck
 

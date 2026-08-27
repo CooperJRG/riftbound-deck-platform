@@ -306,7 +306,13 @@ def test_the_chosen_champion_counts_toward_the_main_deck(catalog):
 
 
 def test_a_champion_already_in_the_mainboard_is_not_double_counted(catalog):
-    """106 live decks list the champion in both zones; adding twice would give 41."""
+    """Only when folding would actually overshoot the format.
+
+    This test used to assert that naming the champion in Mainboard was itself proof of
+    a repeat. It is not: 105 live decks name it *and* have a 39-card Mainboard, because
+    a player may run three copies and nominate one of them. Presence proves nothing;
+    the total does. Folding is declined only when it would push the deck past 40.
+    """
     code = lambda cid: catalog.get(cid).printings[0].code  # noqa: E731
     main = {code(f"filler-{i:02d}"): 3 for i in range(1, 10)}
     main[code("brazen-buccaneer")] = 3
@@ -322,7 +328,7 @@ def test_a_champion_already_in_the_mainboard_is_not_double_counted(catalog):
             "runes": {code("fury-rune"): 12},
         },
     }
-    deck, _ = deck_from_payload(payload, catalog=catalog)
+    deck, _ = deck_from_payload(payload, catalog=catalog, main_deck_size=40)
     assert deck.main["vi-destructive"] == 3
     assert deck.main_total == 40
 

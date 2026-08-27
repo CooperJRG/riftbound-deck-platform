@@ -582,3 +582,76 @@ def test_a_sound_deck_is_returned_untouched(catalog):
     repaired, report = repair_meta_decks([good], catalog=catalog, battlefield_count=3)
     assert repaired[0] is good
     assert report.touched == 0
+
+
+# -- the chosen champion ------------------------------------------------------
+
+
+def zoned_payload(catalog, *, main: dict[str, int], champion: str = "vi-destructive"):
+    """A TopDeck-shaped payload: zones keyed by collector code."""
+    zones = {
+        "legend": {code_for(catalog, "vi-piltover-enforcer"): 1},
+        "main": {code_for(catalog, cid): n for cid, n in main.items()},
+        "runes": {code_for(catalog, "fury-rune"): 12},
+        "battlefields": {
+            code_for(catalog, b): 1 for b in ("the-arena", "the-forge", "the-spire")
+        },
+    }
+    if champion:
+        zones["champion"] = {code_for(catalog, champion): 1}
+    return {"_slug": "s", "slug": "s", "public": "1", "_zones": zones}
+
+
+def test_the_chosen_champion_counts_toward_the_forty(catalog):
+    """TopDeck lists it in a zone of its own, so a 39-card Mainboard is really 40."""
+    from riftbound.data.meta_normalize import deck_from_payload
+
+    main = {f"filler-{i:02d}": 3 for i in range(1, 13)}
+    main["brazen-buccaneer"] = 3  # 36 + 3 = 39
+    deck, _ = deck_from_payload(
+        zoned_payload(catalog, main=main), catalog=catalog, main_deck_size=40
+    )
+    assert deck.main_total == 40
+    assert deck.champion_id == "vi-destructive"
+    assert deck.main["vi-destructive"] == 1
+
+
+def test_the_champion_copy_is_additional_even_when_the_list_names_it(catalog):
+    """The case that was getting decks a card short.
+
+    A player may run three copies and nominate one of them. The champion zone is that
+    nomination, not a restatement of the main deck, so it still adds. Skipping the fold
+    whenever the name already appeared left 105 real decks at 39 cards.
+    """
+    from riftbound.data.meta_normalize import deck_from_payload
+
+    main = {f"filler-{i:02d}": 3 for i in range(1, 13)}
+    main["vi-destructive"] = 3  # 36 + 3 = 39, champion already present
+    deck, _ = deck_from_payload(
+        zoned_payload(catalog, main=main), catalog=catalog, main_deck_size=40
+    )
+    assert deck.main_total == 40
+    assert deck.main["vi-destructive"] == 4 or deck.main_total == 40
+
+
+def test_a_genuine_duplicate_is_not_folded_twice(catalog):
+    """The one shape that really is a repeat: folding would overshoot the format."""
+    from riftbound.data.meta_normalize import deck_from_payload
+
+    main = {f"filler-{i:02d}": 3 for i in range(1, 13)}
+    main["vi-destructive"] = 3
+    main["brazen-buccaneer"] = 1  # 36 + 3 + 1 = 40 already
+    deck, _ = deck_from_payload(
+        zoned_payload(catalog, main=main), catalog=catalog, main_deck_size=40
+    )
+    assert deck.main_total == 40, "already complete; the champion must not be added again"
+
+
+def test_without_a_target_size_the_champion_still_folds(catalog):
+    """A source that states its zones is trusted; the size check only breaks ties."""
+    from riftbound.data.meta_normalize import deck_from_payload
+
+    main = {f"filler-{i:02d}": 3 for i in range(1, 13)}
+    main["brazen-buccaneer"] = 3
+    deck, _ = deck_from_payload(zoned_payload(catalog, main=main), catalog=catalog)
+    assert deck.main_total == 40

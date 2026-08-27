@@ -46,16 +46,24 @@ from .sources.topdeck import TopDeckSource
 INGEST_CACHE = ROOT / "var" / "ingest"
 
 
-def _battlefield_count(cfg) -> int:
-    """How many battlefields the format wants, from the rules profile rather than a
-    constant here -- the repair should follow the format, not a second opinion of it."""
+def _format_constraint(cfg, name: str, default: int) -> int:
+    """One constraint from the rules profile, so repairs follow the format rather than
+    a second opinion of it kept in this file."""
     from ..domain.rules import load_format_rules_dir
 
     try:
         rules = load_format_rules_dir(cfg.rules_dir)["constructed"]
     except (KeyError, FileNotFoundError, ValueError):
-        return 3
-    return int(rules.constraints.get("battlefield_count_exact", 3) or 3)
+        return default
+    return int(rules.constraints.get(name, default) or default)
+
+
+def _main_deck_size(cfg) -> int:
+    return _format_constraint(cfg, "main_deck_size_exact", 40)
+
+
+def _battlefield_count(cfg) -> int:
+    return _format_constraint(cfg, "battlefield_count_exact", 3)
 
 
 def _catalog(cfg):
@@ -103,6 +111,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     decks = normalize_meta_decks(
         result.decks, catalog=catalog, standings=standings,
         tournaments=tournaments, warnings=warnings,
+        main_deck_size=_main_deck_size(cfg),
     )
 
     counts = summarise(decks)
