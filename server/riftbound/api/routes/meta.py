@@ -21,6 +21,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from ...data.scheduler import snapshot_age_hours
 from ...domain.availability import deck_coverage
+from ...domain.eras import eras_for_format
 from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
 from ...domain.meta_trends import (
@@ -47,6 +48,7 @@ from ..schemas import (
     CardDetailView,
     CardTrendOverviewView,
     ChampionMetaView,
+    EraView,
     LegendMetaView,
     MetaDeckView,
     MetaStatusView,
@@ -174,8 +176,27 @@ def trends_overview(
     bucket: str = Query(default="week"),
     range_: str = Query(default="", alias="range", max_length=8),
     limit: int = Query(default=12, ge=1, le=50),
+    era: str = Query(default="", max_length=40),
+    include_dormant: bool = Query(default=False, alias="includeDormant"),
     services: Services = Depends(get_services),
 ) -> TrendOverviewView:
+    """Share of the field by entity, and how each fared where the sample allows.
+
+    ``era`` scopes the win rates to one banned-list window and defaults to the current
+    one. A rate averaged across a ban describes a format nobody is playing, so the
+    default is the narrow, correct answer rather than the largest sample. ``era=all``
+    opts into the whole archive.
+
+    Presence is *not* era-scoped: the date range already controls that, and silently
+    moving the window a caller asked for would make two numbers on one page disagree
+    about their own denominator.
+
+    ``includeDormant`` appends the entities the archive knows but this window does not,
+    each scored 0 and ordered by what the archive still says about them, so a tier list
+    over a short range ranks the whole field rather than dropping part of it. It also
+    means ``series`` can exceed ``limit``: the limit bounds the entities with lists, and
+    the dormant tail is however long the archive makes it.
+    """
     snapshot = _require_meta(services)
     trend_filter = _trend_filter(
         snapshot,
@@ -194,8 +215,36 @@ def trends_overview(
         trend_filter=trend_filter,
         dimension=dimension,
         limit=limit,
+        standings=snapshot.standings,
+        eras=eras_for_format(services.rules_for("constructed")),
+        era_id=era,
+        include_dormant=include_dormant,
     )
     return TrendOverviewView.model_validate(result, from_attributes=True)
+
+
+@router.get("/eras", response_model=list[EraView])
+def list_eras(services: Services = Depends(get_services)) -> list[EraView]:
+    """The banned-list windows a meta statistic can be scoped to, oldest first.
+
+    Served rather than hardcoded in the client for the same reason the rules are: an era
+    is data, it changes when the game changes, and a client holding its own copy is a
+    second policy that drifts.
+    """
+    eras = eras_for_format(services.rules_for("constructed"))
+    return [
+        EraView(
+            era_id=era.era_id,
+            name=era.name,
+            from_date=era.from_date,
+            to_date=era.to_date,
+            is_open=era.is_open,
+            is_cited=era.is_cited,
+            evidence=era.evidence,
+            bans_introduced=list(era.bans_introduced),
+        )
+        for era in eras
+    ]
 
 
 @router.get("/trends/champions/{champion_id}", response_model=ChampionMetaView)

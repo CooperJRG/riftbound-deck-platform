@@ -690,3 +690,84 @@ def test_an_empty_archive_reports_nothing_rather_than_a_date(catalog):
     result = run([], [], catalog=catalog)
     assert result.archive_from == ""
     assert result.archive_tournament_count == 0
+
+
+# -- ranking, and the field this window cannot see ----------------------------
+#
+# The scoring itself is pinned in test_ranking. These cover the join: that `overview`
+# finds the entities the archive knows and this window does not, and that asking for
+# them changes nothing for a caller who did not.
+
+
+def test_every_series_row_arrives_ranked_and_in_rank_order(catalog):
+    tournaments = [a_tournament("ev-1", "2026-02-02"), a_tournament("ev-2", "2026-02-09")]
+    decks = [
+        a_deck("ev-1", "2026-02-02", champion=CHAMPION, index=0),
+        a_deck("ev-1", "2026-02-02", champion=CHAMPION, index=1),
+        a_deck("ev-2", "2026-02-09", champion="harpoon-squad", index=2),
+    ]
+    result = run(decks, tournaments, catalog=catalog)
+    assert all(row.rank is not None for row in result.series)
+    positions = [row.rank.position for row in result.series]
+    assert positions == sorted(positions)
+    assert result.series[0].rank.position == 1
+    # The leader sets the top of the scale, so it takes every presence point going.
+    assert result.series[0].rank.score > result.series[-1].rank.score
+
+
+def test_dormant_entities_are_absent_unless_asked_for(catalog):
+    """The response shape only changes for a caller that opted in."""
+    tournaments = [a_tournament("old", "2026-01-05"), a_tournament("new", "2026-03-09")]
+    decks = [
+        a_deck("old", "2026-01-05", champion="harpoon-squad", index=0),
+        a_deck("new", "2026-03-09", champion=CHAMPION, index=1),
+    ]
+    window = TrendFilter(from_date=date(2026, 3, 1), to_date=date(2026, 3, 31), bucket="week")
+
+    plain = run(decks, tournaments, catalog=catalog, trend_filter=window)
+    assert [row.entity_id for row in plain.series] == [CHAMPION]
+
+    with_dormant = run(
+        decks, tournaments, catalog=catalog, trend_filter=window, include_dormant=True
+    )
+    assert [row.entity_id for row in with_dormant.series] == [CHAMPION, "harpoon-squad"]
+
+
+def test_a_dormant_entity_scores_zero_and_says_when_it_was_last_seen(catalog):
+    tournaments = [a_tournament("old", "2026-01-05"), a_tournament("new", "2026-03-09")]
+    decks = [
+        a_deck("old", "2026-01-05", champion="harpoon-squad", index=0),
+        a_deck("new", "2026-03-09", champion=CHAMPION, index=1),
+    ]
+    window = TrendFilter(from_date=date(2026, 3, 1), to_date=date(2026, 3, 31), bucket="week")
+    result = run(decks, tournaments, catalog=catalog, trend_filter=window, include_dormant=True)
+
+    dormant = next(row for row in result.series if row.entity_id == "harpoon-squad")
+    assert dormant.rank.ranked is False
+    assert dormant.rank.score == 0.0
+    assert dormant.deck_count == 0
+    assert dormant.share == 0.0
+    # It was played, just not here — and the row says so instead of showing a bare zero.
+    assert dormant.rank.last_seen == "2026-01-05"
+    assert dormant.rank.prior_share > 0
+
+
+def test_a_window_covering_the_whole_archive_has_nothing_dormant(catalog):
+    """Nothing can be absent from a window that contains everything."""
+    tournaments = [a_tournament("ev-1", "2026-02-02")]
+    decks = [a_deck("ev-1", "2026-02-02", index=0)]
+    result = run(decks, tournaments, catalog=catalog, include_dormant=True)
+    assert all(row.rank.ranked for row in result.series)
+
+
+def test_dormant_entities_do_not_dilute_the_shares(catalog):
+    """They join the ranking at zero; they must not join the denominator."""
+    tournaments = [a_tournament("old", "2026-01-05"), a_tournament("new", "2026-03-09")]
+    decks = [
+        a_deck("old", "2026-01-05", champion="harpoon-squad", index=0),
+        a_deck("new", "2026-03-09", champion=CHAMPION, index=1),
+    ]
+    window = TrendFilter(from_date=date(2026, 3, 1), to_date=date(2026, 3, 31), bucket="week")
+    result = run(decks, tournaments, catalog=catalog, trend_filter=window, include_dormant=True)
+    assert sum(row.share for row in result.series) == pytest.approx(1.0)
+    assert result.charted_deck_count == 1

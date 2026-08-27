@@ -92,6 +92,102 @@ class TrendPointView(ApiModel):
     charted: bool
 
 
+class PerformanceView(ApiModel):
+    """How an entity fared, and whether the sample lets us say so.
+
+    ``shown`` is the field a client must branch on. When it is false the rate and the
+    interval are still populated -- they are simply not fit to print -- and
+    ``withheldReason`` says which threshold was missed, so the page can render "62
+    matches so far, needs 200" rather than a blank cell.
+    """
+    entity_id: str
+    name: str
+    decks_with_records: int
+    matches: int          # every match, draws included
+    decisive: int         # matches with a winner: the win-rate denominator
+    wins: int
+    losses: int
+    draws: int
+    events: int
+    pilots: int
+    top_pilot_share: float
+    win_rate: float
+    interval_low: float
+    interval_high: float
+    #: True only when the whole 95% interval sits above even. The only claim of "this
+    #: wins" the evidence supports.
+    separated: bool
+    shown: bool
+    withheld_reason: str
+    #: Plain English, so a client never has to reimplement the thresholds to explain
+    #: them. Empty when the rate is shown.
+    withheld_detail: str
+
+
+class PerformanceBasisView(ApiModel):
+    """What the win rates are a rate *of*. Rendered beside them, never in a tooltip."""
+    era_id: str
+    era_name: str
+    era_from: str
+    era_to: str
+    #: False while the era boundary is derived from the archive rather than read off a
+    #: published announcement. Shown, so the distinction is not quietly forgotten.
+    era_cited: bool
+    era_evidence: str
+    entities_measured: int
+    entities_shown: int
+    entities_withheld: int
+    decks_with_records: int
+    total_matches: int
+    published_win_rate: float
+    unpublished_win_rate: float
+    published_standings: int
+    unpublished_standings: int
+    publication_gap: float
+    #: The sentence that has to appear wherever a rate does.
+    caveat: str
+
+
+class EraView(ApiModel):
+    era_id: str
+    name: str
+    from_date: str
+    to_date: str
+    is_open: bool
+    is_cited: bool
+    evidence: str
+    bans_introduced: list[str]
+
+
+class RankView(ApiModel):
+    """Where an entity placed in the field, as a number a player can read.
+
+    The scale is 0-100 and both ends mean something: 100 is leading the field on
+    presence, event breadth and momentum at once, and 0 is having no lists in the
+    selected range at all. The three components sum to `score`, so a card can show its
+    own working instead of asking the reader to trust a letter.
+    """
+    position: int          # 1-based, across the whole field
+    score: float           # 0-100
+    tier: str              # S / A / B / C / D
+    #: False when the entity had no lists in this range. It still gets a position and a
+    #: tier -- ordered by what the archive knows -- but its score is 0 by definition,
+    #: and a client should say why rather than showing it as a measured worst.
+    ranked: bool
+    presence_points: float
+    breadth_points: float
+    momentum_points: float
+    #: Only meaningful when `ranked` is false: what the whole archive still says about
+    #: an entity this window cannot see, and what orders it against the other dormant
+    #: ones.
+    prior_share: float
+    prior_momentum: float | None
+    last_seen: str
+    #: The one line a card can print under the number, written server-side so two
+    #: clients cannot phrase the same fact differently.
+    summary: str
+
+
 class TrendSeriesView(ApiModel):
     entity_id: str
     name: str
@@ -101,6 +197,13 @@ class TrendSeriesView(ApiModel):
     momentum: float | None
     confidence: str
     points: list[TrendPointView]
+    #: Performance, kept beside presence and never blended into it. `null` means no
+    #: match records reached this entity at all, which is a different statement from
+    #: "we have records and they are too thin" -- that arrives as an object with
+    #: `shown: false`.
+    performance: PerformanceView | None = None
+    #: Rank, rating and tier. The series arrives already in rank order.
+    rank: RankView | None = None
 
 
 class TrendOverviewView(ApiModel):
@@ -123,6 +226,8 @@ class TrendOverviewView(ApiModel):
     archive_to: str
     archive_tournament_count: int
     series: list[TrendSeriesView]
+    #: Null when the caller asked for presence only.
+    performance_basis: PerformanceBasisView | None = None
 
 
 class PairingView(ApiModel):

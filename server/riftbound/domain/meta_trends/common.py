@@ -12,10 +12,14 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from ..cards import Catalog
 from ..meta import MetaDeck, Tournament
+
+if TYPE_CHECKING:  # pragma: no cover - a cycle at runtime, fine for annotations
+    from .performance import Performance, PerformanceBasis
+    from .ranking import Rank
 
 Dimension = Literal["champion", "legend", "archetype"]
 Bucket = Literal["week", "month"]
@@ -84,6 +88,22 @@ class EntityTrend:
     momentum: float | None
     confidence: str
     points: tuple[TrendPoint, ...]
+    #: How this entity actually fared, when the sample supports saying so.
+    #:
+    #: Separate from ``share`` rather than folded into it, and deliberately never mixed
+    #: into a single ranking number. Presence and performance answer different
+    #: questions -- "what is the field bringing" and "what is winning" -- and the two
+    #: orderings genuinely disagree. Blending them would hide exactly the disagreement
+    #: that makes this worth showing. ``None`` means no match records reached this
+    #: entity at all, which is different from "we have records and they are too thin":
+    #: that case arrives as a Performance with ``shown=False`` and a reason.
+    performance: Performance | None = None
+    #: Where this entity placed in the field and why: a 0-100 rating with its three
+    #: parts, the tier letter, and -- for an entity with no lists in this window -- what
+    #: the wider archive still knows about it. See :mod:`ranking`.
+    #:
+    #: ``None`` only when an EntityTrend was built directly rather than by `overview`.
+    rank: Rank | None = None
 
 
 
@@ -115,6 +135,10 @@ class TrendOverview:
     archive_to: str
     archive_tournament_count: int
     series: tuple[EntityTrend, ...]
+    #: What the win rates on ``series`` are a rate *of*: the era, the sample, and the
+    #: publication bias measured on this very window. Carried in the response rather
+    #: than left to the client to remember, because the caveat is the feature.
+    performance_basis: PerformanceBasis | None = None
 
 
 

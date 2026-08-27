@@ -236,6 +236,23 @@ def client(tmp_path, catalog, monkeypatch):
                 "banned_cards": ["Banned Blade"],
             },
             "rule_refs": {"main_deck_size": ["TR 402.1"]},
+            # A two-era profile, because the API contract for a win rate includes
+            # saying which format it describes. A profile with no eras is exercised
+            # separately in test_meta_performance -- it must degrade to "unknown"
+            # rather than fail to load a format.
+            "eras": {
+                "periods": [
+                    {
+                        "id": "launch", "name": "Launch", "to": "2026-03-28",
+                        "bans_introduced": [], "evidence": "test fixture", "source": "",
+                    },
+                    {
+                        "id": "post-ban", "name": "Post ban", "from": "2026-03-29",
+                        "bans_introduced": ["Banned Blade"],
+                        "evidence": "test fixture", "source": "",
+                    },
+                ]
+            },
         }),
         encoding="utf-8",
     )
@@ -280,6 +297,56 @@ def meta_client(client, catalog, tmp_path):
     # Drop the cached (empty) snapshot and everything derived from it, so the app picks
     # the promoted one up. Anything cached off `meta` has to be listed here or it keeps
     # answering from the snapshot that was absent when it was first asked.
+    for cached in ("meta", "deck_scores", "legend_index"):
+        services.__dict__.pop(cached, None)
+    return client
+
+
+
+@pytest.fixture()
+def meta_records_client(client, catalog, tmp_path):
+    """The app with a snapshot whose standings carry match records.
+
+    Separate from ``meta_client`` because the two prove different things: that one has
+    no records at all, which is exactly the "not measured" case the win-rate column has
+    to render honestly, and losing that coverage by folding the fixtures together would
+    be easy to do by accident.
+
+    Deliberately spread over enough events and matches to clear the publishing
+    thresholds for one archetype and fall short for another, so both branches are
+    exercised end to end.
+    """
+    from tests.test_meta import deck_payload as meta_payload
+
+    from riftbound.data.meta_normalize import normalize_meta_decks
+    from riftbound.data.meta_snapshot import promote_meta, write_snapshot
+    from riftbound.domain.meta import Standing, Tournament
+    from riftbound.services import get_services
+
+    services = get_services()
+    meta_dir = services.config.meta_dir
+    meta_dir.mkdir(parents=True, exist_ok=True)
+
+    tournaments, payloads, standings = [], [], []
+    for event in range(10):
+        slug = f"ev-{event}"
+        tournaments.append(
+            Tournament(slug, slug, f"Event {event}", "2026-08-15", "Constructed", 64, decks_published=64)
+        )
+        for seat in range(12):
+            deck_slug = f"{slug}::{seat}"
+            payloads.append(meta_payload(catalog, slug=deck_slug))
+            standings.append(
+                Standing(
+                    tournament_slug=slug, place=seat + 1, player_name=f"player-{event}-{seat}",
+                    deck_slug=deck_slug, record="3-1", wins=3, losses=1, draws=0,
+                )
+            )
+    decks = normalize_meta_decks(
+        payloads, catalog=catalog, standings=standings, tournaments=tournaments
+    )
+    written = write_snapshot(meta_dir, decks, tournaments, standings)
+    promote_meta(meta_dir, written.manifest.snapshot_id)
     for cached in ("meta", "deck_scores", "legend_index"):
         services.__dict__.pop(cached, None)
     return client

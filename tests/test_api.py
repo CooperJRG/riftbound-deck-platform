@@ -8,6 +8,8 @@ tests covering auth, decks and collections.
 
 from __future__ import annotations
 
+import pytest
+
 
 def deck_payload(**overrides):
     main = {"vi-destructive": 3, "brazen-buccaneer": 3, "harpoon-squad": 3,
@@ -483,3 +485,79 @@ def test_an_explicit_date_still_wins_over_a_range(meta_client):
         "/api/meta/trends/overview?from=2026-08-01&minPlayers=0&limit=1"
     ).json()
     assert body["fromDate"] == "2026-08-01"
+
+
+# -- win rate over the API ----------------------------------------------------
+#
+# The domain rules are pinned in test_meta_performance; these prove the wiring, and
+# specifically that the *caveats* survive the trip to the client. A rate that arrives
+# without its basis is the failure this feature is most likely to ship.
+
+
+def test_eras_are_served_rather_than_hardcoded_in_the_client(client):
+    body = client.get("/api/meta/eras").json()
+    assert [row["eraId"] for row in body] == ["launch", "post-ban"]
+    current = body[-1]
+    assert current["isOpen"] is True
+    assert current["bansIntroduced"]
+    # Derived from the archive, not read off an announcement. The client is told so.
+    assert current["isCited"] is False
+    assert current["evidence"]
+
+
+def test_a_snapshot_without_records_reports_not_measured_not_zero(meta_client):
+    """The honest shape of "we have no match data": absent, never a 0% win rate."""
+    body = meta_client.get(
+        "/api/meta/trends/overview",
+        params={"dimension": "champion", "from": "2026-08-01", "to": "2026-08-31"},
+    ).json()
+    assert body["performanceBasis"]["totalMatches"] == 0
+    assert body["performanceBasis"]["entitiesMeasured"] == 0
+    assert body["series"][0]["performance"] is None
+
+
+def test_a_win_rate_arrives_with_the_basis_that_qualifies_it(meta_records_client):
+    body = meta_records_client.get(
+        "/api/meta/trends/overview",
+        params={"dimension": "archetype", "from": "2026-08-01", "to": "2026-08-31"},
+    ).json()
+
+    basis = body["performanceBasis"]
+    assert basis["totalMatches"] == 10 * 12 * 4
+    assert basis["eraId"] == "post-ban"
+    assert "published lists" in basis["caveat"]
+    assert basis["entitiesMeasured"] == basis["entitiesShown"] + basis["entitiesWithheld"]
+
+    row = body["series"][0]["performance"]
+    assert row["shown"] is True
+    assert row["winRate"] == pytest.approx(0.75)
+    assert 0.0 <= row["intervalLow"] <= row["winRate"] <= row["intervalHigh"] <= 1.0
+    assert row["separated"] is True
+    assert row["withheldReason"] == ""
+    assert row["events"] == 10
+
+
+def test_presence_and_win_rate_are_returned_as_two_separate_numbers(meta_records_client):
+    """They must never be blended: the disagreement between them is the point."""
+    series = meta_records_client.get(
+        "/api/meta/trends/overview",
+        params={"dimension": "archetype", "from": "2026-08-01", "to": "2026-08-31"},
+    ).json()["series"][0]
+    assert series["share"] == pytest.approx(1.0)
+    assert series["performance"]["winRate"] == pytest.approx(0.75)
+
+
+def test_scoping_to_an_era_with_no_matches_withholds_rather_than_invents(meta_records_client):
+    """Every event here is post-ban, so the launch era must come back empty."""
+    body = meta_records_client.get(
+        "/api/meta/trends/overview",
+        params={
+            "dimension": "archetype", "from": "2026-08-01", "to": "2026-08-31",
+            "era": "launch",
+        },
+    ).json()
+    assert body["performanceBasis"]["eraId"] == "launch"
+    assert body["performanceBasis"]["totalMatches"] == 0
+    assert body["series"][0]["performance"] is None
+    # Presence is unaffected: the caller asked for August and still gets August.
+    assert body["series"][0]["share"] == pytest.approx(1.0)
