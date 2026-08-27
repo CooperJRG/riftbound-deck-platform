@@ -1,0 +1,140 @@
+"""What we know about a collection, and how sure we are of it.
+
+The subtle part of the whole feature, and where its worst bug lived. "I have all six of
+them" is a *lower bound*, not a count: recording it as exact capped a player's twelve
+runes at six and then told them they were one short of a deck they could build. Only a
+shortfall is ever exact.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+
+from ..deck import Deck
+
+# -- knowledge ----------------------------------------------------------------
+
+
+
+
+
+
+# -- knowledge ----------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Knowledge:
+    """What we know about a player's collection, and how firmly.
+
+    ``exact`` is what they told us. ``at_least`` is inferred: a card that appeared in a
+    deck we showed and was *not* marked means they have at least what that deck asked
+    for. That inference is why a few rounds settle so much — an unmarked three-of pins
+    the card at the copy limit, which answers it for every future deck.
+    """
+    exact: Mapping[str, int] = field(default_factory=dict)
+    at_least: Mapping[str, int] = field(default_factory=dict)
+
+    def lower_bound(self, card_id: str) -> int:
+        """The most copies we can safely assume. Never over-claims."""
+        return max(int(self.exact.get(card_id, 0)), int(self.at_least.get(card_id, 0)))
+
+    def is_exact(self, card_id: str) -> bool:
+        return card_id in self.exact
+
+    def is_known(self, card_id: str) -> bool:
+        return card_id in self.exact or card_id in self.at_least
+
+    def owned(self) -> dict[str, int]:
+        """A collection the constructor may build from — lower bounds only."""
+        cards = set(self.exact) | set(self.at_least)
+        return {c: self.lower_bound(c) for c in cards if self.lower_bound(c) > 0}
+
+    def with_answer(
+        self, required: Mapping[str, int], have: Mapping[str, int]
+    ) -> Knowledge:
+        """Fold one round's answers in.
+
+        A deck answer only ever reveals ownership *up to what that deck asked for*. The
+        screen says "Need 6 — you have [0..6]", so "I have all 6" means **at least** six,
+        not exactly six. Recording it as exact silently caps the collection at whatever
+        the first deck happened to want: a player with twelve Calm Runes was written down
+        as having six, then told they were one rune short of a deck they could build.
+
+        Only a shortfall is exact, because a player saying "I have 2 of the 3" has told
+        us the true number.
+        """
+        exact = dict(self.exact)
+        at_least = dict(self.at_least)
+        for card_id, needed in required.items():
+            reported = int(have[card_id]) if card_id in have else int(needed)
+            if reported < int(needed):
+                exact[card_id] = max(0, reported)
+                at_least.pop(card_id, None)
+            elif card_id not in exact:
+                at_least[card_id] = max(int(at_least.get(card_id, 0)), int(needed))
+        return Knowledge(exact=exact, at_least=at_least)
+
+    @classmethod
+    def from_collection(cls, owned: Mapping[str, int]) -> Knowledge:
+        """Seed from a recorded collection, which is exact by definition."""
+        return cls(exact={k: int(v) for k, v in owned.items() if int(v) > 0})
+
+
+
+def _plural(count: int, noun: str) -> str:
+    """"1 more card", not "1 more cards".
+
+    Trivial, and worth doing: this string is the wizard talking to a player at the exact
+    moment it is asking them for effort, and sloppy copy there reads as a sloppy answer.
+    """
+    return f"{count} {noun}" if count == 1 else f"{count} {noun}s"
+
+
+
+def deck_requirements(deck: Deck) -> dict[str, int]:
+    """Every card a deck needs, with copies, across all zones."""
+    required = dict(deck.main)
+    for card_id, qty in deck.runes.items():
+        required[card_id] = required.get(card_id, 0) + qty
+    for card_id in deck.battlefields:
+        required[card_id] = required.get(card_id, 0) + 1
+    if deck.legend_id:
+        required[deck.legend_id] = max(required.get(deck.legend_id, 0), 1)
+    return required
+
+
+
+# -- gaps and repair ----------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Gap:
+    """A shortfall on one card, measured in copies."""
+    card_id: str
+    needed: int
+    have: int
+
+    @property
+    def short(self) -> int:
+        return max(0, self.needed - self.have)
+
+
+
+def gaps_for(deck: Deck, knowledge: Knowledge) -> tuple[Gap, ...]:
+    """What the player is short for this deck. Only counts what we actually know."""
+    out = []
+    for card_id, needed in deck_requirements(deck).items():
+        if not knowledge.is_known(card_id):
+            continue
+        have = knowledge.lower_bound(card_id)
+        if have < needed:
+            out.append(Gap(card_id, needed, have))
+    return tuple(sorted(out, key=lambda g: (-g.short, g.card_id)))
+
+
+
+def unknown_cards(deck: Deck, knowledge: Knowledge) -> tuple[str, ...]:
+    return tuple(
+        sorted(c for c in deck_requirements(deck) if not knowledge.is_known(c))
+    )

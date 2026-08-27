@@ -37,8 +37,6 @@ from riftbound.domain.meta_trends import (
     MIN_DECKS_FOR_MOMENTUM,
     MODERATE_CONFIDENCE_DECKS,
     TrendFilter,
-    _confidence,
-    _coverage,
     card_detail,
     card_trends,
     champion_meta,
@@ -48,6 +46,7 @@ from riftbound.domain.meta_trends import (
     parse_date,
     tournament_detail,
 )
+from riftbound.domain.meta_trends.common import _confidence, _coverage
 
 LEGEND = "vi-piltover-enforcer"
 CHAMPION = "vi-destructive"

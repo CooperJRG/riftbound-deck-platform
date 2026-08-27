@@ -12,7 +12,7 @@ import { renderCardBrowser } from "./features/cardBrowser";
 import { renderDeckActions, renderDeckLibrary } from "./features/deckLibrary";
 import { renderDeckPanel } from "./features/deckPanel";
 import { renderExplore } from "./features/explore";
-import { renderSmartDecks } from "./features/smartDecks";
+import { renderSmartDecks } from "./features/wizard/run";
 import { h, query, replace } from "./ui/dom";
 import { currentTheme, toggleTheme } from "./ui/theme";
 import "./styles.css";

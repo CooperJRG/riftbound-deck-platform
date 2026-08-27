@@ -66,6 +66,10 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# Pydantic gives every instance its own copy of a field default, so a `list[X] = []` on
+# a model is not the shared-mutable trap the rule is about. Ruff cannot see that through
+# the ApiModel base class now that the models live in their own modules.
+"server/riftbound/api/schemas/*" = ["RUF012"]
 # Fixtures are requested by name, so a test signature shadows the import that supplies
 # it. That is how pytest works, not a redefinition to fix.
 "tests/*" = ["F811"]

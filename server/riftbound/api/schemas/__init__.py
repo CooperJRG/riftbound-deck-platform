@@ -1,0 +1,151 @@
+"""API request and response shapes.
+
+One module per area rather than one file for everything: the models for a feature
+live next to each other, and a change to the wizard cannot accidentally touch the
+card browser. Everything is re-exported here, so no call site had to change.
+
+Responses are camelCase on the wire and snake_case in Python; requests reject
+unknown fields, so a client typo is an error rather than a silent no-op.
+"""
+
+from .availability import (
+    AvailabilityUpdate,
+    AvailabilityView,
+    ExcludedCardView,
+    ExclusionRuleInput,
+    ExclusionRuleView,
+)
+from .base import (
+    ApiModel,
+    StrictRequest,
+)
+from .card_meta import (
+    CardDetailView,
+    CardHomeView,
+    CardPartnerView,
+    CardPointView,
+    CardTrendOverviewView,
+    CardTrendView,
+)
+from .cards import (
+    CardAvailabilityView,
+    CardPage,
+    CardView,
+    PrintingView,
+)
+from .data import (
+    BundleView,
+    SourceHealthView,
+)
+from .decks import (
+    CoverageView,
+    DeckPayload,
+    DeckSummaryView,
+    DeckView,
+    FormatView,
+    IssueView,
+    ValidationView,
+)
+from .meta import (
+    ArchetypeView,
+    AttributionView,
+    CardAdoptionView,
+    ChampionMetaView,
+    LegendMetaView,
+    MetaDeckView,
+    MetaStatusView,
+    PairingView,
+    ProvenanceView,
+    RefreshRunView,
+    RefreshStatusView,
+    ScoreView,
+    TournamentDetailView,
+    TournamentEntityView,
+    TournamentView,
+    TrendDeckView,
+    TrendOverviewView,
+    TrendPointView,
+    TrendSeriesView,
+)
+from .smart_decks import (
+    AcceptRequest,
+    AnswerRequest,
+    BanNoticeView,
+    FloorView,
+    GapView,
+    LegendChoiceView,
+    ProposalView,
+    QuestionView,
+    RepairDeckCardView,
+    RepairView,
+    RequirementRowView,
+    SaveCollectionRequest,
+    SaveCollectionResult,
+    SmartSessionView,
+    StartSessionRequest,
+    SwapView,
+)
+
+__all__ = [
+    "AcceptRequest",
+    "AnswerRequest",
+    "ApiModel",
+    "ArchetypeView",
+    "AttributionView",
+    "AvailabilityUpdate",
+    "AvailabilityView",
+    "BanNoticeView",
+    "BundleView",
+    "CardAdoptionView",
+    "CardAvailabilityView",
+    "CardDetailView",
+    "CardHomeView",
+    "CardPage",
+    "CardPartnerView",
+    "CardPointView",
+    "CardTrendOverviewView",
+    "CardTrendView",
+    "CardView",
+    "ChampionMetaView",
+    "CoverageView",
+    "DeckPayload",
+    "DeckSummaryView",
+    "DeckView",
+    "ExcludedCardView",
+    "ExclusionRuleInput",
+    "ExclusionRuleView",
+    "FloorView",
+    "FormatView",
+    "GapView",
+    "IssueView",
+    "LegendChoiceView",
+    "LegendMetaView",
+    "MetaDeckView",
+    "MetaStatusView",
+    "PairingView",
+    "PrintingView",
+    "ProposalView",
+    "ProvenanceView",
+    "QuestionView",
+    "RefreshRunView",
+    "RefreshStatusView",
+    "RepairDeckCardView",
+    "RepairView",
+    "RequirementRowView",
+    "SaveCollectionRequest",
+    "SaveCollectionResult",
+    "ScoreView",
+    "SmartSessionView",
+    "SourceHealthView",
+    "StartSessionRequest",
+    "StrictRequest",
+    "SwapView",
+    "TournamentDetailView",
+    "TournamentEntityView",
+    "TournamentView",
+    "TrendDeckView",
+    "TrendOverviewView",
+    "TrendPointView",
+    "TrendSeriesView",
+    "ValidationView",
+]

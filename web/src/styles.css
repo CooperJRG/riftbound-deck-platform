@@ -754,22 +754,6 @@ h4 {
   display: none;
 }
 
-.meta-head {
-  margin-bottom: 10px;
-}
-.meta-title {
-  font-size: 16px;
-  margin-bottom: 2px;
-}
-
-.meta-controls {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
 .archetype-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -815,35 +799,6 @@ h4 {
   margin: 0;
 }
 
-.meta-decks {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 10px;
-}
-
-.meta-deck {
-  background: var(--bg-raised);
-  border: 1px solid var(--line-soft);
-  border-radius: var(--radius);
-  padding: 11px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.meta-deck-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.meta-deck-name {
-  font-size: 13.5px;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .score {
   width: 54px;
   height: 5px;
@@ -851,23 +806,6 @@ h4 {
   background: var(--line);
   overflow: hidden;
   flex: none;
-}
-.score-fill {
-  display: block;
-  height: 100%;
-  background: var(--accent);
-}
-
-.meta-deck-meta {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  font-size: 11.5px;
-}
-.meta-deck-identity {
-  margin: 0;
 }
 
 .evidence {
@@ -878,18 +816,6 @@ h4 {
   padding: 2px 7px;
   border-radius: 999px;
   white-space: nowrap;
-}
-.evidence-tournament-placed {
-  background: rgba(240, 180, 41, 0.18);
-  color: var(--accent);
-}
-.evidence-tournament-entry {
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--domain-calm);
-}
-.evidence-community {
-  background: var(--line);
-  color: var(--text-faint);
 }
 
 .prov {
@@ -910,49 +836,6 @@ h4 {
 .gap-short {
   background: rgba(251, 191, 36, 0.14);
   color: var(--warn);
-}
-
-.warn-inline {
-  color: var(--warn);
-}
-
-.missing-list {
-  margin: 0;
-  padding-left: 16px;
-  font-size: 11.5px;
-  color: var(--text-dim);
-}
-
-.meta-deck-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 4px;
-}
-.meta-deck-actions .btn {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.meta-empty {
-  max-width: 560px;
-  margin: 40px auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-.cmd {
-  background: var(--bg-input);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: 9px 12px;
-  font-size: 12px;
-  overflow-x: auto;
-  max-width: 100%;
-  margin: 0;
 }
 
 .attribution {
