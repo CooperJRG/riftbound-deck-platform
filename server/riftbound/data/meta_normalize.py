@@ -12,8 +12,9 @@ score is penalised for it (see ``meta_scoring``).
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, replace
 from datetime import UTC
 from typing import Any
 
@@ -326,3 +327,140 @@ def summarise(decks: Sequence[MetaDeck]) -> dict[str, int]:
         "community": counts.get(EVIDENCE_COMMUNITY, 0),
         "incomplete": sum(1 for d in decks if not d.is_complete),
     }
+
+
+# -- repairing what upstream got wrong ----------------------------------------
+#
+# Published lists arrive with three recurring defects, and all three are recoverable
+# from the corpus itself rather than by guessing. Doing it here, once, at ingest keeps
+# every downstream view working from the same repaired data instead of each deciding
+# separately what to do with a deck that has four battlefields.
+
+
+@dataclass(frozen=True)
+class RepairReport:
+    battlefields_trimmed: int = 0
+    battlefields_filled: int = 0
+    champions_inferred: int = 0
+    dropped_no_champion: int = 0
+
+    @property
+    def touched(self) -> int:
+        return (
+            self.battlefields_trimmed
+            + self.battlefields_filled
+            + self.champions_inferred
+            + self.dropped_no_champion
+        )
+
+    def render(self) -> str:
+        if not self.touched:
+            return "  nothing to repair"
+        lines = []
+        if self.battlefields_trimmed:
+            lines.append(f"  trimmed battlefields on {self.battlefields_trimmed} deck(s)")
+        if self.battlefields_filled:
+            lines.append(f"  filled battlefields on {self.battlefields_filled} deck(s)")
+        if self.champions_inferred:
+            lines.append(f"  inferred a champion for {self.champions_inferred} deck(s)")
+        if self.dropped_no_champion:
+            lines.append(f"  dropped {self.dropped_no_champion} deck(s) with no legal champion")
+        return "\n".join(lines)
+
+
+def _battlefield_popularity(decks: Sequence[MetaDeck]) -> dict[str, Counter[str]]:
+    """How often each archetype plays each battlefield.
+
+    The corpus is the authority on what belongs in a deck: a battlefield the rest of the
+    archetype runs is a defensible thing to add, and one nobody else runs is the
+    defensible thing to drop. Both beat picking alphabetically.
+    """
+    by_archetype: dict[str, Counter[str]] = defaultdict(Counter)
+    by_legend: dict[str, Counter[str]] = defaultdict(Counter)
+    for deck in decks:
+        for card_id in set(deck.deck.battlefields):
+            by_archetype[deck.archetype_id][card_id] += 1
+            by_legend[deck.deck.legend_id][card_id] += 1
+    # Fall back to the legend when an archetype is too rare to have an opinion.
+    for archetype_id, counts in by_archetype.items():
+        legend_id = archetype_id.split("::")[0]
+        for card_id, n in by_legend.get(legend_id, Counter()).items():
+            counts.setdefault(card_id, 0)
+            counts[card_id] = max(counts[card_id], 0) or n
+    return by_archetype
+
+
+def repair_meta_decks(
+    decks: Sequence[MetaDeck],
+    *,
+    catalog: Catalog,
+    battlefield_count: int = 3,
+    warnings: list[str] | None = None,
+) -> tuple[list[MetaDeck], RepairReport]:
+    """Fix the recoverable defects in published lists, and drop what cannot be fixed.
+
+    * **Too many battlefields** -- trim the ones this archetype plays least. A list with
+      four is usually a sideboard battlefield recorded in the wrong zone.
+    * **Too few** -- fill from the ones it plays most, chosen only from battlefields the
+      archetype already runs, so the addition is legal for that legend by construction
+      rather than by a domain check we would have to keep in step with the rules.
+    * **No champion** -- take one from the list if a legal one is there. If none is, the
+      deck cannot be played as recorded and is dropped: a deck with no champion is not
+      a deck, and keeping it would put a legend's numbers on a list nobody could field.
+    """
+    log = warnings if warnings is not None else []
+    popularity = _battlefield_popularity(decks)
+    trimmed = filled = inferred = dropped = 0
+    out: list[MetaDeck] = []
+
+    for deck in decks:
+        current = list(deck.deck.battlefields)
+        champion_id = deck.deck.champion_id
+
+        if not champion_id:
+            legend = catalog.get(deck.deck.legend_id) if deck.deck.legend_id else None
+            champion_id = _pick_champion(deck.deck.main, legend, catalog)
+            if not champion_id:
+                dropped += 1
+                log.append(
+                    f"{deck.provenance.source_slug}: dropped, no legal champion in the list"
+                )
+                continue
+            inferred += 1
+
+        if battlefield_count and len(current) != battlefield_count:
+            counts = popularity.get(deck.archetype_id, Counter())
+            if len(current) > battlefield_count:
+                # Least played by this archetype goes first; name breaks ties so a
+                # rebuild of the same snapshot produces the same deck.
+                current.sort(key=lambda cid: (counts.get(cid, 0), cid), reverse=True)
+                current = current[:battlefield_count]
+                trimmed += 1
+            else:
+                have = set(current)
+                extra = [cid for cid, _n in counts.most_common() if cid not in have]
+                if len(current) + len(extra) >= battlefield_count:
+                    current.extend(extra[: battlefield_count - len(current)])
+                    filled += 1
+
+        if champion_id == deck.deck.champion_id and current == list(deck.deck.battlefields):
+            out.append(deck)
+            continue
+
+        out.append(
+            replace(
+                deck,
+                deck=replace(
+                    deck.deck,
+                    champion_id=champion_id,
+                    battlefields=tuple(sorted(current)),
+                ),
+            )
+        )
+
+    return out, RepairReport(
+        battlefields_trimmed=trimmed,
+        battlefields_filled=filled,
+        champions_inferred=inferred,
+        dropped_no_champion=dropped,
+    )

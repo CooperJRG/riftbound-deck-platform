@@ -450,3 +450,50 @@ def test_the_question_is_sized_to_the_player_not_to_the_average(bare_engine, cat
     rich_q = bare_engine.propose(rich).question
     assert poor_q is not None and rich_q is not None
     assert len(poor_q.card_ids) >= len(rich_q.card_ids)
+
+
+# -- banned cards -------------------------------------------------------------
+
+
+def test_a_banned_card_is_never_put_in_front_of_the_player(catalog, bound_rules, profile):
+    """A banned deck keeps its signal; it just stops being a suggestion.
+
+    The deck was played and its other cards say something true about the format, so it
+    stays in the meta data and keeps counting toward trends. What it must not do is ask
+    somebody "do you own Obelisk of Power?" -- inviting them to go and find a card they
+    are not allowed to play.
+    """
+    tainted = a_deck(main={**a_deck().main, "banned-blade": 2})
+    engine = Engine(
+        catalog=catalog, rules=bound_rules, profile=profile,
+        decks={"d1": as_meta(tainted, "d1")}, scores={"d1": 1.0},
+    )
+    proposal = engine.propose(engine.start(LEGEND))
+    assert proposal.deck is not None
+    assert "banned-blade" not in proposal.deck.deck.main
+    assert "banned-blade" not in deck_requirements(proposal.deck.deck)
+
+
+def test_stripping_a_banned_card_leaves_the_rest_of_the_deck_alone(catalog, bound_rules, profile):
+    """Only the illegal card goes; the deck is otherwise the deck that was played."""
+    original = a_deck()
+    tainted = a_deck(main={**original.main, "banned-blade": 2})
+    engine = Engine(
+        catalog=catalog, rules=bound_rules, profile=profile,
+        decks={"d1": as_meta(tainted, "d1")}, scores={"d1": 1.0},
+    )
+    shown = engine.propose(engine.start(LEGEND)).deck
+    assert shown is not None
+    assert dict(shown.deck.main) == dict(original.main)
+    assert shown.deck.runes == original.runes
+    assert shown.deck.battlefields == original.battlefields
+
+
+def test_a_clean_deck_is_passed_through_untouched(catalog, bound_rules, profile):
+    """No copying, no rebuilding, for the overwhelming majority that need nothing."""
+    engine = Engine(
+        catalog=catalog, rules=bound_rules, profile=profile,
+        decks={"d1": as_meta(a_deck(), "d1")}, scores={"d1": 1.0},
+    )
+    shown = engine.propose(engine.start(LEGEND)).deck
+    assert shown is engine.decks["d1"]

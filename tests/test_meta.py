@@ -492,3 +492,93 @@ def test_rules_drift_is_quiet_when_the_profile_matches(coded_catalog, tmp_path):
 
     decks = make_decks(coded_catalog, 20)
     assert _rules_drift(decks, cfg) == []
+
+
+# -- repairing what upstream recorded loosely ---------------------------------
+
+
+def a_repairable(catalog, *, slug, battlefields, champion="vi-destructive", main=None):
+    from riftbound.domain.deck import Deck
+    from riftbound.domain.meta import MetaDeck, Provenance
+
+    base = {"vi-destructive": 3, "brazen-buccaneer": 3, "harpoon-squad": 3,
+            "singular-relic": 1, "showcase-only": 3}
+    base.update({f"filler-{i:02d}": 3 for i in range(1, 10)})
+    return MetaDeck(
+        deck=Deck.make(
+            legend_id="vi-piltover-enforcer", champion_id=champion,
+            main=main if main is not None else base,
+            runes={"fury-rune": 12}, battlefields=battlefields,
+        ),
+        provenance=Provenance(source="t", source_slug=slug, url=""),
+    )
+
+
+def test_too_many_battlefields_loses_the_ones_the_archetype_plays_least(catalog):
+    """A fourth battlefield is usually a sideboard one recorded in the wrong zone, and
+    the corpus knows which of them the archetype actually runs."""
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    common = ["the-arena", "the-forge", "the-spire"]
+    corpus = [a_repairable(catalog, slug=f"ok-{i}", battlefields=common) for i in range(5)]
+    corpus.append(a_repairable(catalog, slug="over", battlefields=[*common, "the-papertree"]))
+
+    repaired, report = repair_meta_decks(corpus, catalog=catalog, battlefield_count=3)
+    fixed = next(d for d in repaired if d.provenance.source_slug == "over")
+    assert len(fixed.deck.battlefields) == 3
+    assert "the-papertree" not in fixed.deck.battlefields, "the rarest one goes"
+    assert report.battlefields_trimmed == 1
+
+
+def test_too_few_battlefields_gains_the_ones_it_plays_most(catalog):
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    common = ["the-arena", "the-forge", "the-spire"]
+    corpus = [a_repairable(catalog, slug=f"ok-{i}", battlefields=common) for i in range(5)]
+    corpus.append(a_repairable(catalog, slug="short", battlefields=["the-arena"]))
+
+    repaired, report = repair_meta_decks(corpus, catalog=catalog, battlefield_count=3)
+    fixed = next(d for d in repaired if d.provenance.source_slug == "short")
+    assert len(fixed.deck.battlefields) == 3
+    assert set(fixed.deck.battlefields) <= set(common), "only what this archetype plays"
+    assert report.battlefields_filled == 1
+
+
+def test_a_missing_champion_is_taken_from_the_list(catalog):
+    """The nomination is a player declaration upstream does not record. If a legal
+    champion is sitting in the deck, that is the answer."""
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    orphan = a_repairable(
+        catalog, slug="nochamp", battlefields=["the-arena", "the-forge", "the-spire"],
+        champion="",
+    )
+    repaired, report = repair_meta_decks([orphan], catalog=catalog, battlefield_count=3)
+    assert len(repaired) == 1
+    assert repaired[0].deck.champion_id == "vi-destructive"
+    assert report.champions_inferred == 1
+
+
+def test_a_deck_with_no_legal_champion_is_dropped(catalog):
+    """A deck with no champion is not a deck. Keeping it would put a legend's numbers
+    on a list nobody could field."""
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    main = {f"filler-{i:02d}": 3 for i in range(1, 14)}
+    orphan = a_repairable(
+        catalog, slug="hopeless", battlefields=["the-arena", "the-forge", "the-spire"],
+        champion="", main=main,
+    )
+    repaired, report = repair_meta_decks([orphan], catalog=catalog, battlefield_count=3)
+    assert repaired == []
+    assert report.dropped_no_champion == 1
+
+
+def test_a_sound_deck_is_returned_untouched(catalog):
+    """The overwhelming majority need nothing, and should not be rebuilt for nothing."""
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    good = a_repairable(catalog, slug="fine", battlefields=["the-arena", "the-forge", "the-spire"])
+    repaired, report = repair_meta_decks([good], catalog=catalog, battlefield_count=3)
+    assert repaired[0] is good
+    assert report.touched == 0

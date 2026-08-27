@@ -223,7 +223,7 @@ class Engine:
         first_round = session.rounds == 0
         improving = floor is not None and session.rounds < MAX_PROPOSALS
         if candidates and (first_round or improving):
-            deck = self._pick(session, candidates)
+            deck = self._playable(self._pick(session, candidates))
             conservative = repair(
                 deck.deck, session.knowledge, profile=self.profile,
                 catalog=self.catalog, rules=self.rules, conservative=True,
@@ -271,6 +271,34 @@ class Engine:
                 continue  # too far out of reach to be worth a question
             out.append(deck)
         return out
+
+    def _playable(self, meta: MetaDeck) -> MetaDeck:
+        """The proposed deck with anything banned taken out.
+
+        A banned deck still carries signal -- it was played, it won games, and its other
+        cards say something true about the format -- so it stays in the meta data and
+        keeps counting toward trends. What it must not do is reach the player as a
+        suggestion: asking "do you own Obelisk of Power?" invites them to go and find a
+        card they are not allowed to play.
+
+        Removing it here rather than filtering the display means everything downstream
+        agrees: the deck is short, the repair fills the hole from cards they can legally
+        use, and the ban notice explains where the slot went.
+        """
+        banned = {c for c in meta.deck.all_card_ids() if self.rules.is_banned(c)}
+        if not banned:
+            return meta
+        deck = meta.deck
+        return replace(
+            meta,
+            deck=replace(
+                deck,
+                main={c: n for c, n in deck.main.items() if c not in banned},
+                runes={c: n for c, n in deck.runes.items() if c not in banned},
+                battlefields=tuple(c for c in deck.battlefields if c not in banned),
+                sideboard={c: n for c, n in deck.sideboard.items() if c not in banned},
+            ),
+        )
 
     def _coherence(self, deck: MetaDeck, owned: Mapping[str, int]) -> float:
         """Can this deck's own archetype be fielded by this collection?"""

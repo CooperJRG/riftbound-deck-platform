@@ -23,6 +23,7 @@ from ..domain.meta_scoring import score_all, totals
 from .bundle import load_current
 from .meta_normalize import (
     normalize_meta_decks,
+    repair_meta_decks,
     standings_from,
     summarise,
     tournaments_from,
@@ -43,6 +44,18 @@ from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION
 from .sources.topdeck import TopDeckSource
 
 INGEST_CACHE = ROOT / "var" / "ingest"
+
+
+def _battlefield_count(cfg) -> int:
+    """How many battlefields the format wants, from the rules profile rather than a
+    constant here -- the repair should follow the format, not a second opinion of it."""
+    from ..domain.rules import load_format_rules_dir
+
+    try:
+        rules = load_format_rules_dir(cfg.rules_dir)["constructed"]
+    except (KeyError, FileNotFoundError, ValueError):
+        return 3
+    return int(rules.constraints.get("battlefield_count_exact", 3) or 3)
 
 
 def _catalog(cfg):
@@ -138,6 +151,19 @@ def cmd_build(args: argparse.Namespace) -> int:
             f"\nCarried forward {carried['decks']} decks and {carried['tournaments']} "
             "events the sources no longer return."
         )
+
+    # After the merge, not before. A carried-forward deck came out of an older snapshot
+    # and carries the same defects the fresh harvest does; repairing only what arrived
+    # today meant the archive quietly re-imported the very decks the repair had dropped.
+    decks, repairs = repair_meta_decks(
+        decks,
+        catalog=catalog,
+        battlefield_count=_battlefield_count(cfg),
+        warnings=warnings,
+    )
+    if repairs.touched:
+        print("\nRepaired what upstream recorded loosely:")
+        print(repairs.render())
 
     snapshot = write_snapshot(
         cfg.meta_dir, decks, tournaments, standings,
