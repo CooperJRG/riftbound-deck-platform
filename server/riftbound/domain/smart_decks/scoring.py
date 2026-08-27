@@ -1,69 +1,87 @@
 """Two numbers a player can compare decks with.
 
-The wizard hands over decks from three different places — a published list, that list
-repaired against a collection, and a build assembled from the collection alone — and
-until now only the first had a score. `meta_scoring.score_deck` reads a deck's *pedigree*
-(evidence tier, placement, recency), which a repaired deck does not have: the moment a
-card is swapped it stops being the list that placed 3rd of 257, so its pedigree is a
-claim about a deck the player is no longer holding.
+The wizard hands over decks from three places — a published list, that list repaired
+against a collection, and a build from the collection alone — and only the first has a
+pedigree. `meta_scoring.score_deck` reads evidence tier, placement and recency, which a
+repair does not have: the moment a card is swapped it stops being the list that placed
+3rd of 257, so its pedigree describes a deck the player is no longer holding.
 
-So both scores here are computed from the deck's **contents** instead. How much of what
-the field actually plays does this list contain? That works identically for a published
-list, a repair and a from-scratch build, which is the only way two of them can sit side
-by side and be compared honestly.
+So a deck is scored by **what real list it resembles, discounted by how much of that list
+it actually contains**:
 
-**Meta score** measures against the strongest deck in the format. It answers "is this a
-good deck", and it is the number that stays comparable when a player switches legend.
+    affinity(deck) = max over published R of [ meta_score(R) × coverage(deck, R) ]
 
-**Champion score** measures against the strongest published deck *for that champion*, so
-the best list for your champion is 100 by construction. It answers the question a player
-in the middle of a build is actually asking — "how close is this to the best version of
-the deck I am building?" — and it is the one the wizard uses to choose between two
-repairs, because a repair competes with other builds of the same deck, never with the
-format at large.
+where coverage is the share of R's forty copies the deck has. Two properties fall out,
+and the first one is why this module was rewritten:
 
-The two disagree in exactly the way that makes both worth showing. A fringe champion's
-best list is 100 on the champion scale and may be 40 on the meta scale; a mediocre build
-of a dominant champion can be the reverse. Collapsing them into one number would hide
-whichever of those two facts the player needed.
+**A repair can never out-score the list it repaired.** Coverage is bounded by 1, so the
+best a deck can do is *be* the reference. That is the honest constraint: if substituting
+a card you own for one you lack made the deck stronger, the published list would have
+played your card. The first version of this module got this backwards — it scored a deck
+by summing the format-wide play rate of its cards, which meant swapping any card for a
+more-played one always raised the number. A repair does precisely that by construction,
+so every repair scored at or above the deck it came from, and the wizard cheerfully
+reported a compromise as an improvement.
 
-Strength is play-rate-weighted mass over the main deck: every copy is worth how often the
-field plays that card. It is the same quantity `smart_decks_harness` already scores decks
-by, so the wizard's acceptance run and the number on screen cannot drift apart.
+**A thin champion cannot be cleared by accident.** The same first version divided by the
+best play-rate mass among that champion's decks, which for a champion with one published
+list was a trivially low bar — a repair hit 100 immediately. Measuring against a real
+forty-card list instead means a champion with one deck is scored against that deck, and
+only an exact copy reaches 100.
 
-One strength function, two denominators -- and the play rate behind it is **format-wide**,
-not per-legend. That matters: computed per legend, the strongest deck of a legend with a
-single champion is simultaneously the best deck of its champion and the best deck the
-scoreboard knows about, so both scores read 100 and the second one says nothing. Measured
-against the whole field, a fringe champion's best list is 100 for its champion and may be
-40 in the format, which is the disagreement that makes showing two numbers worth doing.
+The two scores differ only in which references they are allowed to look at.
+
+**Meta score** ranges over the whole format, so it answers "is this a good deck". A deck
+is only ever compared against lists for its own legend — domain identity means the others
+have nothing in common with it — but the denominator is the format's best, so a fringe
+legend's best deck reads honestly low.
+
+**Champion score** ranges over the published lists for that deck's champion, and the
+denominator is the best of those, so the strongest list for a champion is 100 *by
+construction*. It answers the question a player mid-build is actually asking: how close
+is this to the best version of the deck I am building? It is the one the wizard chooses
+repairs on, because a repair competes with other builds of the same deck and never with
+the format at large.
+
+The two disagree in the way that makes both worth showing. A good build of a fringe
+champion is 100 on its champion scale and may be 40 on the meta scale; collapsing them
+would hide whichever fact the player needed.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..deck import Deck
 from ..meta import MetaDeck
 
-#: Shown to a player when there is nothing to measure against — a champion with no
-#: published lists at all. Reported as "not scored" rather than as a zero, because a
-#: champion nobody has published is not a champion that scores badly.
+#: Shown when there is nothing to measure against — a champion, or a legend, with no
+#: published lists at all. Reported as "not scored" rather than as a zero: a champion
+#: nobody has published is not a champion that scores badly.
 UNSCORED = -1.0
+
+
+@dataclass(frozen=True)
+class Reference:
+    """One published list, and how much the meta thinks of it."""
+    deck_id: str
+    main: Mapping[str, int]
+    copies: int
+    score: float
 
 
 @dataclass(frozen=True)
 class DeckScore:
     """One deck's standing, on both scales."""
-    #: 0-100 against the strongest deck in the format. -1 when the format is empty.
+    #: 0-100 against the strongest deck in the format.
     meta: float
-    #: 0-100 against the strongest published deck for this champion, which is 100 by
-    #: construction. -1 when that champion has no published lists.
+    #: 0-100 against the strongest published list for this champion, which is 100 by
+    #: construction.
     champion: float
-    #: Raw play-rate mass, kept so a caller can compare two decks without re-deriving it
-    #: and so a test can show the normalisation is the only difference between the two.
-    strength: float
+    #: Share of the closest published list for this champion that this deck contains.
+    #: Carried so a caller can say *why* a repair scored lower without re-deriving it.
+    coverage: float
 
     @property
     def scored(self) -> bool:
@@ -75,79 +93,100 @@ class DeckScore:
         return f"{self.champion:.0f} of 100 for this champion · {self.meta:.0f} in the format"
 
 
-def strength_of(deck: Deck, play_rate: Mapping[str, float]) -> float:
-    """How much of what the field plays this deck contains.
+def coverage_of(deck: Deck, reference: Reference) -> float:
+    """The share of a reference list's copies this deck actually contains.
 
-    Copies count: three of a staple is three times the commitment of one, and a deck that
-    runs the whole package should not score the same as one that splashes it.
+    Capped per card, so three copies of a staple cannot make up for a missing package:
+    a deck holding six Defy against a list that runs three is not 200% of that slot.
     """
-    return sum(play_rate.get(card_id, 0.0) * copies for card_id, copies in deck.main.items())
+    if reference.copies <= 0:
+        return 0.0
+    held = sum(min(deck.main.get(card_id, 0), n) for card_id, n in reference.main.items())
+    return held / reference.copies
 
 
 @dataclass(frozen=True)
 class Scoreboard:
-    """The two baselines a deck is measured against, computed once per session.
+    """Published lists to measure against, and the two denominators.
 
-    Built from the meta rather than passed around loose so the denominators cannot
-    disagree between the deck on screen and the repairs underneath it -- which would
-    show a repair scoring higher than the list it was repaired from.
+    Grouped once per session so the deck on screen and the repairs beneath it cannot be
+    scored against different populations -- which is how a repair ends up appearing to
+    beat the list it was repaired from.
     """
-    play_rate: Mapping[str, float]
-    best_format: float
-    best_champion: Mapping[str, float]
+    by_legend: Mapping[str, Sequence[Reference]] = field(default_factory=dict)
+    by_champion: Mapping[str, Sequence[Reference]] = field(default_factory=dict)
+    best_format: float = 0.0
+    best_champion: Mapping[str, float] = field(default_factory=dict)
 
     def score(self, deck: Deck) -> DeckScore:
-        strength = strength_of(deck, self.play_rate)
-        best = self.best_champion.get(deck.champion_id, 0.0)
+        champion_refs = self.by_champion.get(deck.champion_id, ())
+        legend_refs = self.by_legend.get(deck.legend_id, ())
+        champion_best = self.best_champion.get(deck.champion_id, 0.0)
+
+        champion_affinity, champion_coverage = _affinity(deck, champion_refs)
+        meta_affinity, _ = _affinity(deck, legend_refs)
         return DeckScore(
-            meta=_ratio(strength, self.best_format),
-            champion=_ratio(strength, best),
-            strength=strength,
+            meta=_ratio(meta_affinity, self.best_format),
+            champion=_ratio(champion_affinity, champion_best),
+            coverage=champion_coverage,
         )
 
 
-def _ratio(strength: float, best: float) -> float:
+def _affinity(deck: Deck, references: Sequence[Reference]) -> tuple[float, float]:
+    """The strongest published list this deck resembles, discounted by how much of it it
+    has. Returns ``(affinity, coverage of the winning reference)``."""
+    best = 0.0
+    best_coverage = 0.0
+    for reference in references:
+        covered = coverage_of(deck, reference)
+        value = reference.score * covered
+        if value > best:
+            best, best_coverage = value, covered
+    return best, best_coverage
+
+
+def _ratio(affinity: float, best: float) -> float:
     if best <= 0:
         return UNSCORED
-    # Capped at 100: a repair can in principle out-mass every published list by loading
-    # up on staples, and "112 of 100" reads as a bug rather than as a compliment.
-    return min(100.0, 100.0 * strength / best)
-
-
-def format_play_rate(decks: Sequence[MetaDeck]) -> dict[str, float]:
-    """Share of the published field playing each card, across every legend.
-
-    Unweighted by deck score, unlike the per-legend rate in ``legend_index``: this is the
-    denominator for "how mainstream is this list", and weighting it by pedigree would
-    fold a second, invisible judgement into a number presented as a simple share.
-    """
-    total = 0
-    seen: dict[str, int] = {}
-    for deck in decks:
-        if not deck.deck.main:
-            continue
-        total += 1
-        for card_id in deck.deck.main:
-            seen[card_id] = seen.get(card_id, 0) + 1
-    if not total:
-        return {}
-    return {card_id: count / total for card_id, count in seen.items()}
+    return min(100.0, 100.0 * affinity / best)
 
 
 def build_scoreboard(
-    decks: Iterable[MetaDeck], play_rate: Mapping[str, float]
+    decks: Iterable[MetaDeck], scores: Mapping[str, float]
 ) -> Scoreboard:
-    """Baselines from the published field: the best deck overall, and per champion."""
+    """References and denominators from the published field.
+
+    ``scores`` is the meta score per deck id, as ``meta_scoring.totals`` produces it --
+    so the pedigree a published list already has is what weights it here, rather than a
+    second opinion invented for this module.
+    """
+    by_legend: dict[str, list[Reference]] = {}
+    by_champion: dict[str, list[Reference]] = {}
     best_format = 0.0
     best_champion: dict[str, float] = {}
+
     for deck in decks:
-        strength = strength_of(deck.deck, play_rate)
-        best_format = max(best_format, strength)
+        if not deck.deck.main:
+            continue
+        score = scores.get(deck.deck_id, 0.0)
+        reference = Reference(
+            deck_id=deck.deck_id,
+            main=dict(deck.deck.main),
+            copies=sum(deck.deck.main.values()),
+            score=score,
+        )
+        by_legend.setdefault(deck.deck.legend_id, []).append(reference)
+        by_champion.setdefault(deck.deck.champion_id, []).append(reference)
+        best_format = max(best_format, score)
         champion = deck.deck.champion_id
-        if strength > best_champion.get(champion, 0.0):
-            best_champion[champion] = strength
+        if score > best_champion.get(champion, 0.0):
+            best_champion[champion] = score
+
     return Scoreboard(
-        play_rate=play_rate, best_format=best_format, best_champion=best_champion
+        by_legend=by_legend,
+        by_champion=by_champion,
+        best_format=best_format,
+        best_champion=best_champion,
     )
 
 
@@ -155,13 +194,12 @@ def better(left: DeckScore | None, right: DeckScore | None) -> bool:
     """Is ``left`` the one to hand over?
 
     Compared on the **champion** scale, which is the whole reason that scale exists. A
-    repair is competing with other ways of building the same deck, not with the format --
+    repair competes with other ways of building the same deck, not with the format --
     measuring it against the format's best would let a swap that is clearly right for a
-    fringe champion lose to one that is clearly wrong, on the strength of a denominator
-    neither deck can influence.
+    fringe champion lose on a denominator neither deck can influence.
 
-    Falls back to raw strength when neither has a champion baseline, so two unscored
-    decks still order deterministically rather than by argument position.
+    Falls back to coverage when neither has a champion baseline, so two unscored decks
+    still order deterministically rather than by argument position.
     """
     if right is None:
         return left is not None
@@ -171,7 +209,7 @@ def better(left: DeckScore | None, right: DeckScore | None) -> bool:
         return left.scored
     if left.champion != right.champion:
         return left.champion > right.champion
-    return left.strength > right.strength
+    return left.coverage > right.coverage
 
 
 def choose(options: Sequence[tuple[str, Deck | None]], board: Scoreboard) -> str:

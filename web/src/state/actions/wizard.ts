@@ -7,6 +7,7 @@
 
 import { api } from "../../api/client";
 import type { SmartSession } from "../../api/types";
+import { scrollToTop } from "../../ui/scroll";
 import { store } from "../store";
 import { reportError } from "./shared";
 import { loadDeck } from "./library";
@@ -134,6 +135,7 @@ export async function submitSmartRound(): Promise<void> {
   const have: Record<string, number> = {};
   for (const [cardId, count] of smartAnswers) have[cardId] = count;
 
+  const wasChecklist = Boolean(proposal.question);
   store.set({ smartBusy: true });
   try {
     const next = await api.answerSmartSession(
@@ -145,6 +147,18 @@ export async function submitSmartRound(): Promise<void> {
         : { deckId: proposal.deck?.deckId ?? "", have },
     );
     store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
+
+    // The replacement round is the last question there is. Once it is answered the app
+    // knows which deck it is handing over -- it picked between the repairs itself -- so
+    // asking the player to press a further button to see it is asking them to confirm a
+    // decision they were not part of. Take them to the deck.
+    //
+    // Only after a checklist: a deck round is a review the player is still working
+    // through, and jumping them out of it would take away the choice to keep looking.
+    if (wasChecklist) {
+      const landing = next.proposal?.chosen || (next.proposal?.floor ? "floor" : "");
+      if (landing) await acceptSmartDeck(landing as "floor" | "conservative" | "free");
+    }
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -166,6 +180,15 @@ export async function acceptSmartDeck(which: "floor" | "conservative" | "free"):
       notice: "Saved to your decks.",
     });
     await loadDeck(finished.savedDeckId);
+    // Open it. The deck was already loaded into the builder's state here, but the view
+    // stayed on the wizard, so the player was left looking at a summary of a deck the
+    // app had already put somewhere else.
+    //
+    // Set directly rather than through `setView`: app.ts already imports this module, and
+    // for "build" that function only scrolls and sets the view, so the cycle would buy
+    // nothing.
+    scrollToTop();
+    store.set({ view: "build" });
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });

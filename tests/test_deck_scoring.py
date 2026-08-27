@@ -27,11 +27,11 @@ from riftbound.domain.meta import EVIDENCE_TOURNAMENT_PLACED, MetaDeck, Provenan
 from riftbound.domain.smart_decks.scoring import (
     UNSCORED,
     DeckScore,
+    Reference,
     better,
     build_scoreboard,
     choose,
-    format_play_rate,
-    strength_of,
+    coverage_of,
 )
 
 LEGEND = "vi-piltover-enforcer"
@@ -75,9 +75,14 @@ def a_field() -> list[MetaDeck]:
     ]
 
 
-def a_board():
+def a_board(scores=None):
     field = a_field()
-    return build_scoreboard(field, format_play_rate(field))
+    if scores is None:
+        # The dominant champion's lists are the better-regarded ones.
+        scores = {
+            d.deck_id: (0.9 if d.deck.champion_id == STRONG else 0.4) for d in field
+        }
+    return build_scoreboard(field, scores)
 
 
 # -- the scales ----------------------------------------------------------------
@@ -96,18 +101,57 @@ def test_the_two_scales_disagree_and_that_is_the_point():
     board = a_board()
     fringe = board.score(a_deck(FRINGE, NICHE))
     assert fringe.champion == pytest.approx(100.0)
-    assert fringe.meta < 50, "a champion two people play must not read as a format staple"
+    assert fringe.meta < 60, "a champion the meta thinks little of must not read as a staple"
 
     dominant = board.score(a_deck(STRONG, STAPLES))
     assert dominant.meta == pytest.approx(100.0)
 
 
-def test_a_weaker_build_scores_below_the_best_of_its_champion():
+def test_a_repair_can_never_out_score_the_list_it_repaired():
+    """The property the first version of this module got backwards.
+
+    It scored a deck by summing the format-wide play rate of its cards, so swapping any
+    card for a more-played one always raised the number -- which is what a repair does by
+    construction. Every repair scored at or above the deck it came from, and the wizard
+    reported a compromise as an improvement. Coverage is bounded by 1, so the best a deck
+    can do is *be* the reference.
+    """
     board = a_board()
-    full = board.score(a_deck(STRONG, STAPLES))
-    thin = board.score(a_deck(STRONG, STAPLES[:6]))
-    assert thin.champion < full.champion
-    assert thin.strength < full.strength
+    original = a_deck(STRONG, STAPLES)
+    assert board.score(original).champion == pytest.approx(100.0)
+
+    # Swap three of the archetype's cards for the most-played cards in the format.
+    repaired = a_deck(STRONG, STAPLES[3:])
+    for card in NICHE[:3]:
+        repaired.main[card] = 3
+    score = board.score(repaired)
+    assert score.champion < 100.0, "a repair must not beat the list it repaired"
+    assert score.coverage < 1.0
+
+
+def test_stacking_popular_cards_does_not_raise_the_score():
+    """Nine copies of a staple is not three times the deck."""
+    board = a_board()
+    honest = a_deck(STRONG, STAPLES)
+    stacked = a_deck(STRONG, STAPLES, copies=9)
+    assert board.score(stacked).champion <= board.score(honest).champion
+
+
+def test_a_champion_with_one_published_list_is_not_a_low_bar():
+    """The second fault: dividing by the best play-rate mass among a champion's decks
+    made a single-deck champion trivially clearable. Measuring against a real forty-card
+    list means only an exact copy reaches 100."""
+    field = [*a_field(), a_meta_deck(FRINGE, NICHE, 99)]
+    board = build_scoreboard(field, {d.deck_id: 0.5 for d in field})
+    partial = a_deck(FRINGE, NICHE[:7])
+    assert board.score(partial).champion < 100.0
+    assert board.score(a_deck(FRINGE, NICHE)).champion == pytest.approx(100.0)
+
+
+def test_coverage_is_capped_per_card():
+    reference = Reference(deck_id="r", main={"a": 3, "b": 3}, copies=6, score=1.0)
+    plenty = Deck.make(name="d", legend_id=LEGEND, champion_id=STRONG, main={"a": 9})
+    assert coverage_of(plenty, reference) == pytest.approx(0.5)
 
 
 def test_a_champion_with_no_published_lists_is_unscored_not_zero():
@@ -117,31 +161,6 @@ def test_a_champion_with_no_published_lists_is_unscored_not_zero():
     assert score.champion == UNSCORED
     assert score.scored is False
     assert "no published lists" in score.describe()
-
-
-def test_a_score_cannot_exceed_one_hundred():
-    """A repair can out-mass every published list by loading up on staples, and
-    '112 of 100' reads as a bug rather than as a compliment."""
-    board = a_board()
-    stacked = a_deck(STRONG, STAPLES, copies=9)
-    assert board.score(stacked).champion <= 100.0
-    assert board.score(stacked).meta <= 100.0
-
-
-def test_strength_counts_copies():
-    rates = {"a": 1.0, "b": 0.5}
-    one = Deck.make(name="d", legend_id=LEGEND, champion_id=STRONG, main={"a": 1})
-    three = Deck.make(name="d", legend_id=LEGEND, champion_id=STRONG, main={"a": 3})
-    assert strength_of(three, rates) == pytest.approx(3 * strength_of(one, rates))
-
-
-def test_the_format_play_rate_is_a_plain_share():
-    field = a_field()
-    rates = format_play_rate(field)
-    # every staple deck plays the staples; 9 of 11 decks do
-    assert rates[STAPLES[0]] == pytest.approx(9 / 11)
-    assert rates[NICHE[0]] == pytest.approx(2 / 11)
-    assert rates.get("never-printed", 0.0) == 0.0
 
 
 def test_an_empty_field_scores_nothing_rather_than_dividing_by_zero():
@@ -162,7 +181,7 @@ def test_the_choice_is_made_on_the_champion_scale():
     fringe champion lose on the strength of a denominator neither deck can influence.
     """
     board = a_board()
-    # Two repairs of the fringe deck. The fuller one is better *for that champion*, and
+    # Two repairs of the fringe deck. The fuller one keeps more of the real list, and
     # both are far below the format's best.
     conservative = a_deck(FRINGE, NICHE[:6])
     free = a_deck(FRINGE, NICHE)
@@ -177,14 +196,14 @@ def test_a_missing_option_never_wins():
 
 
 def test_a_scored_deck_beats_an_unscored_one():
-    scored = DeckScore(meta=10.0, champion=10.0, strength=1.0)
-    unscored = DeckScore(meta=UNSCORED, champion=UNSCORED, strength=99.0)
+    scored = DeckScore(meta=10.0, champion=10.0, coverage=0.1)
+    unscored = DeckScore(meta=UNSCORED, champion=UNSCORED, coverage=0.9)
     assert better(scored, unscored)
     assert not better(unscored, scored)
 
 
-def test_an_exact_tie_falls_back_to_strength_rather_than_argument_order():
-    left = DeckScore(meta=50.0, champion=50.0, strength=2.0)
-    right = DeckScore(meta=50.0, champion=50.0, strength=1.0)
+def test_an_exact_tie_falls_back_to_coverage_rather_than_argument_order():
+    left = DeckScore(meta=50.0, champion=50.0, coverage=0.8)
+    right = DeckScore(meta=50.0, champion=50.0, coverage=0.4)
     assert better(left, right)
     assert not better(right, left)

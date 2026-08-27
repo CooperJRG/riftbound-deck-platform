@@ -174,7 +174,8 @@ class Services:
         both scores would read 100 and the second would say nothing.
         """
         from .domain.eras import eras_for_format
-        from .domain.smart_decks.scoring import build_scoreboard, format_play_rate
+        from .domain.meta_scoring import score_all, totals
+        from .domain.smart_decks.scoring import build_scoreboard
 
         if self.meta is None:
             return build_scoreboard([], {})
@@ -183,7 +184,7 @@ class Services:
             deck for deck in self.meta.decks
             if era.contains(deck.provenance.tournament_date or deck.provenance.published_at)
         ]
-        return build_scoreboard(current, format_play_rate(current))
+        return build_scoreboard(current, totals(score_all(current)))
 
     def engine_for(self, legend_id: str) -> Engine | None:
         """A wizard engine bound to one legend, or None if the meta knows nothing of it."""

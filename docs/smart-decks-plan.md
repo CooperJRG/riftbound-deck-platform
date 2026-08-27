@@ -430,23 +430,30 @@ repairs itself rather than asking.
 
 **The scores.** `meta_scoring.score_deck` reads a deck's *pedigree* — evidence tier,
 placement, recency — which a repaired deck does not have: the moment a card is swapped it
-stops being the list that placed 3rd of 257. So both scores are computed from contents
-instead: how much of what the field plays does this list contain. That works identically
-for a published list, a repair, and a build from the collection alone, which is the only
-way the three can sit side by side and be compared honestly.
+stops being the list that placed 3rd of 257. So a deck is scored by **what real list it
+resembles, discounted by how much of that list it contains**:
 
-One strength function, two denominators:
+    affinity(deck) = max over published R of [ meta_score(R) × coverage(deck, R) ]
 
-- **meta score** — against the strongest deck in the format;
-- **champion score** — against the strongest published list for that champion, which is
-  100 by construction.
+- **meta score** — that affinity over the whole format, against the format's best;
+- **champion score** — over the published lists for that champion, against the best of
+  those, so the strongest list for a champion is 100 by construction.
 
-The play rate behind them is format-wide, not per-legend. Per legend, the strongest deck
-of a single-champion legend is simultaneously the best deck of its champion and the best
-deck the scoreboard knows, so both scores read 100 and the second says nothing. Measured
-against the whole field they diverge usefully: a good build of a fringe champion reads
-**79 for its champion and 32 in the format**, and only one of those answers "should I take
-this to an event". A champion with no published lists is *unscored*, never zero.
+Coverage is bounded by 1, which is the load-bearing property: **a repair can never
+out-score the list it repaired.** If substituting a card you own for one you lack made
+the deck stronger, the published list would have played your card.
+
+The first attempt got this backwards and shipped, briefly. It scored a deck by summing
+the format-wide play rate of its cards, so swapping any card for a more-played one always
+raised the number — which is exactly what a repair does. Every repair scored at or above
+its source, and the wizard reported a compromise as an improvement: a seven-card
+substitution came back as *"100 for this champion"*. A second fault compounded it — the
+denominator was the best play-rate mass among that champion's decks, which for a champion
+with one published list was a bar any repair cleared instantly. Measuring against real
+forty-card lists fixes both: a champion with one deck is scored against that deck, and
+only an exact copy reaches 100.
+
+A champion with no published lists is *unscored*, never zero.
 
 **The choice.** The wizard used to render the conservative and the free repair side by
 side with a button under each. That asked a player to arbitrate between two lists they had

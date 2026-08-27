@@ -62,7 +62,8 @@ export interface RepairDeckCard {
 export interface DeckScore {
   meta: number;
   champion: number;
-  strength: number;
+  /** Share of the closest published list for this champion that this deck contains. */
+  coverage: number;
   scored: boolean;
   summary: string;
 }

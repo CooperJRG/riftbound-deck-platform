@@ -108,7 +108,7 @@ def _score_view(score) -> DeckScoreView | None:
     return DeckScoreView(
         meta=round(score.meta, 1),
         champion=round(score.champion, 1),
-        strength=round(score.strength, 3),
+        coverage=round(score.coverage, 3),
         scored=score.scored,
         summary=score.describe(),
     )

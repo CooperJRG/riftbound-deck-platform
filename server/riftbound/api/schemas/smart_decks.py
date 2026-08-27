@@ -80,7 +80,9 @@ class DeckScoreView(ApiModel):
     """
     meta: float
     champion: float
-    strength: float
+    #: Share of the closest published list for this champion that this deck contains.
+    #: Why a repair scored lower, without the client re-deriving it.
+    coverage: float
     scored: bool
     #: One line, phrased server-side so two clients cannot describe it differently.
     summary: str
