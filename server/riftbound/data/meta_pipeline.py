@@ -29,6 +29,7 @@ from .meta_normalize import (
     tournaments_from,
 )
 from .meta_snapshot import (
+    check_archive_retention,
     list_snapshots,
     load_current_meta,
     promote_meta,
@@ -154,11 +155,14 @@ def cmd_build(args: argparse.Namespace) -> int:
     print("\nValidation gate:")
     print(report.render())
 
-    decks, tournaments, carried = _carry_forward(decks, tournaments, previous)
+    decks, tournaments, standings, carried = _carry_forward(
+        decks, tournaments, standings, previous
+    )
     if carried:
+        print()
         print(
-            f"\nCarried forward {carried['decks']} decks and {carried['tournaments']} "
-            "events the sources no longer return."
+            f"Carried forward {carried['decks']} decks, {carried['tournaments']} "
+            f"events and {carried['standings']} standings the sources no longer return."
         )
 
     # After the merge, not before. A carried-forward deck came out of an older snapshot
@@ -173,6 +177,16 @@ def cmd_build(args: argparse.Namespace) -> int:
     if repairs.touched:
         print("\nRepaired what upstream recorded loosely:")
         print(repairs.render())
+
+    # After carry-forward, because this asks the opposite question to the gate above:
+    # not "is this harvest plausible" but "is the archive about to go backwards". A
+    # failure here means carry-forward has a hole, which is how the check came to exist.
+    retention = check_archive_retention(decks, tournaments, standings, previous)
+    if retention.errors:
+        print()
+        print("Archive retention:")
+        print(retention.render())
+        report.errors.extend(retention.errors)
 
     snapshot = write_snapshot(
         cfg.meta_dir, decks, tournaments, standings,
@@ -241,16 +255,41 @@ def _build_sources(args: argparse.Namespace, progress):
 ARCHIVE_DAYS = 730
 
 
-def _carry_forward(decks, tournaments, previous):
+def _standing_key(standing) -> tuple[str, str, int, str]:
+    """Identity for a standing.
+
+    ``deck_slug`` is unique where the source supplies one, but it is empty for a player
+    who published no list -- and those rows are evidence too: they are the unpublished
+    half of the publication-bias figure every win rate is qualified by.
+    """
+    return (
+        standing.tournament_slug,
+        standing.deck_slug,
+        standing.place,
+        standing.player_name,
+    )
+
+
+def _carry_forward(decks, tournaments, standings, previous):
     """Keep what the sources have stopped returning.
 
     A meta tracker's value is the shape of a change over time, and you cannot see the
     shape of something you only ever hold the last 180 days of. Fresh copies always win
     -- a re-harvested deck may have gained a placement or a corrected list -- so this
     only adds what is genuinely absent.
+
+    **Standings are carried too, and forgetting them was a real outage.** On 2026-08-27 a
+    scheduled refresh could not reach one of the two deck sources. Its decks were carried
+    forward and its standings were not, so the promoted snapshot held the same 4,359 decks
+    as the one before it -- nothing watching deck counts saw anything wrong -- while 2,030
+    match records vanished and the win-rate acceptance run went from PASS to FAIL.
+
+    A carried deck whose standing was dropped is worse than a deck dropped outright: it
+    reads as a deck that was played and has no record, which is a different and wrong
+    claim.
     """
     if previous is None:
-        return decks, tournaments, {}
+        return decks, tournaments, standings, {}
 
     from datetime import date, timedelta
 
@@ -264,6 +303,7 @@ def _carry_forward(decks, tournaments, previous):
 
     known_decks = {deck.deck_id for deck in decks}
     known_events = {row.slug for row in tournaments}
+    known_standings = {_standing_key(row) for row in standings}
 
     kept_decks = [
         deck for deck in previous.decks
@@ -274,13 +314,28 @@ def _carry_forward(decks, tournaments, previous):
         row for row in previous.tournaments
         if row.slug not in known_events and recent_enough(row.date)
     ]
-    if not kept_decks and not kept_events:
-        return decks, tournaments, {}
+    # A standing carries no date of its own -- it lives on the tournament -- so the
+    # horizon is applied through the event set rather than to the standing directly.
+    dates = {row.slug: row.date for row in previous.tournaments}
+    dates.update({row.slug: row.date for row in tournaments})
+    kept_standings = [
+        row for row in previous.standings
+        if _standing_key(row) not in known_standings
+        and recent_enough(dates.get(row.tournament_slug, ""))
+    ]
+
+    if not kept_decks and not kept_events and not kept_standings:
+        return decks, tournaments, standings, {}
 
     return (
         [*decks, *kept_decks],
         [*tournaments, *kept_events],
-        {"decks": len(kept_decks), "tournaments": len(kept_events)},
+        [*standings, *kept_standings],
+        {
+            "decks": len(kept_decks),
+            "tournaments": len(kept_events),
+            "standings": len(kept_standings),
+        },
     )
 
 

@@ -655,3 +655,142 @@ def test_without_a_target_size_the_champion_still_folds(catalog):
     main["brazen-buccaneer"] = 3
     deck, _ = deck_from_payload(zoned_payload(catalog, main=main), catalog=catalog)
     assert deck.main_total == 40
+
+
+# -- a source going down must not silently strip the archive -------------------
+#
+# The outage these guard, in full: on 2026-08-27 a scheduled refresh could not reach one
+# of two deck sources. Carry-forward restored its decks and not its standings, so the
+# promoted snapshot held exactly as many decks as the one before it -- 4,359 either side,
+# so nothing watching deck counts saw anything -- while 13% of the standings and 2,030
+# match records disappeared and the win-rate acceptance run went from PASS to FAIL.
+#
+# Two independent failures, so two independent guards: carry-forward has to carry the
+# standings, and something has to refuse a snapshot that holds less than the live one.
+
+
+def joined_decks(catalog, n):
+    """Decks with a tournament date on them, as the real pipeline produces.
+
+    Carry-forward is bounded by ARCHIVE_DAYS, and a deck with no date cannot be shown to
+    be recent enough to keep -- so an undated fixture would test nothing.
+    """
+    return normalize_meta_decks(
+        [deck_payload(catalog, slug=f"d{i}") for i in range(n)],
+        catalog=catalog,
+        standings=[a_standing(i) for i in range(n)],
+        tournaments=TOURNAMENTS,
+    )
+
+
+def a_snapshot(tmp_path, catalog, *, decks, standings):
+    from riftbound.data.meta_snapshot import promote_meta, write_snapshot
+
+    written = write_snapshot(tmp_path, decks, TOURNAMENTS, standings)
+    promote_meta(tmp_path, written.manifest.snapshot_id)
+    return written
+
+
+TOURNAMENTS = [
+    Tournament("ev-1", "ev-1", "Event One", "2026-08-01", "Constructed", 32, decks_published=32),
+]
+
+
+def a_standing(index: int) -> Standing:
+    return Standing(
+        tournament_slug="ev-1", place=index + 1, player_name=f"player-{index}",
+        deck_slug=f"d{index}", record="3-1", wins=3, losses=1, draws=0,
+    )
+
+
+def test_carry_forward_keeps_the_standings_of_the_decks_it_carries(tmp_path, coded_catalog):
+    """The bug: decks came back, their match records did not."""
+    from riftbound.data.meta_pipeline import _carry_forward
+
+    previous = a_snapshot(
+        tmp_path, coded_catalog,
+        decks=joined_decks(coded_catalog, 12),
+        standings=[a_standing(i) for i in range(12)],
+    )
+    # A harvest where the source that supplied everything was unreachable.
+    _decks, _tournaments, standings, carried = _carry_forward([], TOURNAMENTS, [], previous)
+
+    assert carried["decks"] == 12
+    assert carried["standings"] == 12, "decks without their standings is the original bug"
+    assert len(standings) == 12
+    assert sum(s.wins + s.losses for s in standings) == 12 * 4
+
+
+def test_a_fresh_standing_wins_over_a_carried_one(tmp_path, coded_catalog):
+    """Same rule the decks already follow: a re-harvest may have corrected it."""
+    from riftbound.data.meta_pipeline import _carry_forward
+
+    previous = a_snapshot(
+        tmp_path, coded_catalog,
+        decks=joined_decks(coded_catalog, 4),
+        standings=[a_standing(i) for i in range(4)],
+    )
+    fresh = Standing(
+        tournament_slug="ev-1", place=1, player_name="player-0",
+        deck_slug="d0", record="9-0", wins=9, losses=0, draws=0,
+    )
+    _d, _t, standings, _c = _carry_forward([], TOURNAMENTS, [fresh], previous)
+
+    assert len(standings) == 4, "the carried copy must not duplicate the fresh one"
+    kept = next(s for s in standings if s.deck_slug == "d0")
+    assert kept.wins == 9
+
+
+def test_a_standing_with_no_published_list_is_carried_too(tmp_path, coded_catalog):
+    """Those rows are the unpublished half of the publication-bias figure, so losing
+    them would quietly bias every win rate upward."""
+    from riftbound.data.meta_pipeline import _carry_forward
+
+    dropped = Standing(
+        tournament_slug="ev-1", place=30, player_name="dropped-out",
+        deck_slug="", record="0-3", wins=0, losses=3, draws=0,
+    )
+    previous = a_snapshot(
+        tmp_path, coded_catalog,
+        decks=joined_decks(coded_catalog, 4),
+        standings=[*[a_standing(i) for i in range(4)], dropped],
+    )
+    _d, _t, standings, _c = _carry_forward([], TOURNAMENTS, [], previous)
+    assert any(s.deck_slug == "" and s.player_name == "dropped-out" for s in standings)
+
+
+def test_retention_refuses_a_snapshot_that_holds_less_than_the_live_one(tmp_path, coded_catalog):
+    """The guard that was missing entirely: deck counts matched, so nothing looked."""
+    from riftbound.data.meta_snapshot import check_archive_retention
+
+    previous = a_snapshot(
+        tmp_path, coded_catalog,
+        decks=make_decks(coded_catalog, 20),
+        standings=[a_standing(i) for i in range(20)],
+    )
+    # Exactly the shape of the outage: same decks, standings quietly gone.
+    report = check_archive_retention(
+        list(previous.decks), list(previous.tournaments), [], previous
+    )
+    assert not report.passed
+    assert any("standings" in e for e in report.errors)
+
+
+def test_retention_passes_when_the_archive_holds(tmp_path, coded_catalog):
+    from riftbound.data.meta_snapshot import check_archive_retention
+
+    previous = a_snapshot(
+        tmp_path, coded_catalog,
+        decks=make_decks(coded_catalog, 20),
+        standings=[a_standing(i) for i in range(20)],
+    )
+    report = check_archive_retention(
+        list(previous.decks), list(previous.tournaments), list(previous.standings), previous
+    )
+    assert report.passed
+
+
+def test_retention_has_nothing_to_say_about_a_first_snapshot(coded_catalog):
+    from riftbound.data.meta_snapshot import check_archive_retention
+
+    assert check_archive_retention(make_decks(coded_catalog, 5), [], [], None).passed
