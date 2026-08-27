@@ -158,12 +158,12 @@ function dateControl(label: string, value: string, key: "exploreFrom" | "explore
   );
 }
 
-const RANGES: { label: string; days: number }[] = [
-  { label: "30 days", days: 30 },
-  { label: "90 days", days: 90 },
-  { label: "6 months", days: 182 },
-  { label: "12 months", days: 365 },
-  { label: "All time", days: 0 },
+const RANGES: { label: string; range: string }[] = [
+  { label: "30 days", range: "30" },
+  { label: "90 days", range: "90" },
+  { label: "6 months", range: "182" },
+  { label: "12 months", range: "365" },
+  { label: "All time", range: "all" },
 ];
 
 /**
@@ -185,15 +185,18 @@ export function rangeBar(overview: {
     h(
       "div",
       { class: "range-chips" },
-      ...RANGES.map((range) =>
+      ...RANGES.map((entry) =>
         h(
           "button",
           {
-            class: "chip-toggle",
+            // Without this a click that changes nothing visible looks like a dead
+            // control, which is how the last one got reported.
+            class: `chip-toggle${store.state.exploreRange === entry.range ? " is-active" : ""}`,
             type: "button",
-            on: { click: () => setExploreRange(range.days) },
+            aria: { pressed: String(store.state.exploreRange === entry.range) },
+            on: { click: () => setExploreRange(entry.range) },
           },
-          range.label,
+          entry.label,
         ),
       ),
     ),

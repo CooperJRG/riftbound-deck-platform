@@ -349,6 +349,7 @@ function exploreParams(): {
     ...(state.exploreFormat ? { format: state.exploreFormat } : {}),
     minPlayers: state.exploreMinPlayers,
     bucket: state.exploreBucket,
+    ...(state.exploreRange ? { range: state.exploreRange } : {}),
   };
 }
 
@@ -370,7 +371,10 @@ export function setExploreFilter(
   key: "exploreFormat" | "exploreFrom" | "exploreTo" | "exploreMinPlayers" | "exploreBucket",
   value: string | number,
 ): void {
-  store.set({ [key]: value } as Partial<typeof store.state>);
+  // Picking a date by hand means leaving the preset behind, or the preset would
+  // override the date and the control would look broken.
+  const clearRange = key === "exploreFrom" || key === "exploreTo" ? { exploreRange: "" } : {};
+  store.set({ [key]: value, ...clearRange } as Partial<typeof store.state>);
   void refreshExplore();
 }
 
@@ -393,26 +397,20 @@ function refreshExplore(): Promise<void> {
  * the default ninety days -- 333 events against 58 -- and a range you have to type is
  * a range nobody uses, so the history may as well not exist.
  */
-export function setExploreRange(days: number): void {
-  const overview = store.state.trendOverview ?? store.state.cardTrends;
-  const latest = overview?.archiveTo || new Date().toISOString().slice(0, 10);
-  if (days <= 0) {
-    store.set({
-      exploreFrom: overview?.archiveFrom ?? "",
-      exploreTo: latest,
-      // Weekly buckets over a year is a chart nobody can read; the interval should
-      // follow the span unless somebody has said otherwise.
-      exploreBucket: "month",
-    });
-  } else {
-    const end = new Date(`${latest}T00:00:00Z`);
-    const start = new Date(end.getTime() - (days - 1) * 86_400_000);
-    store.set({
-      exploreFrom: start.toISOString().slice(0, 10),
-      exploreTo: latest,
-      exploreBucket: days > 180 ? "month" : "week",
-    });
-  }
+export function setExploreRange(range: string): void {
+  // Sent as a request, not as dates. Resolving "all" here would mean knowing the
+  // archive's span first, and when the page had not loaded it yet the range came out
+  // empty -- which the server reads as "use the default", i.e. ninety days. "All time"
+  // silently meant "90 days" whenever you clicked it before the first load finished.
+  const days = Number(range);
+  store.set({
+    exploreRange: range,
+    // An explicit range replaces any hand-picked dates; leaving them set would win.
+    exploreFrom: "",
+    exploreTo: "",
+    // Weekly buckets across a year is a chart nobody can read.
+    exploreBucket: range === "all" || (Number.isFinite(days) && days > 180) ? "month" : "week",
+  });
   void refreshExplore();
 }
 

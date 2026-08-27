@@ -14,7 +14,16 @@ from ..schemas import BundleView, FormatView, SourceHealthView
 #: that arrives as a bare `Cannot read properties of undefined` from whichever field is
 #: newest -- an error that says nothing about the actual problem and has now cost three
 #: separate bug reports. The page compares this number against its own and says so.
-API_CONTRACT = 2
+#:
+#: Raise it in the same commit that adds the field, and raise EXPECTED_API_CONTRACT in
+#: `web/src/api/client.ts` with it. Forgetting is not a harmless omission: the card
+#: trends added `archiveFrom` without a bump, so a stale server returned nothing for it,
+#: the page read `undefined`, and "All time" quietly asked for the default ninety days
+#: instead of the whole archive -- a wrong answer rather than an error.
+#:
+#: 2: repair.cards on the wizard.
+#: 3: card trends, the archive span, and the server-resolved `range`.
+API_CONTRACT = 3
 
 router = APIRouter(prefix="/api", tags=["system"])
 

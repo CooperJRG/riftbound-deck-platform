@@ -36,7 +36,7 @@ import type {
  * Must match `API_CONTRACT` in `server/riftbound/api/routes/system.py`. Raise both
  * together whenever a response gains a field the UI reads.
  */
-export const EXPECTED_API_CONTRACT = 2;
+export const EXPECTED_API_CONTRACT = 3;
 
 export class ApiError extends Error {
   constructor(
@@ -172,6 +172,8 @@ export const api = {
     to?: string;
     format?: string;
     minPlayers?: number;
+    /** "all" or a day count; resolved server-side against the archive. */
+    range?: string;
     bucket?: TrendBucket;
     limit?: number;
   }) => request<TrendOverview>(`/api/meta/trends/overview${queryString({ ...params })}`),
@@ -180,6 +182,8 @@ export const api = {
     to?: string;
     format?: string;
     minPlayers?: number;
+    /** "all" or a day count; resolved server-side against the archive. */
+    range?: string;
     bucket?: TrendBucket;
   }) => request<ChampionMeta>(
     `/api/meta/trends/champions/${encodeURIComponent(championId)}${queryString({ ...params })}`,
@@ -189,6 +193,8 @@ export const api = {
     to?: string;
     format?: string;
     minPlayers?: number;
+    /** "all" or a day count; resolved server-side against the archive. */
+    range?: string;
     bucket?: TrendBucket;
   }) => request<LegendMeta>(
     `/api/meta/trends/legends/${encodeURIComponent(legendId)}${queryString({ ...params })}`,
@@ -203,10 +209,11 @@ export const api = {
 
   cardTrends: (params: {
     from?: string; to?: string; format?: string; minPlayers?: number;
-    bucket?: string; cardType?: string; limit?: number;
+    range?: string; bucket?: string; cardType?: string; limit?: number;
   } = {}) => request<CardTrendOverview>(`/api/meta/trends/cards${queryString({ ...params })}`),
   cardTrendDetail: (cardId: string, params: {
-    from?: string; to?: string; format?: string; minPlayers?: number; bucket?: string;
+    from?: string; to?: string; format?: string; minPlayers?: number;
+    range?: string; bucket?: string;
   } = {}) =>
     request<CardDetail>(
       `/api/meta/trends/cards/${encodeURIComponent(cardId)}${queryString({ ...params })}`,

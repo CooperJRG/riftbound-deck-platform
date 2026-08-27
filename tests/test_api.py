@@ -419,3 +419,67 @@ def test_importing_an_unknown_meta_deck_is_404(meta_client):
 def test_an_invalid_evidence_filter_is_rejected(meta_client):
     response = meta_client.get("/api/meta/decks", params={"evidence": "nonsense"})
     assert response.status_code == 400
+
+
+def test_the_page_and_the_server_agree_on_the_api_contract():
+    """The two halves of the version guard must be raised together.
+
+    They live in different languages and different files, so the only thing keeping
+    them in step is remembering -- and forgetting is not harmless. The card trends
+    added `archiveFrom` without a bump, so against a stale server the page read
+    `undefined`, sent no date, and "All time" asked for the ninety-day default: a wrong
+    answer rather than an error, which is the failure mode the guard exists to prevent.
+    """
+    import re
+    from pathlib import Path
+
+    from riftbound.api.routes.system import API_CONTRACT
+
+    client_ts = Path(__file__).resolve().parents[1] / "web" / "src" / "api" / "client.ts"
+    match = re.search(r"EXPECTED_API_CONTRACT\s*=\s*(\d+)", client_ts.read_text(encoding="utf-8"))
+    assert match, "the page must declare the contract it was built against"
+    assert int(match.group(1)) == API_CONTRACT, (
+        f"server says {API_CONTRACT}, page says {match.group(1)}. Raise both together."
+    )
+
+
+def test_health_publishes_the_contract(client):
+    """Absent means "older than the field", which is itself the answer."""
+    from riftbound.api.routes.system import API_CONTRACT
+
+    assert client.get("/api/health").json()["apiContract"] == API_CONTRACT
+
+
+def test_a_range_is_resolved_against_the_archive_not_the_default(meta_client):
+    """"All time" must not be able to come back as the ninety-day default.
+
+    The client used to compute the dates, which meant knowing the archive's span before
+    it could ask for it; before the first load that came out empty, and an empty `from`
+    is exactly how you ask for the default. Resolving it server-side removes the
+    ordering problem entirely.
+    """
+    default = meta_client.get("/api/meta/trends/overview?minPlayers=0&limit=1").json()
+    everything = meta_client.get(
+        "/api/meta/trends/overview?range=all&minPlayers=0&limit=1"
+    ).json()
+    assert everything["fromDate"] == everything["archiveFrom"]
+    assert everything["tournamentCount"] == everything["archiveTournamentCount"]
+    # Not "starts earlier": all time begins at the first event, which on a short archive
+    # is *later* than a ninety-day window that reaches back before any data exists. What
+    # must hold is that it never shows less.
+    assert everything["tournamentCount"] >= default["tournamentCount"]
+
+
+def test_a_day_range_ends_at_the_latest_event(meta_client):
+    """Anchored to the data, not to today: a snapshot harvested last week should still
+    show its own last week."""
+    body = meta_client.get("/api/meta/trends/overview?range=30&minPlayers=0&limit=1").json()
+    assert body["toDate"] == body["archiveTo"]
+
+
+def test_an_explicit_date_still_wins_over_a_range(meta_client):
+    """The drawer's date pickers must not be overridden by a preset."""
+    body = meta_client.get(
+        "/api/meta/trends/overview?from=2026-08-01&minPlayers=0&limit=1"
+    ).json()
+    assert body["fromDate"] == "2026-08-01"

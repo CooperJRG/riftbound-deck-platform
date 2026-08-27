@@ -126,6 +126,14 @@ export interface AppState {
   exploreFrom: string;
   exploreTo: string;
   exploreMinPlayers: number;
+  /**
+   * The chosen range, resolved by the server: "" for its default, "all", or a day count.
+   *
+   * Held as the request rather than as two computed dates, because computing them here
+   * needs the archive's span, and not having it yet is what made "All time" ask for
+   * nothing and get ninety days back.
+   */
+  exploreRange: string;
   exploreBucket: TrendBucket;
   trendOverview: TrendOverview | null;
   /** Which question Explore is answering: what is winning, or what is being played. */
@@ -217,6 +225,7 @@ const initial: AppState = {
   exploreFrom: "",
   exploreTo: "",
   exploreMinPlayers: 16,
+  exploreRange: "",
   exploreBucket: "week",
   trendOverview: null,
   championMeta: null,

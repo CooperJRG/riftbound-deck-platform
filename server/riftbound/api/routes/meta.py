@@ -15,6 +15,7 @@ to someone else's tier list.
 from __future__ import annotations
 
 from collections import Counter
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
@@ -24,6 +25,7 @@ from ...domain.meta import EVIDENCE_TIERS, MetaDeck, build_archetypes
 from ...domain.meta_scoring import score_all, totals
 from ...domain.meta_trends import (
     TrendFilter,
+    archive_span,
     card_detail,
     card_trends,
     champion_meta,
@@ -122,10 +124,27 @@ def _trend_filter(
     format: str,
     min_players: int,
     bucket: str,
+    range_: str = "",
 ) -> TrendFilter:
+    """Resolve a window.
+
+    ``range`` -- "all" or a number of days -- is resolved here rather than by the
+    client, because a client computing dates has to know the archive's span before it
+    can ask for it, and an empty answer falls through to the ninety-day default. That
+    is how "All time" quietly became "90 days": the page had not loaded the span yet,
+    sent no `from`, and got the default back. The server always knows the span.
+    """
     default_from, default_to = default_range(snapshot.tournaments)
     start = parse_date(from_date) if from_date else default_from
     end = parse_date(to_date) if to_date else default_to
+
+    wanted = range_.strip().casefold()
+    if wanted and end is not None:
+        if wanted == "all":
+            span_from, _span_to, _count = archive_span(snapshot.tournaments)
+            start = parse_date(span_from) or start
+        elif wanted.isdigit() and int(wanted) > 0:
+            start = end - timedelta(days=int(wanted) - 1)
     if start is None or end is None:
         raise HTTPException(status_code=400, detail="from and to must be ISO dates")
     if start > end:
@@ -153,6 +172,7 @@ def trends_overview(
     format: str = Query(default="", max_length=40),
     min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
     bucket: str = Query(default="week"),
+    range_: str = Query(default="", alias="range", max_length=8),
     limit: int = Query(default=12, ge=1, le=50),
     services: Services = Depends(get_services),
 ) -> TrendOverviewView:
@@ -164,6 +184,7 @@ def trends_overview(
         format=format,
         min_players=min_players,
         bucket=bucket,
+        range_=range_,
     )
     result = trend_overview(
         decks=snapshot.decks,
@@ -185,6 +206,7 @@ def champion_trends(
     format: str = Query(default="", max_length=40),
     min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
     bucket: str = Query(default="week"),
+    range_: str = Query(default="", alias="range", max_length=8),
     services: Services = Depends(get_services),
 ) -> ChampionMetaView:
     snapshot = _require_meta(services)
@@ -201,6 +223,7 @@ def champion_trends(
             format=format,
             min_players=min_players,
             bucket=bucket,
+            range_=range_,
         ),
     )
     if result is None:
@@ -216,6 +239,7 @@ def legend_trends(
     format: str = Query(default="", max_length=40),
     min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
     bucket: str = Query(default="week"),
+    range_: str = Query(default="", alias="range", max_length=8),
     services: Services = Depends(get_services),
 ) -> LegendMetaView:
     snapshot = _require_meta(services)
@@ -232,6 +256,7 @@ def legend_trends(
             format=format,
             min_players=min_players,
             bucket=bucket,
+            range_=range_,
         ),
     )
     if result is None:
@@ -481,6 +506,7 @@ def card_trend_overview(
     format: str = Query(default="", max_length=40),
     min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
     bucket: str = Query(default="week"),
+    range_: str = Query(default="", alias="range", max_length=8),
     card_type: str = Query(default="", max_length=20, alias="cardType"),
     limit: int = Query(default=40, ge=1, le=200),
     services: Services = Depends(get_services),
@@ -493,7 +519,7 @@ def card_trend_overview(
         catalog=services.catalog,
         trend_filter=_trend_filter(
             snapshot, from_date=from_date, to_date=to_date, format=format,
-            min_players=min_players, bucket=bucket,
+            min_players=min_players, bucket=bucket, range_=range_,
         ),
         limit=limit,
         card_type=card_type,
@@ -509,6 +535,7 @@ def card_trend_detail(
     format: str = Query(default="", max_length=40),
     min_players: int = Query(default=8, ge=0, le=100_000, alias="minPlayers"),
     bucket: str = Query(default="week"),
+    range_: str = Query(default="", alias="range", max_length=8),
     services: Services = Depends(get_services),
 ) -> CardDetailView:
     snapshot = _require_meta(services)
@@ -519,7 +546,7 @@ def card_trend_detail(
         catalog=services.catalog,
         trend_filter=_trend_filter(
             snapshot, from_date=from_date, to_date=to_date, format=format,
-            min_players=min_players, bucket=bucket,
+            min_players=min_players, bucket=bucket, range_=range_,
         ),
     )
     if result is None:
