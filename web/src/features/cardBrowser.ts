@@ -14,6 +14,13 @@ import { addCard, excludeCard, setFilter, showMoreCards, zoneFor } from "../stat
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
+/**
+ * The energy cost, for tiles that have no art to read it off.
+ *
+ * Every card that has a cost prints it in the top corner of its own illustration, so
+ * over the art this badge was a second copy of the same number sitting on top of the
+ * first. It still earns its place on the fallback tile, where there is no art at all.
+ */
 function costBadge(row: CardAvailability): HTMLElement | null {
   const { cost } = row.card;
   return cost === null ? null : h("span", { class: "cost" }, String(cost));
@@ -65,7 +72,7 @@ function cardTile(row: CardAvailability): HTMLElement {
       card.imageUrl
         ? h("img", { src: card.imageUrl, alt: card.name, loading: "lazy" })
         : h("div", { class: "tile-art-empty" }, card.name.slice(0, 2)),
-      costBadge(row),
+      card.imageUrl ? null : costBadge(row),
     ),
     h(
       "div",

@@ -14,6 +14,11 @@
   --atlas-border: #ddd3c4;
   --atlas-positive: #2f7a58;
   --atlas-warning: #a46b17;
+  /* A warning colour chosen for a fill is not a warning colour for small text.
+     --atlas-warning measures 3.97:1 on the canvas, under AA; this is 5.54:1 and reads
+     as the same caution. Dark mode needs no darker variant -- its amber already sits
+     at 7.75:1 -- so the two themes point at different values on purpose. */
+  --atlas-warning-ink: #8a5410;
   --atlas-error: #b74747;
   --atlas-shadow: 0 16px 44px rgba(51, 40, 25, 0.09);
   --atlas-serif: Georgia, "Times New Roman", serif;
@@ -42,6 +47,7 @@
   --atlas-border: #343b3c;
   --atlas-positive: #69b98f;
   --atlas-warning: #d5a153;
+  --atlas-warning-ink: #d5a153;
   --atlas-error: #e17b78;
   --atlas-shadow: 0 18px 52px rgba(0, 0, 0, 0.25);
 }
@@ -126,6 +132,12 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   align-items: center;
   gap: clamp(1rem, 3vw, 3rem);
   min-height: 72px;
+  /* `body` is a height-constrained flex column, so the header was a shrinkable item and
+     got squashed to exactly its 72px floor. Below 900px the tab strip moves to a second
+     row that then had nowhere to go: the row sized to 0 and the tabs were centred in it,
+     spilling back over the brand mark. A sticky header has no business being compressed
+     by its container. */
+  flex-shrink: 0;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem);
   border-bottom: 1px solid var(--atlas-border);
   background: color-mix(in srgb, var(--atlas-surface) 94%, transparent);
@@ -173,6 +185,19 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .access-menu > summary::-webkit-details-marker { display: none; }
 .access-menu > summary::after { content: " +"; color: var(--atlas-copper); }
 .access-menu[open] > summary::after { content: " −"; }
+
+/* Closed disclosure panels have to be told to stay closed.
+   ------------------------------------------------------------------------------
+   A browser hides the contents of a closed <details> itself, but that hiding does not
+   survive a child which declares its own `display` or `position` -- and both panels
+   here do: `.availability` is `position: absolute`, `.atlas-filter-fields` is
+   `display: grid`. Measured on Chrome 148, both stayed laid out and painted while
+   their <details> reported `open === false`, so the card-access pills printed over
+   Explore's eyebrow and range note, and the filter drawer's From/To/Event size labels
+   printed over the tier cards below it.
+   Hiding them explicitly does not depend on how a UA implements the closed state. */
+.access-menu:not([open]) > .availability,
+.tier-filters:not([open]) > .atlas-filter-fields { display: none; }
 .availability {
   position: absolute;
   top: calc(100% + 0.7rem);
@@ -416,7 +441,18 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 @media (max-width: 900px) {
   .app-header { grid-template-columns: 1fr auto; gap: 0.6rem; }
-  .tabs { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; overflow-x: auto; }
+  /* `min-height: max-content` is load-bearing. A grid item whose overflow is not
+     `visible` takes an automatic minimum size of 0 rather than min-content, so this row
+     sized to 0px, and `align-items: center` then centred a 36px tab strip in it --
+     spilling half of it back up over the brand mark. Restoring content-based sizing
+     lets the row, and the header with it, grow to hold two rows. */
+  .tabs {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: max-content;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
   .app-body { grid-template-columns: 1fr; width: min(100% - 1rem, 720px); }
   .panel-deck { position: static; grid-row: 1; max-height: none; order: 0; overflow: visible; }
   .panel-browser { grid-row: 2; }
@@ -505,7 +541,12 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   grid-template-columns: minmax(0, 0.95fr) minmax(460px, 0.75fr);
   align-items: center;
   gap: 3rem;
-  margin: -2.5rem 0 2rem;
+  /* No negative top margin. It used to pull the hero up 2.5rem, which is more than
+     either preceding sibling leaves below it -- the range bar clears 1.4rem and the
+     mode switch 2rem -- so the eyebrow was printed on top of the range chips in one
+     mode and the mode tabs in the other. An element that pulls itself into a sibling
+     is relying on that sibling never changing height. */
+  margin: 0 0 2rem;
   overflow: hidden;
 }
 .tier-hero::before {
@@ -518,7 +559,16 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   filter: blur(40px);
 }
 .tier-hero-copy { position: relative; z-index: 2; max-width: 760px; }
-.tier-hero h1 { margin-bottom: 1.2rem; font-size: clamp(3.6rem, 7vw, 7.7rem); line-height: 0.84; }
+/* 0.84 is a display leading that only works on one line. "Every legend. One field."
+   wraps to two between roughly 1100px and 1500px -- the commonest desktop widths -- and
+   at 7rem the glyphs then overlap the line below by 16px. 0.95 still reads as tight
+   display type and clears descenders at every width. */
+.tier-hero h1 {
+  margin-bottom: 1.2rem;
+  font-size: clamp(3.6rem, 7vw, 7.7rem);
+  line-height: 0.95;
+  text-wrap: balance;
+}
 .tier-honesty { max-width: 68ch; margin-top: 1.4rem; padding-left: 0.9rem; border-left: 3px solid var(--atlas-teal); color: var(--atlas-muted); font-size: 0.8rem; }
 .tier-hero-cards { position: relative; height: 390px; }
 .hero-card { position: absolute; top: 22px; left: 50%; width: 235px; transform-origin: 50% 105%; }
@@ -575,8 +625,92 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 :root[data-theme="dark"] .tier-b .tier-label { color: #c5fff7; background: #24554f; }
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
 :root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
-/* The standing reads as the fact; the movement beside it is the annotation. */
-.tier-card-share { color: var(--atlas-ink); font-weight: 650; }
+
+/* The rating — the number the tier letter is a grouping of.
+   Set in the serif at a size that reads as a headline figure, with the rank beside it
+   in the muted interface face so the two never compete. Ink rather than an accent:
+   this is the card's primary fact, and an accent here would fight the win-rate chip
+   below it, which is a different claim entirely. */
+.tier-card-context > .tier-rating {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+  color: var(--atlas-ink);
+}
+/* Both selected through the parent, for the same reason the win-rate chip is:
+   `.tier-card-context b` further down this file sets `display: block` and a 0.61rem
+   size on every <b> inside a card. It is the same specificity as a bare `.tier-rating b`
+   and comes later, so it silently won -- the rating rendered at 9.76px in the card's
+   own small type while the source said 1.15rem. Going through the parent puts these at
+   (0,2,1), which beats it honestly. */
+.tier-card-context > .tier-rating b {
+  display: inline;
+  margin-top: 0;
+  font-family: var(--atlas-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.tier-card-context > .tier-rating i {
+  color: var(--atlas-muted);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+/* A zero that means "not played here" must not read like a measured floor. */
+.tier-card-context > .tier-rating.is-dormant { color: var(--atlas-muted); }
+.tier-card.is-dormant .tier-card-art { opacity: 0.55; filter: saturate(0.7); }
+
+/* Win rate — a separate claim from the tier, and it has to look like one.
+   Teal because this is evidence, matching every other measured number in the guide;
+   the tier bands own the warm end. A filled chip means the whole 95% interval sits
+   above even, an outlined one means the rate is real but the interval still crosses
+   50%, and a quiet one means "too few matches" — three states, and each carries text
+   as well as colour, because colour is never the only signal here. */
+/* Selected through the parent, not as a bare `.winrate-chip`. `.tier-card-context >
+   span` sets the muted colour every other line on the card uses, and at (0,1,1) it
+   outranks a lone class — so a bare rule here lost its colour silently and the chip
+   rendered muted grey in both themes while looking correct in the source. Matching the
+   parent puts this at (0,2,0) and wins honestly, rather than with a doubled class. */
+.tier-card-context > .winrate-chip {
+  align-self: flex-start;
+  margin-top: 0.3rem;
+  padding: 0.1rem 0.42rem;
+  border: 1px solid var(--atlas-teal);
+  border-radius: 999px;
+  color: var(--atlas-teal);
+  font-size: 0.68rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.tier-card-context > .winrate-chip.is-separated { border-color: transparent; background: var(--atlas-teal); color: var(--atlas-surface); }
+:root[data-theme="dark"] .tier-card-context > .winrate-chip.is-separated { color: #10201f; }
+/* Not a rate at all: a count, so a reader can see it filling up rather than a blank. */
+.tier-card-context > .winrate-chip.is-thin {
+  border-style: dashed;
+  border-color: var(--atlas-border);
+  color: var(--atlas-muted);
+  font-weight: 500;
+}
+
+/* The caveat, on the page rather than behind a hover. Same rule as .tier-honesty:
+   a claim and the limits of that claim travel together or neither is honest. */
+.winrate-basis {
+  max-width: 78ch;
+  margin: 0 0 1.1rem;
+  padding-left: 0.9rem;
+  border-left: 3px solid var(--atlas-teal);
+  color: var(--atlas-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+.winrate-basis strong { color: var(--atlas-ink); }
+.winrate-basis-note { color: var(--atlas-warning-ink); }
 
 .tier-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.7rem; padding: 0.85rem; align-items: start; }
 .tier-card {

@@ -1,6 +1,7 @@
 /** Start-up, and the two banners that outrank everything else on the page. */
 
 import { EXPECTED_API_CONTRACT, api } from "../../api/client";
+import { scrollToTop } from "../../ui/scroll";
 import { store, type ViewName } from "../store";
 import { reportError } from "./shared";
 import { refreshCards } from "./cards";
@@ -44,6 +45,9 @@ export function dismissNotice(): void {
 }
 
 export function setView(view: ViewName): void {
+  // Views are toggled with `hidden` rather than navigated to, so nothing resets the
+  // scroll position on our behalf.
+  if (view !== store.state.view) scrollToTop();
   store.set({ view });
   if (view === "find") void openSmartDecks();
   if (view === "explore" && store.state.trendOverview === null) void loadExplore();

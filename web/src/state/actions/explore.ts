@@ -8,6 +8,7 @@
 
 import { api } from "../../api/client";
 import type { TrendBucket } from "../../api/types";
+import { scrollToTop } from "../../ui/scroll";
 import { store, type ExploreMode } from "../store";
 
 function exploreParams(): {
@@ -32,7 +33,9 @@ export async function loadExplore(): Promise<void> {
   store.set({ exploreLoading: true, exploreError: "", championMeta: null, legendMeta: null, tournamentDetail: null });
   try {
     const [trendOverview, smartLegends] = await Promise.all([
-      api.trendOverview({ dimension: "legend", ...exploreParams(), limit: 50 }),
+      // The tier wall ranks the whole field, so it asks for the legends this window
+      // cannot see as well as the ones it can.
+      api.trendOverview({ dimension: "legend", ...exploreParams(), limit: 50, includeDormant: true }),
       store.state.smartLegends.length ? Promise.resolve(store.state.smartLegends) : api.smartLegends(),
     ]);
     store.set({ trendOverview, smartLegends, smartLegendsLoaded: true, exploreLoading: false });
@@ -90,6 +93,7 @@ export function setExploreRange(range: string): void {
 }
 
 export async function openChampion(championId: string): Promise<void> {
+  scrollToTop();
   store.set({ exploreLoading: true, exploreError: "", legendMeta: null, tournamentDetail: null });
   try {
     const championMeta = await api.championTrend(championId, exploreParams());
@@ -101,6 +105,7 @@ export async function openChampion(championId: string): Promise<void> {
 }
 
 export async function openLegend(legendId: string): Promise<void> {
+  scrollToTop();
   store.set({ exploreLoading: true, exploreError: "", championMeta: null, tournamentDetail: null });
   try {
     const legendMeta = await api.legendTrend(legendId, exploreParams());
@@ -112,6 +117,7 @@ export async function openLegend(legendId: string): Promise<void> {
 }
 
 export async function openTournament(slug: string): Promise<void> {
+  scrollToTop();
   store.set({ exploreLoading: true, exploreError: "" });
   try {
     const tournamentDetail = await api.tournamentDetail(slug);
@@ -123,6 +129,7 @@ export async function openTournament(slug: string): Promise<void> {
 }
 
 export function closeExploreDetail(): void {
+  scrollToTop();
   store.set({ championMeta: null, legendMeta: null, tournamentDetail: null });
 }
 

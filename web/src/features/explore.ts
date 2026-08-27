@@ -6,6 +6,9 @@ import type {
   Pairing,
   TournamentDetail,
   TrendDeck,
+  Performance,
+  PerformanceBasis,
+  Rank,
   TrendSeries,
 } from "../api/types";
 import {
@@ -99,34 +102,39 @@ function metric(label: string, value: string, note = ""): HTMLElement {
   );
 }
 
+/**
+ * Join the legend catalogue to the server's ranking.
+ *
+ * This function used to *compute* the ranking -- weights, tier cut points and all --
+ * which made it the only piece of ranking policy outside the server and the only one
+ * with no tests. It now does nothing but look the answer up and keep the order the
+ * server sent, so a rating shown here and a rating shown anywhere else cannot differ.
+ *
+ * The tier list has no "uncharted" bucket any more. A legend with no lists in range
+ * arrives ranked, scored 0, ordered against the other dormant ones by what the archive
+ * still knows -- so shortening the range reorders the wall instead of emptying part of
+ * it. `rank.ranked` is false for those, and the card says so rather than presenting a
+ * zero as a measurement.
+ */
 function rankLegends(legends: LegendChoice[], trends: TrendSeries[]): RankedLegend[] {
-  const byId = new Map(trends.map((trend) => [trend.entityId, trend]));
-  const maxShare = Math.max(...trends.map((trend) => trend.share), 0.01);
-  const maxEvents = Math.max(...trends.map((trend) => trend.eventCount), 1);
-  const ranked = legends.map((legend) => {
-    const trend = byId.get(legend.legendId) ?? null;
-    if (!trend) return { legend, trend, score: -1, tier: "U" as Tier };
-    const movement = trend.momentum === null
-      ? 0.5
-      : (Math.max(-0.05, Math.min(0.05, trend.momentum)) + 0.05) / 0.1;
-    const score = (trend.share / maxShare) * 0.58 +
-      (trend.eventCount / maxEvents) * 0.27 + movement * 0.15;
-    return { legend, trend, score, tier: "C" as Tier };
-  });
-  const evidenced = ranked.filter((row) => row.trend).sort((a, b) => b.score - a.score);
-  evidenced.forEach((row, index) => {
-    const position = index / Math.max(1, evidenced.length);
-    // Cut points, not counts, so the shape holds whatever the date range returns.
-    // The old bands left C holding a third of the field on its own -- a bin rather than
-    // a tier -- so the tail is split and the top three tighten slightly to match.
-    row.tier =
-      position < 0.12 ? "S"
-        : position < 0.32 ? "A"
-          : position < 0.58 ? "B"
-            : position < 0.80 ? "C"
-              : "D";
-  });
-  return [...evidenced, ...ranked.filter((row) => !row.trend)];
+  const byId = new Map(legends.map((legend) => [legend.legendId, legend]));
+  const seen = new Set<string>();
+  const rows: RankedLegend[] = [];
+
+  for (const trend of trends) {
+    const legend = byId.get(trend.entityId);
+    if (!legend || !trend.rank) continue;
+    seen.add(trend.entityId);
+    rows.push({ legend, trend, score: trend.rank.score, tier: trend.rank.tier });
+  }
+  // A legend the meta has never heard of at all -- not dormant, absent from the
+  // archive. It cannot be scored against a field it has never been in, so it keeps the
+  // uncharted marker rather than being handed a zero it did not earn.
+  for (const legend of legends) {
+    if (seen.has(legend.legendId)) continue;
+    rows.push({ legend, trend: null, score: -1, tier: "U" as Tier });
+  }
+  return rows;
 }
 
 function tierFor(legendId: string): Tier {
@@ -316,40 +324,111 @@ function trendChart(series: TrendSeries): HTMLElement {
   return shell;
 }
 
+/**
+ * The win rate, or an honest reason there isn't one.
+ *
+ * Deliberately *beside* the tier rather than inside it. The tier is presence and the
+ * chip is performance, and the two orderings genuinely disagree -- Rengar is 13th by
+ * presence and 3rd by win rate. Folding the chip into the tier score would average
+ * away exactly the disagreement that makes it worth showing.
+ *
+ * Nothing here re-derives a threshold. `shown` and `withheldDetail` are decided by the
+ * server, next to the tests that pin them.
+ */
+function winRateChip(performance: Performance | null): HTMLElement | null {
+  if (!performance) return null;
+  if (!performance.shown) {
+    return h(
+      "span",
+      { class: "winrate-chip is-thin", title: performance.withheldDetail },
+      `${performance.matches} matches`,
+    );
+  }
+  return h(
+    "span",
+    {
+      class: `winrate-chip${performance.separated ? " is-separated" : ""}`,
+      title:
+        `${pct(performance.winRate, 1)} of ${performance.decisive} decisive matches. ` +
+        `95% confident the true rate is ${pct(performance.intervalLow, 1)}–` +
+        `${pct(performance.intervalHigh, 1)}, from ${performance.events} events and ` +
+        `${performance.pilots} pilots.`,
+    },
+    `${pct(performance.winRate, 1)} won`,
+  );
+}
+
+/**
+ * The rating, and its rank in the field.
+ *
+ * The score was previously computed, used to sort the wall, and then thrown away -- the
+ * reader could see that one legend sat above another but never by how much. Showing the
+ * number turns the tier letter from the only output into a grouping of a visible scale.
+ *
+ * A dormant legend shows `0` with a muted treatment and says why on hover, because a
+ * zero that means "not played here" must not read the same as a measured floor.
+ */
+function ratingBadge(rank: Rank | null): HTMLElement | null {
+  if (!rank) return null;
+  return h(
+    "span",
+    {
+      class: `tier-rating${rank.ranked ? "" : " is-dormant"}`,
+      title: rank.ranked
+        ? `${rank.summary}. Rank ${rank.position} in this range.`
+        : rank.summary,
+    },
+    h("b", {}, rank.ranked ? String(Math.round(rank.score)) : "0"),
+    h("i", {}, `#${rank.position}`),
+  );
+}
+
 function legendTile(row: RankedLegend): HTMLElement {
-  const movement = row.trend ? row.trend.momentum : null;
+  const rank = row.trend?.rank ?? null;
+  const dormant = rank !== null && !rank.ranked;
   return h(
     "button",
     {
-      class: "tier-card",
+      class: `tier-card${dormant ? " is-dormant" : ""}`,
       type: "button",
       on: { click: () => row.trend ? void openLegend(row.legend.legendId) : undefined },
       disabled: !row.trend,
-      aria: { label: `${row.legend.name}, ${row.trend ? `${pct(row.trend.share, 1)} of published lists` : "no complete lists in range"}` },
+      aria: {
+        label: [
+          row.legend.name,
+          rank ? `rated ${Math.round(rank.score)} of 100, rank ${rank.position}` : "",
+          rank && !rank.ranked
+            ? "no lists in this range"
+            : row.trend
+              ? `${pct(row.trend.share, 1)} of published lists`
+              : "no complete lists in range",
+          // Colour and position are never the only carrier of a claim this strong.
+          row.trend?.performance?.shown
+            ? `wins ${pct(row.trend.performance.winRate, 1)} of ${row.trend.performance.decisive} matches`
+            : "",
+        ].filter(Boolean).join(", "),
+      },
     },
     fullCard(row.legend.imageUrl, row.legend.name, "tier-card-art"),
     h(
       "span",
       { class: "tier-card-context" },
       h("strong", {}, row.legend.name),
-      row.trend
+      ratingBadge(rank),
+      dormant
         ? h(
             "span",
             {},
-            `${row.trend.deckCount} lists · ${row.trend.eventCount} events`,
-            // The standing, then the change to it. A delta on its own says how far
-            // something moved without saying where it moved from, and two points is a
-            // different story at 3% than at 30%.
-            h("b", { class: "tier-card-share" }, ` ${(row.trend.share * 100).toFixed(1)} pts`),
-            movement === null
-              ? null
-              : h(
-                  "b",
-                  { class: movement >= 0 ? "trend-up" : "trend-down" },
-                  `${movement >= 0 ? " ↑" : " ↓"}${Math.abs(movement * 100).toFixed(1)}`,
-                ),
+            rank.lastSeen ? `Last seen ${rank.lastSeen}` : "Not seen in this range",
           )
-        : h("span", {}, "Uncharted in this range"),
+        : row.trend
+          // Share and momentum are both already inside the rating above, and the card
+          // was printing all three: a 0-100 number, then the share it is mostly made of,
+          // then the delta that nudges it. The counts stay because they are the sample
+          // behind the rating rather than a restatement of it.
+          ? h("span", {}, `${row.trend.deckCount} lists · ${row.trend.eventCount} events`)
+          : h("span", {}, "Uncharted in this range"),
+      winRateChip(row.trend?.performance ?? null),
     ),
   );
 }
@@ -362,6 +441,35 @@ function tierRow(tier: Tier, rows: RankedLegend[]): HTMLElement | null {
     { class: `tier-row tier-${tier.toLowerCase()}` },
     h("header", { class: "tier-label" }, h("strong", {}, copy.title), h("span", {}, copy.note), h("small", {}, `${rows.length} legend${rows.length === 1 ? "" : "s"}`)),
     h("div", { class: "tier-cards" }, ...rows.map(legendTile)),
+  );
+}
+
+/**
+ * What the win rates are a rate *of*.
+ *
+ * On the page rather than in a tooltip, on purpose. The difference between "this deck
+ * wins 62% of its games" and "this deck wins 62% of the games we can see" is the whole
+ * honesty of the column, and a caveat a reader has to hover for is a caveat most
+ * readers never meet. Every sentence here is server-computed, so it cannot drift from
+ * the numbers it qualifies.
+ */
+function performanceBasisNote(basis: PerformanceBasis | null): HTMLElement | null {
+  if (!basis || basis.totalMatches <= 0) return null;
+  return h(
+    "p",
+    { class: "winrate-basis" },
+    h("strong", {}, `${basis.eraName}: `),
+    `${basis.entitiesShown} of ${basis.entitiesMeasured} have enough matches to rank. `,
+    basis.caveat,
+    // The era boundary was derived from the archive, not read off an announcement.
+    // Say so until it is, rather than letting a derived date pass as a cited one.
+    basis.eraCited
+      ? null
+      : h(
+          "span",
+          { class: "winrate-basis-note", title: basis.eraEvidence },
+          ` Era boundary from ${basis.eraFrom}, derived from the archive rather than a published announcement.`,
+        ),
   );
 }
 
@@ -381,7 +489,11 @@ function tierOverview(): HTMLElement {
         h("p", { class: "eyebrow" }, "The living field"),
         h("h1", {}, "Every legend. One field."),
         h("p", { class: "page-lede" }, "A full-card view of what is defining tournaments right now. Open any legend to see its champion builds, staples, trajectory, and the decks behind its tier."),
-        h("p", { class: "tier-honesty" }, "Relative tournament presence—not a win-rate claim. Tiers combine published-list share, event breadth, and recent movement."),
+        // The tier is still presence and only presence: the ranking formula was
+        // deliberately left alone when win rates arrived. Folding performance into the
+        // tier would hide the disagreement between the two, which is the most useful
+        // thing on this page.
+        h("p", { class: "tier-honesty" }, "Tiers are relative tournament presence—published-list share, event breadth, and recent movement. Win rates are measured separately and shown where the sample supports one; a deck can sit low in the field and still win most of its matches."),
       ),
       h("div", { class: "tier-hero-cards", aria: { hidden: "true" } }, ...top.map((row) => fullCard(row.legend.imageUrl, row.legend.name, "hero-card"))),
     ),
@@ -409,8 +521,21 @@ function tierOverview(): HTMLElement {
           ),
           h("span", {}, h("strong", {}, String(overview.tournamentCount)), " tournaments"),
           h("span", {}, h("strong", {}, pct(overview.publishedCoverage)), " field coverage"),
+          overview.performanceBasis && overview.performanceBasis.totalMatches > 0
+            ? h(
+                "span",
+                {
+                  title:
+                    `${overview.performanceBasis.entitiesShown} legends have enough ` +
+                    `matches to rank; ${overview.performanceBasis.entitiesWithheld} do not yet.`,
+                },
+                h("strong", {}, overview.performanceBasis.totalMatches.toLocaleString()),
+                " matches recorded",
+              )
+            : null,
         )
       : null,
+    performanceBasisNote(overview?.performanceBasis ?? null),
     filterDrawer(),
     exploreError
       ? h("div", { class: "inline-error" }, h("strong", {}, "Couldn’t rebuild the field."), h("span", {}, exploreError), h("button", { type: "button", on: { click: () => void loadExplore() } }, "Try again"))

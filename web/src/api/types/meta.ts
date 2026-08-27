@@ -89,6 +89,100 @@ export interface TrendPoint {
   charted: boolean;
 }
 
+/**
+ * How an entity actually fared, as opposed to how much of the field it occupies.
+ *
+ * `shown` is the field to branch on. When it is false the rate and interval are still
+ * populated but are not fit to print -- render `withheldDetail` instead, which is
+ * already written in plain English by the server. Do not re-derive the thresholds
+ * here; a client holding its own copy is a second policy and only one of them is
+ * tested.
+ */
+export interface Performance {
+  entityId: string;
+  name: string;
+  decksWithRecords: number;
+  /** Every match, draws included. The sample size. */
+  matches: number;
+  /** Matches with a winner: the win-rate denominator. Draws are neither. */
+  decisive: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  events: number;
+  pilots: number;
+  topPilotShare: number;
+  winRate: number;
+  intervalLow: number;
+  intervalHigh: number;
+  /** The whole 95% interval sits above even — the only safe "this wins". */
+  separated: boolean;
+  shown: boolean;
+  withheldReason: "" | "matches" | "events" | "pilot-concentration";
+  withheldDetail: string;
+}
+
+/** What the win rates are a rate *of*. Render it beside them, never in a tooltip. */
+export interface PerformanceBasis {
+  eraId: string;
+  eraName: string;
+  eraFrom: string;
+  eraTo: string;
+  /** False while the era boundary is derived from the archive, not cited. */
+  eraCited: boolean;
+  eraEvidence: string;
+  entitiesMeasured: number;
+  entitiesShown: number;
+  entitiesWithheld: number;
+  decksWithRecords: number;
+  totalMatches: number;
+  publishedWinRate: number;
+  unpublishedWinRate: number;
+  publishedStandings: number;
+  unpublishedStandings: number;
+  publicationGap: number;
+  /** The sentence that has to appear wherever a rate does. */
+  caveat: string;
+}
+
+export interface Era {
+  eraId: string;
+  name: string;
+  fromDate: string;
+  toDate: string;
+  isOpen: boolean;
+  isCited: boolean;
+  evidence: string;
+  bansIntroduced: string[];
+}
+
+/**
+ * Where an entity placed, as a number a reader can act on.
+ *
+ * 0-100, and both ends mean something: 100 is leading the field on presence, event
+ * breadth and momentum at once; 0 is having no lists in the selected range. The three
+ * component fields sum to `score`, so a card can show its own working.
+ *
+ * Computed by the server. Do not re-derive it here — this ranking used to live in the
+ * client, which made it the one piece of ranking policy with no tests behind it.
+ */
+export interface Rank {
+  position: number;
+  score: number;
+  tier: "S" | "A" | "B" | "C" | "D";
+  /** False when the entity had no lists in range: score 0, ordered by the archive. */
+  ranked: boolean;
+  presencePoints: number;
+  breadthPoints: number;
+  momentumPoints: number;
+  /** Only meaningful when `ranked` is false — what orders the dormant tail. */
+  priorShare: number;
+  priorMomentum: number | null;
+  lastSeen: string;
+  /** The line to print under the number, phrased server-side. */
+  summary: string;
+}
+
 export interface TrendSeries {
   entityId: string;
   name: string;
@@ -98,6 +192,14 @@ export interface TrendSeries {
   momentum: number | null;
   confidence: "high" | "moderate" | "limited";
   points: TrendPoint[];
+  /**
+   * `null` means no match records reached this entity at all — a different statement
+   * from "we have records and they are too thin", which arrives as an object with
+   * `shown: false`. Render the two differently.
+   */
+  performance: Performance | null;
+  /** Rank, rating and tier. `series` arrives already in rank order. */
+  rank: Rank | null;
 }
 
 export interface TrendOverview {
@@ -118,6 +220,8 @@ export interface TrendOverview {
   archiveTo: string;
   archiveTournamentCount: number;
   series: TrendSeries[];
+  /** Null when the caller asked for presence only. */
+  performanceBasis: PerformanceBasis | null;
 }
 
 export interface Pairing {

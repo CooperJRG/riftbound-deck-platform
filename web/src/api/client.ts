@@ -9,6 +9,7 @@ import type {
   DeckPayload,
   DeckSummary,
   DeckView,
+  Era,
   FormatView,
   Health,
   MetaDeck,
@@ -176,7 +177,12 @@ export const api = {
     range?: string;
     bucket?: TrendBucket;
     limit?: number;
+    /** Banned-list window the win rates are scoped to; defaults to the current one. */
+    era?: string;
+    /** Append entities the archive knows but this window does not, scored 0. */
+    includeDormant?: boolean;
   }) => request<TrendOverview>(`/api/meta/trends/overview${queryString({ ...params })}`),
+  eras: () => request<Era[]>("/api/meta/eras"),
   championTrend: (championId: string, params: {
     from?: string;
     to?: string;
