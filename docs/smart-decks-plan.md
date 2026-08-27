@@ -353,6 +353,69 @@ patterns.
 
 ---
 
+## 9.2 The signal, scoped to the format being played
+
+The index in step 2 was built over the whole archive, which spans a banning: a third of
+those lists describe a format nobody plays. The builder filtered *banned cards* out of the
+pool, so every deck it produced was legal — and a third of the evidence deciding which
+legal cards to pick came from a dead format. Nothing in §8 could see it. Solved-when-
+feasible stayed at 100%, rounds stayed at a median of 2, and the deck was wrong anyway.
+
+`legend_index` is now scoped to the current era (`domain/eras.py`), and the gap it closed
+is not small:
+
+| | all-time signal | current era |
+| --- | --- | --- |
+| closest real current list | 0.837 | **0.879** |
+| average over the field | 0.581 | **0.606** |
+| legends improved / unchanged / worse | — | 16 / 28 / 3 |
+
+Annie's proposal changed by 68%. Three legends did get slightly worse (Irelia, Jax,
+Rek'Sai) and the acceptance run prints them by name rather than reporting only the mean.
+
+Measured and rejected: an evidence threshold, keeping the all-time signal for legends
+with few recent lists. It is strictly worse at every level tested — requiring 30 recent
+decks drops the closest match to 0.855 and cuts the improved legends from 17 to 7. Only a
+legend with *no* current-era lists falls back, and it is labelled where the player can
+see it.
+
+The metric behind all of this is new, because none existed: `domain/deck_fidelity.py`,
+gated by `python -m riftbound.domain.deck_fidelity_accept`. It measures conformity to the
+field, not strength, so it is a regression guard and must never be optimised against —
+a builder that copied the most-played list every time would score near 1.0 and help
+nobody.
+
+## 9.3 The archetype steer, removed
+
+§4.3 and §5 describe building *within a cluster* — picking the strongest family a
+collection can field and promoting its cards. That mechanism is gone, and the reason is
+worth keeping because the instinct to add it back is a good one.
+
+It never acted. The boost multiplied `play_rate`, and `COHERENCE_WEIGHT = 0.9` leaves
+`play_rate` carrying 10% of a pick — measured, never enough to flip a decision. Flat and
+cluster-aware builds produced identical decks at every collection depth.
+
+Then fixing it turned out to be worse than leaving it. Judged by `deck_fidelity`:
+
+| mechanism | closest real list |
+| --- | --- |
+| no archetype steer | **0.888** |
+| the shipped boost | 0.879 |
+| family used as the candidate pool | 0.884 |
+| coherence routed through the pairing term, ×1 / ×3 / ×10 / ×30 | 0.880 / 0.877 / 0.866 / 0.864 |
+
+Monotonic in the wrong direction — the harder the archetype is pushed, the less the deck
+resembles what people play. And the harm lands precisely where the old comment claimed
+protection: legends with fewer than 20 published lists scored 0.777 with the steer against
+0.806 without it.
+
+The reading is that greedy Jaccard families are not sharp enough to steer a build, and
+that the pairing signal already carries archetype coherence better than a cluster label
+does — a card that belongs to the plan is a card the field plays alongside the plan.
+Clusters keep their place in **selection** (which deck to show, which swap to offer, and
+`coverage` for "can they field this deck's own family"); they have no place in
+**construction**.
+
 ## 10. Decisions taken
 
 | question | decision | why |

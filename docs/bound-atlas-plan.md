@@ -48,8 +48,37 @@ with a useful result.
 ### Explore
 
 An interactive, full-art tier wall containing every legend in the local card catalog.
-S, A, B, C, and uncharted rows are computed from relative published-list presence,
-event breadth, and recent movement. The page explicitly does not claim a win rate.
+
+Each legend carries a **rating from 0 to 100** and its rank in the field. The rating is
+relative published-list presence (58), event breadth (27) and recent movement (15), each
+normalised against the field — so 100 means leading on all three at once and 0 means no
+lists in the selected range. S/A/B/C/D rows are percentile slices of that one ordering,
+which makes the tier a reading aid and the rating the ranking; two legends either side of
+a cut can be a point apart.
+
+The rating is then read through a curve so it lands where a reader expects a grade to.
+Presence is power-law distributed — the leading legend holds three times the share of the
+fifth — so measured linearly against the leader the whole field collapses into the bottom
+quarter: a median of 18 and a top-five deck reading 37. The curve is applied to the total,
+never to the components, because a monotonic curve on the total cannot reorder anything
+while curving each component separately silently re-weights them against each other. The
+field now spans roughly 47–99 with a median near 60, and the top five read 99 / 92 / 85 /
+82 / 79.
+
+The card shows the rating, the rank, the sample behind it (`303 lists · 68 events`) and
+the win rate. It does not also print the share and the momentum delta the rating is made
+of — three restatements of one number is not more information.
+
+There is no "uncharted" row. A legend the range cannot see is rated 0 but still ranked,
+ordered against the other dormant ones by what the whole archive still knows about it —
+prior momentum first, then prior share, then how recently it was last seen — and its card
+says "Last seen 2026-07-26" rather than presenting the zero as a measurement. Shortening
+the range from 90 days to 30 therefore reorders the wall instead of emptying part of it.
+
+Tiers remain presence only — win rate is shown beside them as a separate figure and is
+never folded into the rating, because the two orderings disagree and the disagreement is
+the useful part (see `docs/deck-performance-plan.md`). The rating is computed server-side
+(`domain/meta_trends/ranking.py`); a client renders it and never re-derives it.
 Format, date range, minimum event size, and weekly/monthly controls live in one compact
 filter drawer so the field remains the focus.
 
@@ -119,6 +148,14 @@ Subtle radial color and low-opacity paper grain keep the field-guide character w
 competing with cards and charts. Borders carry most structure; shadows are reserved for
 menus and lifted interactive states.
 
+### Deck performance
+
+Every ranked entity carries a win rate where the sample supports one: the rate, the match
+count, and a 95% Wilson interval, scoped to a declared banned-list era. Roughly a third of
+the field clears the bar; the rest show their match count and an explicit reason they
+cannot yet be ranked. Every rate is labelled as a rate among *published lists*, with the
+measured publication bias printed beside it rather than hidden in a tooltip.
+
 ## Tournament data contract
 
 Trend shares use complete, tournament-sourced deck lists with a resolved champion,
@@ -134,6 +171,13 @@ returns both populations:
 Movement waits for two intervals containing at least 20 complete lists. Chart lines omit
 intervals with fewer than 10 lists. The raw counts remain in the response so other local
 clients can choose a different presentation while retaining the evidence.
+
+Win rates come from the match records carried on tournament standings and obey the same
+rule. The denominator is decisive matches; draws count as matches but not as losses; a
+rate is withheld rather than shown small when the sample cannot support it. The
+population is published lists, never the field — the response carries the win rate of
+both the published and the unpublished halves of the same events, so a client can show
+the gap rather than being asked to trust a caveat.
 
 ## Responsive and accessibility behavior
 
