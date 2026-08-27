@@ -17,6 +17,7 @@ import {
   openTournament,
   setExploreFilter,
   setExploreMode,
+  setExploreRange,
 } from "../state/actions";
 import { store, type ExploreMode } from "../state/store";
 import { h, replace } from "../ui/dom";
@@ -154,6 +155,56 @@ function dateControl(label: string, value: string, key: "exploreFrom" | "explore
       value,
       on: { change: (event) => setExploreFilter(key, (event.target as HTMLInputElement).value) },
     }),
+  );
+}
+
+const RANGES: { label: string; days: number }[] = [
+  { label: "30 days", days: 30 },
+  { label: "90 days", days: 90 },
+  { label: "6 months", days: 182 },
+  { label: "12 months", days: 365 },
+  { label: "All time", days: 0 },
+];
+
+/**
+ * The archive, said out loud.
+ *
+ * Most of what has been harvested sits outside the default window -- 333 events against
+ * the 58 the last ninety days hold -- and there was nothing on the page to suggest it
+ * existed. A range you have to type is a range nobody uses.
+ */
+export function rangeBar(overview: {
+  fromDate: string; toDate: string; archiveFrom: string; archiveTo: string;
+  archiveTournamentCount: number; tournamentCount: number;
+} | null): HTMLElement | null {
+  if (!overview) return null;
+  const showingAll = overview.fromDate <= overview.archiveFrom;
+  return h(
+    "div",
+    { class: "range-bar" },
+    h(
+      "div",
+      { class: "range-chips" },
+      ...RANGES.map((range) =>
+        h(
+          "button",
+          {
+            class: "chip-toggle",
+            type: "button",
+            on: { click: () => setExploreRange(range.days) },
+          },
+          range.label,
+        ),
+      ),
+    ),
+    h(
+      "p",
+      { class: "range-note" },
+      `Showing ${overview.tournamentCount} of ${overview.archiveTournamentCount} tournaments`,
+      showingAll
+        ? " — the whole archive."
+        : `. The archive goes back to ${overview.archiveFrom}.`,
+    ),
   );
 }
 
@@ -573,6 +624,7 @@ export function renderExplore(root: HTMLElement): void {
   replace(
     root,
     modeSwitch(),
+    rangeBar(exploreMode === "cards" ? store.state.cardTrends : store.state.trendOverview),
     exploreMode === "cards" ? cardWall() : tierOverview(),
   );
 }

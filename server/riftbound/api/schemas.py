@@ -324,6 +324,11 @@ class TrendOverviewView(ApiModel):
     known_field_players: int
     published_coverage: float
     formats: list[str]
+    #: The whole archive's span, regardless of the window shown, so the page can say how
+    #: much more there is behind the default range.
+    archive_from: str
+    archive_to: str
+    archive_tournament_count: int
     series: list[TrendSeriesView]
 
 
@@ -685,6 +690,9 @@ class CardTrendOverviewView(ApiModel):
     charted_deck_count: int
     known_field_players: int
     published_coverage: float
+    archive_from: str
+    archive_to: str
+    archive_tournament_count: int
     series: list[CardTrendView]
 
 

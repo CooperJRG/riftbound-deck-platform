@@ -102,6 +102,12 @@ class TrendOverview:
     known_field_players: int
     published_coverage: float
     formats: tuple[str, ...]
+    #: The whole archive's span, regardless of the window being shown. Without it the
+    #: page cannot say "90 days of the 13 months you have", and a reader has no way to
+    #: know there is more behind the default.
+    archive_from: str
+    archive_to: str
+    archive_tournament_count: int
     series: tuple[EntityTrend, ...]
 
 
@@ -204,6 +210,31 @@ class TournamentDetail:
     confidence: str
     champions: tuple[TournamentEntity, ...]
     decks: tuple[TrendDeck, ...]
+
+
+def archive_span(
+    tournaments: Iterable[Tournament], trend_filter: TrendFilter | None = None
+) -> tuple[str, str, int]:
+    """How much there is to see if the date window were opened all the way.
+
+    Every filter *except* the dates is applied. That is the whole point of the number:
+    it answers "would widening the range show me more", and it has to be comparable with
+    the count of what is on screen. Counting every event regardless of size against a
+    view filtered to 16+ players produces "showing 124 of 333 -- the whole archive",
+    which is two different questions sharing a sentence.
+    """
+    rows = [row for row in tournaments if parse_date(row.date)]
+    if trend_filter is not None:
+        wanted = trend_filter.format.casefold()
+        rows = [
+            row for row in rows
+            if row.players >= trend_filter.min_players
+            and (not wanted or row.format.casefold() == wanted)
+        ]
+    if not rows:
+        return ("", "", 0)
+    dates = sorted(row.date for row in rows)
+    return (dates[0], dates[-1], len(rows))
 
 
 def parse_date(value: str) -> date | None:
@@ -392,6 +423,7 @@ def overview(
         )
 
     formats = tuple(sorted({row.format for row in all_tournaments if row.format}))
+    span = archive_span(all_tournaments, trend_filter)
     return TrendOverview(
         from_date=trend_filter.from_date.isoformat(),
         to_date=trend_filter.to_date.isoformat(),
@@ -404,6 +436,9 @@ def overview(
         known_field_players=players,
         published_coverage=coverage,
         formats=formats,
+        archive_from=span[0],
+        archive_to=span[1],
+        archive_tournament_count=span[2],
         series=tuple(series),
     )
 
@@ -731,6 +766,9 @@ class CardTrendOverview:
     charted_deck_count: int
     known_field_players: int
     published_coverage: float
+    archive_from: str
+    archive_to: str
+    archive_tournament_count: int
     series: tuple[CardTrend, ...]
 
 
@@ -846,6 +884,7 @@ def card_trends(
             )
         )
 
+    span = archive_span(all_tournaments, trend_filter)
     return CardTrendOverview(
         from_date=trend_filter.from_date.isoformat(),
         to_date=trend_filter.to_date.isoformat(),
@@ -855,6 +894,9 @@ def card_trends(
         charted_deck_count=charted,
         known_field_players=players,
         published_coverage=coverage,
+        archive_from=span[0],
+        archive_to=span[1],
+        archive_tournament_count=span[2],
         series=tuple(series),
     )
 

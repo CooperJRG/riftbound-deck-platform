@@ -371,7 +371,49 @@ export function setExploreFilter(
   value: string | number,
 ): void {
   store.set({ [key]: value } as Partial<typeof store.state>);
-  void loadExplore();
+  void refreshExplore();
+}
+
+/**
+ * Reload whichever view is on screen.
+ *
+ * The filters are shared between the two Explore modes but the data is not, so a
+ * refresh has to follow the mode. Reloading only the legends meant changing the date
+ * range while reading the card wall did nothing at all, which reads as a broken
+ * control rather than a missing branch.
+ */
+function refreshExplore(): Promise<void> {
+  return store.state.exploreMode === "cards" ? loadCardTrends() : loadExplore();
+}
+
+/**
+ * Jump the window to a whole span rather than making somebody pick two dates.
+ *
+ * `days` of 0 means the entire archive. Most of what has been harvested sits outside
+ * the default ninety days -- 333 events against 58 -- and a range you have to type is
+ * a range nobody uses, so the history may as well not exist.
+ */
+export function setExploreRange(days: number): void {
+  const overview = store.state.trendOverview ?? store.state.cardTrends;
+  const latest = overview?.archiveTo || new Date().toISOString().slice(0, 10);
+  if (days <= 0) {
+    store.set({
+      exploreFrom: overview?.archiveFrom ?? "",
+      exploreTo: latest,
+      // Weekly buckets over a year is a chart nobody can read; the interval should
+      // follow the span unless somebody has said otherwise.
+      exploreBucket: "month",
+    });
+  } else {
+    const end = new Date(`${latest}T00:00:00Z`);
+    const start = new Date(end.getTime() - (days - 1) * 86_400_000);
+    store.set({
+      exploreFrom: start.toISOString().slice(0, 10),
+      exploreTo: latest,
+      exploreBucket: days > 180 ? "month" : "week",
+    });
+  }
+  void refreshExplore();
 }
 
 export async function openChampion(championId: string): Promise<void> {

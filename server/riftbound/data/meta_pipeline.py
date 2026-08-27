@@ -454,7 +454,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--min-quality", type=int, default=0, dest="min_quality",
         help="riftdecks: ignore decks scored below this (0-100)",
     )
-    p.add_argument("--days", type=int, default=180, help="topdeck: how far back to look")
+    p.add_argument(
+        "--days", type=int, default=720, dest="days",
+        help=(
+            "topdeck: how far back to look. Defaults to the same two years the archive "
+            "keeps, because a shorter harvest costs nothing to widen: 1000 days took "
+            "7.9s and returned 280 events against 172, and a fresh install would "
+            "otherwise start with only the last six months of a game that has been "
+            "running longer than that."
+        ),
+    )
     p.add_argument(
         "--min-players", type=int, default=0, dest="min_players",
         help="topdeck: ignore events smaller than this",

@@ -630,3 +630,64 @@ def test_a_cards_homes_add_up_to_where_it_is_played(catalog):
     assert detail is not None
     assert sum(home.decks for home in detail.legends) == detail.trend.decks
     assert detail.legends[0].share_of_card == pytest.approx(1.0)
+
+
+# -- the archive --------------------------------------------------------------
+
+
+def test_the_archive_span_is_reported_alongside_the_window(catalog):
+    """So a page can say there is more behind the default range."""
+    events = [
+        a_tournament(slug="old", when="2026-01-05"),
+        a_tournament(slug="new", when="2026-02-02"),
+    ]
+    decks = [a_deck(slug="new", index=0)]
+    result = run(
+        decks, events, catalog=catalog,
+        trend_filter=TrendFilter(date(2026, 1, 20), date(2026, 3, 31)),
+    )
+    assert result.tournament_count == 1, "the window holds one"
+    assert result.archive_tournament_count == 2, "the archive holds two"
+    assert result.archive_from == "2026-01-05"
+
+
+def test_the_archive_count_is_comparable_with_the_window_count(catalog):
+    """Both sides of "showing X of Y" must answer the same question.
+
+    Counting every event regardless of size against a view filtered to 16+ players
+    produced "showing 124 of 333 -- the whole archive", which is two different questions
+    sharing a sentence. Every filter except the dates applies to both.
+    """
+    events = [
+        a_tournament(slug="big", when="2026-02-02", players=100),
+        a_tournament(slug="tiny-old", when="2026-01-05", players=4),
+        a_tournament(slug="big-old", when="2026-01-05", players=100),
+    ]
+    result = run(
+        [a_deck(slug="big", index=0)], events, catalog=catalog,
+        trend_filter=TrendFilter(date(2026, 1, 20), date(2026, 3, 31), min_players=16),
+    )
+    assert result.tournament_count == 1
+    assert result.archive_tournament_count == 2, "the tiny event is excluded from both"
+
+
+def test_showing_everything_means_the_two_counts_agree(catalog):
+    """The "whole archive" case has to actually look like it."""
+    events = [a_tournament(slug="a", when="2026-01-05"), a_tournament(slug="b", when="2026-02-02")]
+    result = run(
+        [a_deck(slug="a", index=0)], events, catalog=catalog,
+        trend_filter=TrendFilter(date(2026, 1, 1), date(2026, 3, 31)),
+    )
+    assert result.tournament_count == result.archive_tournament_count == 2
+
+
+def test_the_card_wall_reports_the_same_archive(catalog):
+    result = card_run([a_deck(index=0)], [a_tournament()], catalog=catalog)
+    assert result.archive_tournament_count == 1
+    assert result.archive_from == result.archive_to == "2026-02-02"
+
+
+def test_an_empty_archive_reports_nothing_rather_than_a_date(catalog):
+    result = run([], [], catalog=catalog)
+    assert result.archive_from == ""
+    assert result.archive_tournament_count == 0

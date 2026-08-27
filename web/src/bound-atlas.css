@@ -920,3 +920,8 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 /* Lift is the reason a pairing is worth reading, so a strong one is marked. */
 .lift-strong { color: var(--atlas-copper); font-weight: 650; }
 .lift-mild { color: var(--atlas-muted); }
+
+/* The archive, offered rather than hidden behind two date pickers. */
+.range-bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: baseline; margin-bottom: 1.4rem; }
+.range-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.range-note { margin: 0; color: var(--atlas-muted); font-size: 0.78rem; }

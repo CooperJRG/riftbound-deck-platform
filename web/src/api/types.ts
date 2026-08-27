@@ -307,6 +307,10 @@ export interface TrendOverview {
   knownFieldPlayers: number;
   publishedCoverage: number;
   formats: string[];
+  /** The whole archive, not the window: what is available behind the current range. */
+  archiveFrom: string;
+  archiveTo: string;
+  archiveTournamentCount: number;
   series: TrendSeries[];
 }
 
@@ -604,6 +608,9 @@ export interface CardTrendOverview {
   chartedDeckCount: number;
   knownFieldPlayers: number;
   publishedCoverage: number;
+  archiveFrom: string;
+  archiveTo: string;
+  archiveTournamentCount: number;
   series: CardTrend[];
 }
 
