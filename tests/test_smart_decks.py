@@ -870,3 +870,92 @@ def test_a_checklist_answer_does_not_wipe_what_they_declined(engine):
 
     session = engine.answer_question(session, {"brazen-buccaneer": 1}, ["brazen-buccaneer"])
     assert session.knowledge.is_declined("harpoon-squad"), "a decline must survive a round"
+
+
+# -- keeping the shape of a repaired deck --------------------------------------
+#
+# Measured over 500 repairs of real lists against synthetic collections: the field
+# plays 18 unique main-deck cards (median, stdev 1.9) at 25% one-ofs / 29% two-ofs /
+# 46% three-ofs. Repairing a hole at a time returned 24 unique cards at 48/39/14, with
+# 89% of results wider than any list the field actually plays.
+
+
+def test_one_playset_covers_several_holes_rather_than_several_names(engine, catalog,
+                                                                    bound_rules, profile):
+    """The change that mattered, and it is arithmetic rather than judgement.
+
+    67.6% of holes are a single copy, and the hole itself is the binding limit on 86.5%
+    of fills -- so filling holes independently took one copy of one new card each time,
+    and a list short six copies came back six names wider. Holes are pooled per zone, so
+    a candidate can arrive as the playset the field runs it as and cover the next holes
+    with it.
+    """
+    deck = a_deck()
+    # A field that runs filler-10 as a playset, so the profile knows its count. Without
+    # that the repair is right to bring an unknown card in as a single copy -- it has no
+    # evidence anybody plays it as more.
+    staple = dict(deck.main)
+    staple["filler-10"] = 3
+    for card_id in ("filler-01", "filler-02", "filler-03"):
+        staple.pop(card_id, None)
+    field = {
+        "d1": as_meta(deck, "d1"),
+        "d2": as_meta(a_deck(main=staple), "d2"),
+        "d3": as_meta(a_deck(main=staple), "d3"),
+    }
+    rich = build_index(field.values(), {k: 1.0 for k in field}).get(LEGEND)
+    assert rich.copies.get("filler-10") == 3, "the field plays it as a playset"
+
+    # Short one copy each of three different cards: three separate one-copy holes.
+    short = ["filler-01", "filler-02", "filler-03"]
+    owned = full_owned(catalog)
+    for card_id in short:
+        owned[card_id] = 2
+    fixed = repair(deck, known(owned), profile=rich, catalog=catalog,
+                   rules=bound_rules, conservative=False)
+    assert fixed is not None
+    brought_in = {s.in_card_id for s in fixed.swaps}
+    assert len(brought_in) < len(short), (
+        "three one-copy holes must not become three new names"
+    )
+
+
+def test_a_repair_does_not_widen_a_deck_without_limit(engine, catalog, bound_rules, profile):
+    """A repaired list stays within the range the field actually plays.
+
+    The published range is 10-30 unique main-deck cards. A repair that answers by adding
+    a new name per missing copy leaves the player holding something no one has played.
+    """
+    deck = a_deck()
+    owned = full_owned(catalog)
+    for card_id in [f"filler-{i:02d}" for i in range(1, 6)]:
+        owned[card_id] = 1
+    fixed = repair(deck, known(owned), profile=profile, catalog=catalog,
+                   rules=bound_rules, conservative=False)
+    if fixed is None:
+        pytest.skip("this collection could not be repaired at all")
+    assert len(fixed.deck.main) <= len(deck.main) + 5
+
+
+def test_shape_never_costs_an_answer(catalog, bound_rules, profile):
+    """The second pass exists for this.
+
+    Preferring the field's own counts is a preference, not a constraint: somebody short
+    of cards would rather hold a deck with an odd curve than be told no, so the fill
+    drops the shape rule before it drops the answer.
+    """
+    deck = a_deck()
+    rng = random.Random(19)
+    answered = 0
+    for _ in range(12):
+        owned = random_collection(catalog, rng=rng, scale=0.9)
+        owned[LEGEND] = 1
+        owned["vi-destructive"] = 3
+        for card_id, n in deck.runes.items():
+            owned[card_id] = n
+        for card_id in deck.battlefields:
+            owned[card_id] = 1
+        if repair(deck, known(owned), profile=profile, catalog=catalog,
+                  rules=bound_rules, conservative=False) is not None:
+            answered += 1
+    assert answered, "the shape preference must not make every repair fail"
