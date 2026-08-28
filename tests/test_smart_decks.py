@@ -1108,3 +1108,29 @@ def test_the_orphan_is_not_handed_back(catalog, bound_rules):
     assert not _is_stranded(profile, deck.champion_id, deck, {"filler-11"}), (
         "the champion defines the deck"
     )
+
+
+def test_every_dependency_counts_not_just_the_strongest(catalog, bound_rules):
+    """The mistake that prompted this, in one assertion.
+
+    Flurry of Blades is played beside Elder Dragon in 98% of Sivir lists -- and beside
+    Catalyst of Aeons in 98%, and Mobilize in 98%. Reporting only the strongest partner
+    pointed at the catalyst, found it present, and pronounced the flurry well supported
+    while the dragon it is actually played for had just been cut. So the repair happily
+    swapped one for the other, and the player got a card that is only good because of a
+    card that is no longer in the deck.
+    """
+    decks, profile = a_paired_field(catalog, bound_rules)
+    # filler-10 relies on filler-11, and both sit only in the paired archetype.
+    partners = profile.reliances("filler-10")
+    assert partners, "the pairing must be visible at all"
+    assert any(p == "filler-11" for p, _ in partners)
+
+    # Present-except-one is not "supported": one broken dependency is enough.
+    everything = {p for p, _ in partners}
+    assert profile.support("filler-10", everything) == 1.0
+    for missing in everything:
+        held = everything - {missing}
+        assert profile.support("filler-10", held) < 1.0, (
+            f"dropping {missing} must be noticed even with the others present"
+        )

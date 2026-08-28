@@ -204,19 +204,22 @@ def repair(
             return None
         allowed = set(family.core) | set(family.flex)
 
-    # Build it both ways and keep the better one.
+    # Pivoting to another archetype was tried here and measured worse on every axis.
     #
-    # Dropping a card the player owns is sometimes the right move: a single copy of
-    # something the field runs as a playset is a quantity nobody plays, and the slot
-    # could hold a third copy of something else. But *always* cutting those stubs is
-    # plainly wrong -- measured over 400 repairs where the choice mattered, it lost
-    # play-rate mass 97% of the time, a median 5.25%, to save one card of width. Deck
-    # shape is worth something and it is not worth that.
+    # The idea was sound: if a collection cannot support this deck's combo, build a
+    # different family for the same legend rather than patching a deck that no longer
+    # works. Every legend in the archive carries more than one, a median of 18. But
+    # constraining the fill to a family starves it of candidates, and it takes worse
+    # cards as a result. Over 300 repairs, against leaving the free repair
+    # unconstrained:
     #
-    # So the cut is considered rather than applied, on the same footing as any other
-    # candidate repair: it has to actually produce a better deck. It wins about 3% of
-    # the time, which is what "sometimes" turned out to mean. Ties keep the stub, since
-    # a player would rather hold the card they own than have it swapped for no gain.
+    #   unconstrained            2.73 unmet dependencies per deck, 22 cards,  3.7s
+    #   own family first         2.89                              23 cards, 11.8s
+    #   own family + 3 pivots    2.84                              23 cards, 31.5s
+    #
+    # Worse decks, wider decks, and eight times the work. The coherence a pivot was
+    # meant to buy is already bought more cheaply by weighting candidates by whether the
+    # deck can support them -- see the re-weighting in :func:`_fill`.
     patched = _attempt(
         deck, holes, profile=profile, catalog=catalog, rules=rules, legend=legend,
         owned=owned, allowed=allowed, conservative=conservative, cut_stubs=False,
@@ -566,3 +569,256 @@ def _mass(deck: Deck, profile: LegendProfile) -> float:
         profile.play_rate.get(card_id, 0.0) * n * profile.support(card_id, present)
         for card_id, n in deck.main.items()
     )
+
+
+def _fill(
+    hole,
+    ranked,
+    zones: _Zones,
+    swaps: list[Swap],
+    *,
+    budget: int,
+    zone: str,
+    pool: set[str],
+    allowed: set[str] | None,
+    owned: Mapping[str, int],
+    profile: LegendProfile,
+    catalog: Catalog,
+    rules: BoundRules,
+    shape_first: bool,
+) -> int:
+    """Take copies for one hole, returning how many were added.
+
+    Lifted out of the loop rather than closed over it: a nested function reading
+    ``hole`` and ``ranked`` from the enclosing scope is correct only while it is called
+    in the same iteration, which is the kind of thing that stays correct until somebody
+    moves the call.
+    """
+    added = 0
+    # Re-weight by whether the deck can actually support each candidate.
+    #
+    # `substitutes` ranks by affinity with the whole list, which averages over every
+    # card present and so barely moves when the one partner a card is played for is
+    # missing. Bringing in the second half of a pairing whose first half is not there
+    # trades one orphan for another: measured, cutting stranded cards *without* this
+    # raised orphans per deck from 1.45 to 2.87, because the freed copies were refilled
+    # with cards that had unmet dependencies of their own.
+    here = set(zones.main)
+    order = [
+        (candidate_id, score * profile.support(candidate_id, here))
+        for candidate_id, score in ranked
+    ]
+    order.sort(key=lambda entry: -entry[1])
+    if shape_first:
+        # Prefer a card the list already plays over a new name.
+        #
+        # Two wrong turns before this one, both worth recording. Capping copies at the
+        # field's count made things worse -- it took one copy of the best substitute and
+        # moved on. Sorting by how much a candidate could supply barely moved either.
+        # Measured, the binding limit on 86.5% of fills is the *hole*: 67.6% of holes
+        # are a single copy, and the card's own count binds 0.2% of the time.
+        #
+        # So the sprawl is arithmetic, not judgement. Being short one copy of a three-of
+        # leaves it in the deck as a two-of and adds a one-of beside it: the list gains
+        # a name and a singleton, every time, and after a few holes it is 24 cards wide
+        # where the field plays 18. Topping an existing card up toward the count the
+        # field runs it at fills the same hole and adds no name at all.
+        def shape_fit(entry: tuple[str, float]) -> tuple[int, int, float]:
+            candidate_id, score = entry
+            card = catalog.get(candidate_id)
+            if card is None:
+                return (0, 0, score)
+            already = zones.committed(zone, candidate_id)
+            room = min(
+                budget - added,
+                owned.get(candidate_id, 0) - already,
+                _zone_cap(card, zone, rules=rules) - already,
+                _natural_copies(profile, candidate_id, zone) - already,
+            )
+            already_played = 1 if already > 0 and room > 0 else 0
+            return (already_played, max(0, room), score)
+
+        order.sort(key=shape_fit, reverse=True)
+
+    for candidate_id, score in order:
+        if added >= budget:
+            break
+        if candidate_id not in pool:
+            continue
+        if allowed is not None and candidate_id not in allowed:
+            continue
+        candidate = catalog.get(candidate_id)
+        if candidate is None:
+            continue
+        # Against the limit: every zone that shares it. Against what they own: the same,
+        # since a card in the sideboard is a copy already spoken for.
+        already = zones.committed(zone, candidate_id)
+        limits = [
+            budget - added,
+            owned.get(candidate_id, 0) - already,
+            _zone_cap(candidate, zone, rules=rules) - already,
+        ]
+        if shape_first:
+            # The count the field actually runs this card at, minus what the deck
+            # already holds. A card the field plays as a one-of arrives as a one-of; a
+            # staple arrives as a playset, or tops an existing copy up to one, rather
+            # than adding another name to a list that already has enough.
+            limits.append(_natural_copies(profile, candidate_id, zone) - already)
+        room = min(limits)
+        if room <= 0:
+            continue
+        zones.add(zone, candidate_id, room)
+        added += room
+        swaps.append(
+            Swap(
+                out_card_id=hole.card_id, in_card_id=candidate_id, copies=room,
+                reason=f"the field plays this alongside the deck {score:.0%} of the time",
+            )
+        )
+    return added
+
+
+def _natural_copies(profile: LegendProfile, card_id: str, zone: str) -> int:
+    """How many copies of this card the field runs for this legend.
+
+    ``profile.copies`` already carries it -- a weighted mean over the era's lists,
+    rounded -- and until now nothing filling a hole consulted it. A repair took as many
+    copies of its best substitute as the player happened to own, which with a thin
+    collection means one copy each of many different cards. Measured over 500 repairs of
+    real lists, that pushed the median deck from 18 unique cards to 24, turned 46% of
+    slots being three-ofs into 14%, and left 89% of repaired decks wider than the p90 of
+    any list the field has actually played.
+
+    The mean rather than the mode, deliberately. The mode predicts a held-out slot at
+    73.4% and this at 72.9% -- a difference that does not justify a second statistic
+    that could disagree with the first, and the rounded mean names a count the field
+    never runs for a given card in 0.2% of cases.
+
+    Runes are exempt: they are not a curve decision, they are a resource base sized to
+    the deck, and a rune "played as 9" is an artefact of averaging bases of 6 and 12.
+    """
+    if zone in (ZONE_RUNES, ZONE_BATTLEFIELDS):
+        return _MANY
+    return max(1, int(profile.copies.get(card_id, 1)))
+
+
+def _is_stranded(
+    profile: LegendProfile, card_id: str, deck: Deck, emptied: Container[str]
+) -> bool:
+    """Is this card losing the card it is played for?
+
+    The case a copy count cannot see, and the one this was asked to fix. The field runs
+    Elder Dragon in 88.6% of the lists it runs Dazzling Aurora in, and Pack of Wonders
+    alongside Treasure Trove 94.2% of the time -- so somebody who owns the dragons and
+    none of the auroras is not short one card, they are short the reason the other card
+    was in the deck. Handing them the orphan is the recommendation this stops making.
+
+    Note that a stranded card is one the player *owns*, so it is never a hole and the
+    hole loop cannot see it. It has to be looked for across the whole list.
+
+    Only fires when the partner is being emptied out by this repair. A partner they
+    still have is no reason to drop anything, and one that was never in the list is the
+    deck's own business.
+    """
+    if card_id == deck.champion_id or card_id == deck.legend_id:
+        return False
+    needed = profile.reliance(card_id)
+    if needed is None:
+        return False
+    partner = needed[0]
+    return partner in deck.main and partner in emptied
+
+
+def _is_stub(profile: LegendProfile, hole, zone: str, deck: Deck) -> bool:
+    """Is the copy the player owns worth keeping, or is it a leftover?
+
+    Sometimes dropping a card somebody owns is the right move, and there is exactly one
+    case the field supports. Measured across every card played in 20 or more lists:
+
+      the field runs 3, deck left at 2 -- played 18.2% of the time
+      the field runs 2, deck left at 1 -- played 19.9% of the time
+      the field runs 3, deck left at 1 -- played  4.7% of the time (median 1.9%)
+
+    The first two are configurations the field genuinely plays, so a partial there is a
+    real deck and keeping it is right. The last is not: for 71% of playset cards a
+    single copy appears in 5% or fewer of their lists. Keeping it hands the player a
+    card in a quantity nobody plays it in, *and* costs a slot that could hold a third
+    copy of something else -- so the copy goes back into the budget and the fill places
+    it where the field would.
+
+    Deliberately narrow. It fires only for a card the field runs as a full playset of
+    which the player holds exactly one, never for the champion, whose presence defines
+    the deck, and never outside the main deck, where counts are a resource base rather
+    than a curve.
+    """
+    if zone != ZONE_MAIN or hole.have != 1:
+        return False
+    if hole.card_id == deck.champion_id:
+        return False
+    return _natural_copies(profile, hole.card_id, zone) >= 3
+
+
+def _mass(deck: Deck, profile: LegendProfile) -> float:
+    """How much of what the field plays this deck contains, in the company it keeps.
+
+    Play-rate mass, which is what the acceptance harness scores a built deck by, but
+    weighted by whether each card's usual partner is actually there. The plain sum
+    values a card the same however the rest of the deck looks, and that is wrong in a
+    way players notice: the field runs Elder Dragon in 88.6% of the lists it runs
+    Dazzling Aurora in, so somebody who owns the dragons and none of the auroras should
+    not be handed the dragons anyway. Unweighted, keeping them scores exactly as well as
+    cutting them, and the repair has no reason to prefer either.
+
+    The weight is not a penalty invented for the purpose -- it is the share of lists
+    that run the card in exactly the company it currently has. See
+    :meth:`LegendProfile.support`.
+    """
+    present = set(deck.main)
+    return sum(
+        profile.play_rate.get(card_id, 0.0) * n * profile.support(card_id, present)
+        for card_id, n in deck.main.items()
+    )
+
+
+#: How many alternative families a free repair will consider pivoting to, beyond the
+#: deck's own. Each is a full repair attempt; the archive's legends carry a median of 18
+#: clusters and most are one or two lists, so the tail is noise rather than choice.
+PIVOT_FAMILIES = 3
+
+
+def _families_to_try(
+    profile: LegendProfile,
+    deck: Deck,
+    owned: Mapping[str, int],
+    *,
+    conservative: bool,
+) -> list[set[str] | None]:
+    """The card pools a repair may draw from, best-supported first.
+
+    The deck's own family always comes first, so a repair that can stay where it is
+    does. After that a free repair may pivot to another archetype for the same legend,
+    ranked by how much of its defining core the player can actually field -- which is
+    the question "what can I build with this legend" asked of a collection rather than
+    of the format.
+
+    Conservative repairs get exactly one pool, their own family, because that is the
+    promise the caller is making to the player when it labels them.
+    """
+    own = _best_cluster_for(profile, deck)
+    if conservative:
+        return [set(own.core) | set(own.flex)] if own is not None else []
+
+    pools: list[set[str] | None] = []
+    if own is not None:
+        pools.append(set(own.core) | set(own.flex))
+
+    others = [c for c in profile.clusters if own is None or c.cluster_id != own.cluster_id]
+    others.sort(key=lambda c: (-profile.coverage(c, owned), -c.score))
+    for cluster in others[:PIVOT_FAMILIES]:
+        pools.append(set(cluster.core) | set(cluster.flex))
+
+    # Last resort: no family at all. A deck assembled from unrelated cards is a poor
+    # answer, but it is still an answer, and the acceptance criterion is that a player
+    # who can build something is never told they cannot.
+    pools.append(None)
+    return pools

@@ -125,7 +125,7 @@ class LegendProfile:
     _pair_counts: Mapping[str, Mapping[str, float]] = field(default_factory=dict)
     #: Memoised :meth:`reliance` results. A dict on a frozen dataclass, so the cache is
     #: mutable while the profile stays immutable to everyone reading it.
-    _reliance_cache: dict[str, tuple[tuple[str, float] | None]] = field(
+    _reliance_cache: dict[str, tuple[tuple[str, float], ...]] = field(
         default_factory=dict, compare=False, repr=False
     )
     _card_weight: Mapping[str, float] = field(default_factory=dict)
@@ -188,8 +188,8 @@ class LegendProfile:
                 total += together.get(partner, 0.0) / weight
         return total / len(partners)
 
-    def reliance(self, card_id: str) -> tuple[str, float] | None:
-        """The partner this card is rarely played without, if it has one.
+    def reliances(self, card_id: str) -> tuple[tuple[str, float], ...]:
+        """Every partner this card is rarely played without, strongest first.
 
         Some cards are only worth playing next to another one -- the field runs Elder
         Dragon in 88.6% of the lists it runs Dazzling Aurora in, and Pack of Wonders
@@ -198,22 +198,25 @@ class LegendProfile:
         :meth:`affinity` averages over every card in the deck, so one missing partner
         among seventeen present ones barely moves it.
 
-        This reports the *strongest* partner instead of the average, which is what a
-        dependency is. Returns ``(partner_id, P(partner | this card))``.
+        *Every* such partner, not the strongest one. Reporting only the maximum was the
+        first version and it let the exact mistake through that prompted this: Flurry of
+        Blades is played beside Elder Dragon in 98% of Sivir lists, but also beside
+        Catalyst of Aeons in 98%, so the single-partner version pointed at the catalyst,
+        found it present, and pronounced the flurry well supported -- while the dragon it
+        is actually played for had just been cut.
 
-        Two guards, both learned from the data. A partner the legend plays in nearly
-        every list carries no information -- within one archetype every card co-occurs
-        with every other card, which made an unguarded version report a 100% dependency
-        for 97.5% of cards. And a partner with little support of its own is noise rather
-        than a pairing.
+        Two guards, both from the data. A partner the legend plays in nearly every list
+        carries no information: within one archetype every card co-occurs with every
+        other, which made an unguarded version report a 100% dependency for 97.5% of
+        cards. And a partner with far less support than the card itself is noise.
         """
         cached = self._reliance_cache.get(card_id)
         if cached is not None:
-            return cached[0]
+            return cached
 
         together = self._pair_counts.get(card_id, {})
         weight = self._card_weight.get(card_id, 0.0)
-        best: tuple[str, float] | None = None
+        found: list[tuple[str, float]] = []
         if weight > 0:
             for partner, shared in together.items():
                 base = self.play_rate.get(partner, 0.0)
@@ -223,27 +226,38 @@ class LegendProfile:
                     continue
                 # Laplace-smoothed, so a pairing seen in every one of twenty lists is
                 # strong evidence rather than proof. Without it the conditional reaches
-                # exactly 1.0 and the card's support falls to zero -- the deck builder
-                # would then treat an orphan as literally worthless on a sample that
-                # cannot support the claim.
+                # exactly 1.0 and the card's support falls to zero -- the builder would
+                # treat an orphan as literally worthless on a sample that cannot
+                # support the claim.
                 conditional = (shared + 1.0) / (weight + 2.0)
-                if conditional >= RELIANCE_MIN and (best is None or conditional > best[1]):
-                    best = (partner, conditional)
-        self._reliance_cache[card_id] = (best,)
-        return best
+                if conditional >= RELIANCE_MIN:
+                    found.append((partner, conditional))
+        found.sort(key=lambda pair: -pair[1])
+        result = tuple(found)
+        self._reliance_cache[card_id] = result
+        return result
+
+    def reliance(self, card_id: str) -> tuple[str, float] | None:
+        """The single partner this card is least often played without."""
+        found = self.reliances(card_id)
+        return found[0] if found else None
 
     def support(self, card_id: str, present: Container[str]) -> float:
         """How often the field plays this card in the company it currently has, 0..1.
 
-        1.0 when the card has no strong partner or that partner is present. Otherwise
-        the share of lists that do run it alone -- for a card the field pairs 88.6% of
-        the time, that is 0.114. Not a penalty invented for the purpose: it is the
-        card's own play rate in exactly the situation the player is in.
+        1.0 when every partner it relies on is present. Otherwise the share of lists
+        that run it despite the *most* violated of them -- for a card the field pairs
+        98% of the time, 0.02. One broken dependency is enough: a card played for a
+        combo is not half-rescued by the rest of the combo still being there.
+
+        Not a penalty invented for the purpose. It is the card's own play rate in
+        exactly the situation the player is in.
         """
-        needed = self.reliance(card_id)
-        if needed is None or needed[0] in present:
-            return 1.0
-        return max(0.0, 1.0 - needed[1])
+        worst = 1.0
+        for partner, conditional in self.reliances(card_id):
+            if partner not in present:
+                worst = min(worst, 1.0 - conditional)
+        return max(0.0, worst)
 
     def lift(self, card_id: str, given: Iterable[str]) -> float:
         """Affinity relative to how often the card is played at all.
