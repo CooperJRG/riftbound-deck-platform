@@ -263,9 +263,25 @@ class Preference:
     #: that bought them time turned out to be missing, and you have expensive cards and
     #: no plan. With it, each choice is scored against what has already been chosen.
     pair: Callable[[str, str], float] | None = None
+    #: Whether a card's usual partners can be fielded at all, 0..1.
+    #:
+    #: ``pair`` is averaged over everything already chosen, so losing the one card a
+    #: card is played for barely moves it: Dazzling Aurora keeps high affinity with the
+    #: other seventeen cards in a Jayce list after the Elder Dragon it ramps into is
+    #: gone. This is asked once, against everything the player could field, and answers
+    #: the different question -- is the reason for playing this card available to them
+    #: at all.
+    support: Callable[[str, frozenset[str]], float] | None = None
 
     def rank(self, card_id: str) -> float:
         return float(self.play_rate.get(card_id, 0.0))
+
+    def standing(self, card_id: str, fieldable: frozenset[str]) -> float:
+        """Rank, discounted when this card's reason for being played is unavailable."""
+        base = self.rank(card_id)
+        if self.support is None:
+            return base
+        return base * self.support(card_id, fieldable)
 
     def wanted(self, card_id: str, default: int = 3) -> int:
         return max(1, int(self.copies.get(card_id, default)))
@@ -322,6 +338,10 @@ def _fill_by_affinity(
     fresh pass over the deck.
     """
     assert pref.pair is not None
+    # Judged against everything they could field, not against the partial deck. Mid-build
+    # a partner is "absent" simply because it has not been picked yet; what matters is
+    # whether it can ever arrive.
+    fieldable = frozenset({c.card_id for c in candidates} | set(chosen))
     running: dict[str, float] = {c.card_id: 0.0 for c in candidates}
     for card_id in chosen:
         for candidate in candidates:
@@ -333,7 +353,7 @@ def _fill_by_affinity(
         best = max(
             remaining,
             key=lambda c: (
-                (1.0 - COHERENCE_WEIGHT) * pref.rank(c.card_id)
+                (1.0 - COHERENCE_WEIGHT) * pref.standing(c.card_id, fieldable)
                 + COHERENCE_WEIGHT * (running[c.card_id] / partners),
                 -0.0,
                 c.name,

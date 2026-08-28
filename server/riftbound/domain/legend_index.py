@@ -140,7 +140,8 @@ class LegendProfile:
         measurements that removed it.
         """
         return Preference(
-            play_rate=self.play_rate, copies=self.copies, pair=self.pair_strength
+            play_rate=self.play_rate, copies=self.copies, pair=self.pair_strength,
+            support=self.support
         )
 
     def pair_strength(self, card_id: str, partner_id: str) -> float:
