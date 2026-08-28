@@ -371,10 +371,10 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .app-body {
   flex: 0 0 auto;
   display: grid;
-  /* The deck takes the middle, the card search becomes a rail beside it. A deck is the
-     thing being made here; it was in a 340px sidebar while the search for cards to put
-     in it had the room. */
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  /* The deck takes the room; the card drawer sits to its right, wide enough to browse
+     in. The deck is the thing being made, and it was in a 340px sidebar while the
+     search for cards to put in it had the space. */
+  grid-template-columns: minmax(0, 1fr) minmax(400px, 520px);
   width: min(var(--atlas-max), calc(100% - 2rem));
   min-height: calc(100vh - 73px);
   height: auto;
@@ -398,14 +398,16 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .advanced-filter-grid { position: absolute; z-index: 10; top: calc(100% + 0.4rem); right: 0; display: grid; width: 230px; gap: 0.45rem; padding: 0.7rem; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius); background: var(--atlas-surface); box-shadow: var(--atlas-shadow); }
 .advanced-filter-grid select { width: 100%; height: 40px; padding: 0 0.5rem; }
 .browser-count { margin: 0.75rem 0; }
-.tile-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+/* Narrow tiles: the drawer is for finding a card, and a slimmer tile fits more of the
+   pool on screen at once. Portrait art, because that is the shape of the card. */
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 148px)); gap: 0.7rem; }
 .tile { min-width: 0; overflow: hidden; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius); background: var(--atlas-canvas); box-shadow: none; }
 .tile:hover { border-color: var(--atlas-copper); transform: none; }
-.tile-art { position: relative; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: var(--atlas-raised); }
+.tile-art { position: relative; width: 100%; aspect-ratio: 5 / 6; overflow: hidden; background: var(--atlas-raised); }
 .tile-art img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 /* This frame is landscape (5/4), so battlefield art already fits it unrotated. */
 .tile-art.is-landscape img { width: 100%; height: 100%; transform: none; object-fit: cover; }
-.tile-body { padding: 0.7rem; }
+.tile-body { padding: 0.5rem 0.55rem; }
 .tile-name { margin: 0; overflow: hidden; font-family: var(--atlas-serif); font-size: 0.95rem; text-overflow: ellipsis; white-space: nowrap; }
 .tile-meta { display: flex; align-items: center; min-height: 30px; margin: 0.25rem 0; color: var(--atlas-muted); font-size: 0.68rem; }
 .tile-actions { display: flex; gap: 0.35rem; margin-top: 0.5rem; }
@@ -1121,7 +1123,9 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Builder cards are cards, not thumbnails */
 
-.tile-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 1rem; }
+/* Narrow enough to see a lot of the pool at once. At 190px the drawer fitted two cards
+   across; the point of a drawer is breadth. */
+.tile-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 0.7rem; }
 .tile { overflow: visible; border: 0; background: transparent; }
 .tile:hover { border-color: transparent; transform: translateY(-4px); }
 .tile-art { position: relative; width: 100%; overflow: hidden; aspect-ratio: 63 / 88; border-radius: 4.8% / 3.5%; background: #0c0e10; box-shadow: 0 10px 25px rgba(10, 12, 14, 0.18); }
@@ -1319,15 +1323,52 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
    rather than a list of names, because the thing a player recognises across a table
    is the picture -- a list of names is a spreadsheet of a deck. */
 
-.deck { max-width: 1000px; margin: 0 auto; }
+.deck { max-width: 1180px; margin: 0 auto; }
 
-.mat-zone { margin-bottom: 1.75rem; }
+/* Legend, champion, runes and battlefields across one band, so the main deck starts
+   near the top of the page rather than below all of them. Each group sizes to what it
+   holds: two cards, two or three rune types, three battlefields. */
+.mat-setup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem 1.1rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--atlas-border);
+}
+.mat-setup > .mat-zone { margin-bottom: 0; }
+/* Explicit widths rather than content sizing. Left to size themselves the zones took
+   their width from their headings -- "Legend & champion" alone claimed 377px -- and the
+   battlefields wrapped to a second line, which put the main deck below the fold again.
+   Two cards, three rune types at most, three battlefields: the widths are known. */
+.mat-setup > .mat-zone-identity { flex: 0 0 190px; min-width: 0; }
+.mat-setup > .mat-zone-runes { flex: 0 0 190px; min-width: 0; }
+.mat-setup > .mat-zone-battlefields { flex: 1 1 230px; min-width: 0; }
+.mat-setup .mat-zone-head h3 {
+  overflow: hidden;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Sized so all four groups fit one row on a normal window -- two identity cards, two or
+   three rune types and three battlefields come to roughly 780px, which is what the deck
+   column has. Wrapping them was what pushed the main deck below the fold. */
+.mat-setup .mat-grid { grid-template-columns: repeat(auto-fill, minmax(76px, 88px)); gap: 0.5rem; }
+.mat-setup .mat-identity { gap: 0.5rem; }
+.mat-setup .mat-identity > .mat-slot { flex: 0 0 88px; }
+.mat-setup .mat-row-wide { gap: 0.5rem; }
+.mat-setup .mat-row-wide > * { flex: 1 1 68px; max-width: 118px; }
+.mat-setup .mat-name { font-size: 0.62rem; }
+.mat-setup .mat-slot .quiet-button { padding: 0; font-size: 0.66rem; }
+
+.mat-zone { margin-bottom: 2.25rem; }
 .mat-zone-head {
   display: flex;
   gap: 0.75rem;
   align-items: baseline;
-  margin-bottom: 0.7rem;
-  padding-bottom: 0.4rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--atlas-border);
 }
 .mat-zone-head h3 {
@@ -1348,19 +1389,25 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 .mat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 0.9rem;
 }
-.mat-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.mat-row { display: flex; flex-wrap: wrap; gap: 1rem; }
 .mat-row-wide > * { flex: 1 1 200px; max-width: 280px; }
 .mat-identity > .mat-slot { flex: 0 1 150px; }
-.mat-slot { display: flex; flex-direction: column; gap: 0.4rem; align-items: stretch; }
+/* `min-width: 0`, or the flex basis above is ignored. A flex item defaults to
+   `min-width: auto` and so cannot shrink below its content's min-content width -- and
+   `.mat-name` is `white-space: nowrap`, so a long card name sets that floor. A slot
+   asked to be 98px wide was rendering at 197 and the row stacked instead of sitting
+   side by side. */
+.mat-slot { display: flex; min-width: 0; flex-direction: column; gap: 0.4rem; align-items: stretch; }
 
 /* One card. Count and cost ride on the art rather than beside it, so forty of them
    still read as a single object instead of forty rows. */
 .mat-card {
   position: relative;
   display: flex;
+  min-width: 0;
   flex-direction: column;
   /* <figure> carries a UA default of `margin: 1em 40px`. Left in, every card lost 80px
      of its grid cell -- 111px columns rendering 31px of art. */
@@ -1439,11 +1486,13 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 .mat-card figcaption {
   display: flex;
+  min-width: 0;
   gap: 0.3rem;
   align-items: center;
   padding: 0.35rem 0.4rem;
 }
 .mat-name {
+  min-width: 0;
   overflow: hidden;
   color: var(--atlas-ink);
   font-size: 0.7rem;
@@ -1471,7 +1520,15 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .mat-ghost.is-wide { aspect-ratio: 7 / 5; }
 .mat-ghost:hover { transform: none; box-shadow: none; border-color: var(--atlas-border); }
 
+/* Below this the drawer has to give ground, or the setup band cannot hold one row and
+   the main deck drops below the fold again -- which was the point of the band. */
+@media (max-width: 1240px) {
+  .app-body { grid-template-columns: minmax(0, 1fr) minmax(330px, 400px); }
+}
+
 @media (max-width: 900px) {
-  .mat-grid { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); }
-  .mat-identity > .mat-slot { flex: 1 1 130px; }
+  .mat-grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+  .mat-identity > .mat-slot { flex: 1 1 120px; }
+  .mat-setup { gap: 1.25rem; }
+  .mat-setup > .mat-zone { flex: 1 1 100%; }
 }

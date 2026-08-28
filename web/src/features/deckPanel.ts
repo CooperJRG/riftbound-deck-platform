@@ -315,13 +315,22 @@ export function renderDeckPanel(root: HTMLElement): void {
   // Laid out the way the deck is laid out on a table: what defines it, then the board
   // it is played on, then the resources, then the deck itself. A player who knows the
   // game can find any zone without reading a heading.
+  // Everything that is not the main deck sits in one band across the top: the legend and
+  // champion, the runes, the three battlefields. Eight cards between them, and stacking
+  // them put the forty-card deck -- the part being worked on -- below the fold.
+  const setup = h(
+    "div",
+    { class: "mat-setup" },
+    identityRow(deck.legendId, deck.championId),
+    matZone("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
+    battlefieldRow(deck.battlefields, 3),
+  );
+
   replace(
     root,
     header,
-    identityRow(deck.legendId, deck.championId),
+    setup,
     chooseChampion,
-    battlefieldRow(deck.battlefields, 3),
-    matZone("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
     matZone("Main deck", "main", deck.main, validation?.mainTotal ?? 0, 40, deck.championId),
     Object.keys(deck.sideboard).length
       ? matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null)
