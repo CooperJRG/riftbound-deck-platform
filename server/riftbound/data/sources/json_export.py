@@ -55,6 +55,7 @@ class JsonExportSource(CardSource):
                         super_type=str(row.get("superType") or row.get("super_type") or ""),
                         color=str(row.get("color") or ""),
                         cost=row.get("cost"),
+                        power=row.get("power"),
                         might=row.get("might"),
                         tags=tuple(str(t) for t in (row.get("tags") or []) if str(t).strip()),
                         effect=str(row.get("effect") or ""),

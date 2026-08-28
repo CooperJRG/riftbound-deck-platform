@@ -38,6 +38,9 @@ class RawCard:
     # A list of domain names from modern sources; older exports pack it as "FuryChaos".
     color: str | Sequence[str] = ""
     cost: Any = None
+    #: The domain-specific half of the cost. Energy pays the rest; only this needs runes
+    #: of the card's own domain, so it is what a rune base has to be built around.
+    power: Any = None
     might: Any = None
     tags: Sequence[str] = field(default_factory=tuple)
     effect: str = ""

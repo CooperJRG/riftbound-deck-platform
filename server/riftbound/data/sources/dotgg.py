@@ -121,6 +121,7 @@ class DotGGSource(CardSource):
             # Already a list here; older exports pack it as "FuryChaos".
             color=row.get("color") or "",
             cost=row.get("cost"),
+            power=row.get("power"),
             might=row.get("might"),
             tags=tuple(str(t).strip() for t in (row.get("tags") or []) if str(t).strip()),
             effect=str(row.get("effect") or ""),

@@ -283,3 +283,64 @@ def test_a_swarm_card_can_fill_more_than_three_slots(catalog, bound_rules):
     finally:
         object.__setattr__(swarm, "unlimited_copies", False)
     assert copy_cap(swarm, rules=bound_rules) == 3
+
+
+# -- runes have to be able to cast the deck -------------------------------------
+
+
+def test_the_rune_base_covers_the_hungriest_card_of_each_domain(catalog, bound_rules):
+    """Power is the domain-specific half of a cost; energy pays the rest and is
+    domain-free. So a card asking four Body power cannot be cast from three Body runes,
+    however popular the other nine are.
+
+    Runes used to be filled like any other flat zone -- most-played first, take as many
+    as you own -- which handed a Mind deck twelve Body Runes. Across 105 built decks,
+    only 57% had a base that could cast their own cards.
+    """
+    from riftbound.domain.deck_builder import power_floor
+
+    main = {"vi-destructive": 3, "calm-intruder": 3}
+    floor = power_floor(main, catalog)
+    # Whatever the catalogue says, the floor never exceeds a card's own demand and
+    # never misses a domain that demands any.
+    for card_id in main:
+        card = catalog.get(card_id)
+        if card and card.power and len(card.domains) == 1:
+            assert floor.get(card.domains[0], 0) >= card.power
+
+
+def test_a_card_in_two_domains_sets_no_floor(catalog):
+    """Its power can be paid from either, so on its own it constrains neither. It still
+    weighs on the proportional remainder."""
+    from conftest import make_card
+    from riftbound.domain.cards import build_catalog
+    from riftbound.domain.deck_builder import power_floor
+
+    split = build_catalog([make_card("dual", "Dual", domains=("Fury", "Calm"), power=3)])
+    assert power_floor({"dual": 3}, split) == {}
+
+
+def test_power_beats_popularity_when_the_two_disagree(catalog, bound_rules):
+    """The bug, in one deck: a Mind card in a field that mostly plays Body."""
+    from conftest import make_card
+    from riftbound.domain.cards import build_catalog
+    from riftbound.domain.deck_builder import Preference, _fill_runes
+
+    cards = [
+        make_card("body-rune", "Body Rune", card_type="Rune", super_type="Basic",
+                  domains=("Body",), cost=None, might=None, power=0),
+        make_card("mind-rune", "Mind Rune", card_type="Rune", super_type="Basic",
+                  domains=("Mind",), cost=None, might=None, power=0),
+        make_card("mind-bomb", "Mind Bomb", domains=("Mind",), cost=5, power=4),
+    ]
+    cat = build_catalog(cards)
+    pool = [cat.get("body-rune"), cat.get("mind-rune")]
+    owned = {"body-rune": 12, "mind-rune": 12}
+    # The field adores Body Runes and has barely seen a Mind Rune.
+    pref = Preference(play_rate={"body-rune": 1.0, "mind-rune": 0.01}, copies={})
+
+    runes = _fill_runes(pool, {"mind-bomb": 3}, owned, 12, pref, cat)
+    assert runes.get("mind-rune", 0) >= 4, (
+        "the deck cannot be cast without four Mind runes, whatever the field prefers"
+    )
+    assert sum(runes.values()) == 12

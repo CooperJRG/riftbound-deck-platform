@@ -307,6 +307,7 @@ def normalize(
                 domains=domains,
                 domains_ok=domains_ok,
                 cost=_first(_coerce_int(r.cost) for r in rows),
+                power=_first(_coerce_int(r.power) for r in rows),
                 might=_first(_coerce_int(r.might) for r in rows),
                 tags=tuple(tags),
                 champion_tags=(),  # filled in by _attach_champion_tags below
@@ -353,6 +354,7 @@ def _replace_tags(card: Card, champion_tags: tuple[str, ...]) -> Card:
         domains=card.domains,
         domains_ok=card.domains_ok,
         cost=card.cost,
+        power=card.power,
         might=card.might,
         tags=card.tags,
         champion_tags=champion_tags,

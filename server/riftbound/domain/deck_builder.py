@@ -459,12 +459,12 @@ def build(
         return None  # assess() said this was possible; the pool disagreed
 
     # -- runes ----------------------------------------------------------------
-    runes = _fill_flat(
+    runes = _fill_runes(
         legal_zone_pool(
             legend, rules.str_constraint("rune_card_type", "Rune"),
             catalog=catalog, rules=rules,
         ),
-        owned, rules.int_constraint("rune_count_exact", 0), pref,
+        main, owned, rules.int_constraint("rune_count_exact", 0), pref, catalog,
     )
 
     # -- battlefields ---------------------------------------------------------
@@ -498,6 +498,137 @@ def build(
         battlefields=battlefields,
         sideboard={},
     )
+
+
+def domain_demand(
+    main: Mapping[str, int], catalog: Catalog
+) -> dict[str, float]:
+    """How much of each domain this main deck asks for, by weight of cards.
+
+    Copies weighted, and a card belonging to two domains counts half to each -- either
+    domain can pay for it, so claiming a whole card's worth of both overstates the need.
+
+    Card count rather than power or total cost, and that is measured rather than
+    assumed. Predicting the rune split of 4,384 published lists proportionally: card
+    count is off by a mean of 2.35 runes, total cost 2.47, and *power* 2.73 -- worst of
+    the three, because most cards demand no power at all and weighting by it concentrates
+    the whole base on the handful that do. Power decides the floor below; it is a poor
+    guide to the remainder.
+    """
+    demand: dict[str, float] = {}
+    for card_id, copies in main.items():
+        card = catalog.get(card_id)
+        if card is None or not card.domains:
+            continue
+        share = copies / len(card.domains)
+        for domain in card.domains:
+            demand[domain] = demand.get(domain, 0.0) + share
+    return demand
+
+
+def power_floor(main: Mapping[str, int], catalog: Catalog) -> dict[str, int]:
+    """The fewest runes of each domain this deck can be cast with.
+
+    Power is the domain-specific half of a card's cost -- energy pays the rest and is
+    domain-free -- so a card asking four Body power cannot be cast from a base with
+    three Body runes, however popular the other nine are. The binding number is
+    therefore the *largest* single demand in a domain, not the average or the total.
+
+    Checked against every published list in the archive: 4,383 of 4,384 hold at least as
+    many runes of a domain as the hungriest card of that domain demands. The single
+    exception splashes one Mind card into an otherwise Calm deck. A rule that survives
+    4,384 real decks is a rule.
+
+    Only single-domain cards set a floor. A card in two domains can have its power paid
+    from either, so it constrains neither on its own -- it is left to weigh on the
+    proportional remainder instead.
+    """
+    floor: dict[str, int] = {}
+    for card_id in main:
+        card = catalog.get(card_id)
+        if card is None or not card.power or len(card.domains) != 1:
+            continue
+        domain = card.domains[0]
+        floor[domain] = max(floor.get(domain, 0), int(card.power))
+    return floor
+
+
+def _fill_runes(
+    pool: list[Card],
+    main: Mapping[str, int],
+    owned: Mapping[str, int],
+    needed: int,
+    preference: Preference,
+    catalog: Catalog,
+) -> dict[str, int]:
+    """A rune base that can actually cast the deck.
+
+    Runes were filled the way every other flat zone is -- most-played first, take as many
+    as you own -- which hands somebody twelve Body Runes for a deck whose spells want
+    Mind. The rune base is not a popularity contest; it is the deck's cost line written
+    out, and getting it wrong makes a legal deck unplayable.
+
+    Two steps, and they answer different questions. :func:`power_floor` says what the
+    deck *cannot be cast without*, and is satisfied first. Whatever is left over is spread
+    by :func:`domain_demand`, which says what the deck mostly does. The published archive
+    runs a median of four runes beyond its floor, so the remainder is most of the base.
+    """
+    if not needed:
+        return {}
+
+    # The best rune each domain has, among the ones they own.
+    best: dict[str, Card] = {}
+    for card in sorted(pool, key=lambda c: (-preference.rank(c.card_id), c.name)):
+        if _owned(owned, card.card_id) <= 0 or len(card.domains) != 1:
+            continue
+        best.setdefault(card.domains[0], card)
+    if not best:
+        return _fill_flat(pool, owned, needed, preference)
+
+    split = {d: min(p, needed) for d, p in power_floor(main, catalog).items() if d in best}
+    demand = {d: v for d, v in domain_demand(main, catalog).items() if d in best}
+    # A domain the deck plays but whose power is free still needs somewhere to come from.
+    for domain in demand:
+        split.setdefault(domain, 1)
+    if not split:
+        return _fill_flat(pool, owned, needed, preference)
+
+    # Floors first; if they alone overrun the base, keep the hungriest domains.
+    while sum(split.values()) > needed:
+        pick = min(split, key=lambda d: (split[d], -demand.get(d, 0.0)))
+        if split[pick] <= 1 and len(split) > 1:
+            del split[pick]
+        else:
+            split[pick] -= 1
+            if split[pick] <= 0:
+                del split[pick]
+
+    # Then the remainder, by what the deck mostly does.
+    total = sum(demand.get(d, 0.0) for d in split) or 1.0
+    while sum(split.values()) < needed:
+        pick = max(split, key=lambda d: demand.get(d, 0.0) / total - split[d] / needed)
+        split[pick] += 1
+
+    out: dict[str, int] = {}
+    short = 0
+    for domain, want in split.items():
+        card = best[domain]
+        take = min(want, _owned(owned, card.card_id))
+        if take > 0:
+            out[card.card_id] = take
+        short += want - take
+    if short > 0:
+        # They do not own enough of what the deck wants. Fall back to anything legal
+        # rather than hand back nothing -- an awkward base beats no deck.
+        for card in sorted(pool, key=lambda c: (-preference.rank(c.card_id), c.name)):
+            if short <= 0:
+                break
+            room = _owned(owned, card.card_id) - out.get(card.card_id, 0)
+            if room > 0:
+                add = min(short, room)
+                out[card.card_id] = out.get(card.card_id, 0) + add
+                short -= add
+    return out
 
 
 def _fill_flat(

@@ -121,6 +121,12 @@ class Card:
     #: number of cards named X"). A property of the card, not of the format, so it
     #: travels with the card rather than living in a rules profile that would go stale
     #: the moment another one is printed.
+    #: The domain-specific half of the cost, paid with runes of the card's own domain.
+    #: Energy covers the rest and is domain-free, so this -- not ``cost`` -- is what a
+    #: rune base has to satisfy. Defaulted because a bundle built before it was
+    #: ingested has no value for it, and a card with an unknown power requirement should
+    #: read as unknown rather than as zero.
+    power: int | None = None
     unlimited_copies: bool = False
     #: The source's own ban flag. Advisory only — a format's rules profile decides
     #: legality. Kept so the pipeline can report when the two have drifted apart,
