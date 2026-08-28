@@ -1120,7 +1120,7 @@ def test_every_dependency_counts_not_just_the_strongest(catalog, bound_rules):
     swapped one for the other, and the player got a card that is only good because of a
     card that is no longer in the deck.
     """
-    decks, profile = a_paired_field(catalog, bound_rules)
+    _, profile = a_paired_field(catalog, bound_rules)
     # filler-10 relies on filler-11, and both sit only in the paired archetype.
     partners = profile.reliances("filler-10")
     assert partners, "the pairing must be visible at all"
