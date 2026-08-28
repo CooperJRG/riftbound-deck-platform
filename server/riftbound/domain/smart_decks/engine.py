@@ -63,6 +63,15 @@ W_INFORMATION = 0.25
 #: buying time for are just expensive.
 W_COHERENCE = 0.20
 
+#: How hard to avoid a deck the player has said they cannot supply.
+#:
+#: Large next to the other weights on purpose. The rest of them trade off shades of
+#: better; this one separates decks the player can hold from decks they cannot, and it
+#: has to be able to overcome a quality gap to do its job -- the Elder-free Jayce list
+#: gives up 4.2% of deck score, so a term that cannot outweigh that changes nothing.
+W_UNFIELDABLE = 0.60
+
+
 #: How much expected yield a checklist aims for, as a multiple of the shortfall. Above
 #: 1 because the estimate is a prior, not a measurement, and a checklist that falls just
 #: short costs a whole extra round.
@@ -255,6 +264,11 @@ class Engine:
         # to try to beat it.
         first_round = session.rounds == 0
         improving = floor is not None and session.rounds < MAX_PROPOSALS
+        # Re-proposing a different list when the player cannot field this one was tried
+        # here and cost too much. It works -- see `_unfieldable` -- but every extra deck
+        # is another screen: measured, it took the median session from 44 cards to 76
+        # and p90 from 67 to 108, past the targets phase 1 set. The right place to spend
+        # a round is the closing question, which is aimed at what is actually blocking.
         if candidates and (first_round or improving):
             deck = self._playable(self._pick(session, candidates))
             conservative = repair(
@@ -394,10 +408,43 @@ class Engine:
                 + W_PLAUSIBILITY * self._plausibility(deck, session.knowledge)
                 + W_INFORMATION * information
                 + W_COHERENCE * self._coherence(deck, owned)
+                - W_UNFIELDABLE * self._unfieldable(deck, session.knowledge)
             )
             return (total, deck.deck_id)
 
         return max(candidates, key=priority)
+
+    def _unfieldable(self, deck: MetaDeck, knowledge: Knowledge) -> float:
+        """The share of this deck the player has *told us* they cannot supply.
+
+        Distinct from :meth:`_plausibility`, which blends what they have said with a
+        rarity prior for everything they have not. Averaged together, a card somebody
+        has explicitly said they own none of costs a deck almost nothing: three missing
+        copies out of forty is 7.5% of a term weighted 0.20, about 1.5% of the deck's
+        score. So the wizard kept proposing a list built on a card it had been told was
+        unavailable, and the repair filled the hole with whatever the field played
+        nearby -- which is how somebody short of Elder Dragons ended up holding Dazzling
+        Aurora, a nine-cost card whose reason for being there was the twelve-cost dragon
+        it ramps into.
+
+        The better answer was never a cleverer repair. Of the 49 published lists for
+        Jayce - Defender of Tomorrow, 44 run Elder Dragon and five do not, and the best
+        of those five scores 0.8902 against 0.9297 -- 4.2% of deck quality to get a real
+        list, played by a real person, that this collection can actually field. Losing
+        4.2% beats being handed a deck whose top end has been cut out from under it.
+
+        Copies rather than cards, so a missing playset counts for more than a missing
+        one-of, and only cards they have answered for: a card nobody has asked about is
+        the plausibility term's business, not this one.
+        """
+        required = deck_requirements(deck.deck)
+        total = sum(required.values()) or 1
+        missing = sum(
+            needed - min(needed, knowledge.lower_bound(card_id))
+            for card_id, needed in required.items()
+            if knowledge.is_known(card_id)
+        )
+        return missing / total
 
     def _plausibility(self, deck: MetaDeck, knowledge: Knowledge) -> float:
         """Roughly, can they field this? Known copies, plus a rarity prior for the rest."""
