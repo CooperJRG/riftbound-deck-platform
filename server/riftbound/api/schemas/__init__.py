@@ -14,6 +14,7 @@ from .availability import (
     ExcludedCardView,
     ExclusionRuleInput,
     ExclusionRuleView,
+    ForgetResult,
 )
 from .base import (
     ApiModel,
@@ -126,6 +127,7 @@ __all__ = [
     "ExclusionRuleInput",
     "ExclusionRuleView",
     "FloorView",
+    "ForgetResult",
     "FormatView",
     "GapView",
     "IssueView",

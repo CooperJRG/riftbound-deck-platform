@@ -45,14 +45,17 @@ export async function openSmartDecks(options: { retry?: boolean } = {}): Promise
       : { smartBusy: true, smartLegendsError: "" },
   );
   try {
-    const [smartLegends, refresh] = await Promise.all([
+    const [smartLegends, refresh, sessions] = await Promise.all([
       api.smartLegends(),
       // Best-effort: the picker is still usable without it.
       api.refreshStatus().catch(() => null),
+      api.smartSessions().catch(() => []),
     ]);
     store.set({
       smartLegends,
       refresh,
+      // Anything still open, so a closed tab does not cost the answers.
+      smartResumable: sessions.filter((row) => !row.savedDeckId),
       smartBusy: false,
       smartLegendsRetrying: false,
       smartLegendsLoaded: true,
@@ -167,6 +170,36 @@ export async function submitSmartRound(): Promise<void> {
     store.set({ smartBusy: false });
   }
 }
+
+/** Pick a session back up where it was left. */
+export async function resumeSmartSession(sessionId: string): Promise<void> {
+  store.set({ smartBusy: true, smartFinished: false, smartShowing: "rounds" });
+  try {
+    const session = await api.getSmartSession(sessionId);
+    store.set({ smartSession: session, smartAnswers: seedAnswers(session), smartBusy: false });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
+
+/** Abandon a session and everything it learned. */
+export async function discardSmartSession(sessionId: string): Promise<void> {
+  store.set({ smartBusy: true });
+  try {
+    await api.deleteSmartSession(sessionId);
+    const sessions = await api.smartSessions().catch(() => []);
+    store.set({
+      smartResumable: sessions.filter((row) => !row.savedDeckId),
+      smartBusy: false,
+    });
+  } catch (error) {
+    reportError(error);
+    store.set({ smartBusy: false });
+  }
+}
+
 
 /**
  * Rule cards out by preference and rebuild around them.

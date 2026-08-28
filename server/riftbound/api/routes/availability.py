@@ -19,7 +19,7 @@ from ...domain.availability import (
 )
 from ...services import Services, get_services
 from ..identity import Identity, current_identity
-from ..schemas import AvailabilityUpdate, AvailabilityView
+from ..schemas import AvailabilityUpdate, AvailabilityView, ForgetResult
 from ..views import availability_view
 
 router = APIRouter(prefix="/api/availability", tags=["availability"])
@@ -35,6 +35,42 @@ def get_availability(
     identity: Identity = Depends(current_identity),
 ) -> AvailabilityView:
     return availability_view(_load(services, identity.user_id), services.catalog)
+
+
+@router.delete("/collection", response_model=ForgetResult)
+def forget_collection(
+    services: Services = Depends(get_services),
+    identity: Identity = Depends(current_identity),
+) -> ForgetResult:
+    """Erase everything recorded about what this user owns.
+
+    Both halves, deliberately. The collection rows are the obvious ones, but a wizard
+    session's answers say what somebody owns just as plainly -- three rounds pin down
+    roughly 75 cards -- so erasing one and leaving the other would be a privacy control
+    that only looks like one.
+
+    The wizard offers to write what a session learned into the collection, which is by
+    some distance the fastest way to record one. A one-way door into that is not a fair
+    trade for the convenience, so this is the way back out.
+
+    Collection mode is switched to open on the way, because a collection-mode profile
+    standing on an empty collection tells the player every card in the game is missing --
+    which is true, and useless. Open is the honest posture once they have told us
+    nothing: assume they can get anything, rather than that they have nothing.
+    """
+    rows = services.collections.clear(user_id=identity.user_id)
+    sessions = services.smart_decks.clear_all(user_id=identity.user_id)
+
+    profile = _load(services, identity.user_id)
+    if profile.mode == MODE_COLLECTION:
+        profile = AvailabilityProfile.open_profile()
+        services.availability.save(profile, user_id=identity.user_id)
+
+    return ForgetResult(
+        collection_rows=rows,
+        sessions=sessions,
+        availability=availability_view(profile, services.catalog),
+    )
 
 
 @router.put("", response_model=AvailabilityView)

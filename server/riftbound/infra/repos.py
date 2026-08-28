@@ -190,6 +190,21 @@ class CollectionRepository:
             ).fetchone()
         return int(row["total"])
 
+    def clear(self, *, user_id: str) -> int:
+        """Forget everything recorded about what this user owns. Returns rows removed.
+
+        There was no way to do this at all. The wizard offers to write what a session
+        learned into the collection -- which is the fastest way in by a distance -- and a
+        one-way door into recording what you own is not a fair trade for that
+        convenience. Someone who tried it should be able to take it back without going
+        card by card, or reaching for the database.
+        """
+        with self._db.transaction() as conn:
+            cursor = conn.execute(
+                "DELETE FROM collection_items WHERE user_id = ?", (user_id,)
+            )
+            return int(cursor.rowcount or 0)
+
 
 class AvailabilityRepository:
     """Persistence for the availability profile — the deck builder's lens."""
@@ -453,6 +468,19 @@ class SmartDeckRepository:
                 "WHERE session_id = ? AND user_id = ?",
                 (deck_id, utc_now_iso(), session_id, user_id),
             )
+
+    def clear_all(self, *, user_id: str) -> int:
+        """Delete every wizard session this user has, and everything they learned.
+
+        The answers are the point: three rounds pin down roughly 75 cards, and those rows
+        say what somebody owns just as plainly as the collection does. Offering to erase
+        one without the other would be a privacy control that only looks like one.
+        """
+        with self._db.transaction() as conn:
+            cursor = conn.execute(
+                "DELETE FROM wizard_sessions WHERE user_id = ?", (user_id,)
+            )
+            return int(cursor.rowcount or 0)
 
     def delete(self, session_id: str, *, user_id: str) -> bool:
         with self._db.transaction() as conn:

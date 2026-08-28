@@ -561,3 +561,74 @@ def test_scoping_to_an_era_with_no_matches_withholds_rather_than_invents(meta_re
     assert body["series"][0]["performance"] is None
     # Presence is unaffected: the caller asked for August and still gets August.
     assert body["series"][0]["share"] == pytest.approx(1.0)
+
+
+# -- getting your data back out ------------------------------------------------
+#
+# The wizard offers to write what a session learned into the collection, which is much
+# the fastest way to record one. A one-way door into that is not a fair trade for the
+# convenience, so there has to be a way back — and it has to take both halves: a
+# session's answers say what somebody owns just as plainly as the collection does.
+
+
+def test_forgetting_removes_the_collection_and_the_sessions(meta_client):
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    meta_client.put(
+        "/api/availability",
+        json={"mode": "collection", "excludedCardIds": [], "rules": []},
+    )
+    assert meta_client.get("/api/smart-decks/sessions").json(), "a session exists to erase"
+
+    result = meta_client.request("DELETE", "/api/availability/collection").json()
+    assert result["sessions"] >= 1
+    assert meta_client.get("/api/smart-decks/sessions").json() == []
+    # ...and the session really is gone, not merely hidden from the list.
+    assert meta_client.get(
+        f"/api/smart-decks/sessions/{session['sessionId']}"
+    ).status_code == 404
+
+
+def test_forgetting_reports_what_it_removed(meta_client):
+    """A privacy control that says "done" without saying what it did asks to be trusted
+    exactly when it should be showing its working."""
+    result = meta_client.request("DELETE", "/api/availability/collection").json()
+    assert set(result) >= {"collectionRows", "sessions", "availability"}
+    assert isinstance(result["collectionRows"], int)
+    assert isinstance(result["sessions"], int)
+
+
+def test_forgetting_leaves_collection_mode_standing_on_nothing(meta_client):
+    """Collection mode over an empty collection tells the player every card in the game
+    is missing — true, and useless."""
+    meta_client.put(
+        "/api/availability",
+        json={"mode": "collection", "excludedCardIds": [], "rules": []},
+    )
+    assert meta_client.get("/api/availability").json()["mode"] == "collection"
+
+    result = meta_client.request("DELETE", "/api/availability/collection").json()
+    assert result["availability"]["mode"] == "open"
+    assert meta_client.get("/api/availability").json()["mode"] == "open"
+
+
+def test_forgetting_nothing_is_not_an_error(meta_client):
+    meta_client.request("DELETE", "/api/availability/collection")
+    again = meta_client.request("DELETE", "/api/availability/collection")
+    assert again.status_code == 200
+    assert again.json()["collectionRows"] == 0
+
+
+def test_an_exclusion_profile_is_left_alone_by_forgetting(meta_client):
+    """Exclusions are not a collection: they are what the player told us they lack, and
+    erasing a collection is not a reason to discard them."""
+    meta_client.post("/api/availability/exclude/brazen-buccaneer")
+    before = meta_client.get("/api/availability").json()
+    assert before["mode"] == "exclusion"
+
+    result = meta_client.request("DELETE", "/api/availability/collection").json()
+    assert result["availability"]["mode"] == "exclusion"
+    assert [c["cardId"] for c in result["availability"]["excludedCards"]] == [
+        "brazen-buccaneer"
+    ]

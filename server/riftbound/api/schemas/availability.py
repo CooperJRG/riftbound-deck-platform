@@ -58,3 +58,16 @@ class AvailabilityUpdate(StrictRequest):
             if rule.kind not in RULE_KINDS:
                 raise ValueError(f"rule kind must be one of {RULE_KINDS}, got {rule.kind!r}")
         return self.rules
+
+
+class ForgetResult(ApiModel):
+    """What erasing actually removed. Counted rather than assumed.
+
+    A privacy control that says "done" without saying what it did asks to be trusted at
+    exactly the moment it should be showing its working.
+    """
+    collection_rows: int
+    sessions: int
+    #: The profile after the erase, so a client never renders a collection it no longer
+    #: has -- collection mode is switched to open when it is left standing on nothing.
+    availability: AvailabilityView

@@ -193,3 +193,15 @@ export interface Health {
   formats: string[];
   migrations: string[];
 }
+
+
+/**
+ * What erasing removed. Counted rather than assumed — a privacy control that says
+ * "done" without saying what it did asks to be trusted exactly when it should be
+ * showing its working.
+ */
+export interface ForgetResult {
+  collectionRows: number;
+  sessions: number;
+  availability: AvailabilityProfile;
+}

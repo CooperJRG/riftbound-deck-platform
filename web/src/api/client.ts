@@ -10,6 +10,7 @@ import type {
   DeckSummary,
   DeckView,
   Era,
+  ForgetResult,
   FormatView,
   Health,
   MetaDeck,
@@ -230,6 +231,9 @@ export const api = {
 
   smartLegends: () => request<LegendChoice[]>("/api/smart-decks/legends"),
   smartSessions: () => request<SmartSession[]>("/api/smart-decks/sessions"),
+  /** Erase the collection and every wizard session. Both, deliberately. */
+  forgetCollection: () =>
+    request<ForgetResult>("/api/availability/collection", { method: "DELETE" }),
   startSmartSession: (legendId: string) =>
     request<SmartSession>("/api/smart-decks/sessions", {
       method: "POST",

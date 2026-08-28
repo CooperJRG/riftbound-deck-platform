@@ -7,6 +7,13 @@
   --atlas-raised: #f1e9dc;
   --atlas-ink: #20252b;
   --atlas-muted: #66707a;
+  /* Muted text sitting on --atlas-raised rather than on the canvas. The raised ground is
+     darker than the surface, so the same grey that measures 4.96:1 on --atlas-surface
+     drops to 4.19:1 here -- under AA, and every use of this pairing is small text: a
+     resume line, a confidence pill, an unranked tier label. This is 4.70:1. Dark mode
+     needs no variant -- its muted on its own raised ground is 6.39:1 -- so the two
+     themes point at different values deliberately. */
+  --atlas-muted-ink: #5f6871;
   --atlas-copper: #b65a1a;
   --atlas-copper-soft: #f1dac7;
   --atlas-teal: #237a75;
@@ -45,6 +52,7 @@
   --atlas-raised: #272c2d;
   --atlas-ink: #f1eee7;
   --atlas-muted: #a7b0b0;
+  --atlas-muted-ink: #a7b0b0;
   --atlas-copper: #e38a45;
   --atlas-copper-soft: #432d1f;
   --atlas-copper-ink: #e38a45;
@@ -333,7 +341,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .coverage-note strong { flex: 0 0 auto; color: var(--atlas-ink); }
 .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .section-heading h2 { margin-bottom: 0; }
-.confidence { display: inline-flex; min-height: 28px; align-items: center; padding: 0.2rem 0.6rem; border-radius: 999px; color: var(--atlas-muted); background: var(--atlas-raised); font-size: 0.68rem; font-weight: 750; white-space: nowrap; }
+.confidence { display: inline-flex; min-height: 28px; align-items: center; padding: 0.2rem 0.6rem; border-radius: 999px; color: var(--atlas-muted-ink); background: var(--atlas-raised); font-size: 0.68rem; font-weight: 750; white-space: nowrap; }
 .confidence-high { color: var(--atlas-positive); background: color-mix(in srgb, var(--atlas-positive) 14%, transparent); }
 .confidence-moderate { color: var(--atlas-warning); background: color-mix(in srgb, var(--atlas-warning) 14%, transparent); }
 .trend-chart-shell { min-height: 300px; }
@@ -625,12 +633,39 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 /* D sits between C and the uncharted row, so it reads cooler and quieter than C
    without becoming the grey that means "no data". */
 .tier-d .tier-label { color: #5a5560; background: #ddd7dd; }
-.tier-u .tier-label { color: var(--atlas-muted); background: var(--atlas-raised); }
+.tier-u .tier-label { color: var(--atlas-muted-ink); background: var(--atlas-raised); }
 :root[data-theme="dark"] .tier-s .tier-label { color: #ffd9ca; background: #6f3026; }
 :root[data-theme="dark"] .tier-a .tier-label { color: #ffe3a5; background: #61481d; }
 :root[data-theme="dark"] .tier-b .tier-label { color: #c5fff7; background: #24554f; }
 :root[data-theme="dark"] .tier-c .tier-label { color: #e4e6ed; background: #3f4550; }
 :root[data-theme="dark"] .tier-d .tier-label { color: #ded8e2; background: #3a353f; }
+
+/* Sessions still open, offered above the picker. Finishing something already started
+   beats starting again, and until this existed the answers were written to the database
+   and then unreachable. */
+.resume-strip { margin-bottom: 1.4rem; padding: 0.9rem 1rem; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
+.resume-strip h3 { margin: 0 0 0.5rem; font-family: var(--atlas-serif); font-size: 1.05rem; }
+.resume-strip ul { display: flex; flex-direction: column; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.resume-strip li { display: flex; gap: 0.6rem; align-items: center; }
+.resume-open {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.1rem;
+  align-items: flex-start;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-sm);
+  background: var(--atlas-raised);
+  color: var(--atlas-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.resume-open:hover { border-color: var(--atlas-copper); }
+.resume-open span { color: var(--atlas-muted-ink); font-size: 0.72rem; }
+
+/* The way back out of a recorded collection. Quiet, and always present. */
+.forget-collection { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px solid var(--atlas-border); align-items: flex-start; }
 
 /* The finish screen — the deck the wizard built.
    Card art at a size you can actually read, because the complaint that produced this

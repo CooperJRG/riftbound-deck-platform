@@ -67,3 +67,34 @@ export async function toggleRule(kind: string, value: string): Promise<void> {
     }),
   );
 }
+
+
+/**
+ * Erase the collection, and every wizard session with it.
+ *
+ * Both halves deliberately. The collection rows are the obvious ones, but a session's
+ * answers say what somebody owns just as plainly -- three rounds pin down roughly 75
+ * cards -- so erasing one and leaving the other would be a privacy control that only
+ * looks like one.
+ *
+ * Reports what it removed rather than saying "done": a control that asks to be trusted
+ * at this moment should be showing its working.
+ */
+export async function forgetCollection(): Promise<void> {
+  try {
+    const result = await api.forgetCollection();
+    store.set({
+      availability: result.availability,
+      smartResumable: [],
+      notice:
+        result.collectionRows || result.sessions
+          ? `Forgotten: ${result.collectionRows} collection ${result.collectionRows === 1 ? "entry" : "entries"}` +
+            ` and ${result.sessions} wizard ${result.sessions === 1 ? "session" : "sessions"}.`
+          : "Nothing was recorded, so there was nothing to forget.",
+    });
+    await refreshCards();
+    await revalidate();
+  } catch (error) {
+    reportError(error);
+  }
+}

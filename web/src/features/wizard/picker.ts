@@ -8,13 +8,74 @@
 
 import type { LegendChoice } from "../../api/types";
 import {
+  discardSmartSession,
   refreshMetaNow,
+  resumeSmartSession,
   retrySmartLegends,
   setSmartLegendQuery,
   startSmartSession,
 } from "../../state/actions";
 import { store } from "../../state/store";
 import { fragment, h } from "../../ui/dom";
+
+/**
+ * Sessions still open, offered before the picker.
+ *
+ * The answers are the expensive part -- three rounds pin down roughly 75 cards -- and
+ * they were being written to the database and then left unreachable: closing the tab
+ * meant starting again from the first question. The API had listed them all along and
+ * nothing called it.
+ *
+ * Discard is next to resume rather than buried, because an abandoned session is a record
+ * of what somebody owns and they should not have to finish one to be rid of it.
+ */
+export function resumeStrip(): HTMLElement | null {
+  const { smartResumable, smartBusy } = store.state;
+  if (!smartResumable.length) return null;
+  return h(
+    "section",
+    { class: "resume-strip" },
+    h("h3", {}, smartResumable.length === 1 ? "Pick up where you left off" : "Sessions in progress"),
+    h(
+      "ul",
+      {},
+      ...smartResumable.slice(0, 4).map((session) =>
+        h(
+          "li",
+          {},
+          h(
+            "button",
+            {
+              class: "resume-open",
+              type: "button",
+              disabled: smartBusy,
+              on: { click: () => void resumeSmartSession(session.sessionId) },
+            },
+            h("strong", {}, session.legendName),
+            h(
+              "span",
+              {},
+              session.rounds === 0
+                ? "Not started"
+                : `${session.rounds} round${session.rounds === 1 ? "" : "s"} answered · ${session.knownCards} cards known`,
+            ),
+          ),
+          h(
+            "button",
+            {
+              class: "quiet-button",
+              type: "button",
+              disabled: smartBusy,
+              title: "Delete this session and everything it learned",
+              on: { click: () => void discardSmartSession(session.sessionId) },
+            },
+            "Discard",
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
 function legendCard(legend: LegendChoice, busy: boolean): HTMLElement {
   const known = Math.round(legend.familiarity * 100);
@@ -184,6 +245,8 @@ export function legendPicker(): HTMLElement {
         "You do not need to have entered your collection.",
     ),
     freshnessLine(),
+    // Before the picker: finishing something already started beats starting again.
+    resumeStrip(),
     smartLegends.length === 0
       ? smartBusy
         ? h("p", { class: "empty" }, "Loading...")

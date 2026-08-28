@@ -103,6 +103,12 @@ export interface AppState {
    * produced, with what changed and a last pass to rule cards out.
    */
   smartShowing: "rounds" | "finish";
+  /**
+   * Unfinished sessions, so one survives a closed tab. The answers are the expensive
+   * part — three rounds pin down roughly 75 cards — and until this was surfaced they
+   * were written to the database and then unreachable.
+   */
+  smartResumable: SmartSession[];
   /** Legend picker filter, so a 49-legend list stays navigable. */
   smartLegendQuery: string;
   /**
@@ -214,6 +220,7 @@ const initial: AppState = {
   smartBusy: false,
   smartFinished: false,
   smartShowing: "rounds",
+  smartResumable: [],
   smartLegendQuery: "",
   smartLegendsError: "",
   smartLegendsLoaded: false,

@@ -13,6 +13,7 @@ import type {
   ExcludedCard,
 } from "../api/types";
 import {
+  forgetCollection,
   setAvailabilityMode,
   setStrict,
   toggleRule,
@@ -164,6 +165,32 @@ export function renderAvailability(root: HTMLElement): void {
       ),
     );
   }
+
+  // The way back out. The wizard offers to write what a session learned into the
+  // collection, which is much the fastest way to record one — and a one-way door into
+  // that is not a fair trade for the convenience. Always offered, not only in collection
+  // mode, because a session's answers outlive the mode that produced them.
+  body.push(
+    h(
+      "div",
+      { class: "forget-collection" },
+      h(
+        "button",
+        {
+          class: "quiet-button",
+          type: "button",
+          title: "Delete the recorded collection and every Smart Decks session",
+          on: { click: () => void forgetCollection() },
+        },
+        "Forget what I have told you",
+      ),
+      h(
+        "span",
+        { class: "muted small" },
+        "Removes the recorded collection and every saved wizard session.",
+      ),
+    ),
+  );
 
   replace(root, ...body);
 }
