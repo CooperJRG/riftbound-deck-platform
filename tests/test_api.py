@@ -829,3 +829,55 @@ def test_a_legends_tournament_count_is_a_subset_of_its_deck_count(meta_client):
     assert rows, "a legend list to check"
     for row in rows:
         assert row["tournamentDeckCount"] <= row["deckCount"], row["name"]
+
+
+# -- the drawer follows the legend ----------------------------------------------
+
+
+def test_choosing_a_legend_narrows_the_card_pool(meta_client):
+    """A legend fixes the domains its deck may play, so the rest of the pool is not a
+    filter the player should have to apply -- it is a rule they cannot break."""
+    everything = meta_client.get("/api/cards?limit=1").json()["total"]
+    scoped = meta_client.get(
+        "/api/cards?legendId=vi-piltover-enforcer&limit=500"
+    ).json()
+    assert scoped["total"] < everything
+    for row in scoped["cards"]:
+        domains = row["card"]["domains"]
+        assert not domains or set(domains) <= {"Fury"}, row["card"]["name"]
+
+
+def test_an_unknown_legend_does_not_silently_empty_the_drawer(meta_client):
+    """A stale or mistyped id should show the pool, not nothing -- an empty drawer reads
+    as "you own no cards", which is a different and alarming claim."""
+    body = meta_client.get("/api/cards?legendId=no-such-legend&limit=1").json()
+    assert body["total"] == meta_client.get("/api/cards?limit=1").json()["total"]
+
+
+# -- champions a legend could never have nominated -------------------------------
+
+
+def test_a_deck_is_not_credited_to_an_impossible_champion(meta_client):
+    """One archived list arrives as a Kennen deck nominating Nocturne - Horrifying,
+    which is not a Kennen champion and never could have been chosen. Kennen - Storm of
+    Shuriken was in its main deck all along.
+    """
+    from riftbound.domain.meta import reattribute_champions, shares_champion_identity
+    from riftbound.services import get_services
+
+    services = get_services()
+    if services.meta is None:
+        pytest.skip("no snapshot in this environment")
+    catalog = services.catalog
+    for deck in services.meta.decks:
+        if not deck.deck.champion_id:
+            continue
+        assert shares_champion_identity(
+            catalog.get(deck.deck.champion_id), catalog.get(deck.deck.legend_id)
+        ), f"{deck.deck_id} credits a champion its legend could not nominate"
+
+    # And the repair is idempotent: running it again changes nothing.
+    again = reattribute_champions(services.meta.decks, catalog)
+    assert [d.deck.champion_id for d in again] == [
+        d.deck.champion_id for d in services.meta.decks
+    ]

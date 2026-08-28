@@ -15,7 +15,7 @@ it can be shared freely and reloaded only when the operator promotes a new one.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cached_property
 from typing import TYPE_CHECKING
 
@@ -24,6 +24,7 @@ from .data.bundle import Bundle, load_current
 from .data.meta_snapshot import MetaSnapshot, load_current_meta
 from .domain.cards import Catalog
 from .domain.legend_index import LegendIndex
+from .domain.meta import reattribute_champions
 from .domain.rules import BoundRules, FormatRules, load_format_rules_dir, normalize_format_name
 from .infra.db import Database
 
@@ -106,6 +107,19 @@ class Services:
                 snapshot.manifest.deck_count,
                 snapshot.manifest.tournament_count,
             )
+        if snapshot is not None:
+            # Correct any deck credited to a champion its legend could never have
+            # nominated. Done here rather than only in the normaliser because a harvest
+            # carries forward every deck the sources no longer return -- most of the
+            # archive -- so a normaliser fix would never reach them.
+            fixed = reattribute_champions(snapshot.decks, self.catalog)
+            changed = sum(
+                1 for before, after in zip(snapshot.decks, fixed, strict=True)
+                if before.deck.champion_id != after.deck.champion_id
+            )
+            if changed:
+                logger.info("re-attributed the chosen champion on %d deck(s)", changed)
+                snapshot = replace(snapshot, decks=tuple(fixed))
         return snapshot
 
     @cached_property

@@ -5,7 +5,7 @@ import type { Card, DeckPayload, Zone } from "../../api/types";
 import { debounce } from "../../ui/dom";
 import { store } from "../store";
 import { reportError } from "./shared";
-import { resolveDeckCards } from "./cards";
+import { refreshCards, resolveDeckCards } from "./cards";
 
 /**
  * Where a card belongs, from its type. One "add" affordance, right zone.
@@ -61,6 +61,10 @@ export function setChampion(cardId: string): void {
 
 export function setLegend(cardId: string): void {
   commit({ ...store.state.deck, legendId: cardId });
+  // The legend decides which domains the deck may play, so the drawer's contents change
+  // with it. Without this the player picks a legend and keeps being offered cards that
+  // cannot legally go in the deck.
+  void refreshCards();
 }
 
 export function setDeckName(name: string): void {

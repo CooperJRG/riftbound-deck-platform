@@ -7,10 +7,20 @@ import { store } from "../store";
 import { reportError } from "./shared";
 
 export async function refreshCards(): Promise<void> {
-  const { filters, cardLimit } = store.state;
+  const { filters, cardLimit, deck } = store.state;
   store.set({ cardsLoading: true });
   try {
-    const page = await api.cards({ ...filters, limit: cardLimit });
+    // Once a legend is chosen its domains decide what the deck may contain, so the
+    // drawer stops offering cards that could never go in it. Sent as the legend rather
+    // than as a domain because a legend often has two, and the server applies the same
+    // check the builder and the validator do.
+    const page = await api.cards({
+      ...filters,
+      // `exactOptionalPropertyTypes` is on, so an absent legend is an absent key rather
+      // than an explicit undefined.
+      ...(deck.legendId ? { legendId: deck.legendId } : {}),
+      limit: cardLimit,
+    });
     store.set({ cards: page.cards, cardTotal: page.total, cardsLoading: false });
     indexDeckCards(page.cards);
   } catch (error) {

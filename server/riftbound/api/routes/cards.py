@@ -24,6 +24,7 @@ def list_cards(
     q: str = Query(default="", max_length=120, description="name or effect text search"),
     card_type: str = Query(default="", alias="cardType", max_length=40),
     domain: str = Query(default="", max_length=20),
+    legend_id: str = Query(default="", alias="legendId", max_length=80),
     set_code: str = Query(default="", alias="setCode", max_length=8),
     rarity: str = Query(default="", max_length=20),
     available_only: bool = Query(default=False, alias="availableOnly"),
@@ -36,11 +37,25 @@ def list_cards(
     profile = services.availability.load(user_id=identity.user_id)
     needle = search_key(q)
 
+    # A legend fixes the domains its deck may play, so once one is chosen the rest of
+    # the pool is not a filter the player should have to apply -- it is a rule they
+    # cannot break. Asked for by legend rather than by domain because a legend often has
+    # two, and `in_domains` is the same check the builder and the validator use, so the
+    # drawer cannot disagree with them about what is legal.
+    identity_domains: set[str] | None = None
+    if legend_id:
+        legend = services.catalog.get(legend_id)
+        rules = services.rules_for("constructed")
+        if legend is not None and rules.bool_constraint("domain_identity_enforced", True):
+            identity_domains = set(legend.domains) if legend.domains_ok else set()
+
     rows = []
     for card in services.catalog:
         if card_type and card.card_type != card_type:
             continue
         if domain and domain not in card.domains:
+            continue
+        if identity_domains is not None and not card.in_domains(identity_domains):
             continue
         if set_code and set_code.upper() not in card.set_codes:
             continue

@@ -79,6 +79,26 @@ def standings_from(rows: Iterable[Mapping[str, Any]]) -> list[Standing]:
     ]
 
 
+def _nominatable(card_id: str, legend: Card | None, catalog: Catalog) -> bool:
+    """Could this champion have been nominated for this legend?
+
+    Champion-tag identity only. Whether the card is *banned* is a different question and
+    a moving one -- a deck played before a banning nominated a champion that was legal at
+    the time, and rewriting its history to suit today's list would be a worse error than
+    the one this guards against. 265 archived decks nominate Draven - Vanquisher, which
+    is legal identity and a later ban.
+    """
+    card = catalog.get(card_id)
+    if card is None or card.super_type != "Champion":
+        return False
+    if legend is None or not legend.champion_tags:
+        return True
+    return bool(
+        {t.casefold() for t in card.champion_tags}
+        & {t.casefold() for t in legend.champion_tags}
+    )
+
+
 def _pick_champion(main: Mapping[str, int], legend: Card | None, catalog: Catalog) -> str:
     """Infer the chosen champion from the list.
 
@@ -159,10 +179,20 @@ def _deck_from_zones(
     # Prefer the source's own champion; fall back to inference when it records none.
     # TopDeck omits the champion for 1,371 of 2,861 live decks, and without this those
     # decks fail legality for "no chosen champion" — a gap in the feed, not the deck.
+    #
+    # But only when the source's champion could actually have been nominated. A
+    # nomination has to share a champion tag with the legend, and the feed does not
+    # check: one list arrived as a Kennen deck nominating Nocturne - Horrifying, which
+    # is not a Kennen champion and never could have been chosen. Kennen - Storm of
+    # Shuriken was sitting in its main deck all along. Taken at face value the deck is
+    # attributed to the wrong champion on every trend that counts it.
     legend_id = single("legend")
+    legend_card = catalog.get(legend_id) if legend_id else None
     champion_id = next(iter(champions), "")
+    if champion_id and not _nominatable(champion_id, legend_card, catalog):
+        champion_id = ""
     if not champion_id:
-        champion_id = _pick_champion(main, catalog.get(legend_id) if legend_id else None, catalog)
+        champion_id = _pick_champion(main, legend_card, catalog)
 
     deck = Deck.make(
         name=str(payload.get("humanname") or payload.get("name") or "Untitled").strip(),

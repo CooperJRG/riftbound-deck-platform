@@ -19,7 +19,7 @@ player can see *why* a deck is being recommended.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 
 from .cards import Catalog
@@ -289,3 +289,56 @@ def build_archetypes(
 
 def utc_today() -> datetime:
     return datetime.now(UTC)
+
+
+def shares_champion_identity(card, legend) -> bool:
+    """Could this champion have been nominated for this legend?
+
+    Champion-tag identity only. Whether the card is *banned* is a different question and
+    a moving one: a deck played before a banning nominated a champion that was legal at
+    the time, and rewriting its history to suit today's list would be a worse error than
+    the one this guards against. 265 archived decks nominate Draven - Vanquisher, which
+    is sound identity and a later ban.
+    """
+    if card is None or card.super_type != "Champion":
+        return False
+    if legend is None or not legend.champion_tags:
+        return True
+    return bool(
+        {t.casefold() for t in card.champion_tags}
+        & {t.casefold() for t in legend.champion_tags}
+    )
+
+
+def reattribute_champions(decks, catalog):
+    """Correct decks credited to a champion their legend could never have nominated.
+
+    The feeds do not check the nomination they report. One list arrives as a Kennen deck
+    nominating Nocturne - Horrifying -- not a Kennen champion, never a legal choice --
+    while Kennen - Storm of Shuriken sits in its own main deck. Taken at face value that
+    deck is counted against the wrong champion on every trend that mentions it.
+
+    Applied on load rather than only in the normaliser, because a normaliser fix cannot
+    reach decks that are already stored: a harvest carries forward everything the sources
+    no longer return, which is most of the archive. Correcting it here means the archive
+    is right the moment the code is, without waiting for a re-harvest that may never
+    re-emit those lists.
+
+    A deck with no nominatable champion in its main deck keeps an empty nomination rather
+    than a wrong one. Empty is a gap; wrong is a claim.
+    """
+    out = []
+    for meta_deck in decks:
+        legend = catalog.get(meta_deck.deck.legend_id)
+        champion = catalog.get(meta_deck.deck.champion_id)
+        if shares_champion_identity(champion, legend):
+            out.append(meta_deck)
+            continue
+        best, best_copies = "", 0
+        for card_id, copies in meta_deck.deck.main.items():
+            if copies > best_copies and shares_champion_identity(catalog.get(card_id), legend):
+                best, best_copies = card_id, copies
+        out.append(
+            replace(meta_deck, deck=replace(meta_deck.deck, champion_id=best))
+        )
+    return out

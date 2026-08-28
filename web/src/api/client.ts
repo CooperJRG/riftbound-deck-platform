@@ -98,6 +98,8 @@ export interface CardQuery {
   q?: string;
   cardType?: string;
   domain?: string;
+  /** Restrict to what this legend may legally play. Its domains are a rule, not a filter. */
+  legendId?: string;
   setCode?: string;
   rarity?: string;
   availableOnly?: boolean;
