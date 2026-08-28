@@ -22,7 +22,7 @@ for more than one played in an also-ran.
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Container, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 
 from .cards import Catalog
@@ -42,6 +42,18 @@ CORE_SHARE = 0.8
 #: why -- because the obvious change is to put it back.
 #:
 #: There used to be a ``CLUSTER_BOOST`` here that promoted a chosen family's cards above
+#: How strongly the field has to pair two cards before the second counts as a
+#: dependency. Measured: at 0.80 against a base-rate ceiling the field yields 3,591
+#: dependent pairs, among them Pack of Wonders -> Treasure Trove at 100% (lift 11.6x)
+#: and the Dazzling Aurora cluster.
+RELIANCE_MIN = 0.80
+#: A partner the legend plays in nearly every list says nothing about this card.
+#: Without this, 97.5% of cards reported a 100% dependency: inside a single archetype
+#: every card co-occurs with every other one.
+RELIANCE_BASE_CEILING = 0.85
+#: And a partner far rarer than the card itself is a coincidence, not a pairing.
+RELIANCE_MIN_SUPPORT = 0.5
+
 #: the legend's general staples, and :meth:`LegendProfile.preference` took a cluster to
 #: apply it. It did nothing: the boost multiplies ``play_rate``, and ``COHERENCE_WEIGHT``
 #: leaves ``play_rate`` carrying 10% of a pick, measured never enough to flip a decision.
@@ -111,6 +123,11 @@ class LegendProfile:
     #: the player is entitled to know which they are holding.
     era_id: str = ""
     _pair_counts: Mapping[str, Mapping[str, float]] = field(default_factory=dict)
+    #: Memoised :meth:`reliance` results. A dict on a frozen dataclass, so the cache is
+    #: mutable while the profile stays immutable to everyone reading it.
+    _reliance_cache: dict[str, tuple[tuple[str, float] | None]] = field(
+        default_factory=dict, compare=False, repr=False
+    )
     _card_weight: Mapping[str, float] = field(default_factory=dict)
     _total_weight: float = 0.0
 
@@ -170,6 +187,63 @@ class LegendProfile:
             if weight > 0:
                 total += together.get(partner, 0.0) / weight
         return total / len(partners)
+
+    def reliance(self, card_id: str) -> tuple[str, float] | None:
+        """The partner this card is rarely played without, if it has one.
+
+        Some cards are only worth playing next to another one -- the field runs Elder
+        Dragon in 88.6% of the lists it runs Dazzling Aurora in, and Pack of Wonders
+        alongside Treasure Trove 94.2% of the time. A player who owns one and not the
+        other should usually not be handed the orphan, and nothing here could see that:
+        :meth:`affinity` averages over every card in the deck, so one missing partner
+        among seventeen present ones barely moves it.
+
+        This reports the *strongest* partner instead of the average, which is what a
+        dependency is. Returns ``(partner_id, P(partner | this card))``.
+
+        Two guards, both learned from the data. A partner the legend plays in nearly
+        every list carries no information -- within one archetype every card co-occurs
+        with every other card, which made an unguarded version report a 100% dependency
+        for 97.5% of cards. And a partner with little support of its own is noise rather
+        than a pairing.
+        """
+        cached = self._reliance_cache.get(card_id)
+        if cached is not None:
+            return cached[0]
+
+        together = self._pair_counts.get(card_id, {})
+        weight = self._card_weight.get(card_id, 0.0)
+        best: tuple[str, float] | None = None
+        if weight > 0:
+            for partner, shared in together.items():
+                base = self.play_rate.get(partner, 0.0)
+                if base <= 0.0 or base > RELIANCE_BASE_CEILING:
+                    continue
+                if self._card_weight.get(partner, 0.0) < weight * RELIANCE_MIN_SUPPORT:
+                    continue
+                # Laplace-smoothed, so a pairing seen in every one of twenty lists is
+                # strong evidence rather than proof. Without it the conditional reaches
+                # exactly 1.0 and the card's support falls to zero -- the deck builder
+                # would then treat an orphan as literally worthless on a sample that
+                # cannot support the claim.
+                conditional = (shared + 1.0) / (weight + 2.0)
+                if conditional >= RELIANCE_MIN and (best is None or conditional > best[1]):
+                    best = (partner, conditional)
+        self._reliance_cache[card_id] = (best,)
+        return best
+
+    def support(self, card_id: str, present: Container[str]) -> float:
+        """How often the field plays this card in the company it currently has, 0..1.
+
+        1.0 when the card has no strong partner or that partner is present. Otherwise
+        the share of lists that do run it alone -- for a card the field pairs 88.6% of
+        the time, that is 0.114. Not a penalty invented for the purpose: it is the
+        card's own play rate in exactly the situation the player is in.
+        """
+        needed = self.reliance(card_id)
+        if needed is None or needed[0] in present:
+            return 1.0
+        return max(0.0, 1.0 - needed[1])
 
     def lift(self, card_id: str, given: Iterable[str]) -> float:
         """Affinity relative to how often the card is played at all.

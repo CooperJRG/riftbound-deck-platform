@@ -13,7 +13,7 @@ nonetheless invited to save is worse than no answer.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Container, Mapping
 from dataclasses import dataclass, field
 
 from ..cards import Catalog
@@ -276,6 +276,20 @@ def _attempt(
         owed[zone] = owed.get(zone, 0) + hole.needed - keep
         drift += hole.needed - keep
 
+    if cut_stubs:
+        # Cards the player owns that are about to lose the card they are played for.
+        # These are never holes -- they own every copy -- so nothing above looks at
+        # them, and without this pass the repair hands back the orphan.
+        emptied = {g.card_id for g in holes if g.have == 0}
+        holed = {g.card_id for g in holes}
+        for card_id, held in list(zones.main.items()):
+            if card_id in holed or held <= 0:
+                continue
+            if _is_stranded(profile, card_id, deck, emptied):
+                zones.set_to(ZONE_MAIN, card_id, 0)
+                owed[ZONE_MAIN] = owed.get(ZONE_MAIN, 0) + held
+                drift += held
+
     for hole in holes:
         card = catalog.get(hole.card_id)
         if card is None:
@@ -369,7 +383,20 @@ def _fill(
     moves the call.
     """
     added = 0
-    order = list(ranked)
+    # Re-weight by whether the deck can actually support each candidate.
+    #
+    # `substitutes` ranks by affinity with the whole list, which averages over every
+    # card present and so barely moves when the one partner a card is played for is
+    # missing. Bringing in the second half of a pairing whose first half is not there
+    # trades one orphan for another: measured, cutting stranded cards *without* this
+    # raised orphans per deck from 1.45 to 2.87, because the freed copies were refilled
+    # with cards that had unmet dependencies of their own.
+    here = set(zones.main)
+    order = [
+        (candidate_id, score * profile.support(candidate_id, here))
+        for candidate_id, score in ranked
+    ]
+    order.sort(key=lambda entry: -entry[1])
     if shape_first:
         # Prefer a card the list already plays over a new name.
         #
@@ -463,6 +490,33 @@ def _natural_copies(profile: LegendProfile, card_id: str, zone: str) -> int:
     return max(1, int(profile.copies.get(card_id, 1)))
 
 
+def _is_stranded(
+    profile: LegendProfile, card_id: str, deck: Deck, emptied: Container[str]
+) -> bool:
+    """Is this card losing the card it is played for?
+
+    The case a copy count cannot see, and the one this was asked to fix. The field runs
+    Elder Dragon in 88.6% of the lists it runs Dazzling Aurora in, and Pack of Wonders
+    alongside Treasure Trove 94.2% of the time -- so somebody who owns the dragons and
+    none of the auroras is not short one card, they are short the reason the other card
+    was in the deck. Handing them the orphan is the recommendation this stops making.
+
+    Note that a stranded card is one the player *owns*, so it is never a hole and the
+    hole loop cannot see it. It has to be looked for across the whole list.
+
+    Only fires when the partner is being emptied out by this repair. A partner they
+    still have is no reason to drop anything, and one that was never in the list is the
+    deck's own business.
+    """
+    if card_id == deck.champion_id or card_id == deck.legend_id:
+        return False
+    needed = profile.reliance(card_id)
+    if needed is None:
+        return False
+    partner = needed[0]
+    return partner in deck.main and partner in emptied
+
+
 def _is_stub(profile: LegendProfile, hole, zone: str, deck: Deck) -> bool:
     """Is the copy the player owns worth keeping, or is it a leftover?
 
@@ -493,10 +547,22 @@ def _is_stub(profile: LegendProfile, hole, zone: str, deck: Deck) -> bool:
 
 
 def _mass(deck: Deck, profile: LegendProfile) -> float:
-    """How much of what the field plays this deck contains.
+    """How much of what the field plays this deck contains, in the company it keeps.
 
-    The same measure the acceptance harness scores a built deck by, so a repair that
-    chooses between two candidate decks is answering to the number it will later be
-    judged on rather than to one invented here.
+    Play-rate mass, which is what the acceptance harness scores a built deck by, but
+    weighted by whether each card's usual partner is actually there. The plain sum
+    values a card the same however the rest of the deck looks, and that is wrong in a
+    way players notice: the field runs Elder Dragon in 88.6% of the lists it runs
+    Dazzling Aurora in, so somebody who owns the dragons and none of the auroras should
+    not be handed the dragons anyway. Unweighted, keeping them scores exactly as well as
+    cutting them, and the repair has no reason to prefer either.
+
+    The weight is not a penalty invented for the purpose -- it is the share of lists
+    that run the card in exactly the company it currently has. See
+    :meth:`LegendProfile.support`.
     """
-    return sum(profile.play_rate.get(card_id, 0.0) * n for card_id, n in deck.main.items())
+    present = set(deck.main)
+    return sum(
+        profile.play_rate.get(card_id, 0.0) * n * profile.support(card_id, present)
+        for card_id, n in deck.main.items()
+    )

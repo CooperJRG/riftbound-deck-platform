@@ -1027,3 +1027,84 @@ def test_cutting_is_considered_but_only_taken_when_it_wins(catalog, bound_rules,
         )
         # Never worse than simply keeping the stub.
         assert _mass(shipped.deck, profile) >= _mass(patched.deck, profile)
+
+
+# -- cards played for each other -----------------------------------------------
+
+
+def a_paired_field(catalog, bound_rules):
+    """A legend with two archetypes, one of which pairs two cards almost always.
+
+    The dependency only exists where a legend has genuinely different lists. Inside a
+    single archetype every card co-occurs with every other one, which is why the raw
+    conditional had to be guarded by a base-rate ceiling.
+    """
+    # The archetypes differ *only* in what they add. Removing different cards from each
+    # produced several statistically identical partners -- filler-03 sat in exactly the
+    # same six lists as filler-11 -- and the strongest-partner search picked between
+    # them arbitrarily. That is the fixture being ambiguous, not the measure.
+    paired = dict(a_deck().main)
+    paired["filler-10"] = 3          # the pair, played only in this archetype
+    paired["filler-11"] = 3
+
+    other = dict(a_deck().main)
+    other["filler-12"] = 3
+
+    decks = {}
+    for i in range(6):
+        decks[f"p{i}"] = as_meta(a_deck(main=paired), f"p{i}")
+    for i in range(6):
+        decks[f"o{i}"] = as_meta(a_deck(main=other), f"o{i}")
+    index = build_index(decks.values(), {k: 1.0 for k in decks})
+    return decks, index.get(LEGEND)
+
+
+def test_a_card_played_for_another_one_is_recognised(catalog, bound_rules):
+    """The field runs Elder Dragon in 88.6% of the lists it runs Dazzling Aurora in,
+    and Pack of Wonders alongside Treasure Trove 94.2% of the time. `affinity` cannot
+    see this -- it averages over every card in the list, so one missing partner among
+    seventeen present ones barely moves it."""
+    _, profile = a_paired_field(catalog, bound_rules)
+    needed = profile.reliance("filler-10")
+    assert needed is not None, "a card the field only plays beside another one"
+    assert needed[0] == "filler-11"
+    assert needed[1] > 0.8
+
+
+def test_a_staple_in_every_list_is_not_a_dependency(catalog, bound_rules):
+    """Inside one archetype everything co-occurs with everything. Unguarded, that made
+    97.5% of cards report a 100% dependency on some other card."""
+    _, profile = a_paired_field(catalog, bound_rules)
+    needed = profile.reliance("filler-05")   # played by both archetypes
+    assert needed is None or profile.play_rate.get(needed[0], 1.0) <= 0.85
+
+
+def test_a_card_is_worth_less_without_the_card_it_is_played_for(catalog, bound_rules):
+    """Not a penalty invented for the purpose: the weight is the share of lists that
+    run the card in exactly the company it currently has."""
+    _, profile = a_paired_field(catalog, bound_rules)
+    with_partner = profile.support("filler-10", {"filler-11", "filler-05"})
+    without = profile.support("filler-10", {"filler-05"})
+    assert with_partner == 1.0
+    assert without < 0.25, "the field almost never plays it alone"
+    assert without > 0.0, "but a run of twenty lists is evidence, not proof"
+
+
+def test_the_orphan_is_not_handed_back(catalog, bound_rules):
+    """The recommendation this was asked to stop making.
+
+    Somebody who owns the dragons and none of the auroras is not short one card -- they
+    are short the reason the other card was in the deck.
+    """
+    from riftbound.domain.smart_decks.repair import _is_stranded
+
+    decks, profile = a_paired_field(catalog, bound_rules)
+    deck = decks["p0"].deck
+    # The partner is emptied out; the card played for it is owned in full.
+    assert _is_stranded(profile, "filler-10", deck, {"filler-11"})
+    assert not _is_stranded(profile, "filler-10", deck, set()), (
+        "a partner they still have is no reason to drop anything"
+    )
+    assert not _is_stranded(profile, deck.champion_id, deck, {"filler-11"}), (
+        "the champion defines the deck"
+    )
