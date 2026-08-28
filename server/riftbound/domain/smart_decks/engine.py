@@ -331,7 +331,9 @@ class Engine:
                 free_score=board.score(free.deck) if free else None,
                 floor_score=board.score(floor) if floor is not None else None,
                 floor=floor, feasibility=feasibility,
-                reason=self._reason(session, deck, has_floor=floor is not None),
+                reason=self._reason(
+                    session, deck, has_floor=floor is not None, pivoted=pivoting
+                ),
             )
 
         if floor is not None:
@@ -458,6 +460,26 @@ class Engine:
             ),
         )
 
+    def _blocking_card(self, session: Session, replacement: MetaDeck) -> str:
+        """The card they are shortest of that the new list does without.
+
+        Named so the pivot explains itself in the player's own terms -- "you are short of
+        Elder Dragon" -- rather than as a change of plan they have to reverse-engineer.
+        """
+        best_name, best_short = "", 0
+        for deck_id in session.asked:
+            asked_deck = self.decks.get(deck_id)
+            if asked_deck is None:
+                continue
+            for card_id, needed in deck_requirements(asked_deck.deck).items():
+                if card_id in replacement.deck.main or not session.knowledge.is_exact(card_id):
+                    continue
+                short = needed - min(needed, session.knowledge.lower_bound(card_id))
+                if short > best_short:
+                    card = self.catalog.get(card_id)
+                    best_name, best_short = (card.name if card else card_id), short
+        return best_name
+
     def _worth_pivoting(self, session: Session, candidates: list[MetaDeck]) -> bool:
         """Is another published list clearly easier for them to hold than this one?
 
@@ -535,7 +557,14 @@ class Engine:
                 score += needed * prior
         return score / total
 
-    def _reason(self, session: Session, deck: MetaDeck, *, has_floor: bool = False) -> str:
+    def _reason(
+        self,
+        session: Session,
+        deck: MetaDeck,
+        *,
+        has_floor: bool = False,
+        pivoted: bool = False,
+    ) -> str:
         """Why this deck is on screen, said to the player rather than about ourselves.
 
         "Asks about 4 cards we have not covered yet" describes our information problem;
@@ -545,6 +574,23 @@ class Engine:
         """
         if not session.asked:
             return "The strongest recent deck for this legend."
+        if pivoted:
+            # Say that the deck changed, and why. Swapping the list under somebody
+            # without a word is the single most confusing thing this flow can do: they
+            # answered a question about one deck and got a different one back, with no
+            # indication that their answer is what caused it.
+            missing = self._blocking_card(session, deck)
+            if missing:
+                # No deck name in the sentence: these are player-submitted and run from
+                # the descriptive to the unprintable.
+                return (
+                    f"You are short of {missing}, and that list is built around it. "
+                    "This is the strongest list for this legend that does not need it."
+                )
+            return (
+                "That list leans on cards you are short of. This is the strongest one "
+                "for this legend that does not."
+            )
         if has_floor:
             # No card count here. A deck round assumes you own what it does not ask
             # about, so those cards look identical on screen -- quoting a number the

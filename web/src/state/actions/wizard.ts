@@ -148,6 +148,20 @@ export function setSmartAnswer(cardId: string, count: number): void {
   store.set({ smartAnswers: answers });
 }
 
+/**
+ * Stop looking and take the deck already secured.
+ *
+ * The reason line offers this from the moment a floor exists -- "stop here and keep what
+ * you have" -- and there was no control that did it, so the only way to stop was to
+ * answer another screen. An invitation the page cannot honour is worse than no
+ * invitation.
+ */
+export function keepCurrentDeck(): void {
+  if (!store.state.smartSession?.proposal?.floor) return;
+  store.set({ smartShowing: "finish" });
+  scrollToTop();
+}
+
 export async function submitSmartRound(): Promise<void> {
   const { smartSession, smartAnswers } = store.state;
   const proposal = smartSession?.proposal;

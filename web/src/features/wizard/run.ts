@@ -13,6 +13,7 @@ import {
   closeSmartSession,
   saveSmartCollection,
   setView,
+  keepCurrentDeck,
   submitSmartRound,
 } from "../../state/actions";
 import { store } from "../../state/store";
@@ -250,7 +251,11 @@ function runView(session: SmartSession): HTMLElement {
   // real list to mark exceptions against; a checklist is a pool to tick from.
   const heading = proposal.question
     ? proposal.question.reason
-    : `${proposal.deck?.name ?? "This deck"} - mark anything you are short of`;
+    : // Not the list's own name. Those are submitted by whoever uploaded it and run
+      // from the descriptive to the unreadable -- a heading of "喵喵喵" tells the player
+      // nothing about what they are looking at. The champion does, and the provenance
+      // line below already credits the list.
+      `${proposal.deck?.championName || "This deck"} — mark anything you are short of`;
   const submitLabel = proposal.question ? "That is what I own" : "I have the rest";
 
   parts.push(
@@ -293,6 +298,22 @@ function runView(session: SmartSession): HTMLElement {
           },
           smartBusy ? "Working..." : submitLabel,
         ),
+        // The way out, offered exactly when the copy above starts promising it. Once a
+        // deck is secured the round is optional -- "stop here and keep what you have"
+        // is what the reason line says -- and until now there was no button that did it,
+        // so the only way to stop was to answer another screen.
+        proposal.floor
+          ? h(
+              "button",
+              {
+                class: "quiet-button",
+                type: "button",
+                disabled: smartBusy,
+                on: { click: keepCurrentDeck },
+              },
+              "Keep the deck I have",
+            )
+          : null,
       ),
     ),
   );

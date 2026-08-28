@@ -173,6 +173,25 @@ def _floor_view(
     )
 
 
+def _feasibility_line(proposal: Proposal, session: Session) -> str:
+    """What we can say about whether they can build this, without overstating it.
+
+    Feasibility is computed from what the player has told us, so before they have told
+    us anything it reads "Short by 1 more legend, 1 more champion, 40 more main" -- a
+    verdict on a collection nobody has asked about, delivered on the opening screen. It
+    is technically what the function measured and it is not what a person reads: it says
+    "you cannot build this", when the truth is "we have not asked yet".
+    """
+    if proposal.feasibility is None:
+        return ""
+    # Whether *they* have told us anything, not whether the session holds knowledge.
+    # It always holds some: runes are assumed, and a declared collection is seeded before
+    # the first question. Neither is an answer to a question we have asked.
+    if not session.asked and not session.checklists:
+        return "Mark anything you are short of and we will work out what you can build."
+    return proposal.feasibility.describe()
+
+
 def _proposal_view(
     proposal: Proposal, session: Session, engine: Engine, services: Services, user_id: str
 ) -> ProposalView:
@@ -185,7 +204,7 @@ def _proposal_view(
         floor=_floor_view(proposal.floor, engine, proposal.floor_score, catalog),
         chosen=proposal.chosen,
         deck_score=_score_view(proposal.deck_score),
-        feasibility=proposal.feasibility.describe() if proposal.feasibility else "",
+        feasibility=_feasibility_line(proposal, session),
         can_build=bool(proposal.feasibility and proposal.feasibility.ok),
     )
 
