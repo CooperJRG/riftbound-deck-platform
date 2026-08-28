@@ -113,7 +113,11 @@ store.subscribe((state) => {
   // The availability control drives both views, so it always renders.
   renderAvailability(availabilityRoot);
   if (state.view === "build") {
-    renderCardBrowser(browserRoot);
+    // The drawer is hidden rather than unmounted, so its search box keeps its text and
+    // its scroll position across a close and reopen.
+    buildRoot.classList.toggle("drawer-closed", !state.drawerOpen);
+    browserRoot.hidden = !state.drawerOpen;
+    if (state.drawerOpen) renderCardBrowser(browserRoot);
     renderDeckPanel(deckRoot);
     renderDeckActions(deckActionsRoot);
   } else if (state.view === "find") {

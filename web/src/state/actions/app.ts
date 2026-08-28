@@ -7,7 +7,7 @@ import { reportError } from "./shared";
 import { refreshCards } from "./cards";
 import { revalidate } from "./deck";
 import { loadExplore } from "./explore";
-import { openSmartDecks } from "./wizard";
+import { ensureLegends, openSmartDecks } from "./wizard";
 
 export async function boot(): Promise<void> {
   try {
@@ -44,11 +44,25 @@ export function dismissNotice(): void {
   store.set({ notice: "" });
 }
 
+/**
+ * Show or hide the card drawer.
+ *
+ * Closed, the deck takes the whole width. Most of building a deck is looking at the
+ * deck; the drawer is for the minutes you spend hunting a particular card, and it was
+ * holding 520px of the screen for the rest of the time.
+ */
+export function toggleDrawer(): void {
+  store.set({ drawerOpen: !store.state.drawerOpen });
+}
+
 export function setView(view: ViewName): void {
   // Views are toggled with `hidden` rather than navigated to, so nothing resets the
   // scroll position on our behalf.
   if (view !== store.state.view) scrollToTop();
   store.set({ view });
   if (view === "find") void openSmartDecks();
+  // The builder opens on a gallery of legends when there is no deck yet, and that needs
+  // the same list the wizard uses.
+  if (view === "build" && !store.state.deck.legendId) void ensureLegends();
   if (view === "explore" && store.state.trendOverview === null) void loadExplore();
 }

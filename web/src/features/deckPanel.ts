@@ -20,6 +20,7 @@ import {
   setChampion,
   setDeckName,
   setLegend,
+  toggleDrawer,
 } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
@@ -384,6 +385,19 @@ export function renderDeckPanel(root: HTMLElement): void {
     "div",
     { class: "deck-header" },
     deckNameInput(deck.name),
+    // The way back to the drawer once it is closed. It lives on the deck because that
+    // is the only thing on screen at that point.
+    store.state.drawerOpen
+      ? null
+      : h(
+          "button",
+          {
+            class: "quiet-button",
+            type: "button",
+            on: { click: toggleDrawer },
+          },
+          "Find cards",
+        ),
     validation
       ? h("span", { class: `legal-badge${validation.legal ? " is-legal" : ""}` },
           validation.legal ? "Ready to play" : builderReview ? "Needs attention" : `${completedSteps} / 5 ready`)
@@ -394,13 +408,45 @@ export function renderDeckPanel(root: HTMLElement): void {
     replace(
       root,
       header,
+      // A wall of legends rather than an instruction to go and find one. The legend is
+      // the first decision and the one every other decision hangs off, so it is worth
+      // the whole screen -- and it is a decision made by looking, not by reading.
       h(
         "section",
         { class: "builder-onboarding" },
-        h("span", { class: "onboarding-number" }, "01"),
         h("h2", {}, "Start with a legend."),
-        h("p", {}, "Use the card search to choose a legend. Bound Atlas will keep the deck requirements in view as your list takes shape."),
-        h("ol", {}, h("li", {}, "Choose a legend"), h("li", {}, "Add a champion and main deck"), h("li", {}, "Finish runes and battlefields"), h("li", {}, "Review before you play")),
+        h(
+          "p",
+          {},
+          "It decides which domains the deck may play, which champions it may nominate, "
+            + "and what the card drawer will offer you.",
+        ),
+        store.state.smartLegends.length
+          ? h(
+              "div",
+              { class: "legend-wall" },
+              ...store.state.smartLegends.map((legend) =>
+                h(
+                  "button",
+                  {
+                    class: "legend-pick",
+                    type: "button",
+                    title: `Build with ${legend.name}`,
+                    on: { click: () => setLegend(legend.legendId) },
+                  },
+                  legend.imageUrl
+                    ? h("img", { src: legend.imageUrl, alt: legend.name, loading: "lazy" })
+                    : h("span", { class: "mat-card-blank" }, legend.name),
+                  h("span", { class: "legend-pick-name" }, legend.name),
+                  h(
+                    "span",
+                    { class: "legend-pick-meta" },
+                    legend.domains.join(" / "),
+                  ),
+                ),
+              ),
+            )
+          : h("p", { class: "muted small" }, "Loading legends..."),
       ),
     );
     return;

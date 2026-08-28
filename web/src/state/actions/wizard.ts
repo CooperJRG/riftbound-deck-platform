@@ -48,6 +48,22 @@ export async function setSmartLegendSort(sort: LegendSort): Promise<void> {
   }
 }
 
+/**
+ * Make sure the legend list is loaded, without going anywhere.
+ *
+ * `openSmartDecks` switches to the Find tab as a side effect, which is right when
+ * somebody asks for the wizard and wrong when the builder simply needs the same list to
+ * show a gallery.
+ */
+export async function ensureLegends(): Promise<void> {
+  if (store.state.smartLegends.length) return;
+  try {
+    store.set({ smartLegends: await api.smartLegends(store.state.smartLegendSort) });
+  } catch {
+    // The builder still works from the card search; a gallery is a convenience.
+  }
+}
+
 export async function openSmartDecks(options: { retry?: boolean } = {}): Promise<void> {
   store.set({ view: "find" });
   if (store.state.smartLegendsLoaded && store.state.smartLegends.length) return;

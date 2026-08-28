@@ -1626,3 +1626,64 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 /* Always offered, never automatic -- the rune base has a defensible right answer and is
    also the part a player is most likely to want to overrule. */
 .rune-auto { margin-left: 0.6rem; font-size: 0.72rem; }
+
+
+/* -- the drawer, closed ----------------------------------------------------
+   Most of building a deck is looking at the deck. The drawer earns its 520px for the
+   minutes spent hunting a particular card and holds them for the rest of the session,
+   so it folds away and gives the width back. */
+.app-body.drawer-closed { grid-template-columns: minmax(0, 1fr); }
+.app-body.drawer-closed .deck { max-width: 1320px; }
+.drawer-toggle { margin-left: auto; align-self: start; white-space: nowrap; }
+.builder-heading { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: baseline; }
+
+/* -- the wall of legends ---------------------------------------------------
+   The legend is the first decision and the one every other decision hangs off: it fixes
+   the domains, the champions on offer and what the drawer will show. That is worth the
+   whole screen, and it is a decision made by looking rather than by reading a list of
+   instructions -- which is what used to be here. */
+.legend-wall {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.legend-pick {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-raised);
+  color: var(--atlas-ink);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 130ms ease, border-color 130ms ease, box-shadow 130ms ease;
+}
+.legend-pick img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  object-position: center top;
+}
+.legend-pick:hover, .legend-pick:focus-visible {
+  border-color: var(--atlas-copper);
+  box-shadow: var(--atlas-shadow);
+  transform: translateY(-3px);
+}
+.legend-pick-name {
+  overflow: hidden;
+  padding: 0.5rem 0.55rem 0;
+  font-family: var(--atlas-serif);
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.legend-pick-meta {
+  padding: 0.1rem 0.55rem 0.55rem;
+  color: var(--atlas-muted-ink);
+  font-size: 0.7rem;
+}

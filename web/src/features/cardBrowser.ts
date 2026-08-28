@@ -10,7 +10,14 @@
  */
 
 import type { Card, CardAvailability, CardFacets } from "../api/types";
-import { addCard, excludeCard, setFilter, showMoreCards, zoneFor } from "../state/actions";
+import {
+  addCard,
+  excludeCard,
+  setFilter,
+  showMoreCards,
+  toggleDrawer,
+  zoneFor,
+} from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
@@ -210,6 +217,17 @@ function buildControls(root: HTMLElement): Controls {
       { class: "builder-heading" },
       h("div", {}, h("p", { class: "eyebrow" }, "Deck workshop"), h("h1", {}, "Build one choice at a time.")),
       h("p", {}, "Search, add, and tune. Review legality when the list is ready."),
+      // Out of the way when it is not being used. Most of building a deck is looking at
+      // the deck, and the drawer was holding a fifth of the screen for the whole of it.
+      h(
+        "button",
+        {
+          class: "quiet-button drawer-toggle",
+          type: "button",
+          on: { click: toggleDrawer },
+        },
+        "Hide the drawer",
+      ),
     ),
     h(
       "div",

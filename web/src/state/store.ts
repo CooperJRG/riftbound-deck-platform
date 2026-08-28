@@ -87,6 +87,8 @@ export interface AppState {
   deckCards: Map<string, CardAvailability>;
   /** What to add next, for the deck as it stands. Null until the first fetch lands. */
   suggestions: BuildSuggestions | null;
+  /** Whether the card drawer is showing. Closed, the deck gets the whole width. */
+  drawerOpen: boolean;
 
   metaStatus: MetaStatus | null;
   archetypes: Archetype[];
@@ -212,6 +214,7 @@ const initial: AppState = {
   builderReview: false,
   deckCards: new Map(),
   suggestions: null,
+  drawerOpen: true,
 
   metaStatus: null,
   archetypes: [],
