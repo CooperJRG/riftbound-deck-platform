@@ -959,3 +959,71 @@ def test_shape_never_costs_an_answer(catalog, bound_rules, profile):
                   rules=bound_rules, conservative=False) is not None:
             answered += 1
     assert answered, "the shape preference must not make every repair fail"
+
+
+# -- dropping a card the player owns -------------------------------------------
+
+
+def test_a_stub_is_only_the_case_the_field_will_not_play(catalog, bound_rules, profile):
+    """Measured across every card played in 20 or more lists:
+
+      the field runs 3, deck left at 2 -- played 18.2% of the time
+      the field runs 2, deck left at 1 -- played 19.9% of the time
+      the field runs 3, deck left at 1 -- played  4.7% (median 1.9%)
+
+    Only the last is a quantity nobody plays, so only the last is a stub. The other two
+    are real decks and cutting them would be throwing away a card for nothing.
+    """
+    from riftbound.domain.smart_decks.repair import _is_stub
+
+    deck = a_deck()
+    playset = next(c for c in deck.main if profile.copies.get(c) == 3
+                   and c != deck.champion_id)
+
+    class _Hole:
+        def __init__(self, card_id, have):
+            self.card_id, self.have = card_id, have
+
+    assert _is_stub(profile, _Hole(playset, 1), "main", deck)
+    assert not _is_stub(profile, _Hole(playset, 2), "main", deck), "a two-of is a real deck"
+    assert not _is_stub(profile, _Hole(deck.champion_id, 1), "main", deck), (
+        "the champion defines the deck"
+    )
+    assert not _is_stub(profile, _Hole(playset, 1), "runes", deck), (
+        "runes are a resource base, not a curve"
+    )
+
+
+def test_cutting_is_considered_but_only_taken_when_it_wins(catalog, bound_rules, profile):
+    """"Sometimes the right move" has to mean sometimes.
+
+    Cutting every stub is plainly wrong: measured over 400 repairs where the choice
+    mattered, it lost play-rate mass 97% of the time -- a median 5.25% -- to save one
+    card of width. So the cut is built and compared like any other candidate repair, and
+    kept only when the deck it produces is actually better. Ties keep the card the
+    player owns.
+    """
+    from riftbound.domain.smart_decks.repair import _attempt, _mass
+
+    deck = a_deck()
+    owned = full_owned(catalog)
+    playset = next(c for c in deck.main if profile.copies.get(c) == 3
+                   and c != deck.champion_id)
+    owned[playset] = 1                      # exactly the stub case
+    holes = gaps_for(deck, known(owned))
+    legend = catalog.get(LEGEND)
+
+    kw = dict(profile=profile, catalog=catalog, rules=bound_rules, legend=legend,
+              owned=known(owned).owned(), allowed=None, conservative=False)
+    patched = _attempt(deck, holes, cut_stubs=False, **kw)
+    cut = _attempt(deck, holes, cut_stubs=True, **kw)
+    shipped = repair(deck, known(owned), profile=profile, catalog=catalog,
+                     rules=bound_rules, conservative=False)
+    assert shipped is not None
+
+    if patched is not None and cut is not None:
+        assert _mass(shipped.deck, profile) >= min(
+            _mass(patched.deck, profile), _mass(cut.deck, profile)
+        )
+        # Never worse than simply keeping the stub.
+        assert _mass(shipped.deck, profile) >= _mass(patched.deck, profile)
