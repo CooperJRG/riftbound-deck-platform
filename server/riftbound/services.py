@@ -25,6 +25,7 @@ from .data.meta_snapshot import MetaSnapshot, load_current_meta
 from .domain.cards import Catalog
 from .domain.legend_index import LegendIndex
 from .domain.meta import reattribute_champions
+from .domain.meta_trends.performance import Performance
 from .domain.rules import BoundRules, FormatRules, load_format_rules_dir, normalize_format_name
 from .infra.db import Database
 
@@ -121,6 +122,35 @@ class Services:
                 logger.info("re-attributed the chosen champion on %d deck(s)", changed)
                 snapshot = replace(snapshot, decks=tuple(fixed))
         return snapshot
+
+    @cached_property
+    def champion_performance(self) -> tuple[Performance, ...]:
+        """Win rates by champion, over the whole archive and current era.
+
+        Computed once and cached: it is one pass over the standings, and the builder
+        asks for it on every keystroke that changes the deck. Empty when there is no
+        snapshot, which is a supported state -- the builder works with no meta data at
+        all, and a champion list without win rates is still a champion list.
+        """
+        snapshot = self.meta
+        if snapshot is None:
+            return ()
+        from datetime import date
+
+        from .domain.eras import eras_for_format
+        from .domain.meta_trends.common import TrendFilter
+        from .domain.meta_trends.performance import performance
+
+        table = performance(
+            decks=snapshot.decks,
+            tournaments=snapshot.tournaments,
+            standings=snapshot.standings,
+            catalog=self.catalog,
+            trend_filter=TrendFilter(from_date=date.min, to_date=date.max),
+            eras=eras_for_format(self.rules_for("constructed")),
+            dimension="champion",
+        )
+        return table.ranked()
 
     @cached_property
     def db(self) -> Database:

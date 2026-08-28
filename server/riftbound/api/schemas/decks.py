@@ -99,3 +99,44 @@ class DeckView(ApiModel):
     deck_id: str
     deck: dict[str, Any]
     validation: ValidationView
+
+
+class ChampionOptionView(ApiModel):
+    """One champion a legend may nominate, with how the field has fared on it."""
+
+    card_id: str
+    name: str
+    image_url: str
+    decks: int
+    share: float
+    win_rate: float
+    #: False when the sample cannot support a published rate. The score still stands --
+    #: it falls back to presence -- but the client must not print a number we withheld.
+    win_rate_shown: bool
+    score: float
+    summary: str
+
+
+class SuggestionView(ApiModel):
+    """One card worth considering, and why."""
+
+    card_id: str
+    name: str
+    image_url: str
+    copies: int
+    reason: str
+
+
+class BuildSuggestionsView(ApiModel):
+    """Everything the builder can offer for the deck as it currently stands.
+
+    One response rather than an endpoint per zone: the answers all depend on the same
+    deck, and splitting them would let the champion list disagree with the card list
+    about what is in it.
+    """
+
+    champions: list[ChampionOptionView]
+    main: list[SuggestionView]
+    battlefields: list[SuggestionView]
+    #: Card id to copies. Always offered, whatever else is missing.
+    runes: dict[str, int]

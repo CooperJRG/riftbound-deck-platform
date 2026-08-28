@@ -39,6 +39,8 @@ from .data import (
     SourceHealthView,
 )
 from .decks import (
+    BuildSuggestionsView,
+    ChampionOptionView,
     CostView,
     CoverageView,
     DeckPayload,
@@ -46,6 +48,7 @@ from .decks import (
     DeckView,
     FormatView,
     IssueView,
+    SuggestionView,
     ValidationView,
 )
 from .meta import (
@@ -104,6 +107,7 @@ __all__ = [
     "AvailabilityUpdate",
     "AvailabilityView",
     "BanNoticeView",
+    "BuildSuggestionsView",
     "BundleView",
     "CardAdoptionView",
     "CardAvailabilityView",
@@ -116,6 +120,7 @@ __all__ = [
     "CardTrendView",
     "CardView",
     "ChampionMetaView",
+    "ChampionOptionView",
     "CostView",
     "CoverageView",
     "DeckPayload",
@@ -157,6 +162,7 @@ __all__ = [
     "SourceHealthView",
     "StartSessionRequest",
     "StrictRequest",
+    "SuggestionView",
     "SwapView",
     "TournamentDetailView",
     "TournamentEntityView",

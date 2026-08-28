@@ -12,10 +12,24 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from ...config import ConfigError
 from ...domain.availability import deck_coverage
 from ...domain.deck import Deck
+from ...domain.suggest import (
+    battlefield_suggestions,
+    champion_options,
+    main_deck_suggestions,
+    rune_suggestion,
+)
 from ...domain.validator import validate
 from ...services import Services, get_services
 from ..identity import Identity, current_identity
-from ..schemas import DeckPayload, DeckSummaryView, DeckView, ValidationView
+from ..schemas import (
+    BuildSuggestionsView,
+    ChampionOptionView,
+    DeckPayload,
+    DeckSummaryView,
+    DeckView,
+    SuggestionView,
+    ValidationView,
+)
 from ..views import deck_dict, validation_view
 
 router = APIRouter(prefix="/api/decks", tags=["decks"])
@@ -132,3 +146,71 @@ def delete_deck(
     if not services.decks.delete(deck_id, user_id=identity.user_id):
         raise HTTPException(status_code=404, detail="Deck not found.")
     return Response(status_code=204)
+
+
+@router.post("/suggestions", response_model=BuildSuggestionsView)
+def build_suggestions(
+    payload: DeckPayload,
+    services: Services = Depends(get_services),
+    identity: Identity = Depends(current_identity),
+) -> BuildSuggestionsView:
+    """What to add next, for the deck as it currently stands.
+
+    The manual builder is a search box and a deck, which is fine once you know the
+    format and miserable before then. These are the statistics the wizard already runs
+    on, pointed at a half-built deck: which champion the field nominates for this
+    legend, which cards it plays beside the ones already chosen, which battlefields go
+    with them, and a rune base that can actually cast the result.
+
+    Everything in one response because everything depends on the same deck. Split across
+    four endpoints they could be computed against four different versions of it and
+    disagree about what the player is holding.
+    """
+    deck = _to_deck(payload)
+    rules = services.rules_for(payload.format or "constructed")
+    catalog = services.catalog
+
+    champions: list[ChampionOptionView] = []
+    main: list[SuggestionView] = []
+    battlefields: list[SuggestionView] = []
+
+    if deck.legend_id and services.meta is not None:
+        rates = {
+            row.entity_id: (row.win_rate, row.shown)
+            for row in services.champion_performance
+        }
+        champions = [
+            ChampionOptionView(
+                card_id=option.card_id, name=option.name, image_url=option.image_url,
+                decks=option.decks, share=round(option.share, 4),
+                win_rate=round(option.win_rate, 4), win_rate_shown=option.win_rate_shown,
+                score=round(option.score, 1), summary=option.describe(),
+            )
+            for option in champion_options(
+                deck.legend_id, services.meta.decks, catalog, rates
+            )
+        ]
+
+    profile = services.legend_index.get(deck.legend_id) if deck.legend_id else None
+    if profile is not None:
+        main = [
+            SuggestionView(
+                card_id=s.card_id, name=s.name, image_url=s.image_url,
+                copies=s.copies, reason=s.reason,
+            )
+            for s in main_deck_suggestions(deck, profile, catalog, rules)
+        ]
+        battlefields = [
+            SuggestionView(
+                card_id=s.card_id, name=s.name, image_url=s.image_url,
+                copies=s.copies, reason=s.reason,
+            )
+            for s in battlefield_suggestions(deck, profile, catalog, rules)
+        ]
+
+    return BuildSuggestionsView(
+        champions=champions,
+        main=main,
+        battlefields=battlefields,
+        runes=rune_suggestion(deck, catalog, rules),
+    )

@@ -3,6 +3,7 @@
 import type {
   Archetype,
   AvailabilityProfile,
+  BuildSuggestions,
   AvailabilityUpdate,
   CardFacets,
   CardPage,
@@ -125,6 +126,12 @@ export const api = {
   cards: (query: CardQuery = {}) =>
     request<CardPage>(`/api/cards${queryString({ ...query })}`),
   facets: () => request<CardFacets>("/api/cards/facets"),
+
+  buildSuggestions: (deck: DeckPayload) =>
+    request<BuildSuggestions>("/api/decks/suggestions", {
+      method: "POST",
+      body: JSON.stringify(deck),
+    }),
 
   validateDeck: (deck: DeckPayload) =>
     request<Validation>("/api/decks/validate", {

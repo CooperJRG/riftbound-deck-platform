@@ -23,7 +23,32 @@ export function zoneFor(card: Card): Zone | "legend" {
 function commit(deck: DeckPayload): void {
   store.set({ deck, dirty: true });
   revalidateDebounced();
+  refreshSuggestionsDebounced();
 }
+
+/**
+ * What to add next, for the deck as it stands.
+ *
+ * Debounced alongside validation and on the same trigger: a suggestion computed against
+ * a deck the player has already moved on from is worse than none, because they will
+ * click it.
+ */
+export async function refreshSuggestions(): Promise<void> {
+  const deck = store.state.deck;
+  if (!deck.legendId) {
+    store.set({ suggestions: null });
+    return;
+  }
+  try {
+    store.set({ suggestions: await api.buildSuggestions(deck) });
+  } catch {
+    // A shortlist that cannot be fetched is not an error worth interrupting a build
+    // for. The search box still works.
+    store.set({ suggestions: null });
+  }
+}
+
+const refreshSuggestionsDebounced = debounce(() => void refreshSuggestions(), 200);
 
 export function adjustCard(cardId: string, zone: Zone, delta: number): void {
   const deck = store.state.deck;
@@ -65,6 +90,22 @@ export function setLegend(cardId: string): void {
   // with it. Without this the player picks a legend and keeps being offered cards that
   // cannot legally go in the deck.
   void refreshCards();
+}
+
+/**
+ * Fill the rune base from the deck's own cost line.
+ *
+ * Always available, never automatic. Every domain gets at least the largest power any
+ * one of its cards demands -- power is the domain-specific half of a cost, so a card
+ * wanting four Body power cannot be cast from three Body runes -- and the rest goes by
+ * how much of the deck each domain is. It is the one part of a list with a defensible
+ * right answer, and also the part a player is most likely to want to overrule, so it
+ * sits behind a button.
+ */
+export function applySuggestedRunes(): void {
+  const runes = store.state.suggestions?.runes;
+  if (!runes || !Object.keys(runes).length) return;
+  commit({ ...store.state.deck, runes: { ...runes } });
 }
 
 export function setDeckName(name: string): void {

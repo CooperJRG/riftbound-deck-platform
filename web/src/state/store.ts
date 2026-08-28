@@ -9,6 +9,7 @@
 import type {
   Archetype,
   AvailabilityProfile,
+  BuildSuggestions,
   CardAvailability,
   CardFacets,
   DeckPayload,
@@ -84,6 +85,8 @@ export interface AppState {
   builderReview: boolean;
   /** Cards referenced by the deck, resolved for display. */
   deckCards: Map<string, CardAvailability>;
+  /** What to add next, for the deck as it stands. Null until the first fetch lands. */
+  suggestions: BuildSuggestions | null;
 
   metaStatus: MetaStatus | null;
   archetypes: Archetype[];
@@ -208,6 +211,7 @@ const initial: AppState = {
   cardLimit: 24,
   builderReview: false,
   deckCards: new Map(),
+  suggestions: null,
 
   metaStatus: null,
   archetypes: [],

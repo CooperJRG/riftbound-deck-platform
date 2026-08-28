@@ -881,3 +881,84 @@ def test_a_deck_is_not_credited_to_an_impossible_champion(meta_client):
     assert [d.deck.champion_id for d in again] == [
         d.deck.champion_id for d in services.meta.decks
     ]
+
+
+# -- suggestions while building by hand ------------------------------------------
+
+
+def _blank_deck(**over):
+    deck = {
+        "name": "test", "format": "constructed", "legendId": "", "championId": "",
+        "main": {}, "runes": {}, "battlefields": [], "sideboard": {},
+    }
+    deck.update(over)
+    return deck
+
+
+def test_suggestions_are_empty_without_a_legend(meta_client):
+    """Nothing can be suggested before the card that decides what is legal."""
+    body = meta_client.post(
+        "/api/decks/suggestions", json=_blank_deck()
+    ).json()
+    assert body["champions"] == []
+    assert body["main"] == []
+    assert body["runes"] == {}
+
+
+def test_a_legend_brings_its_champions_with_scores(meta_client):
+    body = meta_client.post(
+        "/api/decks/suggestions", json=_blank_deck(legendId="vi-piltover-enforcer")
+    ).json()
+    assert body["champions"], "the legend has published champions"
+    top = body["champions"][0]
+    assert top["score"] == pytest.approx(100.0, abs=0.05), (
+        "the strongest option is the yardstick, so it reads 100"
+    )
+    assert all(
+        row["score"] <= top["score"] for row in body["champions"]
+    ), "and nothing above it"
+
+
+def test_a_champion_without_enough_matches_is_not_given_a_rate(meta_client):
+    """A win rate needs 200 decisive matches to be published. The score still stands --
+    it falls back to presence -- but the client must not print a number we withheld."""
+    body = meta_client.post(
+        "/api/decks/suggestions", json=_blank_deck(legendId="vi-piltover-enforcer")
+    ).json()
+    for row in body["champions"]:
+        if not row["winRateShown"]:
+            assert "not enough matches" in row["summary"]
+
+
+def test_every_suggestion_says_why_it_is_on_the_list(meta_client):
+    """A suggestion that cannot explain itself is a slot machine."""
+    body = meta_client.post(
+        "/api/decks/suggestions",
+        json=_blank_deck(legendId="vi-piltover-enforcer", main={"vi-destructive": 3}),
+    ).json()
+    for row in body["main"] + body["battlefields"]:
+        assert row["reason"].strip(), row["name"]
+        assert row["copies"] >= 1
+
+
+def test_suggestions_are_never_cards_the_deck_may_not_contain(meta_client):
+    """Legality is the pool's job -- domain identity, bans and card type are settled
+    before anything is ranked."""
+    body = meta_client.post(
+        "/api/decks/suggestions",
+        json=_blank_deck(legendId="vi-piltover-enforcer", main={"vi-destructive": 3}),
+    ).json()
+    banned = {"banned-blade"}
+    for row in body["main"]:
+        assert row["cardId"] not in banned
+
+
+def test_the_rune_suggestion_is_always_offered_and_adds_up(meta_client):
+    """Always available, never automatic. It is the one part of a deck with a
+    defensible right answer and the part a player most wants to overrule."""
+    body = meta_client.post(
+        "/api/decks/suggestions",
+        json=_blank_deck(legendId="vi-piltover-enforcer", main={"vi-destructive": 3}),
+    ).json()
+    assert body["runes"], "a legend is enough to propose a base"
+    assert sum(body["runes"].values()) == 12

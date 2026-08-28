@@ -126,6 +126,36 @@ export interface Coverage {
   cost: DeckCost;
 }
 
+/** One champion a legend may nominate, with how the field has fared on it. */
+export interface ChampionOption {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  decks: number;
+  share: number;
+  winRate: number;
+  /** False when the sample cannot support a rate. Never print the number when false. */
+  winRateShown: boolean;
+  score: number;
+  summary: string;
+}
+
+/** One card worth considering, and why. */
+export interface CardSuggestion {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  copies: number;
+  reason: string;
+}
+
+export interface BuildSuggestions {
+  champions: ChampionOption[];
+  main: CardSuggestion[];
+  battlefields: CardSuggestion[];
+  runes: Record<string, number>;
+}
+
 export interface Validation {
   legal: boolean;
   issues: Issue[];

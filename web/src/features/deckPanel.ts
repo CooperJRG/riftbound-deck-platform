@@ -6,8 +6,21 @@
  * missing four cards" need different responses from the player.
  */
 
-import type { Issue, Validation, Zone } from "../api/types";
-import { adjustCard, setBuilderReview, setChampion, setDeckName, setLegend } from "../state/actions";
+import type {
+  CardSuggestion,
+  ChampionOption,
+  Issue,
+  Validation,
+  Zone,
+} from "../api/types";
+import {
+  adjustCard,
+  applySuggestedRunes,
+  setBuilderReview,
+  setChampion,
+  setDeckName,
+  setLegend,
+} from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 
@@ -106,6 +119,30 @@ function zoneHead(title: string, total: number, target: number | null): HTMLElem
   );
 }
 
+function runeZone(
+  counts: Record<string, number>,
+  total: number,
+  target: number,
+  canSuggest: boolean,
+): HTMLElement {
+  const zone = matZone("Runes", "runes", counts, total, target);
+  if (canSuggest) {
+    zone.querySelector(".mat-zone-head")?.appendChild(
+      h(
+        "button",
+        {
+          class: "quiet-button rune-auto",
+          type: "button",
+          title: "Fill the rune base from this deck's power costs",
+          on: { click: applySuggestedRunes },
+        },
+        total ? "Redo runes" : "Fill runes",
+      ),
+    );
+  }
+  return zone;
+}
+
 function matZone(
   title: string,
   zone: Zone,
@@ -189,6 +226,94 @@ function identityRow(legendId: string, championId: string): HTMLElement {
   );
 }
 
+/**
+ * The champions this legend may nominate, with how the field has fared on each.
+ *
+ * Shown as the next step rather than as a hint, because it is one: the nomination is
+ * required, the menu is short -- a median of two per legend -- and until it is made the
+ * deck cannot be legal. The score is presence and win rate together, normalised so the
+ * strongest reads 100.
+ */
+function championChooser(options: ChampionOption[]): HTMLElement | null {
+  if (!options.length) return null;
+  return h(
+    "section",
+    { class: "suggest suggest-champions" },
+    h(
+      "header",
+      { class: "suggest-head" },
+      h("h3", {}, "Pick a champion"),
+      h("p", {}, "Required, and it decides which cards the rest of the deck can use."),
+    ),
+    h(
+      "div",
+      { class: "suggest-row" },
+      ...options.map((option) =>
+        h(
+          "button",
+          {
+            class: "suggest-card",
+            type: "button",
+            title: option.summary,
+            on: { click: () => setChampion(option.cardId) },
+          },
+          option.imageUrl
+            ? h("img", { src: option.imageUrl, alt: option.name, loading: "lazy" })
+            : h("span", { class: "mat-card-blank" }, option.name),
+          h("span", { class: "suggest-score" }, String(Math.round(option.score))),
+          h("span", { class: "suggest-name" }, option.name),
+          h("span", { class: "suggest-why" }, option.summary),
+        ),
+      ),
+    ),
+  );
+}
+
+/**
+ * A shortlist of cards to add, at the foot of the deck.
+ *
+ * The search box is still there and still the way to find a particular card. This is
+ * for the other case: knowing roughly what the deck wants and not which card that is.
+ * Five at a time, each with the reason it is on the list -- a suggestion that cannot say
+ * why it is there is a slot machine.
+ */
+function suggestionStrip(
+  title: string,
+  note: string,
+  rows: CardSuggestion[],
+  zone: Zone,
+): HTMLElement | null {
+  if (!rows.length) return null;
+  return h(
+    "section",
+    { class: "suggest" },
+    h("header", { class: "suggest-head" }, h("h3", {}, title), h("p", {}, note)),
+    h(
+      "div",
+      { class: "suggest-row" },
+      ...rows.map((row) =>
+        h(
+          "button",
+          {
+            class: "suggest-card",
+            type: "button",
+            title: `Add ${row.copies}x ${row.name}`,
+            on: { click: () => adjustCard(row.cardId, zone, row.copies) },
+          },
+          row.imageUrl
+            ? h("img", { src: row.imageUrl, alt: row.name, loading: "lazy" })
+            : h("span", { class: "mat-card-blank" }, row.name),
+          row.copies > 1
+            ? h("span", { class: "suggest-copies" }, `+${row.copies}`)
+            : null,
+          h("span", { class: "suggest-name" }, row.name),
+          h("span", { class: "suggest-why" }, row.reason),
+        ),
+      ),
+    ),
+  );
+}
+
 function issueItem(issue: Issue): HTMLElement {
   return h(
     "li",
@@ -244,7 +369,7 @@ function deckNameInput(name: string): HTMLInputElement {
 }
 
 export function renderDeckPanel(root: HTMLElement): void {
-  const { deck, validation, builderReview } = store.state;
+  const { deck, validation, builderReview, suggestions } = store.state;
   const hasStarted = Boolean(
     deck.legendId || deck.championId || Object.keys(deck.main).length ||
       Object.keys(deck.runes).length || deck.battlefields.length || Object.keys(deck.sideboard).length,
@@ -286,14 +411,19 @@ export function renderDeckPanel(root: HTMLElement): void {
     return row?.card.superType === "Champion";
   });
 
-  const chooseChampion =
-    !deck.championId && champCandidates.length > 0
-      ? h("div", { class: "hint-box" },
-          h("span", {}, "Choose your champion: "),
-          ...champCandidates.map((id) =>
-            h("button", { class: "pill", type: "button",
-              on: { click: () => setChampion(id) } }, cardName(id))))
-      : null;
+  // The field's champions for this legend, with how it has fared on each. Falls back to
+  // whatever champions are already in the main deck when there is no meta data -- the
+  // builder has to work with none at all.
+  const chooseChampion = deck.championId
+    ? null
+    : championChooser(suggestions?.champions ?? [])
+      ?? (champCandidates.length
+        ? h("div", { class: "hint-box" },
+            h("span", {}, "Choose your champion: "),
+            ...champCandidates.map((id) =>
+              h("button", { class: "pill", type: "button",
+                on: { click: () => setChampion(id) } }, cardName(id))))
+        : null);
 
   // Notices are legal-but-worth-knowing, so they sit apart from real problems.
   // Mixing them in would teach players to ignore the legality list.
@@ -322,7 +452,7 @@ export function renderDeckPanel(root: HTMLElement): void {
     "div",
     { class: "mat-setup" },
     identityRow(deck.legendId, deck.championId),
-    matZone("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
+    runeZone(deck.runes, validation?.runeTotal ?? 0, 12, Boolean(suggestions?.runes)),
     battlefieldRow(deck.battlefields, 3),
   );
 
@@ -332,8 +462,25 @@ export function renderDeckPanel(root: HTMLElement): void {
     setup,
     chooseChampion,
     matZone("Main deck", "main", deck.main, validation?.mainTotal ?? 0, 40, deck.championId),
-    Object.keys(deck.sideboard).length
-      ? matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null)
+    // A shortlist under the deck, the way a playlist offers more of what is already in
+    // it. The search box is still the way to find a particular card; this is for
+    // knowing what the deck wants without knowing which card that is.
+    suggestionStrip(
+      "Add to this deck",
+      "What the field plays alongside the cards you already have.",
+      suggestions?.main ?? [],
+      "main",
+    ),
+    // Always present, empty or not. The sideboard is part of a legal list and a zone
+    // that only appears once it is non-empty is a zone nobody discovers.
+    matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null),
+    deck.battlefields.length < 3
+      ? suggestionStrip(
+          "Battlefields to consider",
+          "Played with this legend and these cards.",
+          suggestions?.battlefields ?? [],
+          "battlefields",
+        )
       : null,
     h(
       "section",
