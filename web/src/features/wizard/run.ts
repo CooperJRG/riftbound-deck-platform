@@ -7,7 +7,7 @@
  * indistinguishable from one that is guessing.
  */
 
-import type { BanNotice, Proposal, SmartSession } from "../../api/types";
+import type { BanNotice, DeckCost, Proposal, SmartSession } from "../../api/types";
 import {
   acceptSmartDeck,
   closeSmartSession,
@@ -233,6 +233,18 @@ function runView(session: SmartSession): HTMLElement {
     return h("div", { class: "smart-run" }, ...parts);
   }
 
+  const costLine = (cost: DeckCost | null): HTMLElement | null => {
+    // The first question somebody short of cards asks, and until now the app had no
+    // answer to it anywhere. Shown only when there is a bill: telling a player who can
+    // field the deck that it costs them nothing is noise.
+    if (!cost || cost.affordable) return null;
+    return h(
+      "p",
+      { class: `deck-cost${cost.scarceShort > 0 ? " is-steep" : ""}` },
+      cost.summary,
+    );
+  };
+
   const rows = proposal.question ? proposal.question.cards : proposal.requirements;
   // The two rounds ask opposite questions, so they say opposite things. A deck is a
   // real list to mark exceptions against; a checklist is a pool to tick from.
@@ -247,6 +259,7 @@ function runView(session: SmartSession): HTMLElement {
       { class: "smart-round-body" },
       h("h3", {}, heading),
       scorePanel(proposal.deckScore),
+      costLine(proposal.deck?.coverage.cost ?? null),
       proposal.deck
         ? h(
             "p",

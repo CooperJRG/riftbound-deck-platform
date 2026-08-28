@@ -17,6 +17,7 @@ from riftbound.domain.availability import (
     AvailabilityProfile,
     ExclusionRule,
     OwnedRule,
+    deck_cost,
     deck_coverage,
 )
 from riftbound.domain.smart_decks import declared_knowledge
@@ -237,3 +238,63 @@ def test_runes_are_declared_in_bulk(catalog):
 def test_an_owned_rule_reads_as_a_positive_statement():
     assert OwnedRule("rarity", "Common").describe() == "all Commons"
     assert ExclusionRule("rarity", "Common").describe() == "no Common cards"
+
+
+# -- what a deck costs ---------------------------------------------------------
+
+
+def test_a_bill_names_the_scarce_cards_first(catalog):
+    """"Needs 3 Epics" is the sentence somebody balks at; lead with it."""
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule("rarity", "Epic")])
+    cost = deck_cost(
+        {"harpoon-squad": 3, "brazen-buccaneer": 3}, profile=profile, catalog=catalog
+    )
+    assert cost.short == {"Epic": 3}
+    assert cost.describe() == "Needs 3 Epics you do not have."
+    assert not cost.is_affordable
+    assert cost.scarce_short == 3
+
+
+def test_a_deck_you_can_field_says_so_rather_than_billing_you_nothing(catalog):
+    profile = AvailabilityProfile.open_profile()
+    cost = deck_cost({"brazen-buccaneer": 3}, profile=profile, catalog=catalog)
+    assert cost.is_affordable
+    assert cost.describe() == "You can field this deck."
+
+
+def test_composition_is_reported_with_no_collection_at_all(catalog):
+    """The day-zero property.
+
+    On the release day of a new set there is no meta evidence, no play rate and quite
+    possibly no collection. Rarity is printed on the card, so it is the one
+    accessibility signal that exists before anything has been played -- and it has to
+    survive an empty profile to be worth anything then.
+    """
+    cost = deck_cost(
+        {"harpoon-squad": 3, "brazen-buccaneer": 3},
+        profile=AvailabilityProfile.open_profile(),
+        catalog=catalog,
+    )
+    assert cost.short == {}, "we cannot bill for cards we have no reason to think missing"
+    assert cost.composition == {"Epic": 3, "Common": 3}
+
+
+def test_the_bill_and_the_coverage_readout_cannot_disagree(catalog):
+    """Built on deck_coverage rather than beside it.
+
+    Two independent walks of the same deck are two chances to answer "which cards are
+    missing" differently, and the player sees both numbers at once.
+    """
+    profile = AvailabilityProfile.from_exclusions(rules=[ExclusionRule("rarity", "Epic")])
+    counts = {"harpoon-squad": 3, "brazen-buccaneer": 3, "singular-relic": 1}
+    cost = deck_cost(counts, profile=profile, catalog=catalog)
+    coverage = deck_coverage(counts, profile=profile, catalog=catalog)
+    assert cost.copies_short == sum(c for _, c, _ in coverage.missing)
+
+
+def test_an_unknown_card_is_billed_rather_than_dropped(catalog):
+    """A card the bundle does not know is a data problem to surface, not to hide."""
+    cost = deck_cost(
+        {"no-such-card": 2}, profile=AvailabilityProfile.open_profile(), catalog=catalog
+    )
+    assert cost.short == {"Unknown": 2}

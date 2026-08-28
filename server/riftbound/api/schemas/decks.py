@@ -46,6 +46,23 @@ class IssueView(ApiModel):
     severity: str
 
 
+class CostView(ApiModel):
+    """What a deck asks of a collection, in the only currency the app can see.
+
+    ``short`` is what the player would have to acquire; ``composition`` is the deck's
+    whole rarity makeup, which stands on its own with no collection recorded at all --
+    the case that matters on the release day of a new set, when rarity is the only
+    accessibility signal that exists yet.
+    """
+    short: dict[str, int]
+    composition: dict[str, int]
+    copies_short: int
+    scarce_short: int
+    affordable: bool
+    #: One line, phrased server-side so two clients cannot word the bill differently.
+    summary: str
+
+
 class CoverageView(ApiModel):
     total_copies: int
     available_copies: int
@@ -53,6 +70,7 @@ class CoverageView(ApiModel):
     ratio: float
     complete: bool
     missing: list[dict[str, Any]]
+    cost: CostView
 
 
 class ValidationView(ApiModel):

@@ -99,6 +99,23 @@ export interface MissingEntry {
   reason: string;
 }
 
+/**
+ * What a deck asks of a collection.
+ *
+ * `short` is what the player would have to acquire; `composition` is the deck's whole
+ * rarity makeup, which stands alone with no collection recorded — the case that matters
+ * on the release day of a new set, when rarity is the only accessibility signal that
+ * exists yet.
+ */
+export interface DeckCost {
+  short: Record<string, number>;
+  composition: Record<string, number>;
+  copiesShort: number;
+  scarceShort: number;
+  affordable: boolean;
+  summary: string;
+}
+
 export interface Coverage {
   totalCopies: number;
   availableCopies: number;
@@ -106,6 +123,7 @@ export interface Coverage {
   ratio: number;
   complete: boolean;
   missing: MissingEntry[];
+  cost: DeckCost;
 }
 
 export interface Validation {

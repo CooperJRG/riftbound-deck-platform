@@ -755,3 +755,47 @@ def test_an_unknown_sort_falls_back_rather_than_failing(meta_client):
     rows = meta_client.get("/api/smart-decks/legends?sort=nonsense").json()
     scores = [r["bestScore"] for r in rows]
     assert scores == sorted(scores, reverse=True)
+
+
+# -- what a deck costs ---------------------------------------------------------
+
+
+def test_a_deck_is_priced_against_what_the_player_lacks(meta_client):
+    """The first question somebody short of cards asks.
+
+    Before this the app had no notion of what a deck cost: every "budget" in the tree
+    was the meta-refresh time budget.
+    """
+    meta_client.put(
+        "/api/availability",
+        json={
+            "mode": "exclusion",
+            "excludedCardIds": [],
+            "rules": [{"kind": "rarity", "value": "Epic"}],
+            "ownedRules": [],
+        },
+    )
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    cost = session["proposal"]["deck"]["coverage"]["cost"]
+    assert cost["affordable"] is False
+    assert cost["short"].get("Epic")
+    assert "Epic" in cost["summary"]
+
+
+def test_composition_survives_having_told_us_nothing(meta_client):
+    """The day-zero property, over the wire.
+
+    On a new set's release there is no meta evidence, no play rate and often no
+    collection. Rarity is printed on the card, so it is the one accessibility signal
+    available then -- and it has to mean something with an open profile to be worth
+    anything.
+    """
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    cost = session["proposal"]["deck"]["coverage"]["cost"]
+    assert cost["affordable"] is True, "nothing declared means nothing to bill for"
+    assert cost["composition"], "but the deck's makeup is knowable regardless"
+    assert sum(cost["composition"].values()) > 0

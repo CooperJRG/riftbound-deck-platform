@@ -39,6 +39,7 @@ from .data import (
     SourceHealthView,
 )
 from .decks import (
+    CostView,
     CoverageView,
     DeckPayload,
     DeckSummaryView,
@@ -115,6 +116,7 @@ __all__ = [
     "CardTrendView",
     "CardView",
     "ChampionMetaView",
+    "CostView",
     "CoverageView",
     "DeckPayload",
     "DeckScoreView",

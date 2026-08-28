@@ -12,6 +12,7 @@ from .schemas import (
     AvailabilityView,
     CardAvailabilityView,
     CardView,
+    CostView,
     CoverageView,
     ExcludedCardView,
     ExclusionRuleView,
@@ -83,6 +84,14 @@ def coverage_view(coverage: DeckCoverage, catalog: Catalog | None = None) -> Cov
         return card.name if card else card_id
 
     return CoverageView(
+        cost=CostView(
+            short=dict(coverage.cost.short),
+            composition=dict(coverage.cost.composition),
+            copies_short=coverage.cost.copies_short,
+            scarce_short=coverage.cost.scarce_short,
+            affordable=coverage.cost.is_affordable,
+            summary=coverage.cost.describe(),
+        ),
         total_copies=coverage.total_copies,
         available_copies=coverage.available_copies,
         penalised_copies=coverage.penalised_copies,

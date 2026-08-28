@@ -304,6 +304,62 @@ class AvailabilityProfile:
         return f"{qualifier}: {', '.join(parts)}."
 
 
+#: Scarcest last. Used for stable ordering wherever a bill is rendered, so "3 Rares and
+#: 2 Epics" always reads in the same direction.
+RARITY_ORDER = ("Common", "Uncommon", "Rare", "Epic", "Showcase")
+
+
+@dataclass(frozen=True)
+class DeckCost:
+    """What a deck asks of a collection, in the only currency the app can see.
+
+    The app had no notion of what a deck costs. Every ``budget`` in the tree was the
+    meta-refresh time budget, and the first question a player short of cards asks --
+    "can I afford this?" -- had no answer anywhere in the product.
+
+    Two rollups, because there are two questions and they come apart:
+
+    ``short`` is *what you still need*, relative to what the player has told us. It is
+    the honest answer to "what would this cost me", and it is empty for somebody who has
+    told us nothing -- which is correct, not a bug: we cannot bill them for cards we have
+    no reason to think they lack.
+
+    ``composition`` is the deck's whole rarity makeup, independent of any collection. It
+    is what makes a deck legible on **day zero of a new set**, when there is no meta
+    evidence, no play rate and no collection -- rarity is printed on the card, so it is
+    the one accessibility signal that exists before anything has been played.
+    """
+    short: Mapping[str, int] = field(default_factory=dict)
+    composition: Mapping[str, int] = field(default_factory=dict)
+
+    @property
+    def copies_short(self) -> int:
+        return sum(self.short.values())
+
+    @property
+    def scarce_short(self) -> int:
+        """Copies short of the rarities that are actually hard to get."""
+        return sum(n for r, n in self.short.items() if r in ("Rare", "Epic", "Showcase"))
+
+    @property
+    def is_affordable(self) -> bool:
+        return self.copies_short == 0
+
+    def describe(self) -> str:
+        """The bill, scarcest first -- that is the part somebody balks at."""
+        if not self.short:
+            return "You can field this deck."
+        parts = [
+            f"{self.short[r]} {r}{'s' if self.short[r] != 1 else ''}"
+            for r in reversed(RARITY_ORDER)
+            if self.short.get(r)
+        ]
+        if not parts:
+            return "You can field this deck."
+        listed = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + f" and {parts[-1]}"
+        return f"Needs {listed} you do not have."
+
+
 @dataclass(frozen=True)
 class DeckCoverage:
     """How well a finished deck matches what the player can field."""
@@ -311,6 +367,9 @@ class DeckCoverage:
     available_copies: int
     penalised_copies: int
     missing: tuple[tuple[str, int, str], ...]  # (card_id, copies_short, reason)
+    #: The same walk, priced. Carried here rather than computed alongside so that
+    #: "you are missing 4 cards" and "needs 2 Epics" cannot describe different cards.
+    cost: DeckCost = field(default_factory=lambda: DeckCost())
 
     @property
     def ratio(self) -> float:
@@ -332,14 +391,23 @@ def deck_coverage(
     """
     total = available = penalised = 0
     missing: list[tuple[str, int, str]] = []
+    short: dict[str, int] = {}
+    composition: dict[str, int] = {}
+
+    def bill(rarity: str, copies: int) -> None:
+        short[rarity] = short.get(rarity, 0) + copies
+
     for card_id, qty in counts.items():
         copies = max(0, int(qty))
         if copies == 0:
             continue
         total += copies
         card = catalog.get(card_id)
+        rarity = card.rarity if card and card.rarity else "Unknown"
+        composition[rarity] = composition.get(rarity, 0) + copies
         if card is None:
             missing.append((card_id, copies, "unknown-card"))
+            bill(rarity, copies)
             continue
         state = profile.resolve(card)
         if profile.mode == MODE_COLLECTION and state.owned_copies:
@@ -348,9 +416,27 @@ def deck_coverage(
             if copies > have:
                 penalised += copies - have
                 missing.append((card_id, copies - have, "not-enough-copies"))
+                bill(rarity, copies - have)
         elif state.is_penalised:
             penalised += copies
             missing.append((card_id, copies, state.reason))
+            bill(rarity, copies)
         else:
             available += copies
-    return DeckCoverage(total, available, penalised, tuple(missing))
+    return DeckCoverage(
+        total, available, penalised, tuple(missing),
+        cost=DeckCost(short=short, composition=composition),
+    )
+
+
+def deck_cost(
+    counts: Mapping[str, int], *, profile: AvailabilityProfile, catalog: Catalog
+) -> DeckCost:
+    """Price a deck against a collection, and describe its makeup regardless.
+
+    A convenience for callers who want only the bill. It is the same walk that produces
+    coverage, not a second one -- pricing a deck separately would be two chances to
+    answer "which cards are missing" differently, with the player looking at both
+    answers at once.
+    """
+    return deck_coverage(counts, profile=profile, catalog=catalog).cost

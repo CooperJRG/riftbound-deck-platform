@@ -670,6 +670,20 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .resume-open:hover { border-color: var(--atlas-copper); }
 .resume-open span { color: var(--atlas-muted-ink); font-size: 0.72rem; }
 
+/* What a deck costs, next to what it scores. Shown only when there is a bill --
+   telling somebody who can field the deck that it costs them nothing is noise. */
+.deck-cost {
+  margin: 0.4rem 0 0;
+  color: var(--atlas-muted-ink);
+  font-size: 0.84rem;
+}
+.deck-cost.is-steep {
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--atlas-warning);
+  color: var(--atlas-warning-ink);
+  font-weight: 600;
+}
+
 /* Bulk rules, in both directions.
    `.pill` was defined only in styles.css, the v2 stylesheet, which keys its palette off
    `prefers-color-scheme` while everything here keys off `data-theme`. The two agree
