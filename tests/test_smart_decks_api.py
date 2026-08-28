@@ -58,11 +58,16 @@ def test_a_session_opens_with_a_deck_and_a_full_requirement_list(meta_client):
 
 
 def test_a_requirement_row_defaults_to_having_the_cards(meta_client):
-    """The common answer is yes, so the common answer should cost no clicks."""
+    """The common answer is yes, so the common answer should cost no clicks.
+
+    Runes are the exception and are settled rather than merely defaulted: nobody is
+    short of the resource base, so the row is marked known and the player is not asked
+    to confirm the one answer that is always yes.
+    """
     session = start_wizard(meta_client)
     for row in session["proposal"]["requirements"]:
         assert row["have"] == row["needed"]
-        assert row["known"] is False
+        assert row["known"] is (row["zone"] == "runes")
 
 
 def test_answers_survive_a_round_trip(meta_client):

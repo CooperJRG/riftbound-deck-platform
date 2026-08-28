@@ -207,6 +207,11 @@ def unknown_cards(deck: Deck, knowledge: Knowledge) -> tuple[str, ...]:
     )
 
 
+#: Copies of each rune to assume. A rune base runs to twelve, so this covers any legal
+#: deck without pretending to a precise count nobody stated.
+ASSUMED_RUNES = 12
+
+
 def declared_knowledge(
     profile: AvailabilityProfile, catalog: Catalog
 ) -> Knowledge:
@@ -240,6 +245,14 @@ def declared_knowledge(
     exact: dict[str, int] = {}
     at_least: dict[str, int] = {}
     for card in catalog:
+        # Runes are not a card anybody is short of. They are the resource base, handed
+        # out in bulk and reprinted in every product, and asking a player to confirm
+        # they own Body Runes spends a question on the one answer that is always yes --
+        # then blocks a deck on the answer if they mistick it. Assumed available, so
+        # they never appear in a checklist and never open a hole for the repair to fill.
+        if card.card_type == "Rune":
+            at_least[card.card_id] = ASSUMED_RUNES
+            continue
         resolved = profile.resolve(card)
         if resolved.reason.startswith("excluded:"):
             exact[card.card_id] = 0

@@ -169,6 +169,12 @@ export async function submitSmartRound(): Promise<void> {
     );
     store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
 
+    // Back to the top, whatever comes next. "I have the rest" sits at the bottom of
+    // a long list, and the answer to it -- a different deck, a shorter question, a
+    // finished deck -- renders above where the player is standing. Left where they
+    // were, the screen looks like the button did nothing.
+    scrollToTop();
+
     // The replacement round is the last question there is, so the next thing the player
     // sees is the deck itself -- shown, with what changed and why, and one more pass to
     // rule out anything they would rather not play.

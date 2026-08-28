@@ -347,7 +347,14 @@ def list_legends(
         card = catalog.get(legend_id)
         if card is None:
             continue
-        top = sorted(profile.play_rate, key=lambda c: -profile.play_rate[c])
+        # Runes are excluded: they are assumed available for everybody, so counting them
+        # pads every legend's familiarity by the same amount and tells the player
+        # nothing. "You own 60% of its staples" should mean the cards that vary.
+        top = sorted(
+            (c for c in profile.play_rate
+             if getattr(catalog.get(c), "card_type", "") != "Rune"),
+            key=lambda c: -profile.play_rate[c],
+        )
         top = top[:FAMILIARITY_DEPTH]
         familiarity = (
             sum(1 for c in top if owned.get(c, 0) > 0) / len(top) if top and owned else 0.0
