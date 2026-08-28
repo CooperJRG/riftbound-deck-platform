@@ -371,7 +371,10 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .app-body {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 460px);
+  /* The deck takes the middle, the card search becomes a rail beside it. A deck is the
+     thing being made here; it was in a 340px sidebar while the search for cards to put
+     in it had the room. */
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
   width: min(var(--atlas-max), calc(100% - 2rem));
   min-height: calc(100vh - 73px);
   height: auto;
@@ -382,7 +385,8 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 }
 .panel-browser, .panel-deck { height: auto; overflow: visible; border: 1px solid var(--atlas-border); border-radius: var(--atlas-radius-lg); background: var(--atlas-surface); }
 .panel-browser { padding: clamp(1rem, 2.5vw, 1.5rem); }
-.panel-deck { position: sticky; top: 88px; align-self: start; max-height: calc(100vh - 104px); overflow-y: auto; padding: 1rem; }
+.panel-deck { align-self: start; padding: clamp(1rem, 2.5vw, 1.75rem); }
+.panel-browser { position: sticky; top: 88px; align-self: start; max-height: calc(100vh - 104px); overflow-y: auto; }
 .builder-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: 1.25rem; }
 .builder-heading h1 { margin-bottom: 0; font-size: clamp(2rem, 3.5vw, 3.25rem); }
 .builder-heading > p { max-width: 320px; margin-bottom: 0.4rem; color: var(--atlas-muted); font-size: 0.86rem; }
@@ -1307,3 +1311,167 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .range-bar { display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; align-items: baseline; margin-bottom: 1.4rem; }
 .range-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .range-note { margin: 0; color: var(--atlas-muted); font-size: 0.78rem; }
+
+
+/* -- the play mat ----------------------------------------------------------
+   The deck laid out the way it is laid out on a table, in the game's own order:
+   what defines it, the board it is played on, the resources, then the deck. Art
+   rather than a list of names, because the thing a player recognises across a table
+   is the picture -- a list of names is a spreadsheet of a deck. */
+
+.deck { max-width: 1000px; margin: 0 auto; }
+
+.mat-zone { margin-bottom: 1.75rem; }
+.mat-zone-head {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--atlas-border);
+}
+.mat-zone-head h3 {
+  margin: 0;
+  font-family: var(--atlas-serif);
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.mat-tally {
+  margin-left: auto;
+  color: var(--atlas-warning-ink);
+  font-family: var(--atlas-mono, inherit);
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.mat-tally.is-ok { color: var(--atlas-positive); }
+
+.mat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 0.6rem;
+}
+.mat-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.mat-row-wide > * { flex: 1 1 200px; max-width: 280px; }
+.mat-identity > .mat-slot { flex: 0 1 150px; }
+.mat-slot { display: flex; flex-direction: column; gap: 0.4rem; align-items: stretch; }
+
+/* One card. Count and cost ride on the art rather than beside it, so forty of them
+   still read as a single object instead of forty rows. */
+.mat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* <figure> carries a UA default of `margin: 1em 40px`. Left in, every card lost 80px
+     of its grid cell -- 111px columns rendering 31px of art. */
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--atlas-border);
+  border-radius: 9px;
+  background: var(--atlas-raised);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+.mat-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  object-fit: cover;
+  object-position: center top;
+}
+.mat-card.is-wide img { aspect-ratio: 7 / 5; }
+.mat-card:hover, .mat-card:focus-within {
+  z-index: 2;
+  border-color: var(--atlas-copper);
+  box-shadow: var(--atlas-shadow);
+  transform: translateY(-2px);
+}
+.mat-card.is-dim img { opacity: 0.42; filter: grayscale(0.5); }
+.mat-card.is-champion { border-color: var(--atlas-teal); }
+
+.mat-card-blank {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 7;
+  padding: 0.5rem;
+  color: var(--atlas-muted-ink);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.mat-cost, .mat-qty, .mat-flag {
+  position: absolute;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.mat-cost {
+  top: 5px; left: 5px;
+  min-width: 19px;
+  padding: 4px 5px;
+  border: 1px solid var(--atlas-border);
+  background: var(--atlas-surface);
+  color: var(--atlas-ink);
+  text-align: center;
+}
+.mat-qty {
+  top: 5px; right: 5px;
+  padding: 4px 7px;
+  /* Not white-on-copper. Copper is dark in light mode and light in dark mode, so a
+     fixed white sits at 4.70:1 in one theme and 2.63:1 in the other. The surface plus
+     the copper ink reads the same way in both and stays legible over any art. */
+  border: 1px solid var(--atlas-copper);
+  background: var(--atlas-surface);
+  color: var(--atlas-copper-ink);
+}
+.mat-flag {
+  bottom: 100%;
+  left: 5px;
+  padding: 3px 7px;
+  background: var(--atlas-teal-soft);
+  color: var(--atlas-teal-ink);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.mat-card.is-champion .mat-flag { position: static; align-self: flex-start; margin: 4px 0 0 5px; }
+
+.mat-card figcaption {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  padding: 0.35rem 0.4rem;
+}
+.mat-name {
+  overflow: hidden;
+  color: var(--atlas-ink);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mat-steps { display: flex; gap: 0.15rem; margin-left: auto; opacity: 0; transition: opacity 120ms ease; }
+.mat-card:hover .mat-steps, .mat-card:focus-within .mat-steps { opacity: 1; }
+/* Touch and keyboard have no hover, so the controls are simply always there. */
+@media (hover: none) { .mat-steps { opacity: 1; } }
+
+/* An unfilled slot. The format asks for exactly three battlefields and they must
+   differ, so an empty one is as informative as a full one: a row with a gap in it says
+   what a "0 / 3" counter has to be read to learn. */
+.mat-ghost {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 7;
+  border-style: dashed;
+  background: transparent;
+  color: var(--atlas-muted-ink);
+  font-size: 0.72rem;
+  text-align: center;
+}
+.mat-ghost.is-wide { aspect-ratio: 7 / 5; }
+.mat-ghost:hover { transform: none; box-shadow: none; border-color: var(--atlas-border); }
+
+@media (max-width: 900px) {
+  .mat-grid { grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); }
+  .mat-identity > .mat-slot { flex: 1 1 130px; }
+}

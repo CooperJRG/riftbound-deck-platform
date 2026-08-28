@@ -20,73 +20,172 @@ function isPenalised(cardId: string): boolean {
   return row !== undefined && row.weight < 1;
 }
 
-function deckRow(cardId: string, qty: number, zone: Zone): HTMLElement {
+/** Sorted the way a player reads a list: up the curve, then alphabetically. */
+function byCurve(a: string, b: string): number {
+  const left = store.state.deckCards.get(a)?.card;
+  const right = store.state.deckCards.get(b)?.card;
+  const lc = left?.cost ?? 99;
+  const rc = right?.cost ?? 99;
+  if (lc !== rc) return lc - rc;
+  return (left?.name ?? a).localeCompare(right?.name ?? b);
+}
+
+/**
+ * One card on the mat.
+ *
+ * The art is the card. A list of names is a spreadsheet of a deck, and the thing a
+ * player actually recognises -- at a glance, across a table -- is the picture. Count and
+ * cost ride on top of it rather than beside it, so forty cards still read as one object.
+ */
+function boardCard(
+  cardId: string,
+  qty: number,
+  zone: Zone,
+  opts: { landscape?: boolean; champion?: boolean } = {},
+): HTMLElement {
+  const row = store.state.deckCards.get(cardId);
+  const card = row?.card;
+  const name = card?.name ?? cardId;
+  const art = card?.imageUrl;
   return h(
-    "li",
-    { class: `deck-row${isPenalised(cardId) ? " is-dim" : ""}` },
-    h("span", { class: "qty" }, `${qty}×`),
-    h("span", { class: "deck-card-name", title: cardName(cardId) }, cardName(cardId)),
+    "figure",
+    {
+      class: `mat-card${opts.landscape ? " is-wide" : ""}`
+        + `${isPenalised(cardId) ? " is-dim" : ""}`
+        + `${opts.champion ? " is-champion" : ""}`,
+      title: name,
+    },
+    art
+      ? h("img", { src: art, alt: name, loading: "lazy" })
+      : h("span", { class: "mat-card-blank" }, name),
+    card?.cost !== null && card?.cost !== undefined
+      ? h("span", { class: "mat-cost" }, String(card.cost))
+      : null,
+    qty > 1 ? h("span", { class: "mat-qty" }, `${qty}`) : null,
+    opts.champion ? h("span", { class: "mat-flag" }, "Champion") : null,
     h(
-      "span",
-      { class: "row-actions" },
-      h("button", {
-        class: "step", type: "button", aria: { label: `Remove one ${cardName(cardId)}` },
-        on: { click: () => adjustCard(cardId, zone, -1) },
-      }, "−"),
-      h("button", {
-        class: "step", type: "button", aria: { label: `Add one ${cardName(cardId)}` },
-        on: { click: () => adjustCard(cardId, zone, 1) },
-      }, "+"),
+      "figcaption",
+      {},
+      h("span", { class: "mat-name" }, name),
+      h(
+        "span",
+        { class: "mat-steps" },
+        h("button", {
+          class: "step", type: "button", aria: { label: `Remove one ${name}` },
+          on: { click: () => adjustCard(cardId, zone, -1) },
+        }, "−"),
+        h("button", {
+          class: "step", type: "button", aria: { label: `Add one ${name}` },
+          on: { click: () => adjustCard(cardId, zone, 1) },
+        }, "+"),
+      ),
     ),
   );
 }
 
-function zoneSection(
+/** An unfilled slot, so the shape of a legal deck is visible before it is finished. */
+function ghost(label: string, landscape = false): HTMLElement {
+  return h(
+    "div",
+    { class: `mat-card mat-ghost${landscape ? " is-wide" : ""}` },
+    h("span", {}, label),
+  );
+}
+
+function zoneHead(title: string, total: number, target: number | null): HTMLElement {
+  const ok = target === null || total === target;
+  return h(
+    "header",
+    { class: "mat-zone-head" },
+    h("h3", {}, title),
+    h(
+      "span",
+      { class: `mat-tally${ok ? " is-ok" : ""}` },
+      target === null ? String(total) : `${total}/${target}`,
+    ),
+  );
+}
+
+function matZone(
   title: string,
   zone: Zone,
   counts: Record<string, number>,
   total: number,
   target: number | null,
+  championId = "",
 ): HTMLElement {
-  const entries = Object.entries(counts).sort(([a], [b]) =>
-    cardName(a).localeCompare(cardName(b)),
-  );
-  const ok = target === null || total === target;
+  const ids = Object.keys(counts).sort(byCurve);
   return h(
     "section",
-    { class: "zone" },
-    h(
-      "h3",
-      { class: "zone-title" },
-      title,
-      h("span", { class: `zone-count${ok ? "" : " is-off"}` },
-        target === null ? String(total) : `${total} / ${target}`),
-    ),
-    entries.length === 0
-      ? h("p", { class: "muted small" }, "Empty")
-      : h("ul", { class: "deck-list" },
-          ...entries.map(([cardId, qty]) => deckRow(cardId, qty, zone))),
+    { class: `mat-zone mat-zone-${zone}` },
+    zoneHead(title, total, target),
+    ids.length === 0
+      ? h("div", { class: "mat-grid" }, ghost("Nothing here yet"))
+      : h(
+          "div",
+          { class: "mat-grid" },
+          ...ids.map((id) =>
+            boardCard(id, counts[id] ?? 0, zone, { champion: id === championId }),
+          ),
+        ),
   );
 }
 
-function battlefieldSection(ids: string[], target: number): HTMLElement {
+/**
+ * The three battlefields, shown as three slots whatever is in them.
+ *
+ * The format asks for exactly three and they must be different, so the empty ones are
+ * as informative as the full ones -- a row with a gap in it says what a "0 / 3" counter
+ * has to be read to learn. Landscape, because that is how they are printed and how they
+ * sit on the table between the players.
+ */
+function battlefieldRow(ids: string[], target: number): HTMLElement {
+  const slots: HTMLElement[] = ids.map((id) =>
+    boardCard(id, 1, "battlefields", { landscape: true }),
+  );
+  while (slots.length < target) slots.push(ghost("Battlefield", true));
   return h(
     "section",
-    { class: "zone" },
-    h("h3", { class: "zone-title" }, "Battlefields",
-      h("span", { class: `zone-count${ids.length === target ? "" : " is-off"}` },
-        `${ids.length} / ${target}`)),
-    ids.length === 0
-      ? h("p", { class: "muted small" }, "Empty")
-      : h("ul", { class: "deck-list" },
-          ...ids.map((id) =>
-            h("li", { class: `deck-row${isPenalised(id) ? " is-dim" : ""}` },
-              h("span", { class: "deck-card-name" }, cardName(id)),
-              h("button", {
-                class: "step", type: "button",
-                aria: { label: `Remove ${cardName(id)}` },
-                on: { click: () => adjustCard(id, "battlefields", -1) },
-              }, "−")))),
+    { class: "mat-zone mat-zone-battlefields" },
+    zoneHead("Battlefields", ids.length, target),
+    h("div", { class: "mat-row mat-row-wide" }, ...slots),
+  );
+}
+
+/** Legend and champion: the two cards that decide what the rest of the deck may be. */
+function identityRow(legendId: string, championId: string): HTMLElement {
+  return h(
+    "section",
+    { class: "mat-zone mat-zone-identity" },
+    zoneHead("Legend & champion", Number(Boolean(legendId)) + Number(Boolean(championId)), 2),
+    h(
+      "div",
+      { class: "mat-row mat-identity" },
+      legendId
+        ? h(
+            "div",
+            { class: "mat-slot" },
+            boardCard(legendId, 1, "main"),
+            h("button", {
+              class: "quiet-button", type: "button",
+              on: { click: () => setLegend("") },
+            }, "Change legend"),
+          )
+        : h("div", { class: "mat-slot" }, ghost("Legend"),
+            h("span", { class: "muted small" }, "Start here")),
+      championId
+        ? h(
+            "div",
+            { class: "mat-slot" },
+            boardCard(championId, 1, "main", { champion: true }),
+            h("button", {
+              class: "quiet-button", type: "button",
+              on: { click: () => setChampion("") },
+            }, "Change champion"),
+          )
+        : h("div", { class: "mat-slot" }, ghost("Champion"),
+            h("span", { class: "muted small" }, "One from your main deck")),
+    ),
   );
 }
 
@@ -182,30 +281,6 @@ export function renderDeckPanel(root: HTMLElement): void {
     return;
   }
 
-  const identity = h(
-    "section",
-    { class: "zone identity" },
-    h("h3", { class: "zone-title" }, "Legend & champion"),
-    h("p", { class: "identity-row" },
-      h("span", { class: "identity-label" }, "Legend"),
-      h("span", { class: "identity-value" },
-        deck.legendId ? cardName(deck.legendId) : "—"),
-      deck.legendId
-        ? h("button", { class: "step", type: "button", on: { click: () => setLegend("") } }, "×")
-        : null),
-    h("p", { class: "identity-row" },
-      h("span", { class: "identity-label" }, "Champion"),
-      h("span", { class: "identity-value" },
-        deck.championId ? cardName(deck.championId) : "—"),
-      deck.championId
-        ? h("button", { class: "step", type: "button", on: { click: () => setChampion("") } }, "×")
-        : null),
-    validation && validation.legendDomains.length > 0
-      ? h("p", { class: "muted small" },
-          `Domain identity: ${validation.legendDomains.join(" / ")}`)
-      : null,
-  );
-
   const champCandidates = Object.keys(deck.main).filter((id) => {
     const row = store.state.deckCards.get(id);
     return row?.card.superType === "Champion";
@@ -237,15 +312,20 @@ export function renderDeckPanel(root: HTMLElement): void {
         h("ul", { class: "issue-list" }, ...notices.map(issueItem)))
     : null;
 
+  // Laid out the way the deck is laid out on a table: what defines it, then the board
+  // it is played on, then the resources, then the deck itself. A player who knows the
+  // game can find any zone without reading a heading.
   replace(
     root,
     header,
-    identity,
+    identityRow(deck.legendId, deck.championId),
     chooseChampion,
-    zoneSection("Main deck", "main", deck.main, validation?.mainTotal ?? 0, 40),
-    zoneSection("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
-    battlefieldSection(deck.battlefields, 3),
-    zoneSection("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null),
+    battlefieldRow(deck.battlefields, 3),
+    matZone("Runes", "runes", deck.runes, validation?.runeTotal ?? 0, 12),
+    matZone("Main deck", "main", deck.main, validation?.mainTotal ?? 0, 40, deck.championId),
+    Object.keys(deck.sideboard).length
+      ? matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null)
+      : null,
     h(
       "section",
       { class: "review-callout" },
