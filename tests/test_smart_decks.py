@@ -53,6 +53,23 @@ def a_deck(main: dict[str, int] | None = None, **kw) -> Deck:
     )
 
 
+def short_on_main(deck: Deck) -> dict[str, int]:
+    """Own everything the deck needs except its main-deck cards.
+
+    The shared catalogue has exactly one legal champion, one legal rune and three
+    battlefields, all three of which this deck plays. Answering 0 to any of those leaves
+    a requirement whose whole pool is known and still short -- which the engine now
+    correctly reports as impossible rather than asking on. Only the main pool has spare
+    cards (filler-10..14), so main is the one requirement that can be short *and* still
+    worth a question here.
+    """
+    have = dict(deck_requirements(deck))
+    for card_id in deck.main:
+        if card_id != deck.champion_id:
+            have[card_id] = 0
+    return have
+
+
 def as_meta(deck: Deck, deck_id: str) -> MetaDeck:
     return MetaDeck(deck=deck, provenance=Provenance(source="t", source_slug=deck_id, url=""))
 
@@ -275,23 +292,72 @@ def test_a_floor_can_only_improve(engine, catalog):
 
 
 def test_it_asks_directly_once_decks_stop_reaching_an_answer(engine, catalog):
-    """A question aimed at the binding requirement beats another near-identical deck."""
+    """A question aimed at the binding requirement beats another near-identical deck.
+
+    They keep the legend and champion, because without those the honest answer is not a
+    question at all -- this catalogue has a single legal champion, so a player who has
+    told us they own none of it cannot build with this legend whatever else they say,
+    and the session now ends instead of asking. That case is covered by
+    :func:`test_a_legend_you_do_not_own_ends_the_session_instead_of_sweeping`.
+    """
     session = engine.start(LEGEND)
     first = engine.propose(session)
-    # Owns almost nothing, so no deck will do.
-    session = engine.answer(session, "d1", {c: 0 for c in deck_requirements(first.deck.deck)})
+    # Short of the main deck, but the pool still holds cards nobody has asked about.
+    session = engine.answer(session, "d1", short_on_main(first.deck.deck))
     second = engine.propose(session)
     assert second.phase == PHASE_CHECKLIST
     assert second.question is not None and second.question.card_ids
 
 
-def test_a_direct_question_covers_every_blocking_requirement_at_once(engine, catalog):
-    """Asking them one at a time cost a round each."""
-    session = engine.start(LEGEND)
+def test_a_direct_question_covers_every_blocking_requirement_at_once(rules):
+    """Asking them one at a time cost a round each.
+
+    Built on its own catalogue rather than the shared one, which has a single legal
+    champion and a single legal rune -- there, saying you own none of either settles the
+    deck outright and the right answer is to stop, not to ask. Several walls that are
+    each *still open* need pools with cards to spare, which is what this sets up.
+    """
+    from conftest import make_card
+
+    legend_id = "spare-legend"
+    cards = [
+        make_card(legend_id, "Spare Legend", card_type="Legend", domains=("Fury",),
+                  cost=None, might=None, tags=("Spare",), champion_tags=("Spare",)),
+        *[
+            make_card(f"champ-{i}", f"Champ {i}", super_type="Champion",
+                      domains=("Fury",), tags=("Spare",), champion_tags=("Spare",))
+            for i in (1, 2)
+        ],
+        *[
+            make_card(f"rune-{i}", f"Rune {i}", card_type="Rune", super_type="Basic",
+                      domains=("Fury",), cost=None, might=None)
+            for i in (1, 2)
+        ],
+        *[
+            make_card(f"field-{i}", f"Field {i}", card_type="Battlefield",
+                      domains=("Fury",), cost=None, might=None)
+            for i in range(1, 6)
+        ],
+        *[make_card(f"body-{i:02d}", f"Body {i:02d}", domains=("Fury",))
+          for i in range(1, 20)],
+    ]
+    from riftbound.domain.cards import build_catalog
+
+    catalog = build_catalog(cards)
+    bound = rules.bind(catalog)
+    main = {"champ-1": 3}
+    main.update({f"body-{i:02d}": 3 for i in range(1, 13)})
+    deck = Deck.make(legend_id=legend_id, champion_id="champ-1", main=main,
+                     runes={"rune-1": 12}, battlefields=["field-1", "field-2", "field-3"])
+    decks = {"d1": as_meta(deck, "d1")}
+    profile = build_index(decks.values(), {"d1": 1.0}).get(legend_id)
+    engine = Engine(catalog=catalog, rules=bound, profile=profile,
+                    decks=decks, scores={"d1": 1.0})
+
+    session = engine.start(legend_id)
     first = engine.propose(session)
-    required = deck_requirements(first.deck.deck)
-    partial = {c: 0 for c in required}
-    partial[LEGEND] = 1
+    partial = {c: 0 for c in deck_requirements(first.deck.deck)}
+    partial[legend_id] = 1
     session = engine.answer(session, "d1", partial)
     question = engine.propose(session).question
     assert question is not None
@@ -316,10 +382,17 @@ def test_a_session_with_everything_ends_with_a_legal_deck(engine, catalog, bound
 
 
 def test_a_session_with_nothing_says_so_rather_than_inventing_a_deck(engine):
+    """And says *what* is missing, not just that something is.
+
+    This used to report the generic shortfall -- "Short by 1 more legend, ..." -- after
+    working through the whole pool to get there. Owning none of the legend card settles
+    it immediately, so the session says which card and why nothing substitutes.
+    """
     run = run_to_completion(engine, LEGEND, {})
     assert run.floor is None
     assert run.proposal.phase == PHASE_DONE
-    assert "Short by" in run.proposal.reason
+    assert "Vi - Piltover Enforcer" in run.proposal.reason
+    assert "stand in for it" in run.proposal.reason
 
 
 # -- the acceptance criterion -------------------------------------------------
@@ -617,17 +690,73 @@ def test_the_report_measures_the_players_who_are_told_no(catalog, bound_rules):
     assert report.median_cards_to_no > 0
 
 
-def test_the_card_targets_are_reported_but_not_yet_enforced():
-    """Deliberate, and it should stay deliberate until phase 1 lands.
+def test_the_card_targets_gate_the_release():
+    """Folded into ``passes`` now that the closing question can meet them.
 
-    These targets fail on the code that introduced them. Wiring a known-failing gate
-    into the release check teaches everyone to ignore the check, so ``passes`` stays on
-    the round-based criteria until the closing question is fixed -- at which point
-    ``card_targets_met`` folds into it in the same commit.
+    The guard that used to live here asserted the opposite, and said to delete itself
+    once this was true. It did its job.
     """
     from riftbound.domain.smart_decks_harness import Report
 
-    source = inspect.getsource(Report.passes.fget)
-    assert "card_targets_met" not in source, (
-        "phase 1 has landed -- fold card_targets_met into passes and delete this test"
-    )
+    assert "card_targets_met" in inspect.getsource(Report.passes.fget)
+
+
+# -- when the answer is settled -----------------------------------------------
+
+
+def test_a_legend_you_do_not_own_ends_the_session_instead_of_sweeping(engine):
+    """The 241-card screen, and why it existed.
+
+    The sweep is there so we never say "you cannot build this" while holding names we
+    have not asked about. But a legend deck needs its own legend card, and nothing
+    substitutes -- so once the player has said they own none, every further question is
+    about cards that cannot change the answer. On the live snapshot this was 85% of the
+    sessions that ended in "no", each one asking ~270 more cards after the point it was
+    already settled.
+    """
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    have = {c: 3 for c in deck_requirements(first.deck.deck)}
+    have[LEGEND] = 0
+    session = engine.answer(session, "d1", have)
+
+    proposal = engine.propose(session)
+    assert proposal.phase == PHASE_DONE
+    assert proposal.question is None, "nothing left worth asking"
+    assert "Vi - Piltover Enforcer" in proposal.reason
+
+
+def test_it_still_sweeps_while_an_unasked_card_could_change_the_answer(engine):
+    """The rule the sweep protects, kept intact.
+
+    Being short of main-deck cards is not settled: the pool holds cards nobody has been
+    asked about, any of which could close the gap. So the session keeps asking, and only
+    the *provably* unanswerable case short-circuits.
+    """
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    session = engine.answer(session, "d1", short_on_main(first.deck.deck))
+
+    proposal = engine.propose(session)
+    assert proposal.phase == PHASE_CHECKLIST
+    assert proposal.question is not None and proposal.question.card_ids
+
+
+def test_no_single_screen_exceeds_the_checklist_cap(catalog, bound_rules, profile):
+    """``MAX_CHECKLIST`` is a cap the engine claimed and the sweep path ignored.
+
+    The sweep returned the whole remaining pool in one go. It is paged now: answered
+    cards become known exactly, ``ranked`` drops them, and the next round continues
+    where the last stopped, so nothing is skipped and no certainty is traded away.
+    """
+    from riftbound.domain.smart_decks.engine import MAX_CHECKLIST
+
+    decks = {"d1": as_meta(a_deck(), "d1")}
+    engine = Engine(catalog=catalog, rules=bound_rules, profile=profile,
+                    decks=decks, scores={"d1": 1.0})
+    rng = random.Random(7)
+    for scale in (0.2, 0.4, 0.6):
+        owned = random_collection(catalog, rng=rng, scale=scale)
+        owned[LEGEND] = 1          # keep it askable rather than settled
+        run = run_to_completion(engine, LEGEND, owned)
+        assert run.largest_round <= MAX_CHECKLIST, run.cards_per_round

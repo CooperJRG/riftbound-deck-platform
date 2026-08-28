@@ -12,7 +12,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 
-from ..cards import Catalog
+from ..cards import Card, Catalog
 from ..deck import Deck
 from ..deck_builder import (
     REQ_BATTLEFIELDS,
@@ -21,6 +21,7 @@ from ..deck_builder import (
     REQ_MAIN,
     REQ_RUNES,
     Feasibility,
+    Requirement,
     assess,
     build,
     legal_champions,
@@ -284,6 +285,16 @@ class Engine:
                 reason="This is the best deck your collection supports for this legend.",
             )
 
+        # Settled before we ask anything else: if some requirement can no longer be
+        # satisfied whatever they answer, more questions cannot help and asking them
+        # anyway is what turned a one-card fact into a 241-card screen.
+        blocked = self._unsatisfiable(session, feasibility)
+        if blocked is not None:
+            return Proposal(
+                phase=PHASE_DONE, floor=None, feasibility=feasibility,
+                reason=self._impossible_reason(session, blocked),
+            )
+
         question = self._closing_question(session, feasibility)
         if question is None or not question.card_ids:
             return Proposal(
@@ -415,6 +426,89 @@ class Engine:
             )
         return "Closer to what you own. Mark anything you are missing."
 
+    # -- what could still change the answer -----------------------------------
+
+    def _requirement_pool(self, name: str, legend: Card) -> list[str]:
+        """Every card in the game that could contribute to this requirement.
+
+        Shared by the closing question and the impossibility check below, because the
+        two have to agree: the check says "there is nothing left worth asking" and the
+        question is what does the asking. Deriving them from different pools is how you
+        get a session that refuses to ask and refuses to conclude.
+        """
+        if name == REQ_LEGEND:
+            return [legend.card_id]
+        if name == REQ_CHAMPION:
+            return [
+                c.card_id
+                for c in legal_champions(legend, catalog=self.catalog, rules=self.rules)
+            ]
+        if name == REQ_RUNES:
+            return self._zone_pool(legend, "Rune")
+        if name == REQ_BATTLEFIELDS:
+            return self._zone_pool(legend, "Battlefield")
+        if name == REQ_MAIN:
+            return [
+                c.card_id
+                for c in legal_main_pool(legend, catalog=self.catalog, rules=self.rules)
+            ]
+        return []
+
+    def _zone_pool(self, legend: Card, card_type: str) -> list[str]:
+        return [
+            c.card_id
+            for c in legal_zone_pool(
+                legend, card_type, catalog=self.catalog, rules=self.rules
+            )
+        ]
+
+    def _unsatisfiable(
+        self, session: Session, feasibility: Feasibility
+    ) -> Requirement | None:
+        """A requirement no further answer could ever satisfy.
+
+        The rule this protects is that we never say "you cannot build this" while
+        holding names we have not asked about. That rule is why the closing question
+        learned to sweep the remaining pool -- and the sweep is what put 241 cards on a
+        screen. But the rule is satisfied just as well by the other direction: if every
+        card that could contribute to a requirement is already *known exactly*, there is
+        no name left unasked, the shortfall is settled, and no amount of further
+        questioning can change it.
+
+        On the live snapshot this is not a corner case. 85% of the sessions that end in
+        "no" are blocked on ``REQ_LEGEND`` -- the legend card itself, a single specific
+        card the opening checklist already asked about. The session went on to ask about
+        a further ~270 cards, none of which could substitute for it, because nothing
+        checked. A legend deck without its legend is not a hard case; it is a rule of
+        the game.
+        """
+        legend = self.catalog.get(session.legend_id)
+        if legend is None:
+            return None
+        for requirement in feasibility.blocking:
+            pool = self._requirement_pool(requirement.name, legend)
+            if not pool:
+                # Nothing in the legal card pool can supply it at all.
+                return requirement
+            if all(session.knowledge.is_exact(card_id) for card_id in pool):
+                return requirement
+        return None
+
+    def _impossible_reason(self, session: Session, requirement: Requirement) -> str:
+        """Why this legend is out of reach, in terms of the thing that blocks it."""
+        if requirement.name == REQ_LEGEND:
+            legend = self.catalog.get(session.legend_id)
+            name = legend.name if legend else session.legend_id
+            return (
+                f"You need {name} itself to build this legend, and you have told us you "
+                f"do not have it. No other card can stand in for it."
+            )
+        return (
+            f"You are short {_plural(requirement.short_by, requirement.name)}, and you "
+            f"have told us about every card that could fill that. Nothing else in the "
+            f"legal pool can."
+        )
+
     # -- the closing question -------------------------------------------------
 
     def _closing_question(
@@ -500,13 +594,25 @@ class Engine:
             gap self-tunes — a list of commons closes it quickly, epics need more names.
 
             Once a previous question has already come back short, stop estimating and
-            ask the rest of the pool. Saying "you cannot build this" while holding names
-            we never asked about is a guess, and it is the one failure the acceptance
-            criterion does not allow; a longer checklist is a far smaller cost to the
-            player than a wrong no.
+            work through the rest of the pool. Saying "you cannot build this" while
+            holding names we never asked about is a guess, and it is the one failure the
+            acceptance criterion does not allow.
+
+            That sweep used to return the whole remaining pool in one go, which put 241
+            cards on a single screen. It is delivered a page at a time instead. Nothing
+            is skipped and no certainty is traded away: answered cards become known
+            exactly, ``ranked`` drops them, and the next round continues where this one
+            stopped. When the pool finally runs out, every card in it is known and
+            :meth:`_unsatisfiable` ends the session with a definite answer rather than a
+            guess -- so paging is bounded by the same fact that makes the sweep safe to
+            stop.
+
+            The total work is unchanged for somebody who wants certainty. What changes
+            is that it arrives in screens a person can actually answer, with the option
+            to stop after each.
             """
             if session.checklists >= SWEEP_AFTER:
-                return cards
+                return cards[:MAX_CHECKLIST]
             chosen: list[str] = []
             expected = 0.0
             target = short_by * CHECKLIST_MARGIN
