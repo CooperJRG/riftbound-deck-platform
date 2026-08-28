@@ -672,7 +672,15 @@ class Engine:
         if not card_ids:
             return None
         need = wants[0] if len(wants) == 1 else ", ".join(wants[:-1]) + f" and {wants[-1]}"
-        return Question(f"You still need {need}. Which of these do you own?", card_ids)
+        # Both numbers, because the screen shows both and they are not the same
+        # quantity. The shortfall is what a legal deck is missing; the list is the pool
+        # we are asking about, which is larger and generally much larger. Stated as
+        # "you still need 20 more cards" above a screen of 60, they read as one number
+        # contradicting another rather than two facts.
+        return Question(
+            f"You still need {need}. Which of these {len(card_ids)} do you own?",
+            card_ids,
+        )
 
 
 

@@ -219,7 +219,12 @@ function legendCard(legend: LegendChoice, busy: boolean): HTMLElement {
         "span",
         { class: "legend-meta" },
         `${legend.deckCount} deck${legend.deckCount === 1 ? "" : "s"}`,
-        legend.tournamentDeckCount ? ` · ${legend.tournamentDeckCount} from tournaments` : "",
+        // Only when it says something. Now the two counts are drawn from the same
+        // population they are frequently equal, and "127 decks · 127 from tournaments"
+        // is a clause that adds nothing.
+        legend.tournamentDeckCount && legend.tournamentDeckCount < legend.deckCount
+          ? ` · ${legend.tournamentDeckCount} from tournaments`
+          : "",
       ),
       // Advisory only. The wizard exists to find out what someone can build, so a low
       // number must never hide a legend -- that would rebuild the barrier we removed.

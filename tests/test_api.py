@@ -799,3 +799,17 @@ def test_composition_survives_having_told_us_nothing(meta_client):
     assert cost["affordable"] is True, "nothing declared means nothing to bill for"
     assert cost["composition"], "but the deck's makeup is knowable regardless"
     assert sum(cost["composition"].values()) > 0
+
+
+def test_a_legends_tournament_count_is_a_subset_of_its_deck_count(meta_client):
+    """It was not, on 27 of 49 legends: "127 decks · 147 from tournaments".
+
+    `deckCount` comes from the era-scoped profile; the tournament tally was taken over
+    the whole archive, so it also counted the pre-ban format and reported a subset as
+    larger than the whole. Counted within the profile's own decks now, which cannot
+    disagree with `deckCount` however the era is scoped.
+    """
+    rows = meta_client.get("/api/smart-decks/legends").json()
+    assert rows, "a legend list to check"
+    for row in rows:
+        assert row["tournamentDeckCount"] <= row["deckCount"], row["name"]

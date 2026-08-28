@@ -331,12 +331,16 @@ def list_legends(
     for card_id, copies in declared.items():
         owned[card_id] = max(owned.get(card_id, 0), copies)
 
-    tournament_counts: dict[str, int] = {}
-    if services.meta is not None:
-        for deck in services.meta.decks:
-            if deck.provenance.evidence.startswith("tournament"):
-                key = deck.deck.legend_id
-                tournament_counts[key] = tournament_counts.get(key, 0) + 1
+    # Which decks are tournament decks, by id. Counted per legend *below*, against the
+    # profile's own decks rather than the whole archive -- the two were different
+    # populations, and the subset was reported as larger than the whole: 27 of 49
+    # legends read like "127 decks, 147 from tournaments". `deck_count` is scoped to the
+    # current format era; this was not, so it also counted the pre-ban archive.
+    tournament_decks = {
+        deck.deck_id
+        for deck in (services.meta.decks if services.meta is not None else ())
+        if deck.provenance.evidence.startswith("tournament")
+    }
 
     out: list[LegendChoiceView] = []
     for legend_id, profile in services.legend_index.profiles.items():
@@ -348,9 +352,11 @@ def list_legends(
         familiarity = (
             sum(1 for c in top if owned.get(c, 0) > 0) / len(top) if top and owned else 0.0
         )
-        best = max(
-            (scores.get(d, 0.0) for c in profile.clusters for d in c.deck_ids), default=0.0
-        )
+        # The profile's clusters partition exactly the decks it was built from, so
+        # counting within them cannot disagree with `deck_count` however the era is
+        # scoped -- including the fallback profiles built from the whole archive.
+        profile_decks = {d for c in profile.clusters for d in c.deck_ids}
+        best = max((scores.get(d, 0.0) for d in profile_decks), default=0.0)
         out.append(
             LegendChoiceView(
                 legend_id=legend_id,
@@ -359,7 +365,7 @@ def list_legends(
                 image_url=card.image_url,
                 era_id=profile.era_id,
                 deck_count=profile.deck_count,
-                tournament_deck_count=tournament_counts.get(legend_id, 0),
+                tournament_deck_count=len(profile_decks & tournament_decks),
                 best_score=best,
                 familiarity=familiarity,
             )

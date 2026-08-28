@@ -36,8 +36,23 @@ function domainDots(row: CardAvailability): HTMLElement {
   );
 }
 
+/**
+ * Has the player told us anything about what they own?
+ *
+ * Collection mode resolves every unrecorded card as "not-owned", so an empty collection
+ * stamped "Not in your collection" on all 948 cards and dimmed every tile in the
+ * browser. That is not information -- it is the absence of information, rendered 948
+ * times, and it reads as though the app has decided the player owns nothing.
+ */
+function collectionIsEmpty(): boolean {
+  const profile = store.state.availability;
+  if (!profile || profile.mode !== "collection") return false;
+  return profile.ownedCardCount === 0 && profile.ownedRules.length === 0;
+}
+
 function availabilityNote(row: CardAvailability): HTMLElement | null {
   if (row.weight >= 1) return null;
+  if (row.reason === "not-owned" && collectionIsEmpty()) return null;
   const detail = row.reason.split(":")[1] ?? "";
   const label = row.reason.startsWith("excluded:card")
     ? "You don't have this"
@@ -65,7 +80,12 @@ function cardTile(row: CardAvailability): HTMLElement {
 
   return h(
     "article",
-    { class: `tile${row.weight < 1 ? " is-dim" : ""}`, data: { cardId: card.cardId } },
+    {
+      // Dimmed for a card the player probably cannot field -- but not when the only
+      // reason is that they have recorded nothing, which would dim the whole pool.
+      class: `tile${row.weight < 1 && !(row.reason === "not-owned" && collectionIsEmpty()) ? " is-dim" : ""}`,
+      data: { cardId: card.cardId },
+    },
     h(
       "div",
       { class: `tile-art${hasLandscapeArt(card) ? " is-landscape" : ""}` },
