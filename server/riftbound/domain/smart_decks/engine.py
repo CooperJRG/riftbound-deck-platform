@@ -567,12 +567,44 @@ class Run:
     before we could show them something they can actually build. It is not the same as
     ``rounds``, because the session keeps proposing after it has an answer in order to
     beat it — the floor is on screen throughout, so they can stop whenever they like.
+
+    ``cards_per_round`` is the other half of that, and the half we were missing. A round
+    is one screen; a *card* is one decision the player has to make on it. The two came
+    apart once the closing question learned to sweep the remaining pool: a 241-card
+    sweep is still one round, so a session could report two rounds and hand somebody
+    hundreds of decisions. Anything measuring the cost of a session has to count cards,
+    which means the loop that drives the session has to be the thing that tallies them —
+    a harness reimplementing this loop to count separately would drift from it.
     """
     session: Session
     proposal: Proposal
     rounds: int
     rounds_to_answer: int | None
     floor: Deck | None
+    #: Cards put in front of the player, one entry per round, in order.
+    cards_per_round: tuple[int, ...] = ()
+
+    @property
+    def cards_asked(self) -> int:
+        """Every decision the session asked for, start to finish."""
+        return sum(self.cards_per_round)
+
+    @property
+    def cards_to_answer(self) -> int | None:
+        """Decisions made before the first buildable deck appeared.
+
+        ``None`` when the session never produced one -- the cost of a "no" is a
+        different measurement from the cost of a yes, and averaging them together hides
+        both.
+        """
+        if self.rounds_to_answer is None:
+            return None
+        return sum(self.cards_per_round[: self.rounds_to_answer])
+
+    @property
+    def largest_round(self) -> int:
+        """The worst single screen. What a player actually recoils from."""
+        return max(self.cards_per_round, default=0)
 
 
 
@@ -594,6 +626,7 @@ def run_to_completion(
     rounds = 0
     rounds_to_answer = 0 if proposal.floor is not None else None
     floor = proposal.floor
+    cards_per_round: list[int] = []
 
     while rounds < max_rounds:
         if proposal.phase == PHASE_DONE:
@@ -604,10 +637,12 @@ def run_to_completion(
         if proposal.phase == PHASE_PROPOSE and proposal.deck is not None:
             required = deck_requirements(proposal.deck.deck)
             have = {c: min(n, int(truth.get(c, 0))) for c, n in required.items()}
+            cards_per_round.append(len(required))
             session = engine.answer(session, proposal.deck.deck_id, have)
         elif proposal.question is not None:
             asked = proposal.question.card_ids
             have = {c: int(truth.get(c, 0)) for c in asked}
+            cards_per_round.append(len(asked))
             session = engine.answer_question(session, have, asked)
         else:
             break
@@ -620,4 +655,5 @@ def run_to_completion(
     return Run(
         session=session, proposal=proposal, rounds=rounds,
         rounds_to_answer=rounds_to_answer, floor=floor,
+        cards_per_round=tuple(cards_per_round),
     )

@@ -7,6 +7,7 @@ they are where the real bug lived. See
 
 from __future__ import annotations
 
+import inspect
 import random
 
 import pytest
@@ -547,3 +548,86 @@ def test_declining_nothing_changes_nothing():
     knowledge = Knowledge(exact={"a": 3})
     assert knowledge.declining([]) is knowledge
     assert knowledge.allowing(["never-declined"]) is knowledge
+
+
+# -- what a session costs the player ------------------------------------------
+#
+# Rounds are screens; cards are decisions. Every acceptance metric counted screens,
+# which is how a 241-card sweep passed as "two rounds" and why the cost of being told
+# "no" -- the larger population -- was outside all of them.
+
+
+def test_a_run_counts_the_cards_it_put_in_front_of_the_player(engine, catalog):
+    """The tally comes from the driving loop, not from a copy of it.
+
+    A harness that reimplemented this loop to count separately would drift from the
+    engine the moment either changed, and the number would quietly stop describing the
+    thing it names.
+    """
+    run = run_to_completion(engine, LEGEND, full_owned(catalog))
+    assert run.cards_per_round, "a session that asked something must record it"
+    assert len(run.cards_per_round) == run.rounds
+    assert run.cards_asked == sum(run.cards_per_round)
+    assert run.largest_round == max(run.cards_per_round)
+
+
+def test_the_cost_of_a_no_is_not_averaged_into_the_cost_of_a_yes(engine):
+    """``cards_to_answer`` is None when no deck ever appeared.
+
+    Folding a session that ended in nothing into the same median as one that produced a
+    deck would flatter both: the failures are the long ones, and they have nothing to
+    show for the length.
+    """
+    run = run_to_completion(engine, LEGEND, {})
+    assert run.floor is None
+    assert run.cards_to_answer is None
+    assert run.cards_asked > 0, "it still asked, it just never answered"
+
+
+def test_cards_to_answer_counts_only_the_rounds_before_the_deck(engine, catalog):
+    run = run_to_completion(engine, LEGEND, full_owned(catalog))
+    assert run.rounds_to_answer is not None
+    assert run.cards_to_answer == sum(run.cards_per_round[: run.rounds_to_answer])
+    assert run.cards_to_answer <= run.cards_asked
+
+
+def test_the_report_measures_the_players_who_are_told_no(catalog, bound_rules):
+    """``infeasible`` is the population every other metric skips.
+
+    ``solved_when_feasible``, ``false_negatives`` and ``rounds_to_answer`` are all
+    computed over feasible players only. On the live snapshot that leaves 697 of 980
+    sessions -- the ones that end with nothing -- outside every gate.
+    """
+    decks = {"d1": as_meta(a_deck(), "d1")}
+    index = build_index(decks.values(), {"d1": 1.0})
+    rng = random.Random(4)
+    players = [
+        Player(name=f"p{i}", owned=random_collection(catalog, rng=rng, scale=0.3))
+        for i in range(4)
+    ]
+    report = simulate(
+        catalog=catalog, rules=bound_rules, index=index, decks=decks.values(),
+        scores={"d1": 1.0}, legends=[LEGEND], players=players,
+    )
+    assert len(report.feasible) + len(report.infeasible) == len(report.outcomes)
+    assert report.infeasible, "thin collections must produce the population under test"
+    for outcome in report.infeasible:
+        assert not outcome.feasible
+    assert report.cards_to_no, "a player told no still answered questions to get there"
+    assert report.median_cards_to_no > 0
+
+
+def test_the_card_targets_are_reported_but_not_yet_enforced():
+    """Deliberate, and it should stay deliberate until phase 1 lands.
+
+    These targets fail on the code that introduced them. Wiring a known-failing gate
+    into the release check teaches everyone to ignore the check, so ``passes`` stays on
+    the round-based criteria until the closing question is fixed -- at which point
+    ``card_targets_met`` folds into it in the same commit.
+    """
+    from riftbound.domain.smart_decks_harness import Report
+
+    source = inspect.getsource(Report.passes.fget)
+    assert "card_targets_met" not in source, (
+        "phase 1 has landed -- fold card_targets_met into passes and delete this test"
+    )
