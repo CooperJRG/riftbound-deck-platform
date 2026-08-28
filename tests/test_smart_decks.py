@@ -1191,3 +1191,64 @@ def test_a_pivot_replaces_the_question_rather_than_adding_a_round(engine, catalo
     assert "PIVOT_MAX_NEW_CARDS" in inspect.getsource(type(engine)._worth_pivoting), (
         "a pivot that asks more than the question it replaces is the expensive version"
     )
+
+
+def test_a_deck_they_cannot_field_is_not_offered_again(engine, catalog):
+    """Reported: say no Elder Dragons, answer the list it pivots to, get an Elder
+    Dragon list back.
+
+    The shortfall was a weight in the ranking and the rest of the ranking outvoted it,
+    so once a floor existed the wizard went back to offering decks built on the card the
+    player had just ruled out. From their side they had answered the question and were
+    asked it again. Fieldability is a gate now: nothing less fieldable than the best
+    list available is offered at all.
+    """
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    required = deck_requirements(first.deck.deck)
+    have = dict(required)
+    have["harpoon-squad"] = 0          # said plainly: none of these
+    session = engine.answer(session, first.deck.deck_id, have)
+
+    for _ in range(4):
+        proposal = engine.propose(session)
+        if proposal.phase != PHASE_PROPOSE or proposal.deck is None:
+            break
+        offered = proposal.deck.deck.main.get("harpoon-squad", 0)
+        best = min(
+            (engine._unfieldable(d, session.knowledge)
+             for d in engine._candidates(session)),
+            default=0.0,
+        )
+        assert not (offered and best <= 0.0), (
+            "offered a deck needing a card they own none of, with a better option there"
+        )
+        session = engine.answer(
+            session, proposal.deck.deck_id,
+            {c: (0 if c == "harpoon-squad" else n)
+             for c, n in deck_requirements(proposal.deck.deck).items()},
+        )
+
+
+def test_an_optional_round_has_to_offer_something_they_can_hold(engine, catalog):
+    """A round that only exists to beat a deck they already have is not worth a screen
+    unless what it offers is buildable. Once every fieldable list has been asked about,
+    the session stops rather than parading ones that are not."""
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    have = dict(deck_requirements(first.deck.deck))
+    have["harpoon-squad"] = 0
+    session = engine.answer(session, first.deck.deck_id, have)
+
+    seen = 0
+    while seen < 6:
+        proposal = engine.propose(session)
+        if proposal.phase != PHASE_PROPOSE or proposal.deck is None:
+            break
+        seen += 1
+        session = engine.answer(
+            session, proposal.deck.deck_id,
+            {c: (0 if c == "harpoon-squad" else n)
+             for c, n in deck_requirements(proposal.deck.deck).items()},
+        )
+    assert seen < 6, "the session has to converge rather than cycle decks"

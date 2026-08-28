@@ -703,8 +703,24 @@ def test_an_answer_about_one_card_beats_a_rule_about_its_class(meta_client):
         f"/api/smart-decks/sessions/{session['sessionId']}"
     ).json()
     assert detail["knownCards"] >= 1
-    gaps = {g["cardId"] for g in detail["proposal"].get("gaps", [])}
-    assert common["cardId"] in gaps, "the answer must show as a real shortfall"
+
+    # Checked wherever the card next appears rather than in this proposal's gaps. Gaps
+    # describe the deck currently on screen, and a deck the player has just said they
+    # cannot field is no longer the deck on screen -- so the card may simply not be in
+    # it. What must hold is that nothing anywhere still claims they have it.
+    rows = [
+        row
+        for row in detail["proposal"].get("requirements", [])
+        if row["cardId"] == common["cardId"]
+    ]
+    for row in rows:
+        assert row["known"] is True, "the answer is on record"
+        assert row["have"] == 0, "and it beat the rule that said otherwise"
+    floor = detail["proposal"].get("floor")
+    if floor:
+        assert common["cardId"] not in {c["cardId"] for c in floor["cards"]}, (
+            "a deck cannot be built from a card they said they do not have"
+        )
 
 
 # -- which question the picker answers first -----------------------------------

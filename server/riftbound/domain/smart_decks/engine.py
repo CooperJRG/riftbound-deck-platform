@@ -71,6 +71,12 @@ W_COHERENCE = 0.20
 #: gives up 4.2% of deck score, so a term that cannot outweigh that changes nothing.
 W_UNFIELDABLE = 0.60
 
+#: How much less fieldable than the best available list a deck may be and still be
+#: offered. A share of the deck's copies; one copy of fifty-six is 0.018, so this allows
+#: a list that asks for a single extra card the player lacks and no more. Zero would be
+#: defensible but thrashes between near-identical lists on rounding.
+FIELDABLE_SLACK = 0.02
+
 #: How much more fieldable another list has to be before it is worth showing. A share of
 #: the deck's copies; one copy of fifty-six is 0.018, so this is a little over a card.
 PIVOT_MARGIN = 0.02
@@ -272,7 +278,19 @@ class Engine:
         # Once a floor exists the pressure is off, and further decks are the pleasant way
         # to try to beat it.
         first_round = session.rounds == 0
-        improving = floor is not None and session.rounds < MAX_PROPOSALS
+        # An improving round is optional by definition -- they already have a deck. So it
+        # is only worth a screen if what it offers is something they could actually hold.
+        # Once every list they can field has been asked about, all that is left are lists
+        # built on cards they have told us they lack, and offering those is asking the
+        # same question again in a new costume. Better to stop.
+        improving = (
+            floor is not None
+            and session.rounds < MAX_PROPOSALS
+            and any(
+                self._unfieldable(deck, session.knowledge) <= FIELDABLE_SLACK
+                for deck in candidates
+            )
+        )
         # When they have told us they cannot field this list, show them a different one
         # *instead of* the closing question rather than as well as it.
         #
@@ -367,7 +385,20 @@ class Engine:
     # -- choosing the next question ------------------------------------------
 
     def _candidates(self, session: Session) -> list[MetaDeck]:
-        """Decks still worth asking about."""
+        """Decks still worth asking about.
+
+        Never one the player can field less of than another list on offer. Told "I have
+        no Elder Dragons" the wizard would pivot to a list without them, then -- once
+        that list gave it a deck to beat -- go straight back to offering Elder Dragon
+        decks, because the shortfall was a *weight* in the ranking and the rest of the
+        ranking outvoted it. From the player's side they had answered the question and
+        were asked it again.
+
+        Fieldability is a gate rather than a weight now: whatever the best available
+        list asks of cards they have said they lack, nothing worse than that is shown.
+        It is relative, so it cannot empty the list -- when everything is short of
+        something, everything short of the same amount stays.
+        """
         out = []
         for deck_id, deck in self.decks.items():
             if deck_id in session.asked:
@@ -377,7 +408,14 @@ class Engine:
             if sum(g.short for g in gaps_for(deck.deck, session.knowledge)) > REPAIRABLE_COPIES:
                 continue  # too far out of reach to be worth a question
             out.append(deck)
-        return out
+
+        if not out:
+            return out
+        reachable = min(self._unfieldable(deck, session.knowledge) for deck in out)
+        return [
+            deck for deck in out
+            if self._unfieldable(deck, session.knowledge) <= reachable + FIELDABLE_SLACK
+        ]
 
     def _playable(self, meta: MetaDeck) -> MetaDeck:
         """The proposed deck with anything banned taken out.
