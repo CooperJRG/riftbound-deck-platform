@@ -22,6 +22,7 @@ from ...domain.smart_decks import (
     Proposal,
     Session,
     deck_requirements,
+    declared_knowledge,
     gaps_for,
 )
 from ...domain.validator import validate
@@ -70,13 +71,33 @@ def _engine(services: Services, legend_id: str) -> Engine:
     return engine
 
 
-def _session_of(record: WizardSessionRecord) -> Session:
+def _declared(services: Services, user_id: str) -> Knowledge:
+    """What the player told us outside the wizard, as prior knowledge."""
+    profile = services.availability.load(user_id=user_id)
+    return declared_knowledge(profile, services.catalog)
+
+
+def _session_of(
+    record: WizardSessionRecord, prior: Knowledge | None = None
+) -> Session:
+    """Rebuild a stored session, with anything declared elsewhere underneath it.
+
+    The prior goes *under* the recorded answers, never over them. A declaration is a
+    broad statement -- "no Epics" covers cards the player has never thought about -- so
+    the one place it must yield is where they have since answered for a specific card.
+    Ticking a rule and then saying "actually I have one of those" leaves the exception
+    standing.
+    """
+    seeded = dict(prior.exact) if prior else {}
+    assumed = frozenset(seeded) - set(record.exact)
+    seeded.update(record.exact)
     return Session(
         legend_id=record.legend_id,
         knowledge=Knowledge(
-            exact=dict(record.exact),
+            exact=seeded,
             at_least=dict(record.at_least),
             declined=frozenset(record.declined),
+            assumed=assumed,
         ),
         asked=record.asked_deck_ids,
         phase=record.phase,
@@ -234,7 +255,7 @@ def _session_view(
     with_proposal: bool = True,
 ) -> SmartSessionView:
     legend = services.catalog.get(record.legend_id)
-    session = _session_of(record)
+    session = _session_of(record, _declared(services, user_id))
     proposal = None
     if with_proposal:
         engine = _engine(services, record.legend_id)
@@ -367,7 +388,7 @@ def answer(
     """Record one round and return the next proposal."""
     record = _load(services, session_id, identity.user_id)
     engine = _engine(services, record.legend_id)
-    session = _session_of(record)
+    session = _session_of(record, _declared(services, identity.user_id))
 
     if payload.deck_id:
         if payload.deck_id not in engine.decks:
@@ -450,7 +471,9 @@ def accept(
     """Copy one of the offered decks into the library."""
     record = _load(services, session_id, identity.user_id)
     engine = _engine(services, record.legend_id)
-    proposal = engine.propose(_session_of(record))
+    proposal = engine.propose(
+        _session_of(record, _declared(services, identity.user_id))
+    )
 
     if payload.which == "conservative":
         chosen = proposal.conservative.deck if proposal.conservative else None

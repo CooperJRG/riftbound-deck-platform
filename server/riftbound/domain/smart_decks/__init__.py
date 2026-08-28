@@ -40,6 +40,7 @@ from .knowledge import (
     Gap,
     Knowledge,
     deck_requirements,
+    declared_knowledge,
     gaps_for,
     unknown_cards,
 )
@@ -70,6 +71,7 @@ __all__ = [
     "Session",
     "Swap",
     "deck_requirements",
+    "declared_knowledge",
     "gaps_for",
     "repair",
     "run_to_completion",

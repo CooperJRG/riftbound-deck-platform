@@ -38,7 +38,7 @@ from .deck_builder import assess, build
 from .legend_index import LegendIndex
 from .meta import MetaDeck
 from .rules import BoundRules
-from .smart_decks import Engine, run_to_completion
+from .smart_decks import Engine, Knowledge, run_to_completion
 
 #: Targets for what a session costs the player, in decisions rather than screens.
 #:
@@ -73,6 +73,12 @@ class Player:
     """A synthetic collection, and where it came from."""
     name: str
     owned: Mapping[str, int]
+    #: What this player has already declared outside the wizard, if anything.
+    #:
+    #: Seeded into the session as prior knowledge, exactly as the API does from an
+    #: availability profile. Modelled here so the saving is measured rather than
+    #: assumed: a declaration is only worth making if it shortens the session.
+    declared: Knowledge | None = None
 
 
 @dataclass(frozen=True)
@@ -335,7 +341,7 @@ def run_one(
         preference=engine.profile.preference(),
     )
 
-    run = run_to_completion(engine, legend_id, truth)
+    run = run_to_completion(engine, legend_id, truth, prior=player.declared)
     found = run.floor
     if found is None and run.proposal.conservative is not None:
         found = run.proposal.conservative.deck

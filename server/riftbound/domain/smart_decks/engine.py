@@ -201,7 +201,15 @@ class Engine:
             at_least.pop(card_id, None)
         return replace(
             session,
-            knowledge=Knowledge(exact=exact, at_least=at_least),
+            knowledge=Knowledge(
+                exact=exact,
+                at_least=at_least,
+                # Carried, not dropped. Rebuilding without these lost every decline the
+                # moment the player answered a checklist -- a card they had said they
+                # did not want to play came back in the next deck.
+                declined=session.knowledge.declined,
+                assumed=session.knowledge.assumed - set(asked),
+            ),
             phase=PHASE_CHECKLIST,
             checklists=session.checklists + 1,
         )
@@ -569,7 +577,10 @@ class Engine:
             everything asked so far, and scale by the ratio. Shrunk toward 1.0 while the
             sample is small so a couple of unlucky answers do not blow the question up.
             """
-            answered = [c for c in knowledge.exact if self.catalog.get(c) is not None]
+            answered = [
+                c for c in knowledge.exact
+                if c not in knowledge.assumed and self.catalog.get(c) is not None
+            ]
             if len(answered) < CALIBRATION_MIN:
                 return 1.0
             got = sum(min(copy_limit, knowledge.exact[c]) for c in answered)
@@ -721,13 +732,14 @@ def run_to_completion(
     *,
     max_rounds: int = 12,
     stop_at_answer: bool = False,
+    prior: Knowledge | None = None,
 ) -> Run:
     """Drive a whole session, answering truthfully from a known collection.
 
     The clearest statement of the loop: propose, answer, repeat until there is an answer
     and nothing better left to ask.
     """
-    session = engine.start(legend_id)
+    session = engine.start(legend_id, prior=prior)
     proposal = engine.propose(session)
     rounds = 0
     rounds_to_answer = 0 if proposal.floor is not None else None

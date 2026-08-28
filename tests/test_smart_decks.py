@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import inspect
 import random
+from dataclasses import replace
 
 import pytest
 
@@ -26,6 +27,7 @@ from riftbound.domain.smart_decks import (
     Engine,
     Knowledge,
     deck_requirements,
+    declared_knowledge,
     gaps_for,
     repair,
     run_to_completion,
@@ -760,3 +762,111 @@ def test_no_single_screen_exceeds_the_checklist_cap(catalog, bound_rules, profil
         owned[LEGEND] = 1          # keep it askable rather than settled
         run = run_to_completion(engine, LEGEND, owned)
         assert run.largest_round <= MAX_CHECKLIST, run.cards_per_round
+
+
+# -- what the player told us before the wizard asked --------------------------
+
+
+def a_profile(**kw):
+    from riftbound.domain.availability import AvailabilityProfile
+    return AvailabilityProfile(**kw)
+
+
+def test_an_exclusion_rule_is_a_statement_of_absence(catalog):
+    """"No Epics" is one click, and the wizard used to ignore it entirely.
+
+    Every Epic in the opening checklist was shown pre-filled as *owned*, so the player
+    had to say a second time, card by card, what a rule had already said.
+    """
+    from riftbound.domain.availability import MODE_EXCLUSION, ExclusionRule
+
+    knowledge = declared_knowledge(
+        a_profile(mode=MODE_EXCLUSION, exclusion_rules=(ExclusionRule("rarity", "Epic"),)),
+        catalog,
+    )
+    assert knowledge.is_exact("harpoon-squad")        # the Epic in this catalogue
+    assert knowledge.lower_bound("harpoon-squad") == 0
+    assert not knowledge.is_known("brazen-buccaneer"), "a rule says nothing about commons"
+
+
+def test_a_partial_collection_seeds_what_it_holds_and_stays_quiet_otherwise(catalog):
+    """Silence in a collection is not a claim of absence.
+
+    Most people record the decks they play, not their binder. Reading "not written
+    down" as "does not own" is the assumption behind v2's
+    ``strictBuildableEmptyResultRate: 0.814`` -- asked for a deck from a collection it
+    returned nothing four times in five.
+    """
+    from riftbound.domain.availability import MODE_COLLECTION
+
+    knowledge = declared_knowledge(
+        a_profile(mode=MODE_COLLECTION, owned={"brazen-buccaneer": 2}), catalog
+    )
+    assert knowledge.lower_bound("brazen-buccaneer") == 2
+    assert not knowledge.is_known("harpoon-squad"), "unrecorded is unknown, not absent"
+
+
+def test_strict_collection_mode_does_read_silence_as_absence(catalog):
+    """Because the player asked for it by name: "only what I can build now"."""
+    from riftbound.domain.availability import MODE_COLLECTION
+
+    knowledge = declared_knowledge(
+        a_profile(mode=MODE_COLLECTION, owned={"brazen-buccaneer": 2}, strict=True),
+        catalog,
+    )
+    assert knowledge.is_exact("harpoon-squad")
+    assert knowledge.lower_bound("harpoon-squad") == 0
+
+
+def test_a_declaration_does_not_pose_as_a_sample_of_the_collection(catalog):
+    """The regression that made honouring declarations *worse* than ignoring them.
+
+    Calibration asks how optimistic the rarity priors have proved for this player, by
+    comparing copies reported against copies expected across everything asked. A
+    declaration is chosen precisely because it is absent, so folding it into that
+    comparison reads as evidence they own little of everything. Seeding 151
+    declared-absent cards floored the estimate and pushed the median session from 47
+    cards to 85 -- the fix is that declared ids are exact but not counted as answers.
+    """
+    from riftbound.domain.availability import MODE_EXCLUSION, ExclusionRule
+
+    knowledge = declared_knowledge(
+        a_profile(mode=MODE_EXCLUSION, exclusion_rules=(ExclusionRule("rarity", "Epic"),)),
+        catalog,
+    )
+    assert knowledge.assumed, "declared ids must be marked"
+    assert set(knowledge.assumed) <= set(knowledge.exact)
+    assert all(knowledge.is_exact(c) for c in knowledge.assumed), "still exact"
+
+
+def test_answering_turns_an_assumption_into_evidence(catalog):
+    """A rule is broad; an answer is about one card, and it wins.
+
+    Ticking "no Epics" and then saying "actually I have one of those" has to leave the
+    exception standing -- and once answered, the card is real evidence again.
+    """
+    from riftbound.domain.availability import MODE_EXCLUSION, ExclusionRule
+
+    knowledge = declared_knowledge(
+        a_profile(mode=MODE_EXCLUSION, exclusion_rules=(ExclusionRule("rarity", "Epic"),)),
+        catalog,
+    )
+    assert "harpoon-squad" in knowledge.assumed
+    answered = knowledge.with_answer({"harpoon-squad": 3}, {"harpoon-squad": 2})
+    assert answered.lower_bound("harpoon-squad") == 2
+    assert "harpoon-squad" not in answered.assumed
+
+
+def test_a_checklist_answer_does_not_wipe_what_they_declined(engine):
+    """Found while wiring declarations through.
+
+    ``answer_question`` rebuilt Knowledge without ``declined``, so a card the player had
+    said they did not want to play came back in the next deck as soon as they answered
+    any checklist.
+    """
+    session = engine.start(LEGEND)
+    session = replace(session, knowledge=session.knowledge.declining(["harpoon-squad"]))
+    assert session.knowledge.is_declined("harpoon-squad")
+
+    session = engine.answer_question(session, {"brazen-buccaneer": 1}, ["brazen-buccaneer"])
+    assert session.knowledge.is_declined("harpoon-squad"), "a decline must survive a round"

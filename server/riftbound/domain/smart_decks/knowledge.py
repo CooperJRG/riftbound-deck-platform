@@ -11,6 +11,8 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
+from ..availability import AvailabilityProfile
+from ..cards import Catalog
 from ..deck import Deck
 
 # -- knowledge ----------------------------------------------------------------
@@ -34,6 +36,18 @@ class Knowledge:
     """
     exact: Mapping[str, int] = field(default_factory=dict)
     at_least: Mapping[str, int] = field(default_factory=dict)
+    #: Ids in ``exact`` that came from a declaration rather than an answer in session.
+    #:
+    #: They are exact -- the player said so -- but they are not a *sample* of the
+    #: collection, and one estimate downstream depends on that difference. Calibration
+    #: asks "how optimistic have the rarity priors proved for this player" by comparing
+    #: copies reported against copies expected over everything asked. A declaration is
+    #: chosen precisely because it is absent, so folding "no Epics" into that comparison
+    #: reads as evidence the player owns little of *everything*: measured, seeding 151
+    #: declared-absent cards floored the estimate and pushed the median session from 47
+    #: cards to 85. Marking them keeps them exact for every purpose except the one they
+    #: would bias.
+    assumed: frozenset[str] = frozenset()
     #: Cards the player owns, or might, and does not want to play.
     #:
     #: A different kind of claim from anything above it. `exact` and `at_least` are facts
@@ -82,6 +96,7 @@ class Knowledge:
             exact=dict(self.exact),
             at_least=dict(self.at_least),
             declined=self.declined | wanted,
+            assumed=self.assumed,
         )
 
     def allowing(self, card_ids: Iterable[str]) -> Knowledge:
@@ -93,6 +108,7 @@ class Knowledge:
             exact=dict(self.exact),
             at_least=dict(self.at_least),
             declined=self.declined - forgiven,
+            assumed=self.assumed,
         )
 
     def with_answer(
@@ -118,7 +134,13 @@ class Knowledge:
                 at_least.pop(card_id, None)
             elif card_id not in exact:
                 at_least[card_id] = max(int(at_least.get(card_id, 0)), int(needed))
-        return Knowledge(exact=exact, at_least=at_least, declined=self.declined)
+        # Anything they have now answered for is real evidence, not an assumption.
+        return Knowledge(
+            exact=exact,
+            at_least=at_least,
+            declined=self.declined,
+            assumed=self.assumed - set(required),
+        )
 
     @classmethod
     def from_collection(cls, owned: Mapping[str, int]) -> Knowledge:
@@ -183,3 +205,45 @@ def unknown_cards(deck: Deck, knowledge: Knowledge) -> tuple[str, ...]:
     return tuple(
         sorted(c for c in deck_requirements(deck) if not knowledge.is_known(c))
     )
+
+
+def declared_knowledge(
+    profile: AvailabilityProfile, catalog: Catalog
+) -> Knowledge:
+    """What the player has already told us, before the wizard asks anything.
+
+    The availability profile is a statement about a collection, and until now the wizard
+    never read it. Somebody who ticked "no Epics" -- one click, the app's own onboarding
+    path for a casual player -- was still shown every Epic in the opening checklist,
+    pre-filled as *owned*, and then asked about more of them. The declaration fed a
+    coverage figure on screen and nothing else.
+
+    What may be seeded is not the same in every mode, and the difference is the whole
+    care of this function:
+
+    **Exclusion mode** names cards the player says they do not have, whether card by
+    card or by rule. That is a positive claim of absence, so it seeds ``exact 0``.
+
+    **Collection mode** lists what they *do* have, and is nearly always partial -- most
+    people record the decks they play, not their binder. Positive counts seed exact
+    values; silence seeds nothing, because reading "not written down" as "does not own"
+    is precisely the assumption that made v2 return an empty deck four times in five.
+
+    **Strict collection mode** is the exception, and only because the player asked for
+    it by name: "only what I can build now" means absence is the answer, so zeros are
+    seeded too.
+
+    Seeded knowledge is a floor, not a verdict. Anything the player answers in the
+    session overrides it, so a rule that turns out to be too broad costs one correction
+    rather than a wrong deck.
+    """
+    exact: dict[str, int] = {}
+    for card in catalog:
+        resolved = profile.resolve(card)
+        if resolved.reason.startswith("excluded:"):
+            exact[card.card_id] = 0
+        elif resolved.reason == "owned":
+            exact[card.card_id] = resolved.owned_copies
+        elif resolved.reason == "not-owned" and profile.strict:
+            exact[card.card_id] = 0
+    return Knowledge(exact=exact, assumed=frozenset(exact))
