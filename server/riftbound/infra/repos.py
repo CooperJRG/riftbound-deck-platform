@@ -11,6 +11,7 @@ from ..domain.availability import (
     MODE_EXCLUSION,
     AvailabilityProfile,
     ExclusionRule,
+    OwnedRule,
 )
 from ..domain.deck import ZONE_BATTLEFIELDS, ZONES, Deck
 from .db import Database, utc_now_iso
@@ -223,6 +224,10 @@ class AvailabilityRepository:
                 "SELECT kind, value FROM availability_exclusions WHERE user_id = ?",
                 (user_id,),
             ).fetchall()
+            owned_rules = conn.execute(
+                "SELECT kind, value FROM availability_owned_rules WHERE user_id = ?",
+                (user_id,),
+            ).fetchall()
 
         if head is None:
             return AvailabilityProfile.open_profile()
@@ -233,7 +238,10 @@ class AvailabilityRepository:
 
         if mode == MODE_COLLECTION:
             return AvailabilityProfile.from_collection(
-                self._collections.owned_by_card(user_id=user_id), strict=strict, penalty=penalty
+                self._collections.owned_by_card(user_id=user_id),
+                rules=[OwnedRule(kind=r["kind"], value=r["value"]) for r in owned_rules],
+                strict=strict,
+                penalty=penalty,
             )
         if mode == MODE_EXCLUSION:
             return AvailabilityProfile.from_exclusions(
@@ -262,6 +270,19 @@ class AvailabilityRepository:
                  utc_now_iso()),
             )
             conn.execute("DELETE FROM availability_exclusions WHERE user_id = ?", (user_id,))
+            conn.execute("DELETE FROM availability_owned_rules WHERE user_id = ?", (user_id,))
+            if profile.mode == MODE_COLLECTION and profile.owned_rules:
+                conn.executemany(
+                    """
+                    INSERT INTO availability_owned_rules (user_id, kind, value, created_at)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(user_id, kind, value) DO NOTHING
+                    """,
+                    [
+                        (user_id, r.kind, r.value, utc_now_iso())
+                        for r in profile.owned_rules
+                    ],
+                )
             if profile.mode == MODE_EXCLUSION:
                 rows = [(user_id, "card", cid) for cid in sorted(profile.excluded_cards)]
                 rows += [(user_id, r.kind, r.value) for r in profile.exclusion_rules]

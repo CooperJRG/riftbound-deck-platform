@@ -88,16 +88,24 @@ def _session_of(
     Ticking a rule and then saying "actually I have one of those" leaves the exception
     standing.
     """
-    seeded = dict(prior.exact) if prior else {}
-    assumed = frozenset(seeded) - set(record.exact)
-    seeded.update(record.exact)
+    prior_exact = dict(prior.exact) if prior else {}
+    prior_at_least = dict(prior.at_least) if prior else {}
+
+    # An answer about one card overrides a declaration about its whole class, and it has
+    # to override *both* halves. ``lower_bound`` takes the max of exact and at_least, so
+    # leaving a declared "all Commons" in place next to an answered "I have none of this
+    # Common" would let the broad claim win the very comparison it should lose.
+    for card_id in (*record.exact, *record.at_least):
+        prior_exact.pop(card_id, None)
+        prior_at_least.pop(card_id, None)
+
     return Session(
         legend_id=record.legend_id,
         knowledge=Knowledge(
-            exact=seeded,
-            at_least=dict(record.at_least),
+            exact={**prior_exact, **record.exact},
+            at_least={**prior_at_least, **record.at_least},
             declined=frozenset(record.declined),
-            assumed=assumed,
+            assumed=frozenset(prior_exact),
         ),
         asked=record.asked_deck_ids,
         phase=record.phase,

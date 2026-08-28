@@ -155,6 +155,8 @@ export interface AvailabilityProfile {
   description: string;
   excludedCards: ExcludedCard[];
   rules: ExclusionRuleView[];
+  /** Classes of card the player says they own. Collection mode's bulk entry. */
+  ownedRules: ExclusionRuleView[];
   ownedCardCount: number;
 }
 
@@ -164,6 +166,7 @@ export interface AvailabilityUpdate {
   penalty?: number;
   excludedCardIds?: string[];
   rules?: { kind: string; value: string }[];
+  ownedRules?: { kind: string; value: string }[];
 }
 
 export interface RuleKinds {

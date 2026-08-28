@@ -157,6 +157,10 @@ def availability_view(
             ExclusionRuleView(kind=r.kind, value=r.value, description=r.describe())
             for r in profile.exclusion_rules
         ],
+        owned_rules=[
+            ExclusionRuleView(kind=r.kind, value=r.value, description=r.describe())
+            for r in profile.owned_rules
+        ],
         owned_card_count=len(profile.owned),
     )
 

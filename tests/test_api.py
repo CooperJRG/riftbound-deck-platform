@@ -632,3 +632,76 @@ def test_an_exclusion_profile_is_left_alone_by_forgetting(meta_client):
     assert [c["cardId"] for c in result["availability"]["excludedCards"]] == [
         "brazen-buccaneer"
     ]
+
+
+# -- saying what you have, in bulk ---------------------------------------------
+
+
+def _declare_commons(client):
+    return client.put(
+        "/api/availability",
+        json={
+            "mode": "collection",
+            "excludedCardIds": [],
+            "rules": [],
+            "ownedRules": [{"kind": "rarity", "value": "Common"}],
+        },
+    ).json()
+
+
+def test_owned_rules_round_trip_and_read_as_a_positive_statement(meta_client):
+    body = _declare_commons(meta_client)
+    assert [r["description"] for r in body["ownedRules"]] == ["all Commons"]
+    assert "You have all Commons" in body["description"]
+    # And they survive a reload rather than living only in the response.
+    assert meta_client.get("/api/availability").json()["ownedRules"] == body["ownedRules"]
+
+
+def test_a_declared_class_settles_checklist_rows_without_asking(meta_client):
+    """One click should answer for every card it covers.
+
+    Before this the wizard never read the profile at all: a player who had recorded
+    their collection was still shown every card pre-filled as owned and asked to
+    confirm it, one at a time.
+    """
+    _declare_commons(meta_client)
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    rows = session["proposal"]["requirements"]
+    settled = [r for r in rows if r["known"]]
+    assert settled, "the declaration must reach the checklist"
+    assert all(r["rarity"] == "Common" for r in settled), (
+        "and must settle only what it actually covers"
+    )
+
+
+def test_an_answer_about_one_card_beats_a_rule_about_its_class(meta_client):
+    """The merge that makes a broad declaration safe to accept.
+
+    ``lower_bound`` takes the max of exact and at_least, so a declared "all Commons"
+    sitting next to an answered "I have none of this Common" would win the very
+    comparison it should lose, and the player would be handed a deck built on a card
+    they had just said they did not have.
+    """
+    _declare_commons(meta_client)
+    session = meta_client.post(
+        "/api/smart-decks/sessions", json={"legendId": "vi-piltover-enforcer"}
+    ).json()
+    proposal = session["proposal"]
+    rows = proposal["requirements"]
+    common = next(r for r in rows if r["rarity"] == "Common")
+
+    have = {r["cardId"]: r["needed"] for r in rows}
+    have[common["cardId"]] = 0
+    meta_client.post(
+        f"/api/smart-decks/sessions/{session['sessionId']}/answer",
+        json={"deckId": proposal["deck"]["deckId"], "have": have},
+    )
+
+    detail = meta_client.get(
+        f"/api/smart-decks/sessions/{session['sessionId']}"
+    ).json()
+    assert detail["knownCards"] >= 1
+    gaps = {g["cardId"] for g in detail["proposal"].get("gaps", [])}
+    assert common["cardId"] in gaps, "the answer must show as a real shortfall"

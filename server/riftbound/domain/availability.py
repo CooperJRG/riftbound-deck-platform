@@ -49,12 +49,22 @@ RULE_PROMO_ONLY = "promo_only"  # "I don't have promo/Showcase-only cards"
 RULE_KINDS = (RULE_RARITY, RULE_SET, RULE_SUPER_TYPE, RULE_PROMO_ONLY)
 
 
-@dataclass(frozen=True)
-class ExclusionRule:
-    """A predicate marking a whole class of cards as not-owned.
+#: Copies a rule-declared card is assumed to supply. Not a count -- the player said
+#: "I have the commons", not "I have exactly three of each" -- so this is seeded as a
+#: lower bound downstream, which is the semantics :mod:`smart_decks.knowledge` already
+#: has for "I have all of them".
+RULE_COPIES = 3
+#: Runes are bought in bulk or not at all, and a rune base wants twelve.
+RULE_RUNE_COPIES = 12
 
-    Lets a casual player express "I only have the starter and a few packs" in one
-    click instead of a data-entry session.
+
+@dataclass(frozen=True)
+class CardRule:
+    """A predicate selecting a class of cards.
+
+    The predicate is the same whichever direction it is used in -- "no Epics" and "every
+    Common" differ only in what the caller does with a match -- so the matching lives
+    here and the polarity lives in the subclasses.
     """
     kind: str
     value: str = ""
@@ -73,12 +83,43 @@ class ExclusionRule:
             )
         return False
 
+    def copies_for(self, card: Card) -> int:
+        return RULE_RUNE_COPIES if card.card_type == "Rune" else RULE_COPIES
+
+
+@dataclass(frozen=True)
+class ExclusionRule(CardRule):
+    """A class of cards the player says they do not have.
+
+    Lets a casual player express "I only have the starter and a few packs" in one
+    click instead of a data-entry session.
+    """
+
     def describe(self) -> str:
         return {
             RULE_RARITY: f"no {self.value} cards",
             RULE_SET: f"nothing from {self.value}",
             RULE_SUPER_TYPE: f"no {self.value} cards",
             RULE_PROMO_ONLY: "no promo-only cards",
+        }.get(self.kind, self.kind)
+
+
+@dataclass(frozen=True)
+class OwnedRule(CardRule):
+    """A class of cards the player says they *do* have.
+
+    The missing half of the entry story. Exclusion is the right polarity for somebody
+    who owns nearly everything and is naming the gaps; it is the wrong one for somebody
+    who owns a fraction of the pool, who would have to name thousands of cards to say
+    something true. "Everything Common from OGN" is one click and covers hundreds.
+    """
+
+    def describe(self) -> str:
+        return {
+            RULE_RARITY: f"all {self.value}s",
+            RULE_SET: f"everything from {self.value}",
+            RULE_SUPER_TYPE: f"all {self.value} cards",
+            RULE_PROMO_ONLY: "all promo-only cards",
         }.get(self.kind, self.kind)
 
 
@@ -109,6 +150,9 @@ class AvailabilityProfile:
     owned: Mapping[str, int] = field(default_factory=dict)   # card_id -> copies
     excluded_cards: frozenset[str] = frozenset()             # card_id
     exclusion_rules: tuple[ExclusionRule, ...] = ()
+    #: Classes of card the player says they own, for collection mode. Counted cards in
+    #: ``owned`` always win: a rule is a broad statement, a count is a specific one.
+    owned_rules: tuple[OwnedRule, ...] = ()
     penalty: float = DEFAULT_PENALTY
     strict: bool = False
 
@@ -130,6 +174,7 @@ class AvailabilityProfile:
         cls,
         owned: Mapping[str, int],
         *,
+        rules: Iterable[OwnedRule] = (),
         strict: bool = False,
         penalty: float = DEFAULT_PENALTY,
     ) -> AvailabilityProfile:
@@ -141,6 +186,7 @@ class AvailabilityProfile:
         return cls(
             mode=MODE_COLLECTION,
             owned={k: v for k, v in clean.items() if v > 0},
+            owned_rules=tuple(rules),
             strict=strict,
             penalty=penalty,
         )
@@ -173,6 +219,20 @@ class AvailabilityProfile:
 
         if self.mode == MODE_COLLECTION:
             owned = int(self.owned.get(card.card_id, 0))
+            if owned <= 0:
+                for rule in self.owned_rules:
+                    if rule.matches(card):
+                        return Availability(
+                            card_id=card.card_id,
+                            weight=1.0,
+                            max_copies=None,
+                            owned_copies=rule.copies_for(card),
+                            available=True,
+                            # Distinguished from a counted card on purpose: this is
+                            # "I have those", not "I have exactly three", and it is
+                            # seeded downstream as a lower bound rather than a count.
+                            reason="owned:rule",
+                        )
             if owned > 0:
                 return Availability(
                     card_id=card.card_id,
@@ -226,8 +286,14 @@ class AvailabilityProfile:
             return "Using every card in the game."
         qualifier = "Excluding" if self.strict else "De-emphasising"
         if self.mode == MODE_COLLECTION:
-            total = sum(self.owned.values())
-            return f"{qualifier} cards outside your collection ({total} copies owned)."
+            held: list[str] = []
+            if self.owned:
+                total = sum(self.owned.values())
+                held.append(f"{total} copies recorded")
+            held.extend(rule.describe() for rule in self.owned_rules)
+            if not held:
+                return "No collection recorded yet."
+            return f"You have {', '.join(held)}. {qualifier} everything else."
         parts: list[str] = []
         if self.excluded_cards:
             n = len(self.excluded_cards)

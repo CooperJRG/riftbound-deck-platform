@@ -16,6 +16,7 @@ import {
   forgetCollection,
   setAvailabilityMode,
   setStrict,
+  toggleOwnedRule,
   toggleRule,
   unexcludeCard,
 } from "../state/actions";
@@ -29,7 +30,10 @@ const MODE_LABELS: Record<AvailabilityMode, { title: string; hint: string }> = {
   },
   collection: {
     title: "My collection",
-    hint: "Precise, but you have to record what you own first.",
+    // Was "Precise, but you have to record what you own first" -- true when the only
+    // writer was the wizard's opt-in write-back, and a dead end: the mode told the
+    // player to record something and gave them nowhere to do it.
+    hint: "Say roughly what you have — a whole rarity or set at a time.",
   },
   open: {
     title: "Everything",
@@ -107,6 +111,50 @@ function quickRules(profile: AvailabilityProfile, facets: CardFacets | null): HT
   );
 }
 
+/**
+ * One-click rules for what the player *does* have.
+ *
+ * The mirror of `quickRules`, and the half that was missing. Until this existed,
+ * "My collection" told the player to record what they own and gave them nowhere to do
+ * it: the only writer in the app was the wizard's opt-in write-back, so a collection
+ * could only ever contain cards some session happened to ask about. Naming what you
+ * lack is the right shape for somebody who owns nearly everything; a casual player
+ * would have to list thousands of cards to say something true about a few hundred.
+ */
+function ownedRules(profile: AvailabilityProfile, facets: CardFacets | null): HTMLElement {
+  const active = (kind: string, value: string) =>
+    profile.ownedRules.some((r) => r.kind === kind && r.value === value);
+
+  const options: { kind: string; value: string; label: string }[] = [
+    // Rarity first: it is the axis a collection actually thins out along.
+    ...(facets?.rarities ?? [])
+      .filter((r) => r === "Common" || r === "Uncommon" || r === "Rare")
+      .map((r) => ({ kind: "rarity", value: r, label: `All ${r}s` })),
+    ...(facets?.setCodes ?? []).map((code) => ({
+      kind: "set",
+      value: code,
+      label: `All of ${code}`,
+    })),
+  ];
+
+  return h(
+    "div",
+    { class: "quick-rules" },
+    ...options.map((option) =>
+      h(
+        "button",
+        {
+          class: `pill${active(option.kind, option.value) ? " is-on" : ""}`,
+          type: "button",
+          on: { click: () => void toggleOwnedRule(option.kind, option.value) },
+        },
+        option.label,
+      ),
+    ),
+  );
+}
+
+
 export function renderAvailability(root: HTMLElement): void {
   const { availability: profile, facets } = store.state;
   if (!profile) {
@@ -155,13 +203,29 @@ export function renderAvailability(root: HTMLElement): void {
       ),
     );
   } else if (profile.mode === "collection") {
+    const counted =
+      profile.ownedCardCount > 0
+        ? `${profile.ownedCardCount} distinct cards recorded`
+        : "";
+    const declared = profile.ownedRules.length
+      ? profile.ownedRules.map((r) => r.description).join(", ")
+      : "";
     body.push(
       h(
-        "p",
-        { class: "muted small" },
-        profile.ownedCardCount > 0
-          ? `${profile.ownedCardCount} distinct cards recorded.`
-          : "No collection recorded yet — every card counts as missing until you add some.",
+        "div",
+        { class: "exclusions" },
+        h(
+          "p",
+          { class: "muted small" },
+          counted && declared
+            ? `You have ${declared}, plus ${counted}.`
+            : declared
+              ? `You have ${declared}.`
+              : counted
+                ? `${counted}.`
+                : "Tell us roughly what you have — a whole rarity or a whole set at a time.",
+        ),
+        ownedRules(profile, facets),
       ),
     );
   }

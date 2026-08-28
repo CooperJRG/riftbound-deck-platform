@@ -238,12 +238,18 @@ def declared_knowledge(
     rather than a wrong deck.
     """
     exact: dict[str, int] = {}
+    at_least: dict[str, int] = {}
     for card in catalog:
         resolved = profile.resolve(card)
         if resolved.reason.startswith("excluded:"):
             exact[card.card_id] = 0
         elif resolved.reason == "owned":
             exact[card.card_id] = resolved.owned_copies
+        elif resolved.reason == "owned:rule":
+            # "I have the commons" is not a count. A lower bound is exactly what this
+            # module already means by "I have all of them", and it leaves room for the
+            # player to hold more than a playset without being written down as short.
+            at_least[card.card_id] = resolved.owned_copies
         elif resolved.reason == "not-owned" and profile.strict:
             exact[card.card_id] = 0
-    return Knowledge(exact=exact, assumed=frozenset(exact))
+    return Knowledge(exact=exact, at_least=at_least, assumed=frozenset(exact))

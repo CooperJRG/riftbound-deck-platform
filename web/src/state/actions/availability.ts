@@ -26,6 +26,9 @@ export async function setAvailabilityMode(mode: AvailabilityMode): Promise<void>
       strict: current?.strict ?? false,
       excludedCardIds: (current?.excludedCards ?? []).map((c) => c.cardId),
       rules: (current?.rules ?? []).map((r) => ({ kind: r.kind, value: r.value })),
+      // Carried across a mode switch, so flipping to exclusion to look at something and
+      // back does not silently erase what the player recorded.
+      ownedRules: (current?.ownedRules ?? []).map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );
 }
@@ -39,6 +42,7 @@ export async function setStrict(strict: boolean): Promise<void> {
       strict,
       excludedCardIds: current.excludedCards.map((c) => c.cardId),
       rules: current.rules.map((r) => ({ kind: r.kind, value: r.value })),
+      ownedRules: current.ownedRules.map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );
 }
@@ -64,6 +68,33 @@ export async function toggleRule(kind: string, value: string): Promise<void> {
       strict: current.strict,
       excludedCardIds: current.excludedCards.map((c) => c.cardId),
       rules: rules.map((r) => ({ kind: r.kind, value: r.value })),
+      ownedRules: current.ownedRules.map((r) => ({ kind: r.kind, value: r.value })),
+    }),
+  );
+}
+
+/**
+ * Say what you *do* have, a class at a time.
+ *
+ * The mirror of `toggleRule`, and the half that was missing. Naming what you lack only
+ * scales for somebody who owns nearly everything; a player with a few hundred cards
+ * would have to list thousands to say something true. "Everything Common from OGN" is
+ * one click and covers hundreds.
+ */
+export async function toggleOwnedRule(kind: string, value: string): Promise<void> {
+  const current = store.state.availability;
+  if (!current) return;
+  const exists = current.ownedRules.some((r) => r.kind === kind && r.value === value);
+  const ownedRules = exists
+    ? current.ownedRules.filter((r) => !(r.kind === kind && r.value === value))
+    : [...current.ownedRules, { kind, value, description: "" }];
+  await applyAvailability(
+    api.setAvailability({
+      mode: "collection",
+      strict: current.strict,
+      excludedCardIds: current.excludedCards.map((c) => c.cardId),
+      rules: current.rules.map((r) => ({ kind: r.kind, value: r.value })),
+      ownedRules: ownedRules.map((r) => ({ kind: r.kind, value: r.value })),
     }),
   );
 }

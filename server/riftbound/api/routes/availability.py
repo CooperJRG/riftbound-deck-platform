@@ -16,6 +16,7 @@ from ...domain.availability import (
     RULE_KINDS,
     AvailabilityProfile,
     ExclusionRule,
+    OwnedRule,
 )
 from ...services import Services, get_services
 from ..identity import Identity, current_identity
@@ -82,12 +83,14 @@ def set_availability(
     try:
         mode = update.validated_mode()
         rules = update.validated_rules()
+        owned_rules = update.validated_owned_rules()
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     if mode == MODE_COLLECTION:
         profile = AvailabilityProfile.from_collection(
             services.collections.owned_by_card(user_id=identity.user_id),
+            rules=[OwnedRule(kind=r.kind, value=r.value) for r in owned_rules],
             strict=update.strict,
             penalty=update.penalty,
         )

@@ -33,6 +33,9 @@ class AvailabilityView(ApiModel):
     description: str
     excluded_cards: list[ExcludedCardView]
     rules: list[ExclusionRuleView]
+    #: Classes of card the player says they own. Collection mode's answer to the bulk
+    #: rules exclusion mode has always had.
+    owned_rules: list[ExclusionRuleView]
     owned_card_count: int
 
 
@@ -47,6 +50,7 @@ class AvailabilityUpdate(StrictRequest):
     penalty: float = DEFAULT_PENALTY
     excluded_card_ids: list[str] = Field(default_factory=list)
     rules: list[ExclusionRuleInput] = Field(default_factory=list)
+    owned_rules: list[ExclusionRuleInput] = Field(default_factory=list)
 
     def validated_mode(self) -> str:
         if self.mode not in MODES:
@@ -54,10 +58,17 @@ class AvailabilityUpdate(StrictRequest):
         return self.mode
 
     def validated_rules(self) -> list[ExclusionRuleInput]:
-        for rule in self.rules:
+        return self._checked(self.rules)
+
+    def validated_owned_rules(self) -> list[ExclusionRuleInput]:
+        return self._checked(self.owned_rules)
+
+    @staticmethod
+    def _checked(rules: list[ExclusionRuleInput]) -> list[ExclusionRuleInput]:
+        for rule in rules:
             if rule.kind not in RULE_KINDS:
                 raise ValueError(f"rule kind must be one of {RULE_KINDS}, got {rule.kind!r}")
-        return self.rules
+        return rules
 
 
 class ForgetResult(ApiModel):

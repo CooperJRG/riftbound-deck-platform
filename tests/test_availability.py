@@ -16,8 +16,10 @@ from riftbound.domain.availability import (
     RULE_SET,
     AvailabilityProfile,
     ExclusionRule,
+    OwnedRule,
     deck_coverage,
 )
+from riftbound.domain.smart_decks import declared_knowledge
 
 # -- open mode ----------------------------------------------------------------
 
@@ -170,3 +172,68 @@ def test_describe_is_human_readable(catalog):
     text = exclusion.describe()
     assert "De-emphasising" in text and "1 card" in text and "no Epic cards" in text
     assert "Excluding" in AvailabilityProfile.from_exclusions(["x"], strict=True).describe()
+
+
+# -- saying what you *do* have -------------------------------------------------
+
+
+def test_an_owned_rule_covers_a_whole_class_in_one_click(catalog):
+    """The entry path that did not exist.
+
+    "My collection" told the player to record what they own and gave them nowhere to do
+    it: the only writer was the wizard's opt-in write-back, so a collection could only
+    ever hold cards some session happened to ask about. Naming what you lack is the
+    right shape for somebody who owns nearly everything; a casual player would have to
+    list thousands of cards to say something true about a few hundred.
+    """
+    profile = AvailabilityProfile.from_collection(
+        {}, rules=[OwnedRule("rarity", "Common")]
+    )
+    common = catalog.get("brazen-buccaneer")
+    epic = catalog.get("harpoon-squad")
+    assert profile.resolve(common).available
+    assert not profile.resolve(common).is_penalised
+    assert profile.resolve(epic).is_penalised, "a rule says nothing about other rarities"
+
+
+def test_a_counted_card_beats_a_rule_about_it(catalog):
+    """A rule is a broad statement; a count is a specific one, so the count wins."""
+    profile = AvailabilityProfile.from_collection(
+        {"brazen-buccaneer": 1}, rules=[OwnedRule("rarity", "Common")]
+    )
+    resolved = profile.resolve(catalog.get("brazen-buccaneer"))
+    assert resolved.owned_copies == 1
+    assert resolved.reason == "owned"
+
+
+def test_a_rule_declares_a_bound_not_a_count(catalog):
+    """"I have the commons" is not "I have exactly three of each".
+
+    Seeded as a lower bound, which is what :mod:`smart_decks.knowledge` already means by
+    "I have all of them" -- and it leaves room for somebody holding more than a playset
+    without being written down as short of their own cards.
+    """
+    profile = AvailabilityProfile.from_collection(
+        {}, rules=[OwnedRule("rarity", "Common")]
+    )
+    knowledge = declared_knowledge(profile, catalog)
+    assert knowledge.lower_bound("brazen-buccaneer") == 3
+    assert not knowledge.is_exact("brazen-buccaneer"), "a bound, not a count"
+
+
+def test_runes_are_declared_in_bulk(catalog):
+    """A rune base wants twelve, and runes are bought in bulk or not at all.
+
+    Declaring three would tell a player they were short of the runes they just said
+    they had.
+    """
+    profile = AvailabilityProfile.from_collection(
+        {}, rules=[OwnedRule("rarity", "Common")]
+    )
+    knowledge = declared_knowledge(profile, catalog)
+    assert knowledge.lower_bound("fury-rune") == 12
+
+
+def test_an_owned_rule_reads_as_a_positive_statement():
+    assert OwnedRule("rarity", "Common").describe() == "all Commons"
+    assert ExclusionRule("rarity", "Common").describe() == "no Common cards"
