@@ -71,6 +71,15 @@ W_COHERENCE = 0.20
 #: gives up 4.2% of deck score, so a term that cannot outweigh that changes nothing.
 W_UNFIELDABLE = 0.60
 
+#: How much more fieldable another list has to be before it is worth showing. A share of
+#: the deck's copies; one copy of fifty-six is 0.018, so this is a little over a card.
+PIVOT_MARGIN = 0.02
+
+#: And how many unasked cards it may cost. A closing question runs to roughly twenty, so
+#: a pivot that stays under that is the cheaper way to reach an answer as well as the
+#: better one. Above it, ask the question instead.
+PIVOT_MAX_NEW_CARDS = 22
+
 
 #: How much expected yield a checklist aims for, as a multiple of the shortfall. Above
 #: 1 because the estimate is a prior, not a measurement, and a checklist that falls just
@@ -264,13 +273,38 @@ class Engine:
         # to try to beat it.
         first_round = session.rounds == 0
         improving = floor is not None and session.rounds < MAX_PROPOSALS
-        # Re-proposing a different list when the player cannot field this one was tried
-        # here and cost too much. It works -- see `_unfieldable` -- but every extra deck
-        # is another screen: measured, it took the median session from 44 cards to 76
-        # and p90 from 67 to 108, past the targets phase 1 set. The right place to spend
-        # a round is the closing question, which is aimed at what is actually blocking.
-        if candidates and (first_round or improving):
-            deck = self._playable(self._pick(session, candidates))
+        # When they have told us they cannot field this list, show them a different one
+        # *instead of* the closing question rather than as well as it.
+        #
+        # Adding a round was the first attempt and it cost far too much -- the median
+        # session went from 44 cards to 76. Substituting is nearly free, because the
+        # answers carry: a second list for the same legend asks about a median of 8
+        # cards nobody has been asked about yet, against roughly 20 for a closing
+        # question. Everything the two lists share is already settled and shown as such.
+        #
+        # And what comes back is a real published list rather than a repair. Of the 49
+        # lists for Jayce - Defender of Tomorrow, 44 run Elder Dragon and five do not;
+        # the best of those five gives up 4.2% of deck score. That is a better deck than
+        # the Elder list with its dragons swapped out and the nine-cost card that ramps
+        # into them left stranded.
+        pivoting = (
+            floor is None
+            and not first_round
+            and session.rounds < MAX_PROPOSALS
+            and self._worth_pivoting(session, candidates)
+        )
+        if candidates and (first_round or improving or pivoting):
+            # A pivot chooses on the axis that caused it. `_pick` blends quality,
+            # information and coherence, and coherence rewards a list resembling what
+            # the player has already confirmed -- which, when they have just confirmed
+            # most of a combo deck, is every other build of the same combo. Pivoting is
+            # the one case where "can they hold it" has to come first, with quality as
+            # the tie-break.
+            deck = self._playable(
+                self._most_fieldable(session, candidates)
+                if pivoting
+                else self._pick(session, candidates)
+            )
             conservative = repair(
                 deck.deck, session.knowledge, profile=self.profile,
                 catalog=self.catalog, rules=self.rules, conservative=True,
@@ -414,6 +448,42 @@ class Engine:
 
         return max(candidates, key=priority)
 
+    def _most_fieldable(self, session: Session, candidates: list[MetaDeck]) -> MetaDeck:
+        """The list they can most nearly hold, best-scoring among equals."""
+        return min(
+            candidates,
+            key=lambda deck: (
+                self._unfieldable(deck, session.knowledge),
+                -self.scores.get(deck.deck_id, 0.0),
+            ),
+        )
+
+    def _worth_pivoting(self, session: Session, candidates: list[MetaDeck]) -> bool:
+        """Is another published list clearly easier for them to hold than this one?
+
+        Two conditions, because a pivot has to be worth the screen. The alternative must
+        ask for meaningfully less of what they have said they lack, *and* it must not
+        cost more new questions than the closing question it replaces -- otherwise this
+        is the expensive version of the idea wearing a different hat.
+        """
+        asked = [d for d in session.asked if d in self.decks]
+        if not asked:
+            return False
+        current = min(self._unfieldable(self.decks[d], session.knowledge) for d in asked)
+        if current <= 0:
+            return False
+
+        for deck in candidates:
+            if self._unfieldable(deck, session.knowledge) > current - PIVOT_MARGIN:
+                continue
+            fresh = sum(
+                1 for card_id in deck_requirements(deck.deck)
+                if not session.knowledge.is_known(card_id)
+            )
+            if fresh <= PIVOT_MAX_NEW_CARDS:
+                return True
+        return False
+
     def _unfieldable(self, deck: MetaDeck, knowledge: Knowledge) -> float:
         """The share of this deck the player has *told us* they cannot supply.
 
@@ -439,10 +509,15 @@ class Engine:
         """
         required = deck_requirements(deck.deck)
         total = sum(required.values()) or 1
+        # Exactly known, not merely known. "I have all six" is a lower bound -- they may
+        # hold twelve -- so a deck wanting three of a card they confirmed two of in some
+        # earlier list is not a deck they cannot field, and counting it as one is how
+        # every alternative ended up looking equally unbuildable. Only a shortfall they
+        # have actually stated counts here.
         missing = sum(
             needed - min(needed, knowledge.lower_bound(card_id))
             for card_id, needed in required.items()
-            if knowledge.is_known(card_id)
+            if knowledge.is_exact(card_id)
         )
         return missing / total
 
@@ -810,7 +885,14 @@ def run_to_completion(
         if proposal.phase == PHASE_PROPOSE and proposal.deck is not None:
             required = deck_requirements(proposal.deck.deck)
             have = {c: min(n, int(truth.get(c, 0))) for c, n in required.items()}
-            cards_per_round.append(len(required))
+            # Decisions, not rows. A card the player has already answered for is shown
+            # pre-filled and settled -- it is context, not a question, and counting it
+            # again on every later deck overstates what the session costs them. The
+            # first deck is unaffected: nothing is known yet, so every row is a
+            # decision.
+            cards_per_round.append(
+                sum(1 for c in required if not session.knowledge.is_known(c))
+            )
             session = engine.answer(session, proposal.deck.deck_id, have)
         elif proposal.question is not None:
             asked = proposal.question.card_ids

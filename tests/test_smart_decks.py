@@ -1134,3 +1134,60 @@ def test_every_dependency_counts_not_just_the_strongest(catalog, bound_rules):
         assert profile.support("filler-10", held) < 1.0, (
             f"dropping {missing} must be noticed even with the others present"
         )
+
+
+# -- showing a different list instead of patching this one ---------------------
+
+
+def test_a_card_they_do_not_have_costs_the_deck_that_needs_it(engine, catalog):
+    """`_plausibility` blends what they said with a prior for what they did not.
+
+    Averaged together, a card somebody has explicitly said they own none of costs a
+    deck about 1.5% of its score -- which is why the wizard went on proposing a list
+    built on a card it had been told was unavailable.
+    """
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    deck = first.deck
+    assert engine._unfieldable(deck, session.knowledge) == 0.0, "nothing said yet"
+
+    required = deck_requirements(deck.deck)
+    have = dict(required)
+    have["harpoon-squad"] = 0
+    session = engine.answer(session, deck.deck_id, have)
+    assert engine._unfieldable(deck, session.knowledge) > 0.0
+
+
+def test_a_lower_bound_is_not_a_shortfall(engine, catalog):
+    """"I have all six" leaves open that they hold twelve.
+
+    Counting a deck that wants three of a card they confirmed two of in some earlier
+    list as unfieldable made every alternative look equally unbuildable, which is why
+    the pivot could never find the one deck that avoided the missing card.
+    """
+    session = engine.start(LEGEND)
+    first = engine.propose(session)
+    required = deck_requirements(first.deck.deck)
+    session = engine.answer(session, first.deck.deck_id, dict(required))
+    # Everything answered at face value is a lower bound, never an exact shortfall.
+    for card_id in required:
+        assert not session.knowledge.is_exact(card_id) or session.knowledge.lower_bound(
+            card_id
+        ) >= required[card_id]
+    assert engine._unfieldable(first.deck, session.knowledge) == 0.0
+
+
+def test_a_pivot_replaces_the_question_rather_than_adding_a_round(engine, catalog):
+    """Adding a deck round cost the median session 44 cards to 76.
+
+    Substituting is nearly free, because the answers carry: a second list for the same
+    legend asks about a median of 8 cards nobody has been asked about, against roughly
+    20 for a closing question.
+    """
+    source = inspect.getsource(type(engine).propose)
+    assert "first_round or improving or pivoting" in source, (
+        "the pivot must sit in the same branch as the other proposals, not beside it"
+    )
+    assert "PIVOT_MAX_NEW_CARDS" in inspect.getsource(type(engine)._worth_pivoting), (
+        "a pivot that asks more than the question it replaces is the expensive version"
+    )
