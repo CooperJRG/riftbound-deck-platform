@@ -705,3 +705,53 @@ def test_an_answer_about_one_card_beats_a_rule_about_its_class(meta_client):
     assert detail["knownCards"] >= 1
     gaps = {g["cardId"] for g in detail["proposal"].get("gaps", [])}
     assert common["cardId"] in gaps, "the answer must show as a real shortfall"
+
+
+# -- which question the picker answers first -----------------------------------
+
+
+def test_the_picker_leads_with_strength_by_default(meta_client):
+    """The right answer for somebody who has told us nothing — everybody, on a first
+    visit."""
+    rows = meta_client.get("/api/smart-decks/legends").json()
+    scores = [r["bestScore"] for r in rows]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_a_declared_collection_reaches_familiarity(meta_client):
+    """It used to read the collection table alone.
+
+    Somebody who ticked "all Commons" owns hundreds of cards and scored 0% familiar
+    with every legend in the game, which made the sort below useless exactly for the
+    player it exists to serve.
+    """
+    before = meta_client.get("/api/smart-decks/legends").json()
+    assert all(r["familiarity"] == 0 for r in before)
+
+    _declare_commons(meta_client)
+    after = meta_client.get("/api/smart-decks/legends").json()
+    assert any(r["familiarity"] > 0 for r in after)
+
+
+def test_sorting_by_buildability_reorders_but_never_hides(meta_client):
+    """A sort, not a filter.
+
+    Hiding a legend somebody could build with a little effort rebuilds the barrier the
+    two-mode design removes, so every legend stays in the list whichever order is asked
+    for.
+    """
+    _declare_commons(meta_client)
+    strength = meta_client.get("/api/smart-decks/legends?sort=strength").json()
+    buildable = meta_client.get("/api/smart-decks/legends?sort=buildable").json()
+
+    assert {r["legendId"] for r in strength} == {r["legendId"] for r in buildable}
+    familiarity = [r["familiarity"] for r in buildable]
+    assert familiarity == sorted(familiarity, reverse=True)
+
+
+def test_an_unknown_sort_falls_back_rather_than_failing(meta_client):
+    """A picker that 400s on a stale query string is worse than one that shows the
+    default order."""
+    rows = meta_client.get("/api/smart-decks/legends?sort=nonsense").json()
+    scores = [r["bestScore"] for r in rows]
+    assert scores == sorted(scores, reverse=True)

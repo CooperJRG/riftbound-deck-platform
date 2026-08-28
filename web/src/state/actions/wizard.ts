@@ -6,7 +6,7 @@
  */
 
 import { api } from "../../api/client";
-import type { SmartSession } from "../../api/types";
+import type { LegendSort, SmartSession } from "../../api/types";
 import { scrollToTop } from "../../ui/scroll";
 import { store } from "../store";
 import { reportError } from "./shared";
@@ -30,6 +30,24 @@ function seedAnswers(session: SmartSession | null): Map<string, number> {
   return answers;
 }
 
+/**
+ * Reorder the picker.
+ *
+ * Refetches rather than sorting client-side: familiarity is derived from a collection
+ * and a set of declarations the server holds, and recomputing it here would be a second
+ * implementation of the same number, free to disagree with the first.
+ */
+export async function setSmartLegendSort(sort: LegendSort): Promise<void> {
+  if (store.state.smartLegendSort === sort) return;
+  store.set({ smartLegendSort: sort, smartBusy: true });
+  try {
+    store.set({ smartLegends: await api.smartLegends(sort), smartBusy: false });
+  } catch (error) {
+    store.set({ smartBusy: false });
+    reportError(error);
+  }
+}
+
 export async function openSmartDecks(options: { retry?: boolean } = {}): Promise<void> {
   store.set({ view: "find" });
   if (store.state.smartLegendsLoaded && store.state.smartLegends.length) return;
@@ -46,7 +64,7 @@ export async function openSmartDecks(options: { retry?: boolean } = {}): Promise
   );
   try {
     const [smartLegends, refresh, sessions] = await Promise.all([
-      api.smartLegends(),
+      api.smartLegends(store.state.smartLegendSort),
       // Best-effort: the picker is still usable without it.
       api.refreshStatus().catch(() => null),
       api.smartSessions().catch(() => []),

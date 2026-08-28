@@ -18,6 +18,11 @@
   --atlas-copper-soft: #f1dac7;
   --atlas-teal: #237a75;
   --atlas-teal-soft: #d7e8e4;
+  /* Teal for small text on --atlas-teal-soft. The accent itself measures 4.03:1 there,
+     under AA for the 12px pill labels that use it; this is 4.94:1. Dark mode needs no
+     variant -- its teal on its own soft ground is 5.28:1 -- so the two themes point at
+     different values deliberately. */
+  --atlas-teal-ink: #1f6b66;
   --atlas-border: #ddd3c4;
   --atlas-positive: #2f7a58;
   --atlas-warning: #a46b17;
@@ -58,6 +63,7 @@
   --atlas-copper-ink: #e38a45;
   --atlas-teal: #62bdb4;
   --atlas-teal-soft: #203d3b;
+  --atlas-teal-ink: #62bdb4;
   --atlas-border: #343b3c;
   --atlas-positive: #69b98f;
   --atlas-warning: #d5a153;
@@ -663,6 +669,78 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 }
 .resume-open:hover { border-color: var(--atlas-copper); }
 .resume-open span { color: var(--atlas-muted-ink); font-size: 0.72rem; }
+
+/* Bulk rules, in both directions.
+   `.pill` was defined only in styles.css, the v2 stylesheet, which keys its palette off
+   `prefers-color-scheme` while everything here keys off `data-theme`. The two agree
+   whenever the app theme matches the OS and disagree the moment somebody uses the theme
+   toggle: an unselected pill measured 2.62:1 with the app in dark on a light OS, because
+   it was painting styles.css's light `--text-dim` on this stylesheet's dark surface.
+   Restated in atlas tokens so it follows the same theme as the surface behind it. */
+.pill {
+  appearance: none;
+  padding: 3px 10px;
+  border: 1px solid var(--atlas-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--atlas-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.pill:hover { border-color: var(--atlas-copper); color: var(--atlas-ink); }
+.pill.is-on {
+  border-color: var(--atlas-teal);
+  background: var(--atlas-teal-soft);
+  color: var(--atlas-teal-ink);
+  font-weight: 600;
+}
+
+/* Which question the picker answers first. Offered only once the player has told us
+   something -- an order by "closest to my cards" is noise when we know of no cards. */
+.picker-sort {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
+.picker-sort-label {
+  /* On the canvas rather than a surface, where --atlas-muted measures 4.47:1 -- under
+     AA for an 11.5px uppercase label. */
+  color: var(--atlas-muted-ink);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* The offer to say what you own, on the screen a new player actually lands on.
+   The same rules live in the header's "Card access" disclosure, which starts closed --
+   so the feature that halves the opening checklist was reachable only by people who
+   already knew it existed. Copper edge because it is an invitation, not a warning. */
+.collection-nudge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-start;
+  margin-bottom: 1.4rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--atlas-border);
+  border-left: 3px solid var(--atlas-copper);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+.collection-nudge h3 {
+  margin: 0;
+  font-family: var(--atlas-serif);
+  font-size: 1.05rem;
+}
+.collection-nudge p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--atlas-muted);
+  font-size: 0.85rem;
+}
 
 /* The way back out of a recorded collection. Quiet, and always present. */
 .forget-collection { display: flex; flex-direction: column; gap: 0.25rem; margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px solid var(--atlas-border); align-items: flex-start; }

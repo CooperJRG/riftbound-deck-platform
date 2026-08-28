@@ -53,6 +53,11 @@ router = APIRouter(prefix="/api/smart-decks", tags=["smart-decks"])
 #: How many of a legend's most-played cards to weigh when estimating familiarity.
 FAMILIARITY_DEPTH = 20
 
+#: Orderings the picker offers. A sort, never a filter -- see :func:`list_legends`.
+SORT_STRENGTH = "strength"
+SORT_BUILDABLE = "buildable"
+SORTS = (SORT_STRENGTH, SORT_BUILDABLE)
+
 #: A card played in at least this share of a legend's decks is a staple.
 STAPLE_SHARE = 0.5
 
@@ -297,18 +302,34 @@ def _session_view(
 
 @router.get("/legends", response_model=list[LegendChoiceView])
 def list_legends(
+    sort: str = SORT_STRENGTH,
     services: Services = Depends(get_services),
     identity: Identity = Depends(current_identity),
 ) -> list[LegendChoiceView]:
     """Legends the wizard can build for, strongest first.
 
-    ``familiarity`` is advisory and never a filter. The point of the wizard is to find
-    out what someone can build; pre-judging it from a collection they may not have
-    entered would reintroduce exactly the barrier the two-mode design removes.
+    ``familiarity`` never filters, and now optionally *orders*. The distinction is the
+    whole of it: hiding a legend somebody could build with a little effort rebuilds the
+    barrier the two-mode design removes, whereas letting them ask "which of these is
+    closest to what I have" answers the question a player short of cards actually has.
+    Every legend is always in the list; ``sort`` only changes what they read first.
+
+    Default order is strength, because that is the right answer for somebody who has
+    told us nothing -- which, on a first visit, is everybody.
     """
     catalog = services.catalog
-    owned = services.collections.owned_by_card(user_id=identity.user_id)
     scores = services.deck_scores
+
+    # What we can assume they hold, from every source at once. Reading only the
+    # collection table missed the whole of a declared collection: somebody who ticked
+    # "all Commons" owns hundreds of cards and scored 0% familiar with every legend in
+    # the game.
+    owned = dict(services.collections.owned_by_card(user_id=identity.user_id))
+    declared = declared_knowledge(
+        services.availability.load(user_id=identity.user_id), catalog
+    ).owned()
+    for card_id, copies in declared.items():
+        owned[card_id] = max(owned.get(card_id, 0), copies)
 
     tournament_counts: dict[str, int] = {}
     if services.meta is not None:
@@ -343,7 +364,10 @@ def list_legends(
                 familiarity=familiarity,
             )
         )
-    out.sort(key=lambda v: (-v.best_score, -v.deck_count, v.name))
+    if sort == SORT_BUILDABLE:
+        out.sort(key=lambda v: (-v.familiarity, -v.best_score, v.name))
+    else:
+        out.sort(key=lambda v: (-v.best_score, -v.deck_count, v.name))
     return out
 
 

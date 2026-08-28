@@ -6,17 +6,138 @@
  * would rebuild the barrier the two-mode design removes.
  */
 
-import type { LegendChoice } from "../../api/types";
+import type { LegendChoice, LegendSort } from "../../api/types";
 import {
   discardSmartSession,
   refreshMetaNow,
   resumeSmartSession,
   retrySmartLegends,
   setSmartLegendQuery,
+  setSmartLegendSort,
   startSmartSession,
+  toggleOwnedRule,
 } from "../../state/actions";
 import { store } from "../../state/store";
 import { fragment, h } from "../../ui/dom";
+
+const NUDGE_DISMISSED = "atlas.collection-nudge-dismissed";
+
+function nudgeDismissed(): boolean {
+  try {
+    return localStorage.getItem(NUDGE_DISMISSED) === "1";
+  } catch {
+    // Private windows and blocked site data both throw here. A nudge that cannot
+    // remember being dismissed is better than a page that will not render.
+    return false;
+  }
+}
+
+function dismissNudge(): void {
+  try {
+    localStorage.setItem(NUDGE_DISMISSED, "1");
+  } catch {
+    /* nothing to do -- it will simply appear again next visit */
+  }
+  // An empty patch still notifies, which is what re-renders the picker. The flag lives
+  // in localStorage rather than the store because it is a per-browser convenience, not
+  // something the server has any business knowing.
+  store.set({});
+}
+
+/**
+ * The offer to say what you own, where somebody would actually see it.
+ *
+ * The bulk rules live in the header's "Card access" panel, which is a disclosure that
+ * starts closed -- so the feature that turns a 24-card checklist into a 10-card one was
+ * reachable only by people who already knew it was there. This is the same two clicks,
+ * on the screen a new player lands on.
+ *
+ * Shown only when they have told us nothing at all. Declaring anything removes it, and
+ * so does dismissing it: "everything" is a legitimate answer and should not be asked
+ * twice.
+ */
+/**
+ * Which question the picker answers first.
+ *
+ * Strength alone is the right order for somebody who owns everything, and the wrong one
+ * for the player this whole review is about: it leads with the decks they are least able
+ * to build. Offered rather than imposed, and a sort rather than a filter -- every legend
+ * stays in the list either way, because hiding one somebody could build with a little
+ * effort rebuilds the barrier the two-mode design exists to remove.
+ */
+function sortControl(): HTMLElement | null {
+  const { smartLegendSort, availability, smartBusy } = store.state;
+  // Nothing to sort by until they have told us something.
+  const knows =
+    (availability?.ownedRules.length ?? 0) > 0 ||
+    (availability?.ownedCardCount ?? 0) > 0;
+  if (!knows) return null;
+
+  const option = (value: LegendSort, label: string) =>
+    h(
+      "button",
+      {
+        class: `pill${smartLegendSort === value ? " is-on" : ""}`,
+        type: "button",
+        disabled: smartBusy,
+        aria: { pressed: String(smartLegendSort === value) },
+        on: { click: () => void setSmartLegendSort(value) },
+      },
+      label,
+    );
+
+  return h(
+    "div",
+    { class: "picker-sort" },
+    h("span", { class: "picker-sort-label" }, "Order by"),
+    option("strength", "Strongest"),
+    option("buildable", "Closest to my cards"),
+  );
+}
+
+export function collectionNudge(): HTMLElement | null {
+  const { availability } = store.state;
+  if (!availability || nudgeDismissed()) return null;
+  const untouched =
+    availability.ownedRules.length === 0 &&
+    availability.rules.length === 0 &&
+    availability.excludedCards.length === 0 &&
+    availability.ownedCardCount === 0;
+  if (!untouched) return null;
+
+  const rule = (value: string) =>
+    h(
+      "button",
+      {
+        class: "pill",
+        type: "button",
+        on: { click: () => void toggleOwnedRule("rarity", value) },
+      },
+      `I have most ${value}s`,
+    );
+
+  return h(
+    "section",
+    { class: "collection-nudge" },
+    h("h3", {}, "Short of a few cards?"),
+    h(
+      "p",
+      {},
+      "Say roughly what you have and the questions get shorter — we stop asking about " +
+        "cards you have already accounted for. You can change it whenever you like.",
+    ),
+    h("div", { class: "quick-rules" }, rule("Common"), rule("Uncommon"), rule("Rare")),
+    h(
+      "button",
+      {
+        class: "quiet-button",
+        type: "button",
+        on: { click: dismissNudge },
+      },
+      "I have most cards — don't ask again",
+    ),
+  );
+}
 
 /**
  * Sessions still open, offered before the picker.
@@ -247,6 +368,7 @@ export function legendPicker(): HTMLElement {
     freshnessLine(),
     // Before the picker: finishing something already started beats starting again.
     resumeStrip(),
+    collectionNudge(),
     smartLegends.length === 0
       ? smartBusy
         ? h("p", { class: "empty" }, "Loading...")
@@ -262,6 +384,7 @@ export function legendPicker(): HTMLElement {
                 setSmartLegendQuery((event.target as HTMLInputElement).value),
             },
           }),
+          sortControl(),
           !needle && smartLegends.length > shown.length
             ? h("p", { class: "picker-hint" }, `Showing the leading ${shown.length}. Search to explore all ${smartLegends.length} legends.`)
             : null,

@@ -169,6 +169,16 @@ export interface AvailabilityUpdate {
   ownedRules?: { kind: string; value: string }[];
 }
 
+/**
+ * How the legend picker is ordered.
+ *
+ * A sort, never a filter: every legend stays in the list either way. "buildable" reads
+ * the familiarity figure the server already computes, so somebody short of cards can
+ * ask which of these is closest to what they have rather than scrolling past the
+ * decks they are least able to build.
+ */
+export type LegendSort = "strength" | "buildable";
+
 export interface RuleKinds {
   kinds: string[];
   values: Record<string, string[]>;

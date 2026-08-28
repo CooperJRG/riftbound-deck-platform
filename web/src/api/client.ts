@@ -18,6 +18,7 @@ import type {
   CardDetail,
   CardTrendOverview,
   LegendChoice,
+  LegendSort,
   LegendMeta,
   RefreshStatus,
   RuleKinds,
@@ -229,7 +230,8 @@ export const api = {
   refreshStatus: () => request<RefreshStatus>("/api/meta/refresh"),
   refreshNow: () => request<RefreshStatus>("/api/meta/refresh", { method: "POST" }),
 
-  smartLegends: () => request<LegendChoice[]>("/api/smart-decks/legends"),
+  smartLegends: (sort: LegendSort = "strength") =>
+    request<LegendChoice[]>(`/api/smart-decks/legends?sort=${sort}`),
   smartSessions: () => request<SmartSession[]>("/api/smart-decks/sessions"),
   /** Erase the collection and every wizard session. Both, deliberately. */
   forgetCollection: () =>

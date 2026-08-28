@@ -15,6 +15,7 @@ import type {
   DeckSummary,
   FormatView,
   LegendChoice,
+  LegendSort,
   LegendMeta,
   MetaDeck,
   MetaStatus,
@@ -111,6 +112,7 @@ export interface AppState {
   smartResumable: SmartSession[];
   /** Legend picker filter, so a 49-legend list stays navigable. */
   smartLegendQuery: string;
+  smartLegendSort: LegendSort;
   /**
    * Why the legend list is empty, when it is.
    *
@@ -222,6 +224,7 @@ const initial: AppState = {
   smartShowing: "rounds",
   smartResumable: [],
   smartLegendQuery: "",
+  smartLegendSort: "strength",
   smartLegendsError: "",
   smartLegendsLoaded: false,
   smartLegendsAttempts: 0,
