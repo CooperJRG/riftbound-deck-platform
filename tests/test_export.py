@@ -8,11 +8,11 @@ this fails on the diff.
 
 from __future__ import annotations
 
+from tests.conftest import make_card
+
 from riftbound.domain.cards import build_catalog
 from riftbound.domain.deck import Deck
 from riftbound.domain.export import export_deck, export_filename, export_name
-
-from tests.conftest import make_card
 
 # A published Lillia list, as another tool wrote it.
 LILLIA = """\

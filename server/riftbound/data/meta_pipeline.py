@@ -41,6 +41,8 @@ from .sources.dotgg_meta import DotGGMetaSource
 from .sources.local_deck_api import ATTRIBUTION as RIFTDECKS_ATTRIBUTION
 from .sources.local_deck_api import LocalDeckApiSource
 from .sources.meta_replay import MetaReplaySource
+from .sources.riftools import ATTRIBUTION as RIFTOOLS_ATTRIBUTION
+from .sources.riftools import RiftoolsSource
 from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION
 from .sources.topdeck import TopDeckSource
 
@@ -228,7 +230,7 @@ def _build_sources(args: argparse.Namespace, progress):
     local service being down costs the community decks and nothing else.
     """
     chosen = args.source
-    wanted = ("topdeck", "riftdecks") if chosen == "all" else (chosen,)
+    wanted = ("topdeck", "riftdecks", "riftools") if chosen == "all" else (chosen,)
     sources: list = []
     if "topdeck" in wanted:
         sources.append(TopDeckSource(
@@ -238,6 +240,11 @@ def _build_sources(args: argparse.Namespace, progress):
         sources.append(LocalDeckApiSource(
             min_quality=args.min_quality, since=args.since or "",
             limit=args.local_limit, cache_dir=INGEST_CACHE,
+        ))
+    if "riftools" in wanted:
+        sources.append(RiftoolsSource(
+            max_decks=args.riftools_limit, since=args.since or "",
+            cache_dir=INGEST_CACHE,
         ))
     if "dotgg" in wanted:
         sources.append(DotGGMetaSource(
@@ -457,6 +464,8 @@ def _attribution_for(decks) -> list[dict[str, str]]:
         credits.append(dict(TOPDECK_ATTRIBUTION))
     if "riftdecks" in sources:
         credits.append(dict(RIFTDECKS_ATTRIBUTION))
+    if "riftools" in sources:
+        credits.append(dict(RIFTOOLS_ATTRIBUTION))
     return credits
 
 
@@ -533,10 +542,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="rebuild from the cached harvest in var/ingest instead of fetching",
     )
     p.add_argument(
-        "--source", choices=("all", "topdeck", "riftdecks", "dotgg"), default="all",
+        "--source", choices=("all", "topdeck", "riftdecks", "riftools", "dotgg"), default="all",
         help=(
-            "all: topdeck tournaments + riftdecks community decks (default). "
-            "topdeck: tournament decks only. riftdecks: the local deck API. "
+            "all: topdeck tournaments + riftdecks community decks + riftools "
+            "snapshots (default). topdeck: tournament decks only. riftdecks: the "
+            "local deck API. riftools: the public snapshot archive. "
             "dotgg: the slow per-deck crawl"
         ),
     )
@@ -565,6 +575,15 @@ def build_parser() -> argparse.ArgumentParser:
             "riftdecks: max decks to take from the local API (0 = everything it has, "
             "the default). It is a local service with no rate limit to respect, and a "
             "cap silently drops its newest decks."
+        ),
+    )
+    p.add_argument(
+        "--riftools-limit", type=int, default=0, dest="riftools_limit",
+        help=(
+            "riftools: max decklists to take (0 = every one it publishes). A cold run "
+            "is one request per deck, so the first harvest is long and every one after "
+            "it is served from cache; the cap is for trying the source out, not for "
+            "routine use."
         ),
     )
     p.add_argument("--tournaments", type=int, default=12, help="max tournaments to read")

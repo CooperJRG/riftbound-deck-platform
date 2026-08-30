@@ -484,7 +484,14 @@ def repair_meta_decks(
                 current.sort(key=lambda cid: (counts.get(cid, 0), cid), reverse=True)
                 current = current[:battlefield_count]
                 trimmed += 1
-            else:
+            elif current:
+                # Only a list that recorded *some* battlefields is filled. A list that
+                # recorded none never had the zone at all -- a different upstream
+                # contract, not a transcription slip -- and inventing all three would
+                # feed the popularity counts straight back into themselves: the most
+                # played battlefield gets assigned to every deck that named none, which
+                # makes it the most played. One source publishes 4,471 lists shaped that
+                # way, 89% of them without the zone, so the loop is not hypothetical.
                 have = set(current)
                 extra = [cid for cid, _n in counts.most_common() if cid not in have]
                 if len(current) + len(extra) >= battlefield_count:

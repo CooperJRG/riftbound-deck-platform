@@ -544,6 +544,26 @@ def test_too_few_battlefields_gains_the_ones_it_plays_most(catalog):
     assert report.battlefields_filled == 1
 
 
+def test_a_list_that_named_no_battlefields_is_left_alone(catalog):
+    """Filling from zero would be fabrication, not repair.
+
+    A list one battlefield short lost one in transcription. A list with none never had
+    the zone -- some sources only publish the main deck -- and inventing all three feeds
+    the popularity counts back into themselves, so the most played battlefield gets
+    assigned to every deck that named none and thereby stays the most played.
+    """
+    from riftbound.data.meta_normalize import repair_meta_decks
+
+    common = ["the-arena", "the-forge", "the-spire"]
+    corpus = [a_repairable(catalog, slug=f"ok-{i}", battlefields=common) for i in range(5)]
+    corpus.append(a_repairable(catalog, slug="none", battlefields=[]))
+
+    repaired, report = repair_meta_decks(corpus, catalog=catalog, battlefield_count=3)
+    untouched = next(d for d in repaired if d.provenance.source_slug == "none")
+    assert untouched.deck.battlefields == ()
+    assert report.battlefields_filled == 0
+
+
 def test_a_missing_champion_is_taken_from_the_list(catalog):
     """The nomination is a player declaration upstream does not record. If a legal
     champion is sitting in the deck, that is the answer."""
