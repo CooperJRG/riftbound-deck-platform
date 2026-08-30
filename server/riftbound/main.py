@@ -18,7 +18,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api.identity import build_identity_provider
+from .api.identity import COOKIE_MAX_AGE, build_identity_provider
+from .api.identity import COOKIE_NAME as IDENTITY_COOKIE
 from .api.routes import availability, cards, decks, meta, smart_decks, system
 from .config import ConfigError
 from .data.scheduler import MetaScheduler
@@ -73,6 +74,33 @@ def create_app() -> FastAPI:
             allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             allow_headers=["Content-Type", "Authorization"],
         )
+
+    if config.is_public:
+        @app.middleware("http")
+        async def issue_visitor_cookie(request: Request, call_next):
+            """Hand a first-time visitor their shelf on the way out.
+
+            The identity dependency decides *what* the id is; only a response can carry
+            it back, and the dependency does not have one. So it leaves the signed value
+            on ``request.state`` and this writes it.
+
+            HttpOnly because no script needs to read it, and Lax so that following a
+            shared deck link from Discord still arrives as the same visitor rather than
+            silently minting a second identity and an empty deck library.
+            """
+            response = await call_next(request)
+            token = getattr(request.state, "issue_visitor_cookie", "")
+            if token:
+                response.set_cookie(
+                    IDENTITY_COOKIE,
+                    token,
+                    max_age=COOKIE_MAX_AGE,
+                    httponly=True,
+                    samesite="lax",
+                    secure=request.url.scheme == "https",
+                    path="/",
+                )
+            return response
 
     @app.middleware("http")
     async def request_log(request: Request, call_next):

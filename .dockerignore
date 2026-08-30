@@ -1,0 +1,31 @@
+# Everything the image does not need. The working tree carries 751 MB of data/ and a
+# 743 MB meta archive; without this the build context alone would be most of a gigabyte
+# and the layer cache would miss on every harvest.
+
+.git
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.playwright-cli
+
+# Harvest caches and logs: rebuildable, and large.
+var/
+logs/
+output/
+
+# Card and meta data are volume state, not image content. `data/rules` and `data/seed`
+# are copied explicitly in the Dockerfile because they are small and needed to boot.
+data/
+!data/rules/
+!data/seed/
+
+web/node_modules
+web/dist
+node_modules
+
+.env
+.env.*
+!.env.example

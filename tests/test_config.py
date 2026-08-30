@@ -64,7 +64,7 @@ def test_mode_defaults_to_local():
 
 def test_unknown_mode_is_rejected(monkeypatch):
     monkeypatch.setenv("RB_MODE", "offline")
-    with pytest.raises(ConfigError, match="must be 'local' or 'hosted'"):
+    with pytest.raises(ConfigError, match="must be 'local', 'public' or 'hosted'"):
         load_config()
 
 

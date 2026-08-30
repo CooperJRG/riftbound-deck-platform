@@ -94,9 +94,17 @@ class Config:
     #: Wall-clock seconds a scheduled harvest may take before it stops with what it has.
     meta_refresh_budget: float
 
+    #: Signs the per-browser identity cookie in public mode. Empty in every other mode.
+    secret_key: str = ""
+
     @property
     def is_local(self) -> bool:
         return self.mode == "local"
+
+    @property
+    def is_public(self) -> bool:
+        """Anonymous per-browser identities: no login, but not one shared account."""
+        return self.mode == "public"
 
     def require_files(self) -> None:
         """Fail loudly, naming what is missing and how to produce it."""
@@ -150,11 +158,26 @@ def load_dotenv(path: Path | None = None) -> list[str]:
 
 def load_config() -> Config:
     mode = _env_str("RB_MODE", "local").lower()
-    if mode not in {"local", "hosted"}:
-        raise ConfigError(f"RB_MODE must be 'local' or 'hosted', got {mode!r}")
+    if mode not in {"local", "public", "hosted"}:
+        raise ConfigError(
+            f"RB_MODE must be 'local', 'public' or 'hosted', got {mode!r}"
+        )
 
     data_dir = _under_root(Path(_env_str("RB_DATA_DIR") or ROOT / "data"), name="RB_DATA_DIR")
     port = _env_int("RB_PORT", default=int(_env_str("PORT") or 8020))
+
+    secret_key = _env_str("RB_SECRET_KEY")
+    if mode == "public" and not secret_key:
+        # Fail closed rather than inventing one at boot. A generated key would work
+        # perfectly until the next restart, at which point every visitor's cookie stops
+        # verifying and every saved deck and collection becomes unreachable -- data loss
+        # that looks like a bug in the deck library.
+        raise ConfigError(
+            "RB_MODE=public needs RB_SECRET_KEY set to a long random string. It signs "
+            "the per-browser identity cookie; without it nobody's saved decks survive a "
+            "restart. Generate one with: python -c \"import secrets; "
+            "print(secrets.token_urlsafe(48))\""
+        )
 
     if mode == "local":
         # Local mode has no authentication. It must never listen off-machine.
@@ -178,6 +201,7 @@ def load_config() -> Config:
         db_path=_under_root(Path(_env_str("RB_DB_PATH") or data_dir / "riftbound.db"), name="RB_DB_PATH"),
         web_dist=ROOT / "web" / "dist",
         mode=mode,
+        secret_key=secret_key,
         host=host,
         port=port,
         dev_origins=tuple(

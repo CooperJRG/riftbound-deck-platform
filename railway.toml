@@ -1,0 +1,17 @@
+# Railway deploy config for riftdesk.com.
+#
+# The Dockerfile is the build: it settles the two-language layout that a buildpack would
+# have to guess at, and it is the same image locally as in production.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# `/api/health` is the one route that needs no identity and no meta snapshot, so it
+# answers during a cold start while the card bundle is still being built.
+healthcheckPath = "/api/health"
+# Generous: the first boot on an empty volume builds a card bundle before it listens.
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
