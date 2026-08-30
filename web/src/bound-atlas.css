@@ -2692,3 +2692,25 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .drawer-title h1 { font-size: 1.05rem; }
   .browser-workspace { padding: 0.65rem; }
 }
+
+/* -- addressable pages -----------------------------------------------------
+   Every drill-down has a URL, so every drill-down offers to hand it to you. The
+   control sits beside the way back, which is the row people already look at when they
+   are deciding what to do with a page rather than reading it. */
+
+.detail-bar {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+/* The back link carries its own bottom margin for the case where it stands alone; in
+   the bar the row owns the spacing. */
+.detail-bar .back-link { margin-bottom: 0; }
+.share-button { margin-left: auto; }
+
+@media (max-width: 640px) {
+  /* Wrapped onto its own line, "pushed right" reads as a stray button. */
+  .share-button { margin-left: 0; }
+}

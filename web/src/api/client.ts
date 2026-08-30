@@ -257,6 +257,8 @@ export const api = {
   ),
   tournamentDetail: (slug: string) =>
     request<TournamentDetail>(`/api/meta/tournaments/${encodeURIComponent(slug)}`),
+  metaDeck: (deckId: string) =>
+    request<MetaDeck>(`/api/meta/decks/${encodeURIComponent(deckId)}`),
   importMetaDeck: (deckId: string) =>
     request<{ deckId: string; name: string; source: string }>(
       `/api/meta/decks/${deckId}/import`,

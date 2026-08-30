@@ -18,5 +18,9 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "vite.config.ts"],
+  // Tests run on Node's own runner, which strips the types itself. They import node:
+  // builtins and use explicit .ts specifiers -- both correct there and both errors
+  // under the app's browser-targeted config, so they are checked by running them.
+  "exclude": ["src/**/*.test.ts"]
 }

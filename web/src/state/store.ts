@@ -6,6 +6,7 @@
  * v2 had a single global mutable object that any of its 352 functions could rewrite.
  */
 
+import { DEFAULT_MIN_PLAYERS } from "../ui/router";
 import type {
   Archetype,
   AvailabilityProfile,
@@ -89,6 +90,16 @@ export interface AppState {
   suggestions: BuildSuggestions | null;
   /** Whether the card drawer is showing. Closed, the deck gets the whole width. */
   drawerOpen: boolean;
+  /**
+   * Where the deck on the bench came from, when it came from somewhere addressable.
+   *
+   * A deck opened from Explore has a short, durable link of its own. Without this the
+   * address would immediately become the 900-character self-contained form, which is
+   * a worse link to have in your bar and a worse one to copy. `signature` is the deck
+   * as it arrived: once it stops matching, the deck has been edited and is no longer
+   * the thing that id names, so the self-contained link takes over.
+   */
+  benchSource: { deckId: string; signature: string } | null;
 
   metaStatus: MetaStatus | null;
   archetypes: Archetype[];
@@ -215,6 +226,7 @@ const initial: AppState = {
   deckCards: new Map(),
   suggestions: null,
   drawerOpen: false,
+  benchSource: null,
 
   metaStatus: null,
   archetypes: [],
@@ -247,7 +259,7 @@ const initial: AppState = {
   exploreFormat: "",
   exploreFrom: "",
   exploreTo: "",
-  exploreMinPlayers: 16,
+  exploreMinPlayers: DEFAULT_MIN_PLAYERS,
   exploreRange: "",
   exploreBucket: "week",
   trendOverview: null,

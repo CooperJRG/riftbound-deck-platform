@@ -15,6 +15,7 @@
 
 import type { CardDetail, CardHome, CardPartner, CardTrend } from "../api/types";
 import { closeCard, openCard, setExploreCardType } from "../state/actions";
+import { shareButton } from "./share";
 import { store } from "../state/store";
 import { h } from "../ui/dom";
 
@@ -260,9 +261,14 @@ export function cardView(detail: CardDetail): HTMLElement {
     "article",
     { class: "detail-page dossier-page" },
     h(
-      "button",
-      { class: "quiet-button back-link", type: "button", on: { click: closeCard } },
-      "← All cards",
+      "div",
+      { class: "detail-bar" },
+      h(
+        "button",
+        { class: "quiet-button back-link", type: "button", on: { click: closeCard } },
+        "← All cards",
+      ),
+      shareButton("this card"),
     ),
     h(
       "header",

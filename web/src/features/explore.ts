@@ -23,6 +23,7 @@ import {
   setExploreRange,
 } from "../state/actions";
 import { store, type ExploreMode } from "../state/store";
+import { shareButton } from "./share";
 import { h, replace } from "../ui/dom";
 import { cardView, cardWall } from "./cardMeta";
 
@@ -637,7 +638,12 @@ function legendView(meta: LegendMeta): HTMLElement {
   return h(
     "div",
     { class: "explore-page dossier-page" },
-    h("button", { class: "back-link", type: "button", on: { click: closeExploreDetail } }, "← All legends"),
+    h(
+      "div",
+      { class: "detail-bar" },
+      h("button", { class: "back-link", type: "button", on: { click: closeExploreDetail } }, "← All legends"),
+      shareButton("this legend"),
+    ),
     dossierHeader("Legend", meta.legendName, meta.imageUrl, meta.domains, tierFor(meta.legendId), meta.overview),
     h(
       "section",
@@ -668,7 +674,12 @@ function championView(meta: ChampionMeta): HTMLElement {
   return h(
     "div",
     { class: "explore-page dossier-page" },
-    h("button", { class: "back-link", type: "button", on: { click: closeExploreDetail } }, "← All legends"),
+    h(
+      "div",
+      { class: "detail-bar" },
+      h("button", { class: "back-link", type: "button", on: { click: closeExploreDetail } }, "← All legends"),
+      shareButton("this champion"),
+    ),
     dossierHeader("Champion", meta.championName, meta.imageUrl, meta.domains, "CH", meta.overview),
     h(
       "section",
@@ -700,7 +711,12 @@ function tournamentView(tournament: TournamentDetail): HTMLElement {
   return h(
     "div",
     { class: "explore-page dossier-page" },
-    h("button", { class: "back-link", type: "button", on: { click: () => store.set({ tournamentDetail: null }) } }, "← Back to guide"),
+    h(
+      "div",
+      { class: "detail-bar" },
+      h("button", { class: "back-link", type: "button", on: { click: () => store.set({ tournamentDetail: null }) } }, "← Back to guide"),
+      shareButton("this event"),
+    ),
     h(
       "header",
       { class: "event-hero" },

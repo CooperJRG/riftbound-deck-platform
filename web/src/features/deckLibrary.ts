@@ -4,6 +4,7 @@ import { deleteDeck, loadDeck, newDeck, saveDeck, setView } from "../state/actio
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 import { openDeckExport } from "./deckExport";
+import { shareButton } from "./share";
 
 export function renderDeckActions(root: HTMLElement): void {
   const { deck, dirty } = store.state;
@@ -22,6 +23,9 @@ export function renderDeckActions(root: HTMLElement): void {
         { class: "quiet-button export-button", type: "button", disabled: !hasCards, on: { click: () => void openDeckExport() } },
         "Export deck",
       ),
+      // The link carries the whole list, so it works for a deck that was never saved --
+      // which is most of them at the moment somebody wants to show it to someone.
+      hasCards ? shareButton("this deck", { label: "Copy link" }) : null,
       h(
         "button",
         { class: `primary${dirty ? " is-dirty" : ""}`, type: "button", on: { click: () => void saveDeck() } },
