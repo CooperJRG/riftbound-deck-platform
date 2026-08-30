@@ -5,6 +5,7 @@ import type {
   AvailabilityProfile,
   BuildSuggestions,
   AvailabilityUpdate,
+  Card,
   CardFacets,
   CardPage,
   DeckPayload,
@@ -40,7 +41,7 @@ import type {
  * Must match `API_CONTRACT` in `server/riftbound/api/routes/system.py`. Raise both
  * together whenever a response gains a field the UI reads.
  */
-export const EXPECTED_API_CONTRACT = 3;
+export const EXPECTED_API_CONTRACT = 5;
 
 export class ApiError extends Error {
   constructor(
@@ -95,6 +96,36 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return payload as T;
 }
 
+export interface DeckTextExport {
+  text: string;
+  filename: string;
+}
+
+/** A successful non-JSON response, used for files the user can copy or download. */
+async function requestText(path: string, init?: RequestInit): Promise<DeckTextExport> {
+  const response = await fetch(path, {
+    ...init,
+    headers: {
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
+  });
+  const text = await response.text();
+  if (!response.ok) {
+    let detail = response.statusText;
+    try {
+      const payload = JSON.parse(text) as { detail?: unknown };
+      if (typeof payload.detail === "string") detail = payload.detail;
+    } catch {
+      if (text.trim()) detail = text.trim();
+    }
+    throw new ApiError(detail, response.status);
+  }
+  const disposition = response.headers.get("content-disposition") ?? "";
+  const match = /filename="?([^";]+)"?/i.exec(disposition);
+  return { text, filename: match?.[1] || "deck.txt" };
+}
+
 export interface CardQuery {
   q?: string;
   cardType?: string;
@@ -125,6 +156,8 @@ export const api = {
 
   cards: (query: CardQuery = {}) =>
     request<CardPage>(`/api/cards${queryString({ ...query })}`),
+  card: (cardId: string) =>
+    request<Card>(`/api/cards/${encodeURIComponent(cardId)}`),
   facets: () => request<CardFacets>("/api/cards/facets"),
 
   buildSuggestions: (deck: DeckPayload) =>
@@ -135,6 +168,12 @@ export const api = {
 
   validateDeck: (deck: DeckPayload) =>
     request<Validation>("/api/decks/validate", {
+      method: "POST",
+      body: JSON.stringify(deck),
+    }),
+
+  exportDeck: (deck: DeckPayload) =>
+    requestText("/api/decks/export", {
       method: "POST",
       body: JSON.stringify(deck),
     }),

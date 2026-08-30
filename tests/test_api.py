@@ -8,6 +8,8 @@ tests covering auth, decks and collections.
 
 from __future__ import annotations
 
+import re
+
 import pytest
 
 
@@ -104,6 +106,24 @@ def test_unknown_fields_in_a_request_are_rejected(client):
     payload = deck_payload()
     payload["sneaky"] = True
     assert client.post("/api/decks/validate", json=payload).status_code == 422
+
+
+def test_a_deck_exports_as_one_card_entry_per_line(client):
+    response = client.post("/api/decks/export", json=deck_payload())
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert response.headers["content-disposition"] == 'attachment; filename="API-Deck.txt"'
+    lines = response.text.splitlines()
+    assert lines[:4] == [
+        "Legend:",
+        "1 Vi, Piltover Enforcer",
+        "Champion:",
+        "1 Vi, Destructive",
+    ]
+    assert "MainDeck:" in lines
+    assert "Battlefields:" in lines
+    assert lines[-2:] == ["Runes:", "12 Fury Rune"]
+    assert all(line.endswith(":") or re.match(r"^\d+ .+", line) for line in lines)
 
 
 # -- deck persistence ---------------------------------------------------------
@@ -902,6 +922,7 @@ def test_suggestions_are_empty_without_a_legend(meta_client):
     ).json()
     assert body["champions"] == []
     assert body["main"] == []
+    assert body["sideboard"] == []
     assert body["runes"] == {}
 
 

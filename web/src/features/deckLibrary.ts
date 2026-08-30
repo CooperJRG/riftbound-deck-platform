@@ -3,15 +3,25 @@
 import { deleteDeck, loadDeck, newDeck, saveDeck, setView } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { openDeckExport } from "./deckExport";
 
 export function renderDeckActions(root: HTMLElement): void {
-  const { dirty } = store.state;
+  const { deck, dirty } = store.state;
+  const hasCards = Boolean(
+    deck.legendId || deck.championId || Object.keys(deck.main).length ||
+      Object.keys(deck.runes).length || deck.battlefields.length || Object.keys(deck.sideboard).length,
+  );
   replace(
     root,
     h(
       "div",
       { class: "library-actions" },
       h("button", { class: "quiet-button", type: "button", on: { click: () => newDeck() } }, "New deck"),
+      h(
+        "button",
+        { class: "quiet-button export-button", type: "button", disabled: !hasCards, on: { click: () => void openDeckExport() } },
+        "Export deck",
+      ),
       h(
         "button",
         { class: `primary${dirty ? " is-dirty" : ""}`, type: "button", on: { click: () => void saveDeck() } },

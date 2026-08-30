@@ -8,15 +8,18 @@ four cards" -- two different problems that v2 conflated.
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import PlainTextResponse
 
 from ...config import ConfigError
 from ...domain.availability import deck_coverage
 from ...domain.deck import Deck
+from ...domain.export import export_deck, export_filename
 from ...domain.suggest import (
     battlefield_suggestions,
     champion_options,
     main_deck_suggestions,
     rune_suggestion,
+    sideboard_suggestions,
 )
 from ...domain.validator import validate
 from ...services import Services, get_services
@@ -71,6 +74,29 @@ def validate_deck(
     identity: Identity = Depends(current_identity),
 ) -> ValidationView:
     return _validate(_to_deck(payload), services, identity.user_id)
+
+
+@router.post("/export", response_class=PlainTextResponse)
+def export_deck_text(
+    payload: DeckPayload,
+    services: Services = Depends(get_services),
+) -> PlainTextResponse:
+    """The deck as exchange-format text, ready to paste or save.
+
+    Takes the deck in the body rather than reading a saved one by id, so a deck can be
+    exported while it is still being built and has never been saved. Nothing about the
+    result is per-user, so it does not ask for an identity.
+
+    The filename rides along in ``Content-Disposition`` for callers that want to save
+    rather than copy; a fetch for the clipboard ignores it.
+    """
+    deck = _to_deck(payload)
+    return PlainTextResponse(
+        export_deck(deck, services.catalog),
+        headers={
+            "Content-Disposition": f'attachment; filename="{export_filename(deck)}"'
+        },
+    )
 
 
 @router.get("", response_model=list[DeckSummaryView])
@@ -173,6 +199,7 @@ def build_suggestions(
     champions: list[ChampionOptionView] = []
     main: list[SuggestionView] = []
     battlefields: list[SuggestionView] = []
+    sideboard: list[SuggestionView] = []
 
     if deck.legend_id and services.meta is not None:
         rates = {
@@ -208,9 +235,21 @@ def build_suggestions(
             for s in battlefield_suggestions(deck, profile, catalog, rules)
         ]
 
+    if deck.legend_id and services.meta is not None:
+        sideboard = [
+            SuggestionView(
+                card_id=s.card_id, name=s.name, image_url=s.image_url,
+                copies=s.copies, reason=s.reason,
+            )
+            for s in sideboard_suggestions(
+                deck, services.meta.decks, services.deck_scores, catalog, rules
+            )
+        ]
+
     return BuildSuggestionsView(
         champions=champions,
         main=main,
         battlefields=battlefields,
+        sideboard=sideboard,
         runes=rune_suggestion(deck, catalog, rules),
     )

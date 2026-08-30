@@ -12,6 +12,7 @@
 import type { Card, CardAvailability, CardFacets } from "../api/types";
 import {
   addCard,
+  adjustCard,
   excludeCard,
   setFilter,
   showMoreCards,
@@ -20,6 +21,7 @@ import {
 } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { openCardPreview } from "./cardPreview";
 
 /**
  * The energy cost, for tiles that have no art to read it off.
@@ -81,6 +83,33 @@ function hasLandscapeArt(card: Card): boolean {
   return card.cardType === "Battlefield";
 }
 
+function cardImage(card: Card): HTMLImageElement {
+  const landscape = hasLandscapeArt(card);
+  const image = landscape
+    ? h("img", {
+        src: card.imageUrl,
+        alt: card.name,
+        loading: "lazy",
+        on: {
+          load: (event) => {
+            const loaded = event.currentTarget as HTMLImageElement;
+            loaded.classList.toggle(
+              "is-portrait-source",
+              loaded.naturalHeight > loaded.naturalWidth,
+            );
+          },
+        },
+      })
+    : h("img", { src: card.imageUrl, alt: card.name, loading: "lazy" });
+  if (landscape && image.complete) {
+    queueMicrotask(() => image.classList.toggle(
+      "is-portrait-source",
+      image.naturalHeight > image.naturalWidth,
+    ));
+  }
+  return image;
+}
+
 function cardTile(row: CardAvailability): HTMLElement {
   const { card } = row;
   const target = zoneFor(card);
@@ -94,10 +123,15 @@ function cardTile(row: CardAvailability): HTMLElement {
       data: { cardId: card.cardId },
     },
     h(
-      "div",
-      { class: `tile-art${hasLandscapeArt(card) ? " is-landscape" : ""}` },
+      "button",
+      {
+        class: `tile-art card-open-button${hasLandscapeArt(card) ? " is-landscape" : ""}`,
+        type: "button",
+        aria: { label: `Open ${card.name} card detail` },
+        on: { click: () => openCardPreview(card.cardId, target === "legend" ? null : target) },
+      },
       card.imageUrl
-        ? h("img", { src: card.imageUrl, alt: card.name, loading: "lazy" })
+        ? cardImage(card)
         : h("div", { class: "tile-art-empty" }, card.name.slice(0, 2)),
       card.imageUrl ? null : costBadge(row),
     ),
@@ -116,11 +150,34 @@ function cardTile(row: CardAvailability): HTMLElement {
       h(
         "div",
         { class: "tile-actions" },
-        h(
-          "button",
-          { class: "btn btn-add", type: "button", on: { click: () => addCard(card) } },
-          target === "legend" ? "Set legend" : "Add",
-        ),
+        target === "main"
+          ? h(
+              "button",
+              {
+                class: "btn btn-add",
+                type: "button",
+                aria: { label: `Add ${card.name} to main deck` },
+                on: { click: () => addCard(card) },
+              },
+              "Main +",
+            )
+          : h(
+              "button",
+              { class: "btn btn-add", type: "button", on: { click: () => addCard(card) } },
+              target === "legend" ? "Set legend" : "Add",
+            ),
+        target === "main"
+          ? h(
+              "button",
+              {
+                class: "btn btn-sideboard",
+                type: "button",
+                aria: { label: `Add ${card.name} to sideboard` },
+                on: { click: () => adjustCard(card.cardId, "sideboard", 1) },
+              },
+              "Side +",
+            )
+          : null,
         h(
           "button",
           {
@@ -168,6 +225,72 @@ interface Controls {
 
 let controls: Controls | null = null;
 
+/** Return the workshop to its deliberate top-right starting position. */
+function resetWorkshopPosition(root: HTMLElement): void {
+  root.style.removeProperty("left");
+  root.style.removeProperty("top");
+  root.style.removeProperty("right");
+  root.style.removeProperty("bottom");
+}
+
+/**
+ * Turn the card catalog into a real work window.
+ *
+ * Pointer capture keeps the drag intact if the cursor outruns the title bar, and the
+ * viewport clamp guarantees the whole window -- especially its close control -- stays
+ * recoverable. Small screens keep the full-width sheet treatment instead.
+ */
+function makeWorkshopDraggable(root: HTMLElement, handle: HTMLElement): void {
+  let pointerId: number | null = null;
+  let startX = 0;
+  let startY = 0;
+  let originLeft = 0;
+  let originTop = 0;
+
+  const finish = (): void => {
+    if (pointerId === null) return;
+    if (handle.hasPointerCapture(pointerId)) handle.releasePointerCapture(pointerId);
+    pointerId = null;
+    root.classList.remove("is-dragging");
+  };
+
+  handle.addEventListener("pointerdown", (event) => {
+    const target = event.target as Element;
+    if (
+      event.button !== 0
+      || window.matchMedia("(max-width: 700px)").matches
+      || target.closest("button, input, select, summary, a")
+    ) return;
+
+    const rect = root.getBoundingClientRect();
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startY = event.clientY;
+    originLeft = rect.left;
+    originTop = rect.top;
+    root.style.left = `${rect.left}px`;
+    root.style.top = `${rect.top}px`;
+    root.style.right = "auto";
+    root.style.bottom = "auto";
+    root.classList.add("is-dragging");
+    handle.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  handle.addEventListener("pointermove", (event) => {
+    if (event.pointerId !== pointerId) return;
+    const margin = 8;
+    const maxLeft = Math.max(margin, window.innerWidth - root.offsetWidth - margin);
+    const maxTop = Math.max(margin, window.innerHeight - root.offsetHeight - margin);
+    const left = Math.min(maxLeft, Math.max(margin, originLeft + event.clientX - startX));
+    const top = Math.min(maxTop, Math.max(margin, originTop + event.clientY - startY));
+    root.style.left = `${left}px`;
+    root.style.top = `${top}px`;
+  });
+  handle.addEventListener("pointerup", finish);
+  handle.addEventListener("pointercancel", finish);
+}
+
 function buildControls(root: HTMLElement): Controls {
   const selects: Record<FilterKey, HTMLSelectElement> = {
     cardType: filterSelect("Type", "cardType"),
@@ -210,15 +333,35 @@ function buildControls(root: HTMLElement): Controls {
     on: { click: showMoreCards },
   }, "Show more cards");
 
-  replace(
-    root,
+  const titleBar = h(
+    "header",
+    {
+      class: "builder-heading drawer-titlebar",
+      title: "Drag this bar to move the card workshop",
+    },
+    h("span", { class: "drawer-grip", aria: { hidden: "true" } }, "⠿"),
     h(
-      "header",
-      { class: "builder-heading" },
-      h("div", {}, h("p", { class: "eyebrow" }, "Deck workshop"), h("h1", {}, "Build one choice at a time.")),
-      h("p", {}, "Search, add, and tune. Review legality when the list is ready."),
+      "div",
+      { class: "drawer-title" },
+      h("p", { class: "eyebrow" }, "Deck workshop"),
+      h("h1", {}, "Card workshop"),
+    ),
+    h("p", { class: "drawer-hint" }, "Drag anywhere on this bar. Search, read, then add."),
+    h(
+      "div",
+      { class: "drawer-window-actions" },
+      h(
+        "button",
+        {
+          class: "quiet-button drawer-reset",
+          type: "button",
+          title: "Return the workshop to the top right",
+          on: { click: () => resetWorkshopPosition(root) },
+        },
+        "Reset",
+      ),
       // Out of the way when it is not being used. Most of building a deck is looking at
-      // the deck, and the drawer was holding a fifth of the screen for the whole of it.
+      // the deck, and the window should disappear completely when the search is done.
       h(
         "button",
         {
@@ -226,9 +369,17 @@ function buildControls(root: HTMLElement): Controls {
           type: "button",
           on: { click: toggleDrawer },
         },
-        "Hide the drawer",
+        "Close",
       ),
     ),
+  );
+
+  replace(
+    root,
+    titleBar,
+    h(
+      "div",
+      { class: "browser-workspace" },
     h(
       "div",
       { class: "browser-controls" },
@@ -244,7 +395,9 @@ function buildControls(root: HTMLElement): Controls {
     count,
     grid,
     more,
+    ),
   );
+  makeWorkshopDraggable(root, titleBar);
 
   return { root, count, grid, more, selects, facetsFilled: false };
 }

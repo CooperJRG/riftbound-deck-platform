@@ -26,6 +26,7 @@ class CardView(ApiModel):
     super_type: str
     domains: list[str]
     cost: int | None
+    power: int | None
     might: int | None
     tags: list[str]
     champion_tags: list[str]

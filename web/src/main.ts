@@ -9,6 +9,7 @@ import {
 import { store } from "./state/store";
 import { renderAvailability } from "./features/availability";
 import { renderCardBrowser } from "./features/cardBrowser";
+import { refreshCardPreview } from "./features/cardPreview";
 import { renderDeckActions, renderDeckLibrary } from "./features/deckLibrary";
 import { renderDeckPanel } from "./features/deckPanel";
 import { renderExplore } from "./features/explore";
@@ -120,6 +121,7 @@ store.subscribe((state) => {
     if (state.drawerOpen) renderCardBrowser(browserRoot);
     renderDeckPanel(deckRoot);
     renderDeckActions(deckActionsRoot);
+    refreshCardPreview();
   } else if (state.view === "find") {
     renderSmartDecks(findRoot);
   } else if (state.view === "explore") {

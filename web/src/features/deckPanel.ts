@@ -24,6 +24,40 @@ import {
 } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { openCardPreview } from "./cardPreview";
+
+/**
+ * The playmat is the default overview; the forty-card wall is an intentional detail
+ * view. These are presentation choices, not deck data, so they stay local instead of
+ * being persisted with the list or triggering API work when toggled.
+ */
+let renderedRoot: HTMLElement | null = null;
+let deckExpanded = false;
+let mainSuggestionsVisible = true;
+let sideboardSuggestionsVisible = true;
+
+function repaintDeck(): void {
+  if (renderedRoot) renderDeckPanel(renderedRoot);
+}
+
+function setDeckExpanded(expanded: boolean, focus = ""): void {
+  deckExpanded = expanded;
+  repaintDeck();
+  if (!focus) return;
+  requestAnimationFrame(() => {
+    document.querySelector<HTMLElement>(focus)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+}
+
+function openCardFinder(): void {
+  if (!store.state.drawerOpen) toggleDrawer();
+  requestAnimationFrame(() => {
+    document.querySelector<HTMLInputElement>("#browser input[type='search']")?.focus();
+  });
+}
 
 function cardName(cardId: string): string {
   return store.state.deckCards.get(cardId)?.card.name ?? cardId;
@@ -32,6 +66,31 @@ function cardName(cardId: string): string {
 function isPenalised(cardId: string): boolean {
   const row = store.state.deckCards.get(cardId);
   return row !== undefined && row.weight < 1;
+}
+
+/**
+ * Four VEN battlefields are supplied as portrait files whose card face is turned on
+ * its side; the rest of the battlefield catalog is already landscape. Marking the
+ * exceptional files after they load lets CSS turn only those cards, instead of
+ * forcing one orientation onto two different source shapes.
+ */
+function markPortraitBattlefield(image: HTMLImageElement): void {
+  if (!image.naturalWidth || !image.naturalHeight) return;
+  image.classList.toggle("is-portrait-source", image.naturalHeight > image.naturalWidth);
+}
+
+function battlefieldImage(src: string, name: string): HTMLImageElement {
+  const image = h("img", {
+    src,
+    alt: name,
+    loading: "lazy",
+    on: {
+      load: (event) => markPortraitBattlefield(event.currentTarget as HTMLImageElement),
+    },
+  });
+  // A cached image can be complete before the listener is attached.
+  if (image.complete) queueMicrotask(() => markPortraitBattlefield(image));
+  return image;
 }
 
 /** Sorted the way a player reads a list: up the curve, then alphabetically. */
@@ -54,8 +113,8 @@ function byCurve(a: string, b: string): number {
 function boardCard(
   cardId: string,
   qty: number,
-  zone: Zone,
-  opts: { landscape?: boolean; champion?: boolean } = {},
+  zone: Zone | null,
+  opts: { landscape?: boolean; champion?: boolean; identity?: boolean } = {},
 ): HTMLElement {
   const row = store.state.deckCards.get(cardId);
   const card = row?.card;
@@ -66,12 +125,24 @@ function boardCard(
     {
       class: `mat-card${opts.landscape ? " is-wide" : ""}`
         + `${isPenalised(cardId) ? " is-dim" : ""}`
-        + `${opts.champion ? " is-champion" : ""}`,
+        + `${opts.champion ? " is-champion" : ""}`
+        + `${opts.identity ? " is-identity-card" : ""}`,
       title: name,
     },
-    art
-      ? h("img", { src: art, alt: name, loading: "lazy" })
-      : h("span", { class: "mat-card-blank" }, name),
+    h(
+      "button",
+      {
+        class: "mat-card-open",
+        type: "button",
+        aria: { label: `Open ${name} card detail` },
+        on: { click: () => openCardPreview(cardId, zone) },
+      },
+      art
+        ? opts.landscape
+          ? battlefieldImage(art, name)
+          : h("img", { src: art, alt: name, loading: "lazy" })
+        : h("span", { class: "mat-card-blank" }, name),
+    ),
     card?.cost !== null && card?.cost !== undefined
       ? h("span", { class: "mat-cost" }, String(card.cost))
       : null,
@@ -81,18 +152,20 @@ function boardCard(
       "figcaption",
       {},
       h("span", { class: "mat-name" }, name),
-      h(
-        "span",
-        { class: "mat-steps" },
-        h("button", {
-          class: "step", type: "button", aria: { label: `Remove one ${name}` },
-          on: { click: () => adjustCard(cardId, zone, -1) },
-        }, "−"),
-        h("button", {
-          class: "step", type: "button", aria: { label: `Add one ${name}` },
-          on: { click: () => adjustCard(cardId, zone, 1) },
-        }, "+"),
-      ),
+      zone
+        ? h(
+            "span",
+            { class: "mat-steps" },
+            h("button", {
+              class: "step", type: "button", aria: { label: `Remove one ${name}` },
+              on: { click: () => adjustCard(cardId, zone, -1) },
+            }, "−"),
+            h("button", {
+              class: "step", type: "button", aria: { label: `Add one ${name}` },
+              on: { click: () => adjustCard(cardId, zone, 1) },
+            }, "+"),
+          )
+        : h("span", { class: "mat-read" }, "Read card"),
     ),
   );
 }
@@ -126,9 +199,24 @@ function runeZone(
   target: number,
   canSuggest: boolean,
 ): HTMLElement {
-  const zone = matZone("Runes", "runes", counts, total, target);
+  const cards: HTMLElement[] = [];
+  const ids = Object.keys(counts).sort(byCurve);
+  for (const id of ids) {
+    for (let copy = 0; copy < (counts[id] ?? 0); copy += 1) {
+      cards.push(boardCard(id, 1, "runes"));
+    }
+  }
+  const middle = (cards.length - 1) / 2;
+  cards.forEach((card, index) => {
+    const distance = index - middle;
+    card.classList.add("rune-card");
+    card.style.setProperty("--rune-tilt", `${distance * 0.82}deg`);
+    card.style.setProperty("--rune-lift", `${Math.abs(distance) * 1.15}px`);
+  });
+
+  const head = zoneHead("Runes", total, target);
   if (canSuggest) {
-    zone.querySelector(".mat-zone-head")?.appendChild(
+    head.appendChild(
       h(
         "button",
         {
@@ -141,7 +229,14 @@ function runeZone(
       ),
     );
   }
-  return zone;
+  return h(
+    "section",
+    { class: "mat-zone mat-zone-runes" },
+    head,
+    cards.length
+      ? h("div", { class: "mat-grid rune-fan" }, ...cards)
+      : h("div", { class: "mat-grid rune-fan is-empty" }, ghost("Nothing here yet")),
+  );
 }
 
 function matZone(
@@ -177,10 +272,56 @@ function matZone(
  * has to be read to learn. Landscape, because that is how they are printed and how they
  * sit on the table between the players.
  */
-function battlefieldRow(ids: string[], target: number): HTMLElement {
+function suggestedBattlefield(row: CardSuggestion): HTMLElement {
+  return h(
+    "article",
+    {
+      class: "mat-card is-wide battlefield-pick",
+      title: `Add ${row.name}: ${row.reason}`,
+    },
+    h(
+      "button",
+      {
+        class: "battlefield-read",
+        type: "button",
+        aria: { label: `Read suggested battlefield ${row.name}` },
+        on: { click: () => openCardPreview(row.cardId, "battlefields") },
+      },
+      h(
+        "span",
+        { class: "battlefield-art" },
+        row.imageUrl
+          ? battlefieldImage(row.imageUrl, row.name)
+          : h("span", { class: "mat-card-blank" }, row.name),
+      ),
+      h("span", { class: "battlefield-read-label" }, "Read"),
+    ),
+    h(
+      "button",
+      {
+        class: "battlefield-add",
+        type: "button",
+        aria: { label: `Add suggested battlefield ${row.name}` },
+        on: { click: () => adjustCard(row.cardId, "battlefields", 1) },
+      },
+      "+ Add",
+    ),
+    h("span", { class: "battlefield-pick-name" }, row.name),
+  );
+}
+
+function battlefieldRow(
+  ids: string[],
+  target: number,
+  suggestions: CardSuggestion[] = [],
+): HTMLElement {
   const slots: HTMLElement[] = ids.map((id) =>
     boardCard(id, 1, "battlefields", { landscape: true }),
   );
+  for (const row of suggestions) {
+    if (slots.length >= target) break;
+    slots.push(suggestedBattlefield(row));
+  }
   while (slots.length < target) slots.push(ghost("Battlefield", true));
   return h(
     "section",
@@ -203,7 +344,8 @@ function identityRow(legendId: string, championId: string): HTMLElement {
         ? h(
             "div",
             { class: "mat-slot" },
-            boardCard(legendId, 1, "main"),
+            h("span", { class: "playmat-slot-label" }, "Legend"),
+            boardCard(legendId, 1, null, { identity: true }),
             h("button", {
               class: "quiet-button", type: "button",
               on: { click: () => setLegend("") },
@@ -215,7 +357,8 @@ function identityRow(legendId: string, championId: string): HTMLElement {
         ? h(
             "div",
             { class: "mat-slot" },
-            boardCard(championId, 1, "main", { champion: true }),
+            h("span", { class: "playmat-slot-label" }, "Champion"),
+            boardCard(championId, 1, null, { champion: true, identity: true }),
             h("button", {
               class: "quiet-button", type: "button",
               on: { click: () => setChampion("") },
@@ -251,19 +394,38 @@ function championChooser(options: ChampionOption[]): HTMLElement | null {
       { class: "suggest-row" },
       ...options.map((option) =>
         h(
-          "button",
+          "article",
           {
             class: "suggest-card",
-            type: "button",
             title: option.summary,
-            on: { click: () => setChampion(option.cardId) },
           },
-          option.imageUrl
-            ? h("img", { src: option.imageUrl, alt: option.name, loading: "lazy" })
-            : h("span", { class: "mat-card-blank" }, option.name),
+          h(
+            "button",
+            {
+              class: "suggest-card-preview",
+              type: "button",
+              aria: { label: `Read ${option.name}` },
+              on: { click: () => openCardPreview(option.cardId) },
+            },
+            option.imageUrl
+              ? h("img", { src: option.imageUrl, alt: option.name, loading: "lazy" })
+              : h("span", { class: "mat-card-blank" }, option.name),
+          ),
           h("span", { class: "suggest-score" }, String(Math.round(option.score))),
           h("span", { class: "suggest-name" }, option.name),
           h("span", { class: "suggest-why" }, option.summary),
+          h(
+            "span",
+            { class: "suggest-card-actions" },
+            h("button", {
+              class: "suggest-read", type: "button",
+              on: { click: () => openCardPreview(option.cardId) },
+            }, "Read"),
+            h("button", {
+              class: "suggest-add", type: "button",
+              on: { click: () => setChampion(option.cardId) },
+            }, "Choose"),
+          ),
         ),
       ),
     ),
@@ -283,32 +445,332 @@ function suggestionStrip(
   note: string,
   rows: CardSuggestion[],
   zone: Zone,
+  visible: boolean,
+  onToggle: () => void,
 ): HTMLElement | null {
   if (!rows.length) return null;
   return h(
     "section",
-    { class: "suggest" },
-    h("header", { class: "suggest-head" }, h("h3", {}, title), h("p", {}, note)),
+    { class: `suggest suggest-${zone}${visible ? "" : " is-collapsed"}` },
+    h(
+      "header",
+      { class: "suggest-head" },
+      h("div", {}, h("h3", {}, title), h("p", {}, note)),
+      h(
+        "button",
+        {
+          class: "quiet-button suggest-toggle",
+          type: "button",
+          aria: { expanded: String(visible) },
+          on: { click: onToggle },
+        },
+        visible ? "Hide suggestions" : "Show suggestions",
+      ),
+    ),
+    visible
+      ? h(
+          "div",
+          { class: "suggest-row" },
+          ...rows.map((row) =>
+            h(
+              "article",
+              {
+                class: "suggest-card",
+                title: `Add ${row.copies}x ${row.name} to ${zone === "sideboard" ? "the sideboard" : "the main deck"}`,
+              },
+              h(
+                "button",
+                {
+                  class: "suggest-card-preview",
+                  type: "button",
+                  aria: { label: `Read ${row.name}` },
+                  on: { click: () => openCardPreview(row.cardId, zone) },
+                },
+                row.imageUrl
+                  ? h("img", { src: row.imageUrl, alt: row.name, loading: "lazy" })
+                  : h("span", { class: "mat-card-blank" }, row.name),
+              ),
+              row.copies > 1
+                ? h("span", { class: "suggest-copies" }, `+${row.copies}`)
+                : null,
+              h("span", { class: "suggest-name" }, row.name),
+              h("span", { class: "suggest-why" }, row.reason),
+              h(
+                "span",
+                { class: "suggest-card-actions" },
+                h("button", {
+                  class: "suggest-read", type: "button",
+                  on: { click: () => openCardPreview(row.cardId, zone) },
+                }, "Read"),
+                h("button", {
+                  class: "suggest-add", type: "button",
+                  on: { click: () => adjustCard(row.cardId, zone, row.copies) },
+                }, `Add +${row.copies}`),
+              ),
+            ),
+          ),
+        )
+      : null,
+  );
+}
+
+/** A handful of visible faces turn an abstract count into a deck sitting on the mat. */
+function cardStack(ids: string[], limit: number): HTMLElement {
+  const shown = ids.filter((id) => store.state.deckCards.get(id)?.card.imageUrl).slice(0, limit);
+  return h(
+    "span",
+    { class: "deck-stack-cards", aria: { hidden: "true" } },
+    ...shown.map((id, index) => {
+      const card = store.state.deckCards.get(id)?.card;
+      return h(
+        "span",
+        {
+          class: "deck-stack-card",
+          style: `--stack-i:${index};--stack-n:${shown.length}`,
+        },
+        card?.imageUrl ? h("img", { src: card.imageUrl, alt: "", loading: "lazy" }) : null,
+      );
+    }),
+  );
+}
+
+/** The curve remains useful even while the full deck is folded away. */
+function costCurve(counts: Record<string, number>): HTMLElement {
+  const buckets = Array.from({ length: 8 }, () => 0);
+  for (const [cardId, copies] of Object.entries(counts)) {
+    const cost = store.state.deckCards.get(cardId)?.card.cost ?? 8;
+    const index = Math.min(7, Math.max(0, cost - 1));
+    buckets[index] = (buckets[index] ?? 0) + copies;
+  }
+  const tallest = Math.max(1, ...buckets);
+  return h(
+    "span",
+    { class: "deck-curve", aria: { label: "Deck cost curve" } },
+    ...buckets.map((copies, index) =>
+      h(
+        "span",
+        { class: "deck-curve-step", title: `${index === 7 ? "8+" : index + 1} cost: ${copies}` },
+        h("i", { style: `--curve:${copies / tallest}` }),
+        h("b", {}, index === 7 ? "8+" : String(index + 1)),
+      ),
+    ),
+  );
+}
+
+function starterSuggestions(rows: CardSuggestion[]): HTMLElement | null {
+  const shown = rows.slice(0, 4);
+  if (!shown.length) return null;
+  return h(
+    "div",
+    { class: "starter-suggestions" },
     h(
       "div",
-      { class: "suggest-row" },
-      ...rows.map((row) =>
+      { class: "starter-suggestion-copy" },
+      h("span", { class: "eyebrow" }, "A proven opening"),
+      h("strong", {}, "Start with suggestions"),
+      h("span", {}, "Cards repeatedly played beside this legend, ready to add."),
+      h(
+        "button",
+        {
+          class: "quiet-button starter-suggestion-all",
+          type: "button",
+          on: { click: () => setDeckExpanded(true, "#deck-workbench") },
+        },
+        "See every suggestion",
+      ),
+    ),
+    h(
+      "div",
+      { class: "starter-card-fan" },
+      ...shown.map((row, index) =>
         h(
-          "button",
+          "article",
           {
-            class: "suggest-card",
-            type: "button",
-            title: `Add ${row.copies}x ${row.name}`,
-            on: { click: () => adjustCard(row.cardId, zone, row.copies) },
+            class: "starter-suggest-card",
+            title: `Add ${row.copies}x ${row.name}: ${row.reason}`,
+            style: `--starter-i:${index};--starter-n:${shown.length}`,
           },
-          row.imageUrl
-            ? h("img", { src: row.imageUrl, alt: row.name, loading: "lazy" })
-            : h("span", { class: "mat-card-blank" }, row.name),
-          row.copies > 1
-            ? h("span", { class: "suggest-copies" }, `+${row.copies}`)
-            : null,
-          h("span", { class: "suggest-name" }, row.name),
-          h("span", { class: "suggest-why" }, row.reason),
+          h(
+            "button",
+            {
+              class: "starter-suggest-preview",
+              type: "button",
+              aria: { label: `Read suggested card ${row.name}` },
+              on: { click: () => openCardPreview(row.cardId, "main") },
+            },
+            row.imageUrl
+              ? h("img", { src: row.imageUrl, alt: row.name, loading: "lazy" })
+              : h("span", { class: "mat-card-blank" }, row.name),
+            h("span", { class: "starter-suggest-read" }, "Read"),
+          ),
+          h(
+            "button",
+            {
+              class: "starter-suggest-add",
+              type: "button",
+              aria: { label: `Add ${row.copies} copies of ${row.name} to the main deck` },
+              on: { click: () => adjustCard(row.cardId, "main", row.copies) },
+            },
+            `+${row.copies}`,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+function mainDeckSpot(
+  counts: Record<string, number>,
+  total: number,
+  suggestions: CardSuggestion[] = [],
+): HTMLElement {
+  const ids = Object.keys(counts).sort(byCurve);
+  const empty = ids.length === 0;
+  const suggestedStart = empty ? starterSuggestions(suggestions) : null;
+  return h(
+    "section",
+    { class: `playmat-zone playmat-main${empty ? " is-empty" : ""}` },
+    zoneHead("Main deck", total, 40),
+    suggestedStart
+      ?? h(
+        "button",
+        {
+          class: `deck-zone-button${empty ? " is-empty" : ""}`,
+          type: "button",
+          aria: {
+            expanded: String(deckExpanded),
+            controls: "deck-workbench",
+            label: empty ? "Find cards for the empty main deck" : "Expand the full main deck",
+          },
+          on: {
+            click: () => empty
+              ? openCardFinder()
+              : setDeckExpanded(!deckExpanded, !deckExpanded ? "#deck-workbench" : ".playmat"),
+          },
+        },
+        empty
+          ? h(
+              "span",
+              { class: "deck-zone-empty" },
+              h("b", {}, "+"),
+              h("strong", {}, "No recommendations yet"),
+              h("span", {}, "Open the card drawer while the field data catches up."),
+            )
+          : cardStack(ids, 6),
+        empty
+          ? null
+          : h(
+              "span",
+              { class: "deck-zone-copy" },
+              h("strong", {}, `${total} cards · ${ids.length} unique`),
+              h("span", {}, deckExpanded ? "Fold the deck away" : "Open the full deck and suggestions"),
+            ),
+        empty ? null : costCurve(counts),
+      ),
+  );
+}
+
+function sideboardSpot(
+  counts: Record<string, number>,
+  total: number,
+  target: number | null,
+  hasSuggestions: boolean,
+): HTMLElement {
+  const ids = Object.keys(counts).sort(byCurve);
+  return h(
+    "section",
+    { class: "playmat-zone playmat-sideboard" },
+    zoneHead("Sideboard", total, target),
+    h(
+      "button",
+      {
+        class: `sideboard-zone-button${ids.length ? "" : " is-empty"}`,
+        type: "button",
+        aria: { expanded: String(deckExpanded), controls: "deck-workbench" },
+        on: { click: () => setDeckExpanded(true, "#sideboard-workbench") },
+      },
+      ids.length
+        ? cardStack(ids, 5)
+        : h("span", { class: "sideboard-empty-mark", aria: { hidden: "true" } }, "SB"),
+      h(
+        "span",
+        { class: "sideboard-zone-copy" },
+        h("strong", {}, ids.length ? `${total} cards ready` : "Plan for game two"),
+        h("span", {}, ids.length
+          ? "Open and tune the sideboard"
+          : hasSuggestions ? "See tournament sideboard suggestions" : "Open the sideboard workspace"),
+      ),
+    ),
+  );
+}
+
+function deckWorkbench(
+  mainTarget: number,
+  sideboardTarget: number | null,
+  championId: string,
+  suggestions: { main: CardSuggestion[]; sideboard: CardSuggestion[] },
+): HTMLElement {
+  const { deck, validation } = store.state;
+  const mainSuggestions = suggestionStrip(
+    "Cards that fit this build",
+    "Drawn from what comparable lists play alongside your current cards.",
+    suggestions.main,
+    "main",
+    mainSuggestionsVisible,
+    () => {
+      mainSuggestionsVisible = !mainSuggestionsVisible;
+      repaintDeck();
+    },
+  );
+  const sideboardSuggestions = suggestionStrip(
+    "Sideboard answers",
+    "Cards comparable published lists actually held in reserve.",
+    suggestions.sideboard,
+    "sideboard",
+    sideboardSuggestionsVisible,
+    () => {
+      sideboardSuggestionsVisible = !sideboardSuggestionsVisible;
+      repaintDeck();
+    },
+  );
+  return h(
+    "section",
+    { class: "deck-workbench", id: "deck-workbench" },
+    h(
+      "header",
+      { class: "workbench-head" },
+      h(
+        "div",
+        {},
+        h("p", { class: "eyebrow" }, "Deck opened"),
+        h("h2", {}, "The full list"),
+        h("p", {}, "Read the curve, tune individual copies, and prepare the cards you want after game one."),
+      ),
+      h(
+        "button",
+        { class: "quiet-button", type: "button", on: { click: () => setDeckExpanded(false, ".playmat") } },
+        "Collapse deck",
+      ),
+    ),
+      h(
+        "div",
+        { class: "workbench-grid" },
+        h(
+          "div",
+          { class: "workbench-main" },
+          mainSuggestions,
+          matZone("Main deck", "main", deck.main, validation?.mainTotal ?? 0, mainTarget, championId),
+        ),
+        h(
+          "aside",
+          { class: "workbench-side", id: "sideboard-workbench" },
+          sideboardSuggestions
+            ?? h("p", { class: "suggest-empty" }, "No comparable sideboards are available yet. You can still add any legal card from the drawer."),
+          matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, sideboardTarget),
+          h(
+            "button",
+            { class: "quiet-button sideboard-find", type: "button", on: { click: openCardFinder } },
+            "Find a sideboard card",
         ),
       ),
     ),
@@ -370,6 +832,7 @@ function deckNameInput(name: string): HTMLInputElement {
 }
 
 export function renderDeckPanel(root: HTMLElement): void {
+  renderedRoot = root;
   const { deck, validation, builderReview, suggestions } = store.state;
   const hasStarted = Boolean(
     deck.legendId || deck.championId || Object.keys(deck.main).length ||
@@ -488,44 +951,61 @@ export function renderDeckPanel(root: HTMLElement): void {
         h("ul", { class: "issue-list" }, ...notices.map(issueItem)))
     : null;
 
-  // Laid out the way the deck is laid out on a table: what defines it, then the board
-  // it is played on, then the resources, then the deck itself. A player who knows the
-  // game can find any zone without reading a heading.
-  // Everything that is not the main deck sits in one band across the top: the legend and
-  // champion, the runes, the three battlefields. Eight cards between them, and stacking
-  // them put the forty-card deck -- the part being worked on -- below the fold.
-  const setup = h(
-    "div",
-    { class: "mat-setup" },
+  const format = store.state.formats.find((row) => row.format === deck.format);
+  const constraint = (name: string, fallback: number): number => {
+    const parsed = Number(format?.constraints[name]);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+  const mainTarget = constraint("main_deck_size_exact", 40);
+  const runeTarget = constraint("rune_count_exact", 12);
+  const battlefieldTarget = constraint("battlefield_count_exact", 3);
+  const rawSideboardTarget = Number(format?.constraints.sideboard_max);
+  const sideboardTarget = Number.isFinite(rawSideboardTarget) && rawSideboardTarget > 0
+    ? rawSideboardTarget
+    : null;
+
+  // The page is a play surface before it is a card wall. Every zone has the same
+  // spatial relationship it has during a game, and the forty-card list only unfolds
+  // when the player asks to edit it in detail.
+  const playmat = h(
+    "section",
+    { class: "playmat", aria: { label: "Deck playmat" } },
+    h("span", { class: "playmat-seam", aria: { hidden: "true" } }),
+    battlefieldRow(
+      deck.battlefields,
+      battlefieldTarget,
+      deck.battlefields.length < battlefieldTarget ? suggestions?.battlefields ?? [] : [],
+    ),
     identityRow(deck.legendId, deck.championId),
-    runeZone(deck.runes, validation?.runeTotal ?? 0, 12, Boolean(suggestions?.runes)),
-    battlefieldRow(deck.battlefields, 3),
+    mainDeckSpot(deck.main, validation?.mainTotal ?? 0, suggestions?.main ?? []),
+    runeZone(
+      deck.runes,
+      validation?.runeTotal ?? 0,
+      runeTarget,
+      Boolean(suggestions?.runes),
+    ),
+    sideboardSpot(
+      deck.sideboard,
+      validation?.sideboardTotal ?? 0,
+      sideboardTarget,
+      Boolean(suggestions?.sideboard?.length),
+    ),
   );
 
   replace(
     root,
     header,
-    setup,
+    playmat,
     chooseChampion,
-    matZone("Main deck", "main", deck.main, validation?.mainTotal ?? 0, 40, deck.championId),
-    // A shortlist under the deck, the way a playlist offers more of what is already in
-    // it. The search box is still the way to find a particular card; this is for
-    // knowing what the deck wants without knowing which card that is.
-    suggestionStrip(
-      "Add to this deck",
-      "What the field plays alongside the cards you already have.",
-      suggestions?.main ?? [],
-      "main",
-    ),
-    // Always present, empty or not. The sideboard is part of a legal list and a zone
-    // that only appears once it is non-empty is a zone nobody discovers.
-    matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, null),
-    deck.battlefields.length < 3
-      ? suggestionStrip(
-          "Battlefields to consider",
-          "Played with this legend and these cards.",
-          suggestions?.battlefields ?? [],
-          "battlefields",
+    deckExpanded
+      ? deckWorkbench(
+          mainTarget,
+          sideboardTarget,
+          deck.championId,
+          {
+            main: suggestions?.main ?? [],
+            sideboard: suggestions?.sideboard ?? [],
+          },
         )
       : null,
     h(

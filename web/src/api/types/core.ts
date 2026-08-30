@@ -34,6 +34,8 @@ export interface Card {
   superType: string;
   domains: string[];
   cost: number | null;
+  /** The domain-specific half of the cost: a 4-Body card needs 4 Body runes. */
+  power: number | null;
   might: number | null;
   tags: string[];
   championTags: string[];
@@ -153,6 +155,7 @@ export interface BuildSuggestions {
   champions: ChampionOption[];
   main: CardSuggestion[];
   battlefields: CardSuggestion[];
+  sideboard: CardSuggestion[];
   runes: Record<string, number>;
 }
 

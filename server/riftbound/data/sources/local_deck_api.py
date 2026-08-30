@@ -191,9 +191,17 @@ class LocalDeckApiSource:
     # -- internals -------------------------------------------------------------
 
     def _query(self, offset: int, limit: int) -> str:
-        parts = [f"limit={limit}", f"offset={offset}", "sort=quality"]
-        if self._min_quality:
-            parts.append(f"min_quality={self._min_quality}")
+        # Sent even when it is 0. Omitting it does not mean "no floor" to the service --
+        # it means "use your own default", which is 60. A harvest configured for no
+        # floor was therefore receiving 1133 of the service's 2501 decks, and the 45
+        # complete lists from a 1280-player regional, scoring 57-62, were nearly all
+        # dropped before this code ever saw them.
+        parts = [
+            f"limit={limit}",
+            f"offset={offset}",
+            "sort=quality",
+            f"min_quality={self._min_quality}",
+        ]
         if self._since:
             parts.append(f"since={self._since}")
         return f"{self._base}/v1/decks?" + "&".join(parts)

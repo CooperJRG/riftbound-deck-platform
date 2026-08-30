@@ -266,6 +266,100 @@ def battlefield_suggestions(
     ]
 
 
+def sideboard_suggestions(
+    deck: Deck,
+    decks: Iterable[MetaDeck],
+    scores: Mapping[str, float],
+    catalog: Catalog,
+    rules: BoundRules,
+    limit: int = SHORTLIST,
+) -> list[Suggestion]:
+    """Cards comparable tournament lists actually keep in reserve.
+
+    Sideboards are not part of the legend index. Deliberately so: folding cards that
+    appear only after game one into main-deck affinity would teach the builder that a
+    narrow answer belongs in every opening forty. This ranking therefore reads the
+    published sideboards directly, first matching the chosen champion when one exists,
+    then weighting each list by the same quality score used elsewhere in the meta.
+
+    Lists whose sideboard is missing are left out of the denominator. Missing data is
+    not an empty sideboard, and treating it as one would suppress every real signal.
+    """
+    legend = catalog.get(deck.legend_id)
+    if legend is None:
+        return []
+
+    comparable = [
+        row for row in decks
+        if row.deck.legend_id == deck.legend_id
+        and row.deck.sideboard
+        and (not deck.champion_id or row.deck.champion_id == deck.champion_id)
+    ]
+    # Some sources know the legend but not the chosen champion. A legend-level answer
+    # is still useful, but only as a fallback when the exact pairing has no evidence.
+    if not comparable and deck.champion_id:
+        comparable = [
+            row for row in decks
+            if row.deck.legend_id == deck.legend_id and row.deck.sideboard
+        ]
+    if not comparable:
+        return []
+
+    legal = {
+        card.card_id: card
+        for card in legal_main_pool(legend, catalog=catalog, rules=rules)
+    }
+    context = set(deck.main)
+    weighted_presence: dict[str, float] = {}
+    weighted_copies: dict[str, float] = {}
+    appearances: dict[str, int] = {}
+    total_weight = 0.0
+
+    for row in comparable:
+        known_score = scores.get(row.deck_id)
+        quality = max(1e-6, known_score if known_score is not None else 1.0)
+        similarity = (
+            len(context & set(row.deck.main)) / len(context) if context else 0.0
+        )
+        weight = quality * (0.7 + 0.3 * similarity)
+        total_weight += weight
+        for card_id, copies in row.deck.sideboard.items():
+            if card_id not in legal or _room_for(deck, legal[card_id], rules) <= 0:
+                continue
+            weighted_presence[card_id] = weighted_presence.get(card_id, 0.0) + weight
+            weighted_copies[card_id] = (
+                weighted_copies.get(card_id, 0.0) + weight * copies
+            )
+            appearances[card_id] = appearances.get(card_id, 0) + 1
+
+    if total_weight <= 0:
+        return []
+    ranked = sorted(
+        weighted_presence,
+        key=lambda card_id: (
+            -weighted_presence[card_id] / total_weight,
+            legal[card_id].name,
+        ),
+    )
+    return [
+        Suggestion(
+            card_id=card_id,
+            name=legal[card_id].name,
+            image_url=legal[card_id].image_url,
+            copies=min(
+                _room_for(deck, legal[card_id], rules),
+                max(1, round(weighted_copies[card_id] / weighted_presence[card_id])),
+            ),
+            reason=(
+                f"in {appearances[card_id] / len(comparable):.0%} of comparable "
+                "sideboards"
+            ),
+            score=weighted_presence[card_id] / total_weight,
+        )
+        for card_id in ranked[:limit]
+    ]
+
+
 def rune_suggestion(deck: Deck, catalog: Catalog, rules: BoundRules) -> dict[str, int]:
     """A rune base this deck can actually be cast from.
 

@@ -38,6 +38,7 @@ def card_view(card: Card) -> CardView:
         super_type=card.super_type,
         domains=list(card.domains),
         cost=card.cost,
+        power=card.power,
         might=card.might,
         tags=list(card.tags),
         champion_tags=list(card.champion_tags),

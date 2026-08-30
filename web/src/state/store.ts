@@ -214,7 +214,7 @@ const initial: AppState = {
   builderReview: false,
   deckCards: new Map(),
   suggestions: null,
-  drawerOpen: true,
+  drawerOpen: false,
 
   metaStatus: null,
   archetypes: [],

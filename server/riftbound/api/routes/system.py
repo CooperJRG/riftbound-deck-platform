@@ -23,7 +23,8 @@ from ..schemas import BundleView, FormatView, SourceHealthView
 #:
 #: 2: repair.cards on the wizard.
 #: 3: card trends, the archive span, and the server-resolved `range`.
-API_CONTRACT = 3
+#: 4: card power for readable previews and the plain-text deck export route.
+API_CONTRACT = 5
 
 router = APIRouter(prefix="/api", tags=["system"])
 

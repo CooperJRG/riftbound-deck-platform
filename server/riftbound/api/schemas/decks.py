@@ -138,5 +138,8 @@ class BuildSuggestionsView(ApiModel):
     champions: list[ChampionOptionView]
     main: list[SuggestionView]
     battlefields: list[SuggestionView]
+    #: Kept separate from main-deck affinity: these are cards comparable published
+    #: lists actually held in reserve, not generic cards the legend happens to play.
+    sideboard: list[SuggestionView]
     #: Card id to copies. Always offered, whatever else is missing.
     runes: dict[str, int]
