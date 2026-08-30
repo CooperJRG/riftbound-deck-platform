@@ -270,6 +270,17 @@ def get_services() -> Services:
 
 
 def reset_services() -> None:
-    """Drop the cached container. Used by tests and after promoting a new bundle."""
+    """Drop the cached container. Used by tests and after promoting a new bundle.
+
+    Also clears the identity layer's record of which visitor rows it has written. That
+    cache describes the database this container holds, so it has to die with it --
+    otherwise a rebuilt database keeps being told a row exists that it no longer has,
+    and the next save fails on a foreign key.
+    """
     global _services
     _services = None
+    # Imported here: identity imports from this module, so a top-level import would
+    # close the cycle.
+    from .api.identity import forget_known_users
+
+    forget_known_users()

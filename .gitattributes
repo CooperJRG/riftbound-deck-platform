@@ -1,4 +1,8 @@
 * text=auto eol=lf
+# Explicit, because a shell script checked out with CRLF fails inside a Linux
+# container as `bad interpreter: /bin/sh^M` -- a deploy that never listens, from
+# a difference no diff shows.
+*.sh text eol=lf
 *.png binary
 *.webp binary
 *.db binary

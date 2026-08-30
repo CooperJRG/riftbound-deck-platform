@@ -36,6 +36,14 @@ COOKIE_MAX_AGE = 365 * 24 * 60 * 60
 #: a row's origin is legible in the database.
 PUBLIC_PREFIX = "v_"
 
+#: Visitor ids this process has already written a row for.
+#:
+#: Every table hangs off ``users(user_id)`` by foreign key, so the row has to exist
+#: before a visitor's first save. Doing it per request is correct but costs a write
+#: transaction on every API call, and SQLite serialises writers -- so a busy page turns
+#: into a queue for rows that already exist. Bounded because ids are only added here.
+_seen_users: set[str] = set()
+
 
 @dataclass(frozen=True)
 class Identity:
@@ -56,6 +64,11 @@ class LocalIdentityProvider:
 
     def identify(self, request: Request) -> Identity:
         return Identity(user_id=LOCAL_USER_ID, display_name="You")
+
+
+def forget_known_users() -> None:
+    """Drop the visitor-row cache, for when the database underneath it is replaced."""
+    _seen_users.clear()
 
 
 def sign(value: str, secret: str) -> str:
@@ -143,9 +156,9 @@ def current_identity(
         request.app.state.identity_provider = provider
     identity = provider.identify(request)
     request.state.identity = identity
-    # Every table hangs off users(user_id) by foreign key, so the row has to exist
-    # before the first deck is saved. Local mode does this once at start-up; a public
-    # visitor only becomes real when they turn up.
-    if not services.config.is_local:
+    # Local mode writes its one row at start-up; a public visitor only becomes real
+    # when they turn up.
+    if not services.config.is_local and identity.user_id not in _seen_users:
         services.db.ensure_user(identity.user_id, identity.display_name)
+        _seen_users.add(identity.user_id)
     return identity
