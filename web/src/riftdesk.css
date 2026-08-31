@@ -1,45 +1,31 @@
-/* Bound Atlas — warm editorial field guide --------------------------------- */
+/* RiftDesk — a tactile, focused deck studio -------------------------------- */
 
 :root {
   color-scheme: light;
-  --atlas-canvas: #f5f1e8;
-  --atlas-surface: #fffdf8;
-  --atlas-raised: #f1e9dc;
-  --atlas-ink: #20252b;
-  --atlas-muted: #66707a;
-  /* Muted text sitting on --atlas-raised rather than on the canvas. The raised ground is
-     darker than the surface, so the same grey that measures 4.96:1 on --atlas-surface
-     drops to 4.19:1 here -- under AA, and every use of this pairing is small text: a
-     resume line, a confidence pill, an unranked tier label. This is 4.70:1. Dark mode
-     needs no variant -- its muted on its own raised ground is 6.39:1 -- so the two
-     themes point at different values deliberately. */
-  --atlas-muted-ink: #5f6871;
-  --atlas-copper: #b65a1a;
-  --atlas-copper-soft: #f1dac7;
-  --atlas-teal: #237a75;
-  --atlas-teal-soft: #d7e8e4;
-  /* Teal for small text on --atlas-teal-soft. The accent itself measures 4.03:1 there,
-     under AA for the 12px pill labels that use it; this is 4.94:1. Dark mode needs no
-     variant -- its teal on its own soft ground is 5.28:1 -- so the two themes point at
-     different values deliberately. */
-  --atlas-teal-ink: #1f6b66;
-  --atlas-border: #ddd3c4;
+  --atlas-canvas: #f2f1ed;
+  --atlas-surface: #fffefa;
+  --atlas-raised: #e9edf0;
+  --atlas-ink: #17202b;
+  --atlas-muted: #5e6976;
+  /* Dedicated ink tokens keep compact labels readable on their tinted grounds. */
+  --atlas-muted-ink: #55616e;
+  --atlas-copper: #b75424;
+  --atlas-copper-soft: #f3ddce;
+  --atlas-teal: #1d7280;
+  --atlas-teal-soft: #d7e9ec;
+  --atlas-teal-ink: #185f6b;
+  --atlas-border: #d7d8d4;
   --atlas-positive: #2f7a58;
   --atlas-warning: #a46b17;
-  /* A warning colour chosen for a fill is not a warning colour for small text.
-     --atlas-warning measures 3.97:1 on the canvas, under AA; this is 5.54:1 and reads
-     as the same caution. Dark mode needs no darker variant -- its amber already sits
-     at 7.75:1 -- so the two themes point at different values on purpose. */
   --atlas-warning-ink: #8a5410;
-  /* Copper for small text sitting on --atlas-copper-soft. The accent itself measures
-     3.49:1 there, which is under AA for the 0.6rem uppercase labels that use it; this is
-     5.39:1. Dark mode needs no variant -- its copper on its own soft ground is 4.89:1 --
-     so the two themes point at different values deliberately. */
   --atlas-copper-ink: #8a4310;
   --atlas-error: #b74747;
-  --atlas-shadow: 0 16px 44px rgba(51, 40, 25, 0.09);
-  --atlas-serif: Georgia, "Times New Roman", serif;
+  --atlas-shadow: 0 18px 48px rgba(24, 32, 43, 0.1);
+  --atlas-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --atlas-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --rift-violet: #6558c9;
+  --rift-violet-soft: #e8e4fa;
+  --rift-gradient: linear-gradient(135deg, var(--rift-violet), var(--atlas-teal) 52%, var(--atlas-copper));
   --atlas-radius-sm: 8px;
   --atlas-radius: 14px;
   --atlas-radius-lg: 22px;
@@ -52,19 +38,21 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --atlas-canvas: #151718;
-  --atlas-surface: #1e2223;
-  --atlas-raised: #272c2d;
-  --atlas-ink: #f1eee7;
-  --atlas-muted: #a7b0b0;
-  --atlas-muted-ink: #a7b0b0;
-  --atlas-copper: #e38a45;
-  --atlas-copper-soft: #432d1f;
-  --atlas-copper-ink: #e38a45;
-  --atlas-teal: #62bdb4;
-  --atlas-teal-soft: #203d3b;
-  --atlas-teal-ink: #62bdb4;
-  --atlas-border: #343b3c;
+  --atlas-canvas: #10141b;
+  --atlas-surface: #171d25;
+  --atlas-raised: #212a35;
+  --atlas-ink: #f4f0e8;
+  --atlas-muted: #a8b2bd;
+  --atlas-muted-ink: #a8b2bd;
+  --atlas-copper: #f0a160;
+  --atlas-copper-soft: #432f25;
+  --atlas-copper-ink: #f0a160;
+  --atlas-teal: #67c4cf;
+  --atlas-teal-soft: #213d43;
+  --atlas-teal-ink: #67c4cf;
+  --atlas-border: #303b48;
+  --rift-violet: #aa9cff;
+  --rift-violet-soft: #312e4d;
   --atlas-positive: #69b98f;
   --atlas-warning: #d5a153;
   --atlas-warning-ink: #d5a153;
@@ -82,8 +70,9 @@ body {
   margin: 0;
   color: var(--atlas-ink);
   background:
-    radial-gradient(circle at 12% 2%, color-mix(in srgb, var(--atlas-copper) 6%, transparent) 0, transparent 24rem),
-    radial-gradient(circle at 92% 12%, color-mix(in srgb, var(--atlas-teal) 5%, transparent) 0, transparent 28rem),
+    radial-gradient(circle at -8% -10%, color-mix(in srgb, var(--atlas-copper) 10%, transparent) 0, transparent 30rem),
+    radial-gradient(circle at 92% 4%, color-mix(in srgb, var(--rift-violet) 9%, transparent) 0, transparent 32rem),
+    radial-gradient(circle at 72% 92%, color-mix(in srgb, var(--atlas-teal) 6%, transparent) 0, transparent 28rem),
     var(--atlas-canvas);
   font-family: var(--atlas-sans);
   line-height: 1.5;
@@ -96,8 +85,13 @@ body::before {
   inset: 0;
   pointer-events: none;
   content: "";
-  opacity: 0.34;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  opacity: 0.38;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--atlas-ink) 2.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--atlas-ink) 2.5%, transparent) 1px, transparent 1px),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  background-size: 48px 48px, 48px 48px, 180px 180px;
+  mask-image: linear-gradient(to bottom, #000 0, transparent 72%);
 }
 
 h1, h2, h3, h4, p { margin-top: 0; }
@@ -132,7 +126,7 @@ button:disabled { cursor: wait; opacity: 0.58; }
 button.primary, .primary, .btn-primary {
   border-color: var(--atlas-copper);
   color: #fffaf3;
-  background: var(--atlas-copper);
+  background: linear-gradient(135deg, var(--atlas-copper), color-mix(in srgb, var(--atlas-copper) 76%, var(--rift-violet)));
   box-shadow: 0 6px 18px color-mix(in srgb, var(--atlas-copper) 18%, transparent);
 }
 button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background: color-mix(in srgb, var(--atlas-copper) 86%, #000); }
@@ -151,7 +145,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(1rem, 3vw, 3rem);
-  min-height: 72px;
+  min-height: 76px;
   /* `body` is a height-constrained flex column, so the header was a shrinkable item and
      got squashed to exactly its 72px floor. Below 900px the tab strip moves to a second
      row that then had nowhere to go: the row sized to 0 and the tabs were centred in it,
@@ -159,25 +153,47 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
      by its container. */
   flex-shrink: 0;
   padding: 0.7rem clamp(1rem, 3vw, 2.5rem);
-  border-bottom: 1px solid var(--atlas-border);
-  background: color-mix(in srgb, var(--atlas-surface) 94%, transparent);
-  box-shadow: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--atlas-border) 78%, transparent);
+  background:
+    linear-gradient(110deg, color-mix(in srgb, var(--rift-violet) 4%, transparent), transparent 34%, color-mix(in srgb, var(--atlas-teal) 4%, transparent)),
+    color-mix(in srgb, var(--atlas-surface) 94%, transparent);
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--atlas-ink) 5%, transparent);
   backdrop-filter: blur(16px);
 }
-.brand-lockup { display: flex; align-items: center; gap: 0.7rem; white-space: nowrap; }
+.app-header::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  content: "";
+  opacity: 0.62;
+  background: linear-gradient(90deg, transparent 2%, var(--atlas-copper) 18%, var(--rift-violet) 49%, var(--atlas-teal) 82%, transparent 98%);
+}
+.brand-lockup { display: flex; align-items: center; gap: 0.8rem; color: inherit; text-decoration: none; white-space: nowrap; }
+.brand-lockup:hover .brand-mark { border-color: color-mix(in srgb, var(--rift-violet) 72%, var(--atlas-border)); transform: rotate(0deg) translateY(-1px); }
 .brand-mark {
   display: grid;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   place-items: center;
-  border: 1px solid var(--atlas-copper);
-  border-radius: 50% 50% 46% 54%;
-  color: var(--atlas-copper);
-  font-family: var(--atlas-serif);
-  font-size: 0.84rem;
+  padding: 4px;
+  border: 1px solid color-mix(in srgb, var(--rift-violet) 42%, var(--atlas-border));
+  border-radius: 12px;
+  color: var(--atlas-ink);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--atlas-surface) 88%, var(--rift-violet)), color-mix(in srgb, var(--atlas-raised) 82%, var(--atlas-teal)));
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--rift-violet) 14%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 48%, transparent);
+  transform: rotate(-2deg);
+  transition: border-color 150ms ease, transform 150ms ease;
 }
-.brand-lockup strong { display: block; font-family: var(--atlas-serif); font-size: 1.12rem; line-height: 1.1; }
-.brand-lockup small { display: block; margin-top: 0.15rem; color: var(--atlas-muted); font-size: 0.68rem; letter-spacing: 0.04em; }
+.brand-mark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.brand-mark-back { fill: none; stroke: var(--atlas-teal); stroke-width: 1.4; opacity: 0.42; }
+.brand-mark-front { fill: color-mix(in srgb, var(--atlas-surface) 62%, transparent); stroke: var(--atlas-ink); stroke-width: 1.5; }
+.brand-mark-rift { fill: none; stroke: var(--rift-violet); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--atlas-teal) 50%, transparent)); }
+.brand-lockup strong { display: block; font-family: var(--atlas-sans); font-size: 1.2rem; font-weight: 820; letter-spacing: -0.055em; line-height: 1; }
+.brand-lockup strong span:last-child { color: var(--atlas-copper); }
+.brand-lockup small { display: block; margin-top: 0.27rem; color: var(--atlas-muted); font-size: 0.61rem; font-weight: 700; letter-spacing: 0.115em; text-transform: uppercase; }
 .tabs { display: flex; justify-content: center; gap: 0.2rem; border: 0; background: transparent; }
 .tabs .tab {
   min-height: 42px;
@@ -188,7 +204,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   box-shadow: none;
 }
 .tabs .tab:hover { border-color: transparent; color: var(--atlas-ink); background: var(--atlas-raised); }
-.tabs .tab.is-active { border-color: transparent; color: var(--atlas-copper); background: var(--atlas-copper-soft); }
+.tabs .tab.is-active { border-color: color-mix(in srgb, var(--rift-violet) 24%, transparent); color: var(--atlas-ink); background: color-mix(in srgb, var(--rift-violet-soft) 72%, var(--atlas-surface)); box-shadow: inset 0 -2px 0 var(--rift-violet); }
 .header-actions { position: relative; display: flex; align-items: center; gap: 0.5rem; }
 .theme-toggle { display: flex; align-items: center; gap: 0.45rem; min-width: 78px; justify-content: center; background: transparent; }
 .theme-toggle > span:first-child { color: var(--atlas-copper); font-size: 1.1rem; }
@@ -269,12 +285,33 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .page-hero { max-width: 790px; margin-bottom: clamp(2rem, 5vw, 4.5rem); }
 .page-hero h1 { margin-bottom: 1rem; }
 .page-lede { max-width: 68ch; color: var(--atlas-muted); font-size: clamp(1rem, 1.5vw, 1.18rem); }
-.eyebrow { margin-bottom: 0.65rem; color: var(--atlas-copper); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.eyebrow { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem; color: var(--atlas-copper); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.eyebrow::before { width: 15px; height: 2px; flex: 0 0 auto; content: ""; background: var(--rift-gradient); transform: skewX(-28deg); }
 
 /* Find a deck -------------------------------------------------------------- */
 
-.smart-picker { max-width: none; }
-.smart-picker > h2 { max-width: 740px; margin-bottom: 0.75rem; font-size: clamp(2.25rem, 5vw, 4.5rem); }
+.smart-picker { position: relative; max-width: none; isolation: isolate; }
+.smart-picker::before {
+  position: absolute;
+  z-index: -1;
+  top: -1.5rem;
+  right: clamp(1rem, 7vw, 8rem);
+  width: min(24vw, 340px);
+  aspect-ratio: 63 / 88;
+  border: 1px solid color-mix(in srgb, var(--rift-violet) 28%, var(--atlas-border));
+  border-radius: 22px;
+  content: "";
+  opacity: 0.66;
+  background:
+    linear-gradient(132deg, transparent 0 43%, color-mix(in srgb, var(--rift-violet) 20%, transparent) 43.5% 45%, color-mix(in srgb, var(--atlas-teal) 16%, transparent) 45.5% 47%, transparent 47.5%),
+    radial-gradient(circle at 62% 28%, color-mix(in srgb, var(--rift-violet) 18%, transparent), transparent 42%),
+    color-mix(in srgb, var(--atlas-surface) 32%, transparent);
+  box-shadow:
+    18px 18px 0 -1px color-mix(in srgb, var(--atlas-teal) 5%, transparent),
+    18px 18px 0 0 color-mix(in srgb, var(--atlas-teal) 18%, var(--atlas-border));
+  transform: rotate(7deg);
+}
+.smart-picker > h2 { max-width: 740px; margin-bottom: 0.75rem; font-size: clamp(2.6rem, 5.4vw, 5rem); }
 .smart-lede { max-width: 660px; color: var(--atlas-muted); font-size: 1.05rem; }
 .smart-freshness { display: inline-flex; align-items: center; gap: 0.6rem; margin: 1rem 0 2rem; padding: 0.4rem 0.55rem 0.4rem 0.8rem; border: 1px solid var(--atlas-border); border-radius: 999px; color: var(--atlas-muted); background: var(--atlas-surface); font-size: 0.78rem; }
 .smart-search {
@@ -287,21 +324,21 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   background: var(--atlas-surface);
 }
 .picker-hint { margin-bottom: 1.25rem; color: var(--atlas-muted); font-size: 0.8rem; }
-.legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1rem; }
 .legend-card {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  min-height: 116px;
+  grid-template-columns: 104px minmax(0, 1fr);
+  min-height: 146px;
   padding: 0;
   overflow: hidden;
   text-align: left;
   background: var(--atlas-surface);
   box-shadow: 0 8px 24px rgba(42, 32, 19, 0.04);
 }
-.legend-card:hover:not(:disabled) { box-shadow: var(--atlas-shadow); }
-.legend-art, .legend-card > .tile-art-empty { width: 76px; height: 100%; min-height: 116px; object-fit: cover; border-radius: 0; }
+.legend-card:hover:not(:disabled) { border-color: color-mix(in srgb, var(--rift-violet) 56%, var(--atlas-border)); box-shadow: var(--atlas-shadow); }
+.legend-art, .legend-card > .tile-art-empty { width: 104px; height: 100%; min-height: 146px; object-fit: cover; object-position: top; border-radius: 0; }
 .legend-body { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 0.85rem 1rem; }
-.legend-name { color: var(--atlas-ink); font-family: var(--atlas-serif); font-size: 1.06rem; }
+.legend-name { color: var(--atlas-ink); font-family: var(--atlas-serif); font-size: 1.16rem; line-height: 1.2; }
 .legend-meta, .legend-known { margin-top: 0.25rem; color: var(--atlas-muted); font-size: 0.73rem; font-weight: 500; }
 .legend-known { color: var(--atlas-teal); }
 /* The wizard is a grid of cards, so it earns the width the shell gives it. */
@@ -399,11 +436,11 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   flex-direction: column;
   overflow: hidden;
   resize: both;
-  border-color: color-mix(in srgb, var(--atlas-copper) 44%, var(--atlas-border));
+  border-color: color-mix(in srgb, var(--rift-violet) 44%, var(--atlas-border));
   background: color-mix(in srgb, var(--atlas-surface) 96%, transparent);
   box-shadow:
     0 28px 90px rgba(8, 12, 14, 0.38),
-    0 2px 0 color-mix(in srgb, var(--atlas-copper) 42%, transparent) inset;
+    0 2px 0 color-mix(in srgb, var(--rift-violet) 44%, transparent) inset;
   backdrop-filter: blur(18px);
 }
 .panel-browser[hidden] { display: none; }
@@ -418,13 +455,13 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   padding: 0.75rem 0.85rem;
   border-bottom: 1px solid color-mix(in srgb, var(--atlas-border) 78%, transparent);
   background:
-    linear-gradient(110deg, color-mix(in srgb, var(--atlas-copper) 8%, transparent), transparent 38%),
+    linear-gradient(110deg, color-mix(in srgb, var(--rift-violet) 10%, transparent), transparent 38%, color-mix(in srgb, var(--atlas-teal) 6%, transparent)),
     color-mix(in srgb, var(--atlas-raised) 72%, var(--atlas-surface));
   cursor: grab;
   touch-action: none;
 }
 .panel-browser.is-dragging .builder-heading { cursor: grabbing; }
-.drawer-grip { color: var(--atlas-copper); font-size: 1.25rem; letter-spacing: -0.25em; }
+.drawer-grip { color: var(--rift-violet); font-size: 1.25rem; letter-spacing: -0.25em; }
 .drawer-title { min-width: 0; }
 .drawer-title .eyebrow { margin: 0 0 0.08rem; font-size: 0.55rem; }
 .drawer-title h1 { margin: 0; font-size: 1.18rem; white-space: nowrap; }
@@ -506,6 +543,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .tile-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .legend-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .atlas-filter-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .smart-picker::before { right: 1rem; width: min(25vw, 260px); opacity: 0.42; }
 }
 
 @media (max-width: 900px) {
@@ -530,6 +568,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .atlas-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .explore-columns { grid-template-columns: 1fr; }
   .deck-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smart-picker::before { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -540,7 +579,9 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .tabs .tab { min-width: max-content; min-height: 36px; padding: 0.35rem 0.65rem; font-size: 0.78rem; }
   .panel-smart, .panel-explore, .panel-library { width: calc(100% - 1rem); padding: 2.5rem 0; }
   .legend-grid { grid-template-columns: 1fr; }
-  .legend-card { grid-template-columns: 68px minmax(0, 1fr); }
+  .brand-mark { width: 40px; height: 40px; }
+  .legend-card { grid-template-columns: 88px minmax(0, 1fr); min-height: 124px; }
+  .legend-art, .legend-card > .tile-art-empty { width: 88px; min-height: 124px; }
   .smart-head, .detail-hero, .floor { flex-direction: column; }
   .smart-progress { flex-wrap: wrap; }
   .req { grid-template-columns: 48px minmax(0, 1fr); }
@@ -584,8 +625,8 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   overflow: hidden;
   aspect-ratio: 63 / 88;
   border-radius: 4.8% / 3.5%;
-  background: #0c0e10;
-  box-shadow: 0 12px 30px rgba(10, 12, 14, 0.24);
+  background: #0b1018;
+  box-shadow: 0 15px 34px rgba(8, 12, 18, 0.28);
 }
 .full-card img,
 .tier-card-art img,
@@ -623,8 +664,10 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   z-index: -1;
   inset: 7% -10% 2% 38%;
   content: "";
-  opacity: 0.16;
-  background: radial-gradient(circle, var(--atlas-copper), transparent 62%);
+  opacity: 0.18;
+  background:
+    radial-gradient(circle at 38% 38%, var(--rift-violet), transparent 54%),
+    radial-gradient(circle at 66% 62%, var(--atlas-teal), transparent 60%);
   filter: blur(40px);
 }
 .tier-hero-copy { position: relative; z-index: 2; max-width: 760px; }
@@ -641,9 +684,9 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .tier-honesty { max-width: 68ch; margin-top: 1.4rem; padding-left: 0.9rem; border-left: 3px solid var(--atlas-teal); color: var(--atlas-muted); font-size: 0.8rem; }
 .tier-hero-cards { position: relative; height: 390px; }
 .hero-card { position: absolute; top: 22px; left: 50%; width: 235px; transform-origin: 50% 105%; }
-.hero-card:nth-child(1) { z-index: 3; transform: translateX(-50%) rotate(-1deg); }
-.hero-card:nth-child(2) { z-index: 2; transform: translateX(-96%) rotate(-13deg); }
-.hero-card:nth-child(3) { z-index: 1; transform: translateX(-5%) rotate(13deg); }
+.hero-card:nth-child(1) { z-index: 3; transform: translateX(-50%) translateY(-8px) rotate(-1deg); }
+.hero-card:nth-child(2) { z-index: 2; transform: translateX(-98%) rotate(-14deg); }
+.hero-card:nth-child(3) { z-index: 1; transform: translateX(-3%) rotate(14deg); }
 .hero-card img { object-fit: contain; }
 
 .field-ribbon {
@@ -652,7 +695,10 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   margin-bottom: 1rem;
   border: 1px solid var(--atlas-border);
   border-radius: var(--atlas-radius);
-  background: var(--atlas-surface);
+  background:
+    linear-gradient(110deg, color-mix(in srgb, var(--rift-violet) 5%, transparent), transparent 44%, color-mix(in srgb, var(--atlas-teal) 5%, transparent)),
+    var(--atlas-surface);
+  box-shadow: 0 12px 34px color-mix(in srgb, var(--atlas-ink) 4%, transparent);
 }
 .field-ribbon span { padding: 0.9rem 1rem; border-right: 1px solid var(--atlas-border); color: var(--atlas-muted); font-size: 0.75rem; text-align: center; }
 .field-ribbon span:last-child { border-right: 0; }
@@ -675,7 +721,9 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   overflow: hidden;
   border: 1px solid var(--atlas-border);
   border-radius: var(--atlas-radius-lg);
-  background: color-mix(in srgb, var(--atlas-surface) 86%, transparent);
+  background:
+    linear-gradient(105deg, color-mix(in srgb, var(--rift-violet) 3%, transparent), transparent 32%),
+    color-mix(in srgb, var(--atlas-surface) 88%, transparent);
 }
 .tier-label { display: flex; flex-direction: column; justify-content: center; padding: 1.2rem; border-right: 1px solid var(--atlas-border); }
 .tier-label strong { font-family: var(--atlas-serif); font-size: 4.6rem; font-weight: 500; line-height: 0.86; }
@@ -1693,7 +1741,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
     repeating-linear-gradient(0deg, transparent 0 5px, color-mix(in srgb, var(--atlas-ink) 2.4%, transparent) 6px),
     radial-gradient(ellipse at 22% 17%, color-mix(in srgb, var(--atlas-copper) 19%, transparent), transparent 34%),
     radial-gradient(ellipse at 78% 26%, color-mix(in srgb, var(--atlas-teal) 20%, transparent), transparent 37%),
-    radial-gradient(circle at 58% 92%, color-mix(in srgb, #6954c8 10%, transparent), transparent 34%),
+    radial-gradient(circle at 58% 92%, color-mix(in srgb, var(--rift-violet) 12%, transparent), transparent 34%),
     color-mix(in srgb, var(--atlas-raised) 72%, var(--atlas-surface));
   box-shadow:
     inset 0 0 100px color-mix(in srgb, var(--atlas-ink) 7%, transparent),
@@ -1709,8 +1757,8 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   border: 1px solid color-mix(in srgb, var(--atlas-teal) 9%, transparent);
   border-radius: 50%;
   background:
-    repeating-conic-gradient(from 9deg, color-mix(in srgb, var(--atlas-teal) 5%, transparent) 0 1deg, transparent 1deg 30deg),
-    radial-gradient(circle, transparent 46%, color-mix(in srgb, var(--atlas-copper) 4%, transparent) 46.5% 47%, transparent 47.5%);
+    repeating-conic-gradient(from 9deg, color-mix(in srgb, var(--rift-violet) 5%, transparent) 0 1deg, transparent 1deg 30deg),
+    radial-gradient(circle, transparent 46%, color-mix(in srgb, var(--atlas-teal) 5%, transparent) 46.5% 47%, transparent 47.5%);
   content: "";
   opacity: 0.24;
   pointer-events: none;

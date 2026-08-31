@@ -20,11 +20,13 @@ import {
 import { store } from "../../state/store";
 import { fragment, h } from "../../ui/dom";
 
-const NUDGE_DISMISSED = "atlas.collection-nudge-dismissed";
+const NUDGE_DISMISSED = "riftdesk.collection-nudge-dismissed";
+const LEGACY_NUDGE_DISMISSED = "atlas.collection-nudge-dismissed";
 
 function nudgeDismissed(): boolean {
   try {
-    return localStorage.getItem(NUDGE_DISMISSED) === "1";
+    return localStorage.getItem(NUDGE_DISMISSED) === "1" ||
+      localStorage.getItem(LEGACY_NUDGE_DISMISSED) === "1";
   } catch {
     // Private windows and blocked site data both throw here. A nudge that cannot
     // remember being dismissed is better than a page that will not render.
@@ -362,13 +364,13 @@ export function legendPicker(): HTMLElement {
   return h(
     "section",
     { class: "smart-picker" },
-    h("p", { class: "eyebrow" }, "Find a deck"),
-    h("h2", {}, "Which legend do you want to build?"),
+    h("p", { class: "eyebrow" }, "RiftDesk · deck finder"),
+    h("h2", {}, "Start with a legend."),
     h(
       "p",
       { class: "smart-lede" },
-      "Pick a legend, then scan one complete candidate list with every card kept in context. " +
-        "You do not need to have entered your collection.",
+      "Choose a legend and RiftDesk will line up one complete candidate list with every card kept in context. " +
+        "No collection setup required.",
     ),
     freshnessLine(),
     // Before the picker: finishing something already started beats starting again.

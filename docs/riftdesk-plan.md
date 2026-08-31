@@ -1,10 +1,10 @@
-# Bound Atlas product plan
+# RiftDesk product plan
 
 Status: implemented and verified on August 26, 2026.
 
 ## Product direction
 
-Bound Atlas is a warm, editorial field guide for Riftbound players. It should help a
+RiftDesk is a tactile, focused deck studio for Riftbound players. It should help a
 player answer one question at a time:
 
 1. What can I build?
@@ -193,7 +193,7 @@ the gap rather than being asked to trust a caveat.
 ## Delivery sequence
 
 1. Baseline the existing Python and TypeScript builds.
-2. Add Bound Atlas tokens, shell, navigation, and persistent theme control.
+2. Add RiftDesk tokens, shell, navigation, and persistent theme control.
 3. Add presentation-neutral trend aggregation and typed API schemas.
 4. Cover honest denominators, champion details, and tournament details with tests.
 5. Build the full-art tier wall plus legend, champion, and tournament drill-downs.

@@ -487,7 +487,7 @@ function tierOverview(): HTMLElement {
       h(
         "div",
         { class: "tier-hero-copy" },
-        h("p", { class: "eyebrow" }, "The living field"),
+        h("p", { class: "eyebrow" }, "RiftDesk · live meta"),
         h("h1", {}, "Every legend. One field."),
         h("p", { class: "page-lede" }, "A full-card view of what is defining tournaments right now. Open any legend to see its champion builds, staples, trajectory, and the decks behind its tier."),
         // The tier is still presence and only presence: the ranking formula was
@@ -616,7 +616,7 @@ function dossierHeader(
     h(
       "div",
       { class: "dossier-copy" },
-      h("p", { class: "eyebrow" }, `${kind} field guide`),
+      h("p", { class: "eyebrow" }, `${kind} meta desk`),
       h(
         "div",
         { class: "dossier-title-line" },

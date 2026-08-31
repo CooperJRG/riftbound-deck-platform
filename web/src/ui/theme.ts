@@ -1,6 +1,6 @@
 export type Theme = "light" | "dark";
 
-const STORAGE_KEY = "bound-atlas-theme";
+const STORAGE_KEY = "riftdesk-theme";
 
 export function currentTheme(): Theme {
   return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
@@ -8,6 +8,10 @@ export function currentTheme(): Theme {
 
 export function setTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
+  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute(
+    "content",
+    theme === "dark" ? "#10141b" : "#f2f1ed",
+  );
   try {
     localStorage.setItem(STORAGE_KEY, theme);
   } catch {
