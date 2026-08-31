@@ -9,6 +9,10 @@
       content="RiftDesk is a focused Riftbound deck studio for finding tournament lists, reading the live meta, and building decks card by card."
     />
     <link rel="icon" href="/riftdesk-mark.svg" type="image/svg+xml" />
+    <!-- Card art is served from here; every browse/build view loads dozens of images
+         from it, so paying the DNS+TLS handshake now beats paying it on first scroll. -->
+    <link rel="preconnect" href="https://static.dotgg.gg" crossorigin />
+    <link rel="dns-prefetch" href="https://static.dotgg.gg" />
     <title>RiftDesk · Riftbound deck studio</title>
     <script>
       try {
@@ -51,6 +55,8 @@
     <main id="find" class="panel panel-smart" aria-label="Find a deck" hidden></main>
 
     <main id="explore" class="panel panel-explore" aria-label="Explore tournament trends" hidden></main>
+
+    <main id="search" class="panel panel-search" aria-label="Search decks by card" hidden></main>
 
     <main id="build" class="app-body">
       <div class="panel panel-deck">

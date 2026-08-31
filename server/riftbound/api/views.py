@@ -211,6 +211,8 @@ def meta_deck_view(
         legend_name=legend.name if legend else meta.deck.legend_id,
         champion_id=meta.deck.champion_id,
         champion_name=champion.name if champion else "",
+        legend_image_url=legend.image_url if legend else "",
+        champion_image_url=champion.image_url if champion else "",
         archetype_id=meta.archetype_id,
         domains=list(legend.domains) if legend else [],
         main_total=meta.deck.main_total,

@@ -22,7 +22,7 @@
  */
 
 import type { DeckPayload } from "../api/types";
-import type { ExploreMode, ViewName } from "../state/store";
+import type { DeckSearchSort, ExploreMode, ViewName } from "../state/store";
 
 export type Route =
   | { name: "find" }
@@ -34,6 +34,7 @@ export type Route =
   | { name: "archetype"; archetypeId: string }
   | { name: "build" }
   | { name: "decks" }
+  | { name: "search"; cardIds: string[]; sort: DeckSearchSort }
   | { name: "savedDeck"; deckId: string }
   | { name: "metaDeck"; deckId: string }
   | { name: "sharedDeck"; deck: DeckPayload };
@@ -76,6 +77,8 @@ export function viewFor(route: Route): ViewName {
       return "explore";
     case "decks":
       return "decks";
+    case "search":
+      return "search";
     default:
       return "build";
   }
@@ -179,6 +182,15 @@ export function parseLocation(pathname: string, search: string): Location {
       : { route: { name: "decks" }, explore };
   }
 
+  if (head === "search") {
+    const cardIds = (params.get("cards") || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const sort: DeckSearchSort = params.get("sort") === "recency" ? "recency" : "rank";
+    return { route: { name: "search", cardIds, sort }, explore };
+  }
+
   if (head === "build") return { route: { name: "build" }, explore };
   if (head === "find") return { route: HOME, explore };
 
@@ -221,6 +233,13 @@ export function pathFor(route: Route, explore: ExploreQuery = {}): string {
       return "/build";
     case "decks":
       return "/decks";
+    case "search": {
+      const params = new URLSearchParams();
+      if (route.cardIds.length) params.set("cards", route.cardIds.map(enc).join(","));
+      if (route.sort !== "rank") params.set("sort", route.sort);
+      const query = params.toString();
+      return query ? `/search?${query}` : "/search";
+    }
     case "savedDeck":
       return `/decks/${enc(route.deckId)}`;
     case "metaDeck":

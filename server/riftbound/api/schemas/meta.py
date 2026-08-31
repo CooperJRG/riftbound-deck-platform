@@ -48,6 +48,8 @@ class MetaDeckView(ApiModel):
     legend_name: str
     champion_id: str
     champion_name: str
+    legend_image_url: str
+    champion_image_url: str
     archetype_id: str
     domains: list[str]
     main_total: int

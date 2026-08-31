@@ -156,9 +156,6 @@ function boardCard(
           : h("img", { src: art, alt: name, loading: "lazy" })
         : h("span", { class: "mat-card-blank" }, name),
     ),
-    card?.cost !== null && card?.cost !== undefined
-      ? h("span", { class: "mat-cost" }, String(card.cost))
-      : null,
     qty > 1 ? h("span", { class: "mat-qty" }, `${qty}`) : null,
     opts.champion ? h("span", { class: "mat-flag" }, "Champion") : null,
     h(

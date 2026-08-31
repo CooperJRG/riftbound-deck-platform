@@ -7,7 +7,7 @@ mode.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 
 from ...domain.cards import RARITY_ORDER
 from ...domain.ids import search_key
@@ -85,8 +85,13 @@ def list_cards(
 
 
 @router.get("/facets")
-def card_facets(services: Services = Depends(get_services)) -> dict:
+def card_facets(response: Response, services: Services = Depends(get_services)) -> dict:
     """Filter values derived from the bundle, so a new set appears without a code change."""
+    # Pure function of the promoted bundle, which changes only when an operator
+    # promotes a new one -- never per-request, and never per-user. Short and public,
+    # so a browser skips the round trip on every filter-panel open without ever
+    # showing a stale set past a few minutes.
+    response.headers["Cache-Control"] = "public, max-age=300"
     catalog = services.catalog
     return {
         "cardTypes": sorted({c.card_type for c in catalog if c.card_type}),

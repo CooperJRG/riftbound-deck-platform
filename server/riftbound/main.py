@@ -15,6 +15,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -63,6 +64,11 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     config = get_services().config
+
+    # Card and meta payloads are JSON arrays of a few thousand rows; compressing them
+    # (and the JS/CSS bundle) cuts transfer size well below the threshold where it
+    # would cost more in CPU than it saves in latency.
+    app.add_middleware(GZipMiddleware, minimum_size=500)
 
     # Only the Vite dev server needs CORS; in production the API and the built UI
     # are the same origin.
@@ -144,6 +150,22 @@ def create_app() -> FastAPI:
     dist = config.web_dist
     if dist.is_dir():
         app.mount("/assets", StaticFiles(directory=str(dist / "assets")), name="assets")
+
+        @app.middleware("http")
+        async def static_cache_headers(request: Request, call_next):
+            """Cache Vite's hashed bundle forever; never cache the shell that names it.
+
+            Every file under ``/assets`` is content-hashed (``index-B1y3psVx.js``), so a
+            new build is a new URL -- the old one can be cached immutable and forever.
+            ``index.html`` is the opposite: it is what points at today's hash, so a
+            cached copy would keep serving yesterday's asset URLs after a deploy.
+            """
+            response = await call_next(request)
+            if request.url.path.startswith("/assets/"):
+                response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+            elif request.method == "GET" and not request.url.path.startswith("/api"):
+                response.headers["Cache-Control"] = "no-cache"
+            return response
 
         @app.get("/{full_path:path}", include_in_schema=False)
         async def spa(full_path: str):

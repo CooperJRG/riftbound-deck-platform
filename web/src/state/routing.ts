@@ -23,6 +23,7 @@ import { setView } from "./actions/app";
 import { resolveDeckCards } from "./actions/cards";
 import { loadDeck } from "./actions/library";
 import { openArchetype, loadMeta } from "./actions/meta";
+import { runDeckSearch } from "./actions/search";
 import { refreshSuggestions, revalidate } from "./actions/deck";
 import { store } from "./store";
 import { deckToQuery, type ExploreQuery, type Location, type Route } from "../ui/router";
@@ -47,6 +48,8 @@ export function routeForState(): Route {
       return { name: "explore", mode: state.exploreMode };
     case "decks":
       return { name: "decks" };
+    case "search":
+      return { name: "search", cardIds: state.searchCards.map((c) => c.cardId), sort: state.searchSort };
     case "build":
       // A saved deck is addressable by id; anything else has to carry itself.
       if (state.deckId && !state.dirty) return { name: "savedDeck", deckId: state.deckId };
@@ -160,6 +163,19 @@ export async function applyLocation(location: Location): Promise<void> {
     case "decks":
       setView("decks");
       return;
+
+    case "search": {
+      setView("search");
+      const found = await Promise.all(
+        route.cardIds.map((id) => api.card(id).catch(() => null)),
+      );
+      store.set({
+        searchCards: found.filter((c): c is NonNullable<typeof c> => c !== null),
+        searchSort: route.sort,
+      });
+      await runDeckSearch();
+      return;
+    }
 
     case "build":
       setView("build");

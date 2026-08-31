@@ -14,4 +14,5 @@ export * from "./library";
 export * from "./availability";
 export * from "./explore";
 export * from "./meta";
+export * from "./search";
 export * from "./wizard";

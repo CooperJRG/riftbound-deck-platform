@@ -36,6 +36,8 @@ export interface MetaDeck {
   legendName: string;
   championId: string;
   championName: string;
+  legendImageUrl: string;
+  championImageUrl: string;
   archetypeId: string;
   domains: string[];
   mainTotal: number;

@@ -13,6 +13,7 @@ import { refreshCardPreview } from "./features/cardPreview";
 import { renderDeckActions, renderDeckLibrary } from "./features/deckLibrary";
 import { renderDeckPanel } from "./features/deckPanel";
 import { renderExplore } from "./features/explore";
+import { renderDeckSearch } from "./features/deckSearch";
 import { renderSmartDecks } from "./features/wizard/run";
 import { applyLocation, exploreForState, routeForState } from "./state/routing";
 import { h, query, replace } from "./ui/dom";
@@ -38,6 +39,7 @@ const errorRoot = query("#error");
 const noticeRoot = query("#notice");
 const exploreRoot = query("#explore");
 const findRoot = query("#find");
+const searchRoot = query("#search");
 const buildRoot = query("#build");
 const tabsRoot = query("#tabs");
 const themeRoot = query<HTMLButtonElement>("#theme-toggle");
@@ -96,12 +98,12 @@ renderThemeButton();
  * view the same way, and the address is right the moment the view changes rather than
  * one render later.
  */
-function go(name: "find" | "explore" | "build" | "decks"): void {
+function go(name: "find" | "explore" | "search" | "build" | "decks"): void {
   setView(name);
 }
 
 function renderTabs(current: string): void {
-  const tab = (name: "find" | "explore" | "build" | "decks", label: string) =>
+  const tab = (name: "find" | "explore" | "search" | "build" | "decks", label: string) =>
     h(
       "button",
       {
@@ -116,6 +118,7 @@ function renderTabs(current: string): void {
     tabsRoot,
     tab("find", "Find a deck"),
     tab("explore", "Explore"),
+    tab("search", "Search"),
     tab("build", "Build"),
     tab("decks", "My decks"),
   );
@@ -164,6 +167,7 @@ store.subscribe((state) => {
   buildRoot.hidden = state.view !== "build";
   exploreRoot.hidden = state.view !== "explore";
   findRoot.hidden = state.view !== "find";
+  searchRoot.hidden = state.view !== "search";
   libraryRoot.hidden = state.view !== "decks";
 
   // The availability control drives both views, so it always renders.
@@ -181,6 +185,8 @@ store.subscribe((state) => {
     renderSmartDecks(findRoot);
   } else if (state.view === "explore") {
     renderExplore(exploreRoot);
+  } else if (state.view === "search") {
+    renderDeckSearch(searchRoot);
   } else if (state.view === "decks") {
     renderDeckLibrary(libraryRoot);
   }

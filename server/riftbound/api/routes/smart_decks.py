@@ -286,11 +286,23 @@ def _session_view(
     user_id: str,
     *,
     with_proposal: bool = True,
+    computed: tuple[Session, Engine, Proposal] | None = None,
 ) -> SmartSessionView:
+    """Build the response view.
+
+    ``propose()`` runs the repair engine and scores every candidate deck -- it is the
+    single most expensive call in the wizard, and every route that mutates a session
+    (``answer``) needs its result twice: once to decide what phase to persist, once to
+    render the response. ``computed`` lets a caller that already ran it hand the same
+    (session, engine, proposal) back in, so this only runs it itself when nobody has.
+    """
     legend = services.catalog.get(record.legend_id)
-    session = _session_of(record, _declared(services, user_id))
     proposal = None
-    if with_proposal:
+    if computed is not None:
+        session, engine, domain_proposal = computed
+        proposal = _proposal_view(domain_proposal, session, engine, services, user_id)
+    elif with_proposal:
+        session = _session_of(record, _declared(services, user_id))
         engine = _engine(services, record.legend_id)
         proposal = _proposal_view(
             engine.propose(session), session, engine, services, user_id
@@ -477,6 +489,11 @@ def answer(
         updated = engine.answer_question(session, payload.have, payload.asked)
         kind = "checklist"
 
+    # Run once and reused below: `updated` is the exact session state being persisted,
+    # so a second `propose()` against the reloaded record would recompute the same
+    # repair and scoring work for the same answer.
+    proposal = engine.propose(updated)
+
     services.smart_decks.record_round(
         session_id,
         user_id=identity.user_id,
@@ -485,11 +502,14 @@ def answer(
         answers=payload.have,
         exact=dict(updated.knowledge.exact),
         at_least=dict(updated.knowledge.at_least),
-        phase=engine.propose(updated).phase,
+        phase=proposal.phase,
         checklists=updated.checklists,
     )
     return _session_view(
-        _load(services, session_id, identity.user_id), services, identity.user_id
+        _load(services, session_id, identity.user_id),
+        services,
+        identity.user_id,
+        computed=(updated, engine, proposal),
     )
 
 

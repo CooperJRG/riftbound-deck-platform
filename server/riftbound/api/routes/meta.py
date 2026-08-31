@@ -338,21 +338,68 @@ def _ranked(services: Services) -> tuple[list[MetaDeck], dict]:
     return decks, scores
 
 
+#: Orderings `/decks` offers. Rank is the default -- the same "what's actually good"
+#: ranking every other meta view leads with -- and recency is the one alternative a
+#: player searching by card actually wants: "what's newest running this" answers a
+#: different question than "what's best running this", and both are real questions.
+DECK_SORTS = ("rank", "recency")
+
+#: A search naming more than this many cards is not narrowing a deck list any more --
+#: `_deck_card_ids` intersection against a whole archive per extra card id is cheap, but
+#: an unbounded list is still an unbounded request body for no real use case.
+MAX_SEARCH_CARDS = 12
+
+
+def _deck_card_ids(deck: MetaDeck) -> set[str]:
+    """Every card this deck is *about*, for matching against a card search.
+
+    `_deck_counts` already covers main, runes, battlefields and the legend; the
+    champion is the one card a player searching by card would expect to match that it
+    does not otherwise include, since it is not always also a main-deck card.
+    """
+    ids = set(_deck_counts(deck))
+    if deck.deck.champion_id:
+        ids.add(deck.deck.champion_id)
+    return ids
+
+
+def _by_recency(deck: MetaDeck) -> str:
+    # Same convention as `legend_index` and the scoring recency term: the tournament
+    # date when there is a tournament behind the list, the publish date otherwise. ISO
+    # strings sort correctly as text, and a deck with neither sorts last, not first.
+    return deck.provenance.tournament_date or deck.provenance.published_at
+
+
 @router.get("/decks", response_model=list[MetaDeckView])
 def list_meta_decks(
     archetype: str = Query(default="", max_length=120),
     evidence: str = Query(default="", max_length=32),
     buildable_only: bool = Query(default=False, alias="buildableOnly"),
+    card_id: list[str] = Query(default=[], alias="cardId"),
+    sort: str = Query(default="rank", pattern="^(rank|recency)$"),
     limit: int = Query(default=30, ge=1, le=200),
     services: Services = Depends(get_services),
     identity: Identity = Depends(current_identity),
 ) -> list[MetaDeckView]:
-    """Ranked meta decks, each scored against what the player can field."""
+    """Ranked meta decks, each scored against what the player can field.
+
+    ``cardId`` narrows to decks running *every* card named (an "and", not an "or" --
+    "decks with both of these" is the question a player comparing two cards actually
+    has, and it is one query rather than intersecting two separate result sets by hand).
+    """
     if evidence and evidence not in EVIDENCE_TIERS:
         raise HTTPException(
             status_code=400, detail=f"evidence must be one of {', '.join(EVIDENCE_TIERS)}"
         )
+    if len(card_id) > MAX_SEARCH_CARDS:
+        raise HTTPException(
+            status_code=400, detail=f"cardId accepts at most {MAX_SEARCH_CARDS} cards."
+        )
+    wanted = {c.strip().lower() for c in card_id if c.strip()}
+
     decks, scores = _ranked(services)
+    if sort == "recency":
+        decks = sorted(decks, key=_by_recency, reverse=True)
     profile = services.availability.load(user_id=identity.user_id)
     catalog = services.catalog
 
@@ -361,6 +408,8 @@ def list_meta_decks(
         if archetype and deck.archetype_id != archetype:
             continue
         if evidence and deck.provenance.evidence != evidence:
+            continue
+        if wanted and not wanted.issubset(_deck_card_ids(deck)):
             continue
         coverage = deck_coverage(
             _deck_counts(deck), profile=profile, catalog=catalog

@@ -81,7 +81,18 @@ export function addCard(card: Card): void {
 }
 
 export function setChampion(cardId: string): void {
-  commit({ ...store.state.deck, championId: cardId });
+  const deck = store.state.deck;
+  // A champion is added to the main deck like any other unit and then *nominated* (see
+  // `zoneFor`) -- but the picker offers candidates from the meta, not only cards
+  // already on the bench, so nominating one has to also place it. Without this the
+  // deck comes out a card short of 40 until the player notices and finds the exact
+  // same card in the drawer by hand.
+  //
+  // Only added, never removed: clearing or switching the nomination leaves whatever
+  // copies are already in the main deck alone, because a player may run three copies
+  // of a champion and nominate one -- the other two are not this action's to delete.
+  const main = cardId && !(cardId in deck.main) ? { ...deck.main, [cardId]: 1 } : deck.main;
+  commit({ ...deck, championId: cardId, main });
 }
 
 export function setLegend(cardId: string): void {

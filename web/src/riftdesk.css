@@ -276,7 +276,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .notice-bar { border-color: var(--atlas-positive); }
 
 .panel { border: 0; background: transparent; box-shadow: none; }
-.panel-smart, .panel-explore, .panel-library {
+.panel-smart, .panel-explore, .panel-library, .panel-search {
   width: min(var(--atlas-max), calc(100% - 2rem));
   min-height: calc(100vh - 73px);
   margin: 0 auto;
@@ -577,7 +577,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   .theme-toggle { min-width: 42px; }
   .access-menu > summary { font-size: 0.76rem; }
   .tabs .tab { min-width: max-content; min-height: 36px; padding: 0.35rem 0.65rem; font-size: 0.78rem; }
-  .panel-smart, .panel-explore, .panel-library { width: calc(100% - 1rem); padding: 2.5rem 0; }
+  .panel-smart, .panel-explore, .panel-library, .panel-search { width: calc(100% - 1rem); padding: 2.5rem 0; }
   .legend-grid { grid-template-columns: 1fr; }
   .brand-mark { width: 40px; height: 40px; }
   .legend-card { grid-template-columns: 88px minmax(0, 1fr); min-height: 124px; }
@@ -612,7 +612,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 
 /* Vivid TCG pass ----------------------------------------------------------- */
 
-.panel-explore { width: min(1600px, calc(100% - 2rem)); }
+.panel-explore, .panel-search { width: min(1600px, calc(100% - 2rem)); }
 .panel-smart { width: min(1500px, calc(100% - 2rem)); }
 
 .full-card,
@@ -1134,6 +1134,43 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .event-champion-grid button { display: flex; min-height: 66px; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; }
 .event-champion-grid span { color: var(--atlas-muted); font-size: 0.7rem; }
 
+/* Search decks by card ------------------------------------------------------ */
+
+.search-box { position: relative; max-width: 420px; margin-bottom: 0.4rem; }
+.search-box input { width: 100%; height: 44px; padding: 0 0.75rem; }
+.search-candidates {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  display: flex;
+  overflow: auto;
+  flex-direction: column;
+  width: 100%;
+  max-height: 320px;
+  padding: 0.35rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+  box-shadow: var(--atlas-shadow);
+}
+.search-candidates:empty { display: none; }
+.search-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem;
+  border: 0;
+  border-radius: calc(var(--atlas-radius) - 4px);
+  text-align: left;
+  background: transparent;
+}
+.search-candidate:hover { background: var(--atlas-raised); }
+.search-candidate-art { overflow: hidden; width: 34px; border-radius: 4px; aspect-ratio: 63 / 88; }
+.search-candidate-art img { display: block; width: 100%; }
+.search-candidate strong { display: block; font-size: 0.85rem; }
+.search-candidate small { display: block; color: var(--atlas-muted); font-size: 0.68rem; }
+
 /* Find a deck: whole-list context */
 
 .legend-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; }
@@ -1279,7 +1316,7 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 }
 
 @media (max-width: 640px) {
-  .panel-explore, .panel-smart { width: calc(100% - 0.5rem); }
+  .panel-explore, .panel-smart, .panel-search { width: calc(100% - 0.5rem); }
   .tier-hero h1 { font-size: 4.2rem; }
   .tier-hero-cards { height: 280px; }
   .hero-card { width: 165px; }
@@ -1611,22 +1648,13 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
   text-align: center;
 }
 
-.mat-cost, .mat-qty, .mat-flag {
+.mat-qty, .mat-flag {
   position: absolute;
   border-radius: 999px;
   font-size: 0.68rem;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-}
-.mat-cost {
-  top: 5px; left: 5px;
-  min-width: 19px;
-  padding: 4px 5px;
-  border: 1px solid var(--atlas-border);
-  background: var(--atlas-surface);
-  color: var(--atlas-ink);
-  text-align: center;
 }
 .mat-qty {
   top: 5px; right: 5px;

@@ -11,6 +11,7 @@ import type {
   Archetype,
   AvailabilityProfile,
   BuildSuggestions,
+  Card,
   CardAvailability,
   CardFacets,
   DeckPayload,
@@ -44,7 +45,10 @@ export interface CardFilters {
 }
 
 /** Which top-level view is showing. */
-export type ViewName = "find" | "explore" | "build" | "decks";
+export type ViewName = "find" | "explore" | "build" | "decks" | "search";
+
+/** How the deck search orders its results. Rank is the default everywhere else ranks. */
+export type DeckSearchSort = "rank" | "recency";
 
 /**
  * Explore answers two different questions and must not blur them.
@@ -177,6 +181,18 @@ export interface AppState {
   exploreLoading: boolean;
   exploreError: string;
 
+  /** Deck search: find published lists by the cards they run. */
+  searchQuery: string;
+  /** Cards matching `searchQuery`, offered as picks. Empty once one is chosen and the
+   *  box is cleared, not left showing a stale match for text no longer in the box. */
+  searchCandidates: Card[];
+  /** The cards a result must run, all of them ("and", not "or"). */
+  searchCards: Card[];
+  searchSort: DeckSearchSort;
+  searchResults: MetaDeck[];
+  searchLoading: boolean;
+  /** Distinguishes "loaded, nothing matched" from "nothing searched yet". */
+  searchSearched: boolean;
 }
 
 export function emptyDeck(): DeckPayload {
@@ -269,6 +285,13 @@ const initial: AppState = {
   exploreLoading: false,
   exploreError: "",
 
+  searchQuery: "",
+  searchCandidates: [],
+  searchCards: [],
+  searchSort: "rank",
+  searchResults: [],
+  searchLoading: false,
+  searchSearched: false,
 };
 
 type Listener = (state: AppState) => void;
