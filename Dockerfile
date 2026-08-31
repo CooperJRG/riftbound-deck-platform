@@ -49,10 +49,15 @@ COPY --from=web /web/dist ./web/dist
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
-# `data/` is where a volume mounts. It must be *inside* the root: `_under_root` rejects
-# any configured path that escapes it, which is what stops a misconfigured RB_DATA_DIR
-# from reading the filesystem.
-VOLUME ["/app/data"]
+# `data/` is where persistent storage mounts. It must be *inside* the root:
+# `_under_root` rejects any configured path that escapes it, which is what stops a
+# misconfigured RB_DATA_DIR from reading the filesystem.
+#
+# No `VOLUME` instruction here -- Railway's builder rejects it ("use Railway Volumes
+# instead") and it would be a no-op there anyway, since Railway Volumes are declared
+# and mounted from the dashboard/`railway.toml`, not from the image. A plain Docker
+# `docker run` still needs `-v` at the command line to persist this directory; without
+# it the mount point exists but nothing outlives the container.
 
 EXPOSE 8020
 ENTRYPOINT ["./docker-entrypoint.sh"]

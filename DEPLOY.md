@@ -49,9 +49,14 @@ shipping.
 
 `PORT` is set by Railway and read automatically.
 
-**Volume:** mount one at **`/app/data`**. Without it the SQLite database is part of the
-container filesystem, so every deploy silently wipes every saved deck and collection.
-This is the single most important setting on this page.
+**Volume:** in Railway → service → Settings → Volumes, add one mounted at **`/app/data`**.
+This has to be done from the dashboard (or `railway volume` in the CLI) — the Dockerfile
+does not and cannot declare it. An earlier version of this image had a `VOLUME
+["/app/data"]` instruction; Railway's builder rejects that outright ("use Railway
+Volumes instead"), which is the first thing that broke here. Without a real Railway
+Volume mounted, the SQLite database is part of the container filesystem, so every
+deploy silently wipes every saved deck and collection. This is the single most
+important setting on this page.
 
 ---
 
