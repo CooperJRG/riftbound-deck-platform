@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 import shutil
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -123,6 +123,19 @@ class MetaSnapshot:
     tournaments: tuple[Tournament, ...]
     standings: tuple[Standing, ...]
     path: Path
+    #: The legend matchup table, as harvested. Raw rows keyed by *name* rather than
+    #: resolved ids: resolution needs a catalogue, snapshots are read without one, and
+    #: a snapshot that silently dropped a legend the running bundle happens not to know
+    #: would be unrecoverable. :func:`domain.matchups.build_matchups` resolves them at
+    #: the point of use, where the failure is reportable.
+    #:
+    #: Optional, and absent on every snapshot written before this existed -- which is
+    #: why it is a plain payload key rather than a format-version bump. An older build
+    #: reading a newer snapshot ignores it; a newer build reading an older one gets an
+    #: empty table, which is a state the whole feature already has to handle.
+    matchups: tuple[dict[str, Any], ...] = ()
+    matchup_legends: tuple[dict[str, Any], ...] = ()
+    matchup_meta: dict[str, Any] = field(default_factory=dict)
 
 
 # -- serialisation ------------------------------------------------------------
@@ -233,13 +246,32 @@ def write_snapshot(
     notes: Sequence[str] = (),
     warnings: Sequence[str] = (),
     attribution: Sequence[dict[str, str]] = (),
+    matchups: Sequence[dict[str, Any]] = (),
+    matchup_legends: Sequence[dict[str, Any]] = (),
+    matchup_meta: Mapping[str, Any] | None = None,
 ) -> MetaSnapshot:
     ordered = sorted(decks, key=lambda d: d.deck_id)
-    payload = {
+    # Sorted so the content hash is a function of the data rather than of dict ordering
+    # in whichever source produced it -- the same reason `ordered` exists above.
+    matchup_rows = sorted(
+        (dict(m) for m in matchups),
+        key=lambda m: (str(m.get("legend") or ""), str(m.get("opponent") or "")),
+    )
+    legend_rows = sorted(
+        (dict(row) for row in matchup_legends), key=lambda r: str(r.get("legend") or "")
+    )
+    payload: dict[str, Any] = {
         "decks": [deck_to_dict(d) for d in ordered],
         "tournaments": [_tournament_to_dict(t) for t in tournaments],
         "standings": [_standing_to_dict(s) for s in standings],
     }
+    # Written only when there is something to write, so a snapshot built before this
+    # feature and one built by a run whose matchup fetch failed hash identically to the
+    # snapshots they would have been -- no spurious "changed" on an unchanged archive.
+    if matchup_rows or legend_rows:
+        payload["matchups"] = matchup_rows
+        payload["matchupLegends"] = legend_rows
+        payload["matchupMeta"] = dict(matchup_meta or {})
     digest = content_hash(payload)
     now = datetime.now(UTC)
     snapshot_id = f"{now.strftime('%Y-%m-%dT%H%MZ')}-{digest[:6]}"
@@ -275,6 +307,8 @@ def write_snapshot(
     return MetaSnapshot(
         manifest=manifest, decks=tuple(ordered), tournaments=tuple(tournaments),
         standings=tuple(standings), path=target,
+        matchups=tuple(matchup_rows), matchup_legends=tuple(legend_rows),
+        matchup_meta=dict(matchup_meta or {}),
     )
 
 
@@ -300,6 +334,11 @@ def read_snapshot(path: Path) -> MetaSnapshot:
         tournaments=tuple(_tournament_from_dict(r) for r in payload.get("tournaments") or []),
         standings=tuple(_standing_from_dict(r) for r in payload.get("standings") or []),
         path=path,
+        matchups=tuple(r for r in payload.get("matchups") or [] if isinstance(r, dict)),
+        matchup_legends=tuple(
+            r for r in payload.get("matchupLegends") or [] if isinstance(r, dict)
+        ),
+        matchup_meta=dict(payload.get("matchupMeta") or {}),
     )
 
 

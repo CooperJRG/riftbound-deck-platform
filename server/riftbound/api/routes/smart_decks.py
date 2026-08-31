@@ -63,7 +63,12 @@ FAMILIARITY_DEPTH = 20
 #: Orderings the picker offers. A sort, never a filter -- see :func:`list_legends`.
 SORT_STRENGTH = "strength"
 SORT_BUILDABLE = "buildable"
-SORTS = (SORT_STRENGTH, SORT_BUILDABLE)
+#: Order by how the legend fares against the field as it is actually played, rather
+#: than by the pedigree of its best published list. The two disagree exactly where a
+#: player most needs them to: a legend whose strongest list won a major can still be
+#: badly placed if the decks it loses to are the ones everybody brings.
+SORT_FIELD = "field"
+SORTS = (SORT_STRENGTH, SORT_BUILDABLE, SORT_FIELD)
 
 #: A card played in at least this share of a legend's decks is a staple.
 STAPLE_SHARE = 0.5
@@ -351,6 +356,7 @@ def list_legends(
     """
     catalog = services.catalog
     scores = services.deck_scores
+    outlooks = services.field_outlooks
 
     # What we can assume they hold, from every source at once. Reading only the
     # collection table missed the whole of a declared collection: somebody who ticked
@@ -396,6 +402,7 @@ def list_legends(
         # scoped -- including the fallback profiles built from the whole archive.
         profile_decks = {d for c in profile.clusters for d in c.deck_ids}
         best = max((scores.get(d, 0.0) for d in profile_decks), default=0.0)
+        outlook = outlooks.get(legend_id)
         out.append(
             LegendChoiceView(
                 legend_id=legend_id,
@@ -407,10 +414,19 @@ def list_legends(
                 tournament_deck_count=len(profile_decks & tournament_decks),
                 best_score=best,
                 familiarity=familiarity,
+                expected_win_rate=round(outlook.expected_win_rate, 4) if outlook else 0.0,
+                field_delta=round(outlook.field_delta, 4) if outlook else 0.0,
+                field_coverage=round(outlook.coverage, 4) if outlook else 0.0,
+                field_shown=bool(outlook and outlook.shown),
             )
         )
     if sort == SORT_BUILDABLE:
         out.sort(key=lambda v: (-v.familiarity, -v.best_score, v.name))
+    elif sort == SORT_FIELD:
+        # Legends with no matchup evidence sort last rather than as 0% -- an unmeasured
+        # legend is not a losing one, and burying it under everything rated would be a
+        # filter wearing a sort's clothes.
+        out.sort(key=lambda v: (not v.field_shown, -v.expected_win_rate, -v.best_score, v.name))
     else:
         out.sort(key=lambda v: (-v.best_score, -v.deck_count, v.name))
     return out

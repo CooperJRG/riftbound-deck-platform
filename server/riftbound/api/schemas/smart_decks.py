@@ -29,6 +29,23 @@ class LegendChoiceView(ApiModel):
     #: back to the whole archive — a legal deck, but assembled from a format that may no
     #: longer be played, which the player is entitled to see rather than infer.
     era_id: str = ""
+    #: Share-weighted win rate against the field as it is actually played, 0-1.
+    #:
+    #: A different claim from `best_score`, which measures the *pedigree* of the best
+    #: list anyone has published with this legend. A legend can have an excellent
+    #: tournament-winning list and still sit badly in the field, if the decks it loses
+    #: to are the popular ones. Both are shown because they disagree, and the
+    #: disagreement is the useful part.
+    expected_win_rate: float = 0.0
+    #: Expected minus the legend's own overall rate. Negative means this field is
+    #: harder for it than an average one.
+    field_delta: float = 0.0
+    #: Share of the field whose matchup is rated. The denominator behind the rate, so a
+    #: thin sample cannot pass as a thorough one.
+    field_coverage: float = 0.0
+    #: False when there is no matchup evidence for this legend at all. The rate above
+    #: is then 0 and must not be rendered as "loses every game".
+    field_shown: bool = False
 
 
 class RequirementRowView(ApiModel):

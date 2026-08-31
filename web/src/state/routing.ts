@@ -13,7 +13,9 @@ import { api } from "../api/client";
 import type { DeckPayload } from "../api/types";
 import {
   loadCardTrends,
+  loadMatchups,
   openCard,
+  openLegendMatchups,
   openChampion,
   openLegend,
   openTournament,
@@ -46,6 +48,9 @@ export function routeForState(): Route {
     case "explore":
       // Innermost first: a card can be open while a legend is loaded behind it.
       if (state.cardDetail) return { name: "card", cardId: state.cardDetail.trend.cardId };
+      if (state.legendMatchups) {
+        return { name: "matchupLegend", legendId: state.legendMatchups.legendId };
+      }
       if (state.tournamentDetail) return { name: "event", slug: state.tournamentDetail.slug };
       if (state.championMeta) return { name: "champion", championId: state.championMeta.championId };
       if (state.legendMeta) return { name: "legend", legendId: state.legendMeta.legendId };
@@ -151,6 +156,15 @@ export async function applyLocation(location: Location): Promise<void> {
     case "champion":
       setView("explore");
       await openChampion(route.championId);
+      return;
+
+    case "matchupLegend":
+      setView("explore");
+      // The overview is the backdrop this detail sits on; without it, closing the
+      // legend leaves an empty page.
+      if (!store.state.matchups) await loadMatchups();
+      store.set({ exploreMode: "matchups" });
+      await openLegendMatchups(route.legendId);
       return;
 
     case "card":

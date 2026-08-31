@@ -68,12 +68,18 @@ function dismissNudge(): void {
  * effort rebuilds the barrier the two-mode design exists to remove.
  */
 function sortControl(): HTMLElement | null {
-  const { smartLegendSort, availability, smartBusy } = store.state;
-  // Nothing to sort by until they have told us something.
+  const { smartLegendSort, availability, smartBusy, smartLegends } = store.state;
+  // "Closest to my cards" needs a collection to mean anything.
   const knows =
     (availability?.ownedRules.length ?? 0) > 0 ||
     (availability?.ownedCardCount ?? 0) > 0;
-  if (!knows) return null;
+  // "Best into the field" does not. It was worth loosening this guard for: the control
+  // used to be hidden outright until somebody recorded a collection, because the only
+  // alternative order depended on one. Field position is measured for everybody, and is
+  // most useful precisely to the player who owns everything and is choosing purely on
+  // which legend is best placed.
+  const rated = smartLegends.some((legend) => legend.fieldShown);
+  if (!knows && !rated) return null;
 
   const option = (value: LegendSort, label: string) =>
     h(
@@ -93,7 +99,8 @@ function sortControl(): HTMLElement | null {
     { class: "picker-sort" },
     h("span", { class: "picker-sort-label" }, "Order by"),
     option("strength", "Strongest"),
-    option("buildable", "Closest to my cards"),
+    rated ? option("field", "Best into the field") : null,
+    knows ? option("buildable", "Closest to my cards") : null,
   );
 }
 
@@ -236,6 +243,22 @@ function legendCard(legend: LegendChoice, busy: boolean): HTMLElement {
           ? ` · ${legend.tournamentDeckCount} from tournaments`
           : "",
       ),
+      // How it fares against the field as it is actually played -- a different claim
+      // from the deck count above it, which is presence. Rendered only when there is
+      // matchup evidence: `fieldShown` false means unmeasured, and a 0 printed there
+      // would read as "never wins".
+      legend.fieldShown
+        ? h(
+            "span",
+            {
+              class: `legend-field${legend.expectedWinRate >= 0.5 ? " is-good" : " is-bad"}`,
+              title:
+                `Share-weighted win rate over ${Math.round(legend.fieldCoverage * 100)}% `
+                + "of the field, from recorded matches",
+            },
+            `${(legend.expectedWinRate * 100).toFixed(1)}% into the field`,
+          )
+        : null,
       // Advisory only. The wizard exists to find out what someone can build, so a low
       // number must never hide a legend -- that would rebuild the barrier we removed.
       legend.familiarity > 0

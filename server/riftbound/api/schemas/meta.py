@@ -355,6 +355,110 @@ class RefreshRunView(ApiModel):
     message: str
 
 
+class MatchupView(ApiModel):
+    """One legend's record against one opponent.
+
+    Same contract as :class:`PerformanceView`: ``shown`` is the field to branch on, the
+    counts stay populated when it is false, and ``withheldDetail`` explains which
+    threshold was missed so no client has to reimplement the policy to describe it.
+    """
+    legend_id: str
+    opponent_id: str
+    legend_name: str
+    opponent_name: str
+    matches: int
+    #: Matches with a winner. This source records no draws, so it equals ``matches``.
+    decisive: int
+    wins: int
+    losses: int
+    games_won: int
+    games_lost: int
+    #: Distinct events the pairing was seen at; 0 when the source shipped no breakdown.
+    events: int
+    win_rate: float
+    interval_low: float
+    interval_high: float
+    #: True only when the whole interval clears even, in either direction. The only
+    #: claim of "this is a real edge" the evidence supports.
+    separated: bool
+    favourable: bool
+    unfavourable: bool
+    shown: bool
+    withheld_reason: str
+    withheld_detail: str
+    summary: str
+
+
+class LegendRecordView(ApiModel):
+    """One legend's overall record across the same events.
+
+    Reported by the source rather than summed from its matchup row: the overall figure
+    includes matches whose opponent's legend was never identified, which cannot appear
+    in any cell. The two therefore do not reconcile exactly, and that is correct.
+    """
+    legend_id: str
+    name: str
+    image_url: str
+    matches: int
+    decisive: int
+    wins: int
+    losses: int
+    games_won: int
+    games_lost: int
+    players: int
+    mirror_matches: int
+    win_rate: float
+    interval_low: float
+    interval_high: float
+    separated: bool
+    shown: bool
+    withheld_reason: str
+    summary: str
+
+
+class MatchupBasisView(ApiModel):
+    """What the matchup table is a table *of*.
+
+    Carried in the response rather than left to a tooltip. These numbers come from an
+    aggregate this project did not compute, over a window it did not choose; a reader
+    entitled to trust them is entitled to know that first.
+    """
+    #: What the upstream project calls its own source, verbatim.
+    source_label: str
+    attribution: AttributionView | None
+    #: The upstream set window, e.g. "set4". **Not** this project's ban era, which is
+    #: derived separately and need not align with it.
+    set_window: str
+    published_at: str
+    events: int
+    matrix_matches: int
+    eligible_matches: int
+    legends_measured: int
+    legends_shown: int
+    cells_measured: int
+    cells_shown: int
+    min_matches: int
+    min_events: int
+    summary: str
+
+
+class MatchupOverviewView(ApiModel):
+    """Every legend's overall record, strongest first, plus the basis behind them."""
+    available: bool
+    basis: MatchupBasisView
+    legends: list[LegendRecordView] = Field(default_factory=list)
+
+
+class LegendMatchupsView(ApiModel):
+    """One legend's spread: hardest opponent first, unrated pairings last."""
+    legend_id: str
+    name: str
+    image_url: str
+    record: LegendRecordView | None
+    basis: MatchupBasisView
+    matchups: list[MatchupView] = Field(default_factory=list)
+
+
 class RefreshStatusView(ApiModel):
     """Whether the meta is keeping itself current, and how it is going.
 

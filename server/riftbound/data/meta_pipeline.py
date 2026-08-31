@@ -43,6 +43,8 @@ from .sources.local_deck_api import LocalDeckApiSource
 from .sources.meta_replay import MetaReplaySource
 from .sources.riftools import ATTRIBUTION as RIFTOOLS_ATTRIBUTION
 from .sources.riftools import RiftoolsSource
+from .sources.riftools_winrates import RiftoolsWinratesSource
+from ..domain.matchups import symmetry_errors
 from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION
 from .sources.topdeck import TopDeckSource
 
@@ -190,11 +192,14 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(retention.render())
         report.errors.extend(retention.errors)
 
+    matchups, matchup_legends, matchup_meta = _harvest_matchups(args, previous, warnings)
+
     snapshot = write_snapshot(
         cfg.meta_dir, decks, tournaments, standings,
         source_ok=result.ok, source_error=result.error,
         notes=result.notes, warnings=warnings[:40],
-        attribution=_attribution_for(decks),
+        attribution=_attribution_for(decks, matchups=bool(matchups)),
+        matchups=matchups, matchup_legends=matchup_legends, matchup_meta=matchup_meta,
     )
     print(f"\nWrote snapshot {snapshot.manifest.snapshot_id} -> {snapshot.path}")
 
@@ -456,7 +461,7 @@ def _drift_detail(code: str, decks, bound) -> str:
     return ""
 
 
-def _attribution_for(decks) -> list[dict[str, str]]:
+def _attribution_for(decks, *, matchups: bool = False) -> list[dict[str, str]]:
     """Credits owed by the sources actually present in this snapshot."""
     sources = {d.provenance.source for d in decks}
     credits: list[dict[str, str]] = []
@@ -464,9 +469,86 @@ def _attribution_for(decks) -> list[dict[str, str]]:
         credits.append(dict(TOPDECK_ATTRIBUTION))
     if "riftdecks" in sources:
         credits.append(dict(RIFTDECKS_ATTRIBUTION))
-    if "riftools" in sources:
+    # The matchup table comes from the same project as the decklists, so the credit is
+    # owed for it even in the (possible) case where no *deck* in the archive came from
+    # there -- a snapshot carrying its matrix owes it a credit regardless.
+    if "riftools" in sources or matchups:
         credits.append(dict(RIFTOOLS_ATTRIBUTION))
     return credits
+
+
+def _harvest_matchups(
+    args: argparse.Namespace, previous, warnings: list[str]
+) -> tuple[list[dict], list[dict], dict]:
+    """The legend matchup table, fetched fresh or carried forward.
+
+    One request, so it rides along with the ordinary build rather than having a schedule
+    of its own. Three things it must not do, each learned from the deck harvest next door:
+
+    * **Never take the archive backwards.** A failed fetch carries the previous
+      snapshot's table forward rather than writing an empty one. Losing the matrix
+      silently is precisely the failure `MAX_ARCHIVE_LOSS_RATIO` exists to catch for
+      decks, and the matrix has no such gate of its own.
+    * **Never fail the build.** The matchups are one view; the deck archive is the
+      product. An unreachable win-rate file degrades that view and nothing else.
+    * **Never trust it blindly.** Symmetry is checked before the table is accepted (see
+      `matchups.symmetry_errors`), because it is the only audit available on an
+      aggregate whose primary records we cannot see.
+    """
+    def carried() -> tuple[list[dict], list[dict], dict]:
+        if previous is None:
+            return [], [], {}
+        rows = [dict(r) for r in getattr(previous, "matchups", ())]
+        legends = [dict(r) for r in getattr(previous, "matchup_legends", ())]
+        meta = dict(getattr(previous, "matchup_meta", {}) or {})
+        if rows:
+            meta = {**meta, "carriedForward": True}
+            print(f"  carried forward {len(rows)} matchup cell(s) from the last snapshot")
+        return rows, legends, meta
+
+    if getattr(args, "no_matchups", False):
+        print("\nMatchups: skipped (--no-matchups)")
+        return carried()
+    if args.replay:
+        print("\nMatchups: not in the replay cache; carrying forward")
+        return carried()
+
+    print("\nHarvesting the legend matchup table...")
+    fetched = RiftoolsWinratesSource().fetch()
+    for note in fetched.notes:
+        print(f"      note: {note}")
+    if not fetched.ok or not fetched.cells:
+        detail = fetched.error or "the snapshot carried no cells"
+        print(f"  matchup fetch FAILED: {detail}")
+        warnings.append(f"matchup table unavailable, carried forward: {detail}")
+        return carried()
+
+    problems = symmetry_errors(fetched.cells)
+    if problems:
+        # Refused, not warned. A matrix that does not mirror is not a slightly worse
+        # matrix -- it means a cell no longer counts what this code believes it counts,
+        # and every number derived from it downstream would be confidently wrong.
+        print("  matchup table REFUSED - cells do not mirror:")
+        for line in problems:
+            print(f"      {line}")
+        warnings.append(
+            f"matchup table refused: {len(problems)} asymmetric cell(s); carried forward"
+        )
+        return carried()
+
+    meta = {
+        "sourceLabel": fetched.source_label,
+        "setWindow": fetched.set_window,
+        "publishedAt": fetched.published_at,
+        "events": fetched.event_count,
+        "matrixMatches": fetched.matrix_matches,
+        "eligibleMatches": fetched.eligible_matches,
+    }
+    print(
+        f"  {len(fetched.cells)} cells, {len(fetched.legends)} legends, "
+        f"{fetched.matrix_matches:,} matches over {fetched.event_count} events"
+    )
+    return fetched.cells, fetched.legends, meta
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -549,6 +631,10 @@ def build_parser() -> argparse.ArgumentParser:
             "local deck API. riftools: the public snapshot archive. "
             "dotgg: the slow per-deck crawl"
         ),
+    )
+    p.add_argument(
+        "--no-matchups", action="store_true", dest="no_matchups",
+        help="skip the legend matchup table; carry the previous one forward",
     )
     p.add_argument(
         "--min-quality", type=int, default=0, dest="min_quality",

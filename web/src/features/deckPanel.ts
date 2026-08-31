@@ -7,9 +7,11 @@
  */
 
 import type {
+  BuildSuggestions,
   CardSuggestion,
   ChampionOption,
   Issue,
+  SideboardPlan,
   Validation,
   Zone,
 } from "../api/types";
@@ -708,6 +710,99 @@ function mainDeckSpot(
   );
 }
 
+
+/** The current suggestion payload, for the parts of the workbench that need more of it. */
+function suggestionsFor(): BuildSuggestions | null {
+  return store.state.suggestions;
+}
+
+/**
+ * What to prepare for after game one.
+ *
+ * The order is the whole point, and it is not the order of worst matchups. A matchup
+ * costs you `share x (winRate - 0.5)` of expected win rate, so losing badly to a deck
+ * nobody brings costs almost nothing while a mediocre matchup against the most popular
+ * legend in the format costs a great deal. The server ranks on that; this renders it.
+ *
+ * What it deliberately does **not** claim: that any particular card answers any
+ * particular matchup. No source available to this project records which card won which
+ * game, so a "counter card" list could only be invented. What is shown instead is what
+ * the opponent reliably plays -- a fact -- next to the sideboard cards comparable lists
+ * actually hold, and the player draws the line between them.
+ */
+function boardingPlan(plan: SideboardPlan | null | undefined): HTMLElement | null {
+  if (!plan || !plan.available || !plan.outlook) return null;
+  const { outlook, plans } = plan;
+
+  const header = h(
+    "header",
+    { class: "suggest-head" },
+    h("h3", {}, "Board for"),
+    h(
+      "p",
+      {},
+      plans.length
+        ? "Ranked by what each matchup costs you across the whole field, not by how "
+          + "badly it goes. They are what the opponent brings -- the answer is yours to pick."
+        : "No matchup costs enough to be worth spending slots on. This legend sits well "
+          + "in the current field.",
+    ),
+  );
+
+  const outlookLine = h(
+    "p",
+    { class: "board-outlook" },
+    h(
+      "span",
+      { class: `board-rate${outlook.expectedWinRate >= 0.5 ? " is-good" : " is-bad"}` },
+      `${(outlook.expectedWinRate * 100).toFixed(1)}%`,
+    ),
+    h("span", { class: "muted small" }, ` expected into the field, over ${(outlook.coverage * 100).toFixed(0)}% of it`),
+  );
+
+  return h(
+    "section",
+    { class: "suggest board-plan" },
+    header,
+    outlookLine,
+    ...plans.map((entry) =>
+      h(
+        "article",
+        { class: "board-matchup" },
+        h(
+          "header",
+          { class: "board-matchup-head" },
+          entry.matchup.imageUrl
+            ? h("img", {
+                class: "board-matchup-art",
+                src: entry.matchup.imageUrl,
+                alt: "",
+                loading: "lazy",
+              })
+            : null,
+          h(
+            "span",
+            {},
+            h("strong", {}, entry.matchup.opponentName),
+            h("small", {}, entry.matchup.summary),
+          ),
+        ),
+        entry.threats.length
+          ? h(
+              "p",
+              { class: "board-threats" },
+              h("span", { class: "board-threats-label" }, "They bring: "),
+              entry.threats
+                .slice(0, 6)
+                .map((t) => `${t.name} (${Math.round(t.playRate * 100)}%)`)
+                .join(", "),
+            )
+          : null,
+      ),
+    ),
+  );
+}
+
 function sideboardSpot(
   counts: Record<string, number>,
   total: number,
@@ -802,6 +897,7 @@ function deckWorkbench(
         h(
           "aside",
           { class: "workbench-side", id: "sideboard-workbench" },
+          boardingPlan(suggestionsFor()?.sideboardPlan),
           sideboardSuggestions
             ?? h("p", { class: "suggest-empty" }, "No comparable sideboards are available yet. You can still add any legal card from the drawer."),
           matZone("Sideboard", "sideboard", deck.sideboard, validation?.sideboardTotal ?? 0, sideboardTarget),

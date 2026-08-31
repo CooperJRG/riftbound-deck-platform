@@ -13,6 +13,21 @@ export interface LegendChoice {
   bestScore: number;
   /** Share of the legend's staples already in the collection. A hint, never a filter. */
   familiarity: number;
+  /**
+   * Share-weighted win rate against the field as it is actually played.
+   *
+   * A different claim from `bestScore`, which rates the *pedigree* of the best list
+   * anyone published with this legend. A legend can own a tournament-winning list and
+   * still sit badly in the field when the decks it loses to are the popular ones.
+   * Render both; the disagreement is the useful part.
+   */
+  expectedWinRate: number;
+  /** Expected minus its own overall rate. Negative: this field is unusually hard for it. */
+  fieldDelta: number;
+  /** Share of the field whose matchup is rated -- the denominator behind the rate. */
+  fieldCoverage: number;
+  /** False when there is no matchup evidence. The rate is then 0 and must not print. */
+  fieldShown: boolean;
 }
 
 /** One row of the review screen: `Need 3 - You have [0][1][2][3]`. */

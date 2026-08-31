@@ -182,6 +182,50 @@ export function closeCard(): void {
 }
 
 export async function setExploreMode(mode: ExploreMode): Promise<void> {
-  store.set({ exploreMode: mode, cardDetail: null });
+  store.set({ exploreMode: mode, cardDetail: null, legendMatchups: null });
   if (mode === "cards" && !store.state.cardTrends) await loadCardTrends();
+  if (mode === "matchups" && !store.state.matchups) await loadMatchups();
+}
+
+/**
+ * The matchup table.
+ *
+ * Deliberately ignores the Explore date filters. They select published decklists
+ * inside a range; this is an aggregate the source computed over its own set window,
+ * and there is no honest way to re-slice it client-side. The basis states the window
+ * it actually covers, so the page says which one it is rather than implying the
+ * filter above applies to it.
+ */
+export async function loadMatchups(): Promise<void> {
+  store.set({ matchupsLoading: true, exploreError: "" });
+  try {
+    store.set({ matchups: await api.matchups(), matchupsLoading: false });
+  } catch (error) {
+    store.set({
+      matchupsLoading: false,
+      exploreError: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+/** Open one legend's spread. The overview stays loaded behind it. */
+export async function openLegendMatchups(legendId: string): Promise<void> {
+  store.set({ matchupsLoading: true, exploreMode: "matchups" });
+  scrollToTop();
+  try {
+    store.set({
+      legendMatchups: await api.legendMatchups(legendId),
+      matchupsLoading: false,
+    });
+  } catch (error) {
+    store.set({
+      matchupsLoading: false,
+      exploreError: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+export function closeLegendMatchups(): void {
+  store.set({ legendMatchups: null });
+  scrollToTop();
 }

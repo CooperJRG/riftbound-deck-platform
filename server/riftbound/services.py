@@ -44,6 +44,19 @@ logger = logging.getLogger("riftbound")
 LOCAL_USER_ID = "local"
 
 
+def _riftools_attribution(snapshot) -> dict[str, str]:
+    """The credit owed for the matchup table, read off the snapshot that carries it.
+
+    Taken from the manifest rather than imported from the source module: the credit
+    belongs to the data, and a snapshot promoted months ago should keep crediting
+    whoever it actually came from even if the ingest code moves on.
+    """
+    for entry in snapshot.manifest.attribution:
+        if str(entry.get("source", "")).lower() == "riftools":
+            return dict(entry)
+    return {}
+
+
 @dataclass
 class Services:
     config: Config
@@ -122,6 +135,70 @@ class Services:
                 logger.info("re-attributed the chosen champion on %d deck(s)", changed)
                 snapshot = replace(snapshot, decks=tuple(fixed))
         return snapshot
+
+    @cached_property
+    def matchups(self):
+        """The legend matchup table, resolved against the current bundle.
+
+        Built once and cached, like every other derived meta view: it is a resolve and a
+        threshold pass over ~1,700 rows, and the Explore view asks for it on every load.
+
+        Empty rather than absent when the snapshot carries no matrix -- a snapshot
+        written before matchups existed, a build run with ``--no-matchups``, or a
+        harvest whose win-rate fetch failed with nothing to carry forward. The view
+        renders "no matchup data yet" from an empty table, so there is one shape to
+        handle rather than two.
+        """
+        from .domain.matchups import MatchupBasis, MatchupTable, build_matchups
+
+        snapshot = self.meta
+        if snapshot is None or not snapshot.matchups:
+            return MatchupTable(
+                basis=MatchupBasis(
+                    source_label="", attribution={}, set_window="", published_at="",
+                    events=0, matrix_matches=0, eligible_matches=0,
+                    legends_measured=0, legends_shown=0,
+                    cells_measured=0, cells_shown=0,
+                )
+            )
+        meta = snapshot.matchup_meta or {}
+        table, notes = build_matchups(
+            cells=snapshot.matchups,
+            legends=snapshot.matchup_legends,
+            catalog=self.catalog,
+            source_label=str(meta.get("sourceLabel") or ""),
+            attribution=_riftools_attribution(snapshot),
+            set_window=str(meta.get("setWindow") or ""),
+            published_at=str(meta.get("publishedAt") or ""),
+            events=int(meta.get("events") or 0),
+            matrix_matches=int(meta.get("matrixMatches") or 0),
+            eligible_matches=int(meta.get("eligibleMatches") or 0),
+        )
+        for note in notes:
+            logger.warning("matchups: %s", note)
+        logger.info(
+            "built matchup table: %d legend(s), %d cell(s), %d rated",
+            table.basis.legends_measured, table.basis.cells_measured,
+            table.basis.cells_shown,
+        )
+        return table
+
+    @cached_property
+    def field_outlooks(self) -> dict:
+        """Every legend's position in the field, keyed by legend id.
+
+        One pass over the matchup table, cached: the legend picker asks for all of them
+        at once and the builder asks for one on every deck change. Empty without a
+        matchup table, which is a supported state everywhere it is read.
+        """
+        from .domain.field_plan import rank_by_field
+
+        table = self.matchups
+        if not table.available:
+            return {}
+        return rank_by_field(
+            [r.legend_id for r in table.records], table=table, catalog=self.catalog
+        )
 
     @cached_property
     def champion_performance(self) -> tuple[Performance, ...]:

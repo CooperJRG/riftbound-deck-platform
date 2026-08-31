@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from ..domain.availability import Availability, AvailabilityProfile, DeckCoverage
 from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
+from ..domain.field_plan import FieldMatchup, FieldOutlook, MatchupPlan
+from ..domain.matchups import LegendRecord, Matchup, MatchupBasis
 from ..domain.meta import MetaDeck, Tournament
 from ..domain.meta_scoring import ScoreBreakdown
 from ..domain.validator import ValidationResult
 from .schemas import (
+    AttributionView,
     AvailabilityView,
     CardAvailabilityView,
     CardView,
@@ -17,7 +22,13 @@ from .schemas import (
     DeckScoreView,
     ExcludedCardView,
     ExclusionRuleView,
+    FieldMatchupView,
+    FieldOutlookView,
     IssueView,
+    LegendRecordView,
+    MatchupBasisView,
+    MatchupPlanView,
+    MatchupView,
     MetaDeckView,
     PrintingView,
     ProvenanceView,
@@ -25,7 +36,9 @@ from .schemas import (
     RepairView,
     RequirementRowView,
     ScoreView,
+    SideboardPlanView,
     SwapView,
+    ThreatView,
     TournamentView,
     ValidationView,
 )
@@ -359,4 +372,144 @@ def repair_view(repair, catalog: Catalog, *, legal: bool) -> RepairView:
         ],
         deck=deck_dict(repair.deck),
         legal=legal,
+    )
+
+
+# -- matchups -----------------------------------------------------------------
+
+
+def matchup_view(row: Matchup) -> MatchupView:
+    return MatchupView(
+        legend_id=row.legend_id,
+        opponent_id=row.opponent_id,
+        legend_name=row.legend_name,
+        opponent_name=row.opponent_name,
+        matches=row.matches,
+        decisive=row.decisive,
+        wins=row.wins,
+        losses=row.losses,
+        games_won=row.games_won,
+        games_lost=row.games_lost,
+        events=row.events,
+        win_rate=round(row.win_rate, 4),
+        interval_low=round(row.interval_low, 4),
+        interval_high=round(row.interval_high, 4),
+        separated=row.separated,
+        favourable=row.favourable,
+        unfavourable=row.unfavourable,
+        shown=row.shown,
+        withheld_reason=row.withheld,
+        withheld_detail="" if row.shown else row.explain_withheld(),
+        summary=row.describe(),
+    )
+
+
+def legend_record_view(row: LegendRecord, catalog: Catalog) -> LegendRecordView:
+    card = catalog.get(row.legend_id)
+    return LegendRecordView(
+        legend_id=row.legend_id,
+        name=row.name,
+        image_url=card.image_url if card else "",
+        matches=row.matches,
+        decisive=row.decisive,
+        wins=row.wins,
+        losses=row.losses,
+        games_won=row.games_won,
+        games_lost=row.games_lost,
+        players=row.players,
+        mirror_matches=row.mirror_matches,
+        win_rate=round(row.win_rate, 4),
+        interval_low=round(row.interval_low, 4),
+        interval_high=round(row.interval_high, 4),
+        separated=row.separated,
+        shown=row.shown,
+        withheld_reason=row.withheld,
+        summary=row.describe(),
+    )
+
+
+def matchup_basis_view(basis: MatchupBasis) -> MatchupBasisView:
+    credit = basis.attribution or {}
+    return MatchupBasisView(
+        source_label=basis.source_label,
+        attribution=(
+            AttributionView(
+                source=str(credit.get("source", "")),
+                url=str(credit.get("url", "")),
+                text=str(credit.get("text", "")),
+            )
+            if credit
+            else None
+        ),
+        set_window=basis.set_window,
+        published_at=basis.published_at,
+        events=basis.events,
+        matrix_matches=basis.matrix_matches,
+        eligible_matches=basis.eligible_matches,
+        legends_measured=basis.legends_measured,
+        legends_shown=basis.legends_shown,
+        cells_measured=basis.cells_measured,
+        cells_shown=basis.cells_shown,
+        min_matches=basis.min_matches,
+        min_events=basis.min_events,
+        summary=basis.describe() if basis.legends_measured else "",
+    )
+
+
+# -- field position and sideboard planning ------------------------------------
+
+
+def field_matchup_view(row: FieldMatchup) -> FieldMatchupView:
+    return FieldMatchupView(
+        opponent_id=row.opponent_id,
+        opponent_name=row.opponent_name,
+        image_url=row.image_url,
+        share=round(row.share, 5),
+        win_rate=round(row.win_rate, 4),
+        interval_low=round(row.interval_low, 4),
+        interval_high=round(row.interval_high, 4),
+        matches=row.matches,
+        shown=row.shown,
+        separated=row.separated,
+        swing=round(row.swing, 5),
+        summary=row.describe(),
+    )
+
+
+def field_outlook_view(outlook: FieldOutlook) -> FieldOutlookView:
+    return FieldOutlookView(
+        legend_id=outlook.legend_id,
+        name=outlook.name,
+        expected_win_rate=round(outlook.expected_win_rate, 4),
+        overall_win_rate=round(outlook.overall_win_rate, 4),
+        field_delta=round(outlook.field_delta, 4),
+        coverage=round(outlook.coverage, 4),
+        shown=outlook.shown,
+        summary=outlook.describe(),
+    )
+
+
+def sideboard_plan_view(
+    outlook: FieldOutlook | None, plans: Sequence[MatchupPlan]
+) -> SideboardPlanView:
+    if outlook is None or not outlook.shown:
+        return SideboardPlanView(available=False, outlook=None, plans=[])
+    return SideboardPlanView(
+        available=True,
+        outlook=field_outlook_view(outlook),
+        plans=[
+            MatchupPlanView(
+                matchup=field_matchup_view(plan.matchup),
+                threats=[
+                    ThreatView(
+                        card_id=t.card_id,
+                        name=t.name,
+                        image_url=t.image_url,
+                        play_rate=round(t.play_rate, 4),
+                    )
+                    for t in plan.threats
+                ],
+            )
+            for plan in plans
+        ],
     )

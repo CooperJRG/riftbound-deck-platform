@@ -361,3 +361,92 @@ export interface RefreshStatus {
   lastRun: RefreshRun | null;
   history: RefreshRun[];
 }
+
+/**
+ * Legend-versus-legend records, from recorded tournament matches.
+ *
+ * A different measurement from everything else in this file, and deliberately kept
+ * apart from it: the trend views measure *presence* among published decklists, while
+ * these measure *results* among played matches. They come from different populations
+ * over different windows, so the two win rates are never mixed or averaged.
+ */
+export interface MatchupBasis {
+  /** What the upstream project calls its own source, verbatim. */
+  sourceLabel: string;
+  attribution: Attribution | null;
+  /** The upstream set window, e.g. "set4" — not this app's ban era. */
+  setWindow: string;
+  publishedAt: string;
+  events: number;
+  matrixMatches: number;
+  eligibleMatches: number;
+  legendsMeasured: number;
+  legendsShown: number;
+  cellsMeasured: number;
+  cellsShown: number;
+  minMatches: number;
+  minEvents: number;
+  summary: string;
+}
+
+export interface LegendRecord {
+  legendId: string;
+  name: string;
+  imageUrl: string;
+  matches: number;
+  decisive: number;
+  wins: number;
+  losses: number;
+  gamesWon: number;
+  gamesLost: number;
+  players: number;
+  mirrorMatches: number;
+  winRate: number;
+  intervalLow: number;
+  intervalHigh: number;
+  /** True only when the whole interval clears even. The only safe "this wins". */
+  separated: boolean;
+  /** False when the sample cannot support a published rate; counts stay populated. */
+  shown: boolean;
+  withheldReason: string;
+  summary: string;
+}
+
+export interface Matchup {
+  legendId: string;
+  opponentId: string;
+  legendName: string;
+  opponentName: string;
+  matches: number;
+  decisive: number;
+  wins: number;
+  losses: number;
+  gamesWon: number;
+  gamesLost: number;
+  events: number;
+  winRate: number;
+  intervalLow: number;
+  intervalHigh: number;
+  separated: boolean;
+  favourable: boolean;
+  unfavourable: boolean;
+  shown: boolean;
+  withheldReason: string;
+  withheldDetail: string;
+  summary: string;
+}
+
+export interface MatchupOverview {
+  available: boolean;
+  basis: MatchupBasis;
+  legends: LegendRecord[];
+}
+
+export interface LegendMatchups {
+  legendId: string;
+  name: string;
+  imageUrl: string;
+  record: LegendRecord | null;
+  basis: MatchupBasis;
+  matchups: Matchup[];
+}

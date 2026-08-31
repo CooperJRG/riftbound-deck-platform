@@ -1134,6 +1134,104 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .event-champion-grid button { display: flex; min-height: 66px; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; }
 .event-champion-grid span { color: var(--atlas-muted); font-size: 0.7rem; }
 
+/* Board-for plan ------------------------------------------------------------ */
+
+.board-plan { margin-bottom: 1rem; }
+.board-outlook { display: flex; align-items: baseline; gap: 0.35rem; margin-bottom: 0.7rem; }
+.board-rate { font-size: 1.15rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.board-rate.is-good { color: var(--atlas-positive); }
+.board-rate.is-bad { color: var(--atlas-error); }
+.board-matchup {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  margin-bottom: 0.45rem;
+  background: var(--atlas-canvas);
+}
+.board-matchup-head { display: flex; gap: 0.6rem; align-items: center; }
+.board-matchup-art { width: 34px; border-radius: 4px; aspect-ratio: 63 / 88; object-fit: cover; }
+.board-matchup-head strong { display: block; font-size: 0.9rem; }
+.board-matchup-head small { display: block; margin-top: 0.1rem; color: var(--atlas-muted); font-size: 0.7rem; }
+.board-threats { margin-top: 0.45rem; color: var(--atlas-muted); font-size: 0.72rem; line-height: 1.45; }
+.board-threats-label { color: var(--atlas-ink); font-weight: 650; }
+
+/* How a legend fares against the field, on its picker card. */
+.legend-field { display: block; margin-top: 0.15rem; font-size: 0.7rem; font-weight: 650; }
+.legend-field.is-good { color: var(--atlas-positive); }
+.legend-field.is-bad { color: var(--atlas-error); }
+
+/* Matchups ------------------------------------------------------------------ */
+
+.matchup-basis { max-width: 78ch; margin: 0.6rem 0 1.4rem; }
+.matchup-basis a { margin-left: 0.15rem; }
+.matchup-basis em { color: var(--atlas-muted); font-style: italic; }
+
+.matchup-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.matchup-row {
+  display: grid;
+  gap: 0.9rem;
+  align-items: center;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  text-align: left;
+  background: var(--atlas-surface);
+}
+.matchup-row:hover { border-color: var(--atlas-copper); }
+.matchup-row.is-unrated { opacity: 0.62; }
+.matchup-row-art { overflow: hidden; width: 46px; border-radius: 4px; aspect-ratio: 63 / 88; }
+.matchup-row-art img { display: block; width: 100%; }
+.matchup-row-body { display: block; min-width: 0; }
+.matchup-row-body strong { display: block; font-family: var(--atlas-serif); font-size: 1rem; }
+.matchup-row-body small { display: block; margin-top: 0.15rem; color: var(--atlas-muted); font-size: 0.72rem; }
+
+.matchup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.5rem; }
+.matchup-cell {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-canvas);
+}
+.matchup-cell.is-unrated { opacity: 0.62; }
+.matchup-cell-body { min-width: 0; }
+.matchup-cell-body strong { display: block; font-size: 0.88rem; }
+.matchup-cell-body small { display: block; margin-top: 0.15rem; color: var(--atlas-muted); font-size: 0.7rem; }
+
+/* The rate and its interval, always together. A win rate without its interval is the
+   thing this feature exists not to print. */
+.wr-pill {
+  display: flex;
+  min-width: 84px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+.wr-pill b { font-size: 1rem; font-weight: 750; }
+.wr-pill i { color: var(--atlas-muted); font-size: 0.62rem; font-style: normal; }
+/* Colour marks a *separated* interval only -- a rate whose interval straddles even is
+   drawn neutral however far the point estimate sits from 50%. */
+.wr-pill.is-good { border-color: var(--atlas-positive); color: var(--atlas-positive); background: color-mix(in srgb, var(--atlas-positive) 10%, transparent); }
+.wr-pill.is-bad { border-color: var(--atlas-error); color: var(--atlas-error); background: color-mix(in srgb, var(--atlas-error) 10%, transparent); }
+.wr-pill.is-even { color: var(--atlas-muted); }
+.wr-pill.is-unrated { border-style: dashed; color: var(--atlas-muted); }
+
+.matchup-unrated { margin-top: 1.2rem; }
+.matchup-unrated summary { padding: 0.4rem 0; color: var(--atlas-muted); font-size: 0.78rem; }
+
+@media (max-width: 640px) {
+  .matchup-grid { grid-template-columns: 1fr; }
+}
+
 /* Search decks by card ------------------------------------------------------ */
 
 .search-box { position: relative; max-width: 420px; margin-bottom: 0.4rem; }

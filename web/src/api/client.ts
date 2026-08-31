@@ -15,6 +15,8 @@ import type {
   ForgetResult,
   FormatView,
   Health,
+  LegendMatchups,
+  MatchupOverview,
   MetaDeck,
   MetaStatus,
   CardDetail,
@@ -221,6 +223,9 @@ export const api = {
     sort?: "rank" | "recency";
     limit?: number;
   } = {}) => request<MetaDeck[]>(`/api/meta/decks${queryString({ ...params })}`),
+  matchups: () => request<MatchupOverview>("/api/meta/matchups"),
+  legendMatchups: (legendId: string) =>
+    request<LegendMatchups>(`/api/meta/matchups/${encodeURIComponent(legendId)}`),
   metaTournaments: (limit = 30) =>
     request<Tournament[]>(`/api/meta/tournaments${queryString({ limit })}`),
   trendOverview: (params: {

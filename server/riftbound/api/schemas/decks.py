@@ -147,6 +147,73 @@ class FieldMatchView(ApiModel):
     summary: str
 
 
+class ThreatView(ApiModel):
+    """A card the opponent reliably brings.
+
+    Explicitly *not* "a card that beats you". No source available to this project
+    records which card won which game, so a counter-card ranking could only be invented.
+    This is what the opponent plays, which is a fact, and is what a player needs in
+    order to choose an answer for themselves.
+    """
+    card_id: str
+    name: str
+    image_url: str
+    #: Share of that legend's published lists running it, 0-1.
+    play_rate: float
+
+
+class FieldMatchupView(ApiModel):
+    """One opponent you will actually meet, weighted by how often."""
+    opponent_id: str
+    opponent_name: str
+    image_url: str
+    share: float
+    win_rate: float
+    interval_low: float
+    interval_high: float
+    matches: int
+    shown: bool
+    separated: bool
+    #: Expected win rate gained or lost to this opponent across the whole field:
+    #: ``share x (winRate - 0.5)``. Negative is ground lost. This, not the raw win rate,
+    #: is what orders a boarding plan -- losing badly to a rare deck costs little.
+    swing: float
+    summary: str
+
+
+class MatchupPlanView(ApiModel):
+    matchup: FieldMatchupView
+    threats: list[ThreatView]
+
+
+class FieldOutlookView(ApiModel):
+    """How a legend sits in the field it is actually in."""
+    legend_id: str
+    name: str
+    #: Share-weighted win rate over the rated part of the field.
+    expected_win_rate: float
+    #: The legend's own overall rate. The two disagree when the popular matchups are
+    #: the bad ones, which is the whole reason both are reported.
+    overall_win_rate: float
+    field_delta: float
+    #: Share of the field whose matchup is rated -- the denominator behind the number
+    #: above, so a thin one cannot pass as a thorough one.
+    coverage: float
+    shown: bool
+    summary: str
+
+
+class SideboardPlanView(ApiModel):
+    """Which matchups to spend sideboard slots on, most expensive first.
+
+    Empty when there is no matchup data, or when no matchup costs enough to be worth
+    acting on. Both are ordinary states, not errors.
+    """
+    available: bool
+    outlook: FieldOutlookView | None
+    plans: list[MatchupPlanView] = Field(default_factory=list)
+
+
 class BuildSuggestionsView(ApiModel):
     """Everything the builder can offer for the deck as it currently stands.
 
@@ -167,3 +234,6 @@ class BuildSuggestionsView(ApiModel):
     field_match: FieldMatchView
     #: Recomputed from the current payload on every suggestion refresh.
     deck_score: DeckScoreView
+    #: What to prepare for after game one, from the matchup table. Legend-level: it
+    #: depends on the legend chosen, not on the forty cards under it.
+    sideboard_plan: SideboardPlanView | None = None

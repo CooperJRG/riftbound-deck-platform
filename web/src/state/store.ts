@@ -20,6 +20,8 @@ import type {
   LegendChoice,
   LegendSort,
   LegendMeta,
+  LegendMatchups,
+  MatchupOverview,
   MetaDeck,
   MetaStatus,
   RefreshStatus,
@@ -54,10 +56,11 @@ export type DeckSearchSort = "rank" | "recency";
  * Explore answers two different questions and must not blur them.
  *
  * "legends" ranks the field by what is winning -- shares that partition the metagame.
- * "cards" reports what is being played -- adoption, which does not. Same page, same
- * filters, deliberately separate numbers.
+ * "cards" reports what is being played -- adoption, which does not. "matchups" reports
+ * what beats what, from recorded matches rather than from published lists, which is a
+ * third population again. Same page, deliberately separate numbers.
  */
-export type ExploreMode = "legends" | "cards";
+export type ExploreMode = "legends" | "cards" | "matchups";
 
 export interface AppState {
   ready: boolean;
@@ -182,6 +185,18 @@ export interface AppState {
   exploreLoading: boolean;
   exploreError: string;
 
+  /**
+   * Legend matchups, and the one legend opened out of them.
+   *
+   * Held apart from `trendOverview` on purpose: these come from recorded matches
+   * over the upstream set window, not from the published lists inside the date range
+   * the rest of Explore filters by. Sharing a slice would invite a filter that
+   * silently applies to one number and not the other.
+   */
+  matchups: MatchupOverview | null;
+  legendMatchups: LegendMatchups | null;
+  matchupsLoading: boolean;
+
   /** Deck search: find published lists by the cards they run. */
   searchQuery: string;
   /** Cards matching `searchQuery`, offered as picks. Empty once one is chosen and the
@@ -285,6 +300,10 @@ const initial: AppState = {
   tournamentDetail: null,
   exploreLoading: false,
   exploreError: "",
+
+  matchups: null,
+  legendMatchups: null,
+  matchupsLoading: false,
 
   searchQuery: "",
   searchCandidates: [],

@@ -1,5 +1,8 @@
 import type {
   CardAdoption,
+  LegendRecord,
+  Matchup,
+  MatchupBasis,
   ChampionMeta,
   LegendChoice,
   LegendMeta,
@@ -13,6 +16,8 @@ import type {
 } from "../api/types";
 import {
   closeExploreDetail,
+  closeLegendMatchups,
+  openLegendMatchups,
   importMetaDeck,
   loadExplore,
   openChampion,
@@ -753,6 +758,195 @@ function tournamentView(tournament: TournamentDetail): HTMLElement {
  * share of the field, the other an adoption rate that does not sum to it -- so they get
  * separate modes rather than a shared table with a swapped column.
  */
+/**
+ * Matchups: what beats what, from recorded matches.
+ *
+ * The third question Explore answers, and the one the other two cannot. Presence is a
+ * share of published lists; adoption is a rate within them; a matchup is the result of
+ * an actual game against a named opponent. They come from different populations, so the
+ * basis line is not decoration -- it is the difference between "wins 57% of its games"
+ * and "wins 57% of the games this source recorded, over its own set window".
+ *
+ * Every rate is rendered with its interval and none is rendered without one. A matchup
+ * that has not cleared the bar shows its sample and the threshold it missed, phrased
+ * server-side, rather than a number in small type.
+ */
+function winPill(
+  rate: number,
+  low: number,
+  high: number,
+  separated: boolean,
+): HTMLElement {
+  const tone = !separated ? "is-even" : low > 0.5 ? "is-good" : "is-bad";
+  return h(
+    "span",
+    { class: `wr-pill ${tone}`, title: `95% interval ${pct(low, 1)} to ${pct(high, 1)}` },
+    h("b", {}, pct(rate, 1)),
+    h("i", {}, `${pct(low, 0)}-${pct(high, 0)}`),
+  );
+}
+
+function unratedPill(matches: number): HTMLElement {
+  return h(
+    "span",
+    { class: "wr-pill is-unrated", title: "Not enough matches to publish a rate" },
+    h("b", {}, "-"),
+    h("i", {}, `${matches}`),
+  );
+}
+
+function basisLine(basis: MatchupBasis): HTMLElement {
+  const credit = basis.attribution;
+  return h(
+    "p",
+    { class: "matchup-basis muted small" },
+    h("span", {}, basis.summary),
+    credit && credit.url
+      ? h("a", { href: credit.url, target: "_blank", rel: "noopener" }, ` ${credit.source} \u2197`)
+      : null,
+    basis.sourceLabel ? h("em", {}, ` ${basis.sourceLabel}.`) : null,
+  );
+}
+
+function legendRow(row: LegendRecord): HTMLElement {
+  return h(
+    "button",
+    {
+      class: `matchup-row${row.shown ? "" : " is-unrated"}`,
+      type: "button",
+      title: `Open the matchup spread for ${row.name}`,
+      on: { click: () => void openLegendMatchups(row.legendId) },
+    },
+    fullCard(row.imageUrl, row.name, "matchup-row-art"),
+    h(
+      "span",
+      { class: "matchup-row-body" },
+      h("strong", {}, row.name),
+      h("small", {}, row.summary),
+    ),
+    row.shown
+      ? winPill(row.winRate, row.intervalLow, row.intervalHigh, row.separated)
+      : unratedPill(row.matches),
+  );
+}
+
+function matchupRow(row: Matchup): HTMLElement {
+  return h(
+    "article",
+    { class: `matchup-cell${row.shown ? "" : " is-unrated"}` },
+    h(
+      "span",
+      { class: "matchup-cell-body" },
+      h("strong", {}, row.opponentName),
+      h("small", {}, row.shown ? row.summary : row.withheldDetail),
+    ),
+    row.shown
+      ? winPill(row.winRate, row.intervalLow, row.intervalHigh, row.separated)
+      : unratedPill(row.matches),
+  );
+}
+
+function matchupOverview(): HTMLElement {
+  const { matchups, matchupsLoading } = store.state;
+  if (matchupsLoading && !matchups) {
+    return h("div", { class: "explore-page" }, h("p", { class: "muted" }, "Loading matchups..."));
+  }
+  if (!matchups || !matchups.available) {
+    return h(
+      "div",
+      { class: "explore-page" },
+      h("p", { class: "eyebrow" }, "Matchups"),
+      h("h2", {}, "No matchup data yet"),
+      h(
+        "p",
+        { class: "muted small" },
+        "The matchup table is harvested alongside the meta snapshot. Run a refresh and it will appear here.",
+      ),
+    );
+  }
+  return h(
+    "div",
+    { class: "explore-page matchup-page" },
+    h(
+      "header",
+      { class: "visual-section-head" },
+      h(
+        "div",
+        {},
+        h("p", { class: "eyebrow" }, "Recorded matches"),
+        h("h2", {}, "Legend matchups"),
+        h(
+          "p",
+          { class: "muted small" },
+          "What actually beat what. Every rate carries its 95% interval, and a legend counts as favoured only when the whole interval clears even.",
+        ),
+      ),
+    ),
+    basisLine(matchups.basis),
+    h("div", { class: "matchup-list" }, ...matchups.legends.map(legendRow)),
+  );
+}
+
+function legendMatchupView(): HTMLElement {
+  const detail = store.state.legendMatchups;
+  if (!detail) return matchupOverview();
+  const rated = detail.matchups.filter((m) => m.shown);
+  const unrated = detail.matchups.filter((m) => !m.shown);
+  return h(
+    "div",
+    { class: "explore-page matchup-page" },
+    h(
+      "button",
+      { class: "quiet-button", type: "button", on: { click: closeLegendMatchups } },
+      "\u2190 All legends",
+    ),
+    h(
+      "header",
+      { class: "dossier-hero" },
+      fullCard(detail.imageUrl, detail.name, "dossier-card"),
+      h(
+        "div",
+        { class: "dossier-copy" },
+        h("p", { class: "eyebrow" }, "Matchup spread"),
+        h("h1", {}, detail.name),
+        detail.record
+          ? h("p", { class: "page-lede" }, detail.record.summary)
+          : h("p", { class: "muted small" }, "No overall record for this legend."),
+      ),
+    ),
+    basisLine(detail.basis),
+    rated.length
+      ? h(
+          "section",
+          { class: "visual-section" },
+          h(
+            "div",
+            { class: "visual-section-head" },
+            h(
+              "div",
+              {},
+              h("h2", {}, "Rated matchups"),
+              h(
+                "p",
+                { class: "muted small" },
+                "Hardest first, ordered by the optimistic end of the interval so a thin unlucky sample does not read as a bad matchup.",
+              ),
+            ),
+          ),
+          h("div", { class: "matchup-grid" }, ...rated.map(matchupRow)),
+        )
+      : h("p", { class: "muted small" }, "No matchup for this legend has cleared the bar yet."),
+    unrated.length
+      ? h(
+          "details",
+          { class: "matchup-unrated" },
+          h("summary", {}, `${unrated.length} more without enough matches yet`),
+          h("div", { class: "matchup-grid" }, ...unrated.map(matchupRow)),
+        )
+      : null,
+  );
+}
+
 function modeSwitch(): HTMLElement {
   const current = store.state.exploreMode;
   const tab = (mode: ExploreMode, label: string, note: string) =>
@@ -772,6 +966,7 @@ function modeSwitch(): HTMLElement {
     { class: "mode-switch", aria: { label: "Explore mode" } },
     tab("legends", "Legends & champions", "What is winning"),
     tab("cards", "Cards", "What is being played"),
+    tab("matchups", "Matchups", "What beats what"),
   );
 }
 
@@ -783,6 +978,13 @@ export function renderExplore(root: HTMLElement): void {
   if (championMeta) return replace(root, championView(championMeta));
   if (legendMeta) return replace(root, legendView(legendMeta));
   if (exploreMode === "cards" && cardDetail) return replace(root, cardView(cardDetail));
+
+  // Matchups do not honour the date filters -- they are an aggregate computed over
+  // the source's own set window -- so the range bar is left off rather than sitting
+  // above numbers it cannot change.
+  if (exploreMode === "matchups") {
+    return replace(root, modeSwitch(), legendMatchupView());
+  }
 
   replace(
     root,

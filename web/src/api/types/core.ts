@@ -167,6 +167,66 @@ export interface FieldMatch {
   summary: string;
 }
 
+/**
+ * A card the opponent reliably brings.
+ *
+ * Explicitly *not* "a card that beats you". No source available to this project records
+ * which card won which game, so a counter-card ranking could only be invented. This is
+ * what the opponent plays — a fact — and the answer is the player's to choose.
+ */
+export interface Threat {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  /** Share of that legend's published lists running it, 0-1. */
+  playRate: number;
+}
+
+export interface FieldMatchup {
+  opponentId: string;
+  opponentName: string;
+  imageUrl: string;
+  share: number;
+  winRate: number;
+  intervalLow: number;
+  intervalHigh: number;
+  matches: number;
+  shown: boolean;
+  separated: boolean;
+  /**
+   * Expected win rate gained or lost to this opponent across the whole field:
+   * `share × (winRate - 0.5)`. This, not the raw win rate, is what orders a boarding
+   * plan — losing badly to a deck nobody brings costs almost nothing.
+   */
+  swing: number;
+  summary: string;
+}
+
+export interface MatchupPlan {
+  matchup: FieldMatchup;
+  threats: Threat[];
+}
+
+/** How a legend sits in the field it is actually in. */
+export interface FieldOutlook {
+  legendId: string;
+  name: string;
+  expectedWinRate: number;
+  overallWinRate: number;
+  fieldDelta: number;
+  /** Share of the field whose matchup is rated — the denominator behind the rate. */
+  coverage: number;
+  shown: boolean;
+  summary: string;
+}
+
+/** Which matchups to spend sideboard slots on, most expensive first. */
+export interface SideboardPlan {
+  available: boolean;
+  outlook: FieldOutlook | null;
+  plans: MatchupPlan[];
+}
+
 export interface BuildSuggestions {
   champions: ChampionOption[];
   main: CardSuggestion[];
@@ -177,6 +237,11 @@ export interface BuildSuggestions {
   fieldMatch: FieldMatch;
   /** Recomputed from the current deck on every debounced builder refresh. */
   deckScore: import("./smart-decks").DeckScore;
+  /**
+   * What to prepare for after game one. Legend-level: it depends on the legend chosen,
+   * not on the forty cards under it, because the matchup table is legend against legend.
+   */
+  sideboardPlan: SideboardPlan | null;
 }
 
 export interface Validation {
@@ -247,9 +312,11 @@ export interface AvailabilityUpdate {
  * A sort, never a filter: every legend stays in the list either way. "buildable" reads
  * the familiarity figure the server already computes, so somebody short of cards can
  * ask which of these is closest to what they have rather than scrolling past the
- * decks they are least able to build.
+ * decks they are least able to build. "field" orders by how the legend actually fares
+ * against the field as it is played, which is a different question from how good its
+ * best published list was.
  */
-export type LegendSort = "strength" | "buildable";
+export type LegendSort = "strength" | "buildable" | "field";
 
 export interface RuleKinds {
   kinds: string[];

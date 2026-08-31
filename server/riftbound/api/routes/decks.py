@@ -17,6 +17,7 @@ from ...domain.availability import deck_coverage
 from ...domain.deck import Deck
 from ...domain.deck_analysis import nearest_field_match
 from ...domain.export import export_deck, export_filename
+from ...domain.field_plan import sideboard_plan
 from ...domain.suggest import (
     battlefield_suggestions,
     champion_options,
@@ -37,7 +38,7 @@ from ..schemas import (
     SuggestionView,
     ValidationView,
 )
-from ..views import deck_dict, deck_score_view, validation_view
+from ..views import deck_dict, deck_score_view, sideboard_plan_view, validation_view
 
 router = APIRouter(prefix="/api/decks", tags=["decks"])
 
@@ -275,6 +276,21 @@ def build_suggestions(
             )
         ]
 
+    # What to prepare for after game one. Legend-level by construction: the matchup
+    # table is legend against legend, so this depends on the legend chosen and not on
+    # the forty cards under it -- which is why it is computed here rather than folded
+    # into the card suggestions above, where it would imply a card-level claim the data
+    # cannot support.
+    plan_view = sideboard_plan_view(None, ())
+    if deck.legend_id and services.matchups.available:
+        outlook, plans = sideboard_plan(
+            deck.legend_id,
+            table=services.matchups,
+            index=services.legend_index,
+            catalog=catalog,
+        )
+        plan_view = sideboard_plan_view(outlook, plans)
+
     return BuildSuggestionsView(
         champions=champions,
         main=main,
@@ -284,4 +300,5 @@ def build_suggestions(
         rune_reason=rune_suggestion_reason(deck, runes, catalog),
         field_match=asdict(field_match),
         deck_score=deck_score_view(services.deck_scoreboard.score(deck)),
+        sideboard_plan=plan_view,
     )

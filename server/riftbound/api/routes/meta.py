@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from ...data.scheduler import snapshot_age_hours
 from ...domain.availability import deck_coverage
@@ -49,7 +49,9 @@ from ..schemas import (
     CardTrendOverviewView,
     ChampionMetaView,
     EraView,
+    LegendMatchupsView,
     LegendMetaView,
+    MatchupOverviewView,
     MetaDeckView,
     MetaStatusView,
     RefreshRunView,
@@ -58,7 +60,13 @@ from ..schemas import (
     TournamentView,
     TrendOverviewView,
 )
-from ..views import meta_deck_view, tournament_view
+from ..views import (
+    legend_record_view,
+    matchup_basis_view,
+    matchup_view,
+    meta_deck_view,
+    tournament_view,
+)
 
 router = APIRouter(prefix="/api/meta", tags=["meta"])
 
@@ -420,6 +428,65 @@ def list_meta_decks(
         if len(out) >= limit:
             break
     return out
+
+
+@router.get("/matchups", response_model=MatchupOverviewView)
+def matchup_overview(
+    response: Response, services: Services = Depends(get_services)
+) -> MatchupOverviewView:
+    """Every legend's overall record, strongest first.
+
+    Ordered by the interval's lower bound rather than the point estimate, so a legend
+    with a lucky 43-match sample does not outrank one measured over 1,783. Unrated
+    legends follow every rated one, with their counts intact -- "43 matches so far" is
+    information; a blank row is not.
+
+    Unlike the deck listings next door this is the same answer for everybody: it depends
+    on the promoted snapshot alone, never on the caller's collection, so it is cacheable
+    and cached.
+    """
+    response.headers["Cache-Control"] = "public, max-age=300"
+    table = services.matchups
+    return MatchupOverviewView(
+        available=table.available,
+        basis=matchup_basis_view(table.basis),
+        legends=[legend_record_view(r, services.catalog) for r in table.ranked()],
+    )
+
+
+@router.get("/matchups/{legend_id}", response_model=LegendMatchupsView)
+def legend_matchups(
+    legend_id: str,
+    response: Response,
+    services: Services = Depends(get_services),
+) -> LegendMatchupsView:
+    """One legend's spread, hardest opponent first.
+
+    404 rather than an empty spread when the table has never heard of the legend: those
+    are different facts. A legend nobody played and a legend id that does not exist
+    should not render the same screen.
+    """
+    table = services.matchups
+    record = table.record(legend_id)
+    rows = table.for_legend(legend_id)
+    if record is None and not rows:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No matchup data for legend {legend_id!r}. The table covers the "
+                "legends seen in the recorded matches it was built from."
+            ),
+        )
+    response.headers["Cache-Control"] = "public, max-age=300"
+    card = services.catalog.get(legend_id)
+    return LegendMatchupsView(
+        legend_id=legend_id,
+        name=record.name if record else (card.name if card else legend_id),
+        image_url=card.image_url if card else "",
+        record=legend_record_view(record, services.catalog) if record else None,
+        basis=matchup_basis_view(table.basis),
+        matchups=[matchup_view(m) for m in rows],
+    )
 
 
 @router.get("/archetypes", response_model=list[ArchetypeView])

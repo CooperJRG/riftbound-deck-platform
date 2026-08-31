@@ -31,6 +31,7 @@ export type Route =
   | { name: "legend"; legendId: string }
   | { name: "champion"; championId: string }
   | { name: "card"; cardId: string }
+  | { name: "matchupLegend"; legendId: string }
   | { name: "event"; slug: string }
   | { name: "archetype"; archetypeId: string }
   | { name: "build" }
@@ -74,6 +75,7 @@ export function viewFor(route: Route): ViewName {
     case "legend":
     case "champion":
     case "card":
+    case "matchupLegend":
     case "event":
     case "archetype":
       return "explore";
@@ -164,9 +166,13 @@ export function parseLocation(pathname: string, search: string): Location {
     if (second === "legend" && third) return { route: { name: "legend", legendId: third }, explore };
     if (second === "champion" && third) return { route: { name: "champion", championId: third }, explore };
     if (second === "card" && third) return { route: { name: "card", cardId: third }, explore };
+    if (second === "matchups" && third) {
+      return { route: { name: "matchupLegend", legendId: third }, explore };
+    }
     if (second === "event" && third) return { route: { name: "event", slug: third }, explore };
     if (second === "archetype" && third) return { route: { name: "archetype", archetypeId: third }, explore };
-    const mode: ExploreMode = second === "cards" ? "cards" : "legends";
+    const mode: ExploreMode =
+      second === "cards" ? "cards" : second === "matchups" ? "matchups" : "legends";
     return { route: { name: "explore", mode }, explore };
   }
 
@@ -225,14 +231,23 @@ export function pathFor(route: Route, explore: ExploreQuery = {}): string {
       return "/";
     case "smartSession":
       return `/find/${enc(route.sessionId)}`;
-    case "explore":
-      return (route.mode === "cards" ? "/explore/cards" : "/explore") + exploreSuffix(explore);
+    case "explore": {
+      const path =
+        route.mode === "cards"
+          ? "/explore/cards"
+          : route.mode === "matchups"
+            ? "/explore/matchups"
+            : "/explore";
+      return path + exploreSuffix(explore);
+    }
     case "legend":
       return `/explore/legend/${enc(route.legendId)}${exploreSuffix(explore)}`;
     case "champion":
       return `/explore/champion/${enc(route.championId)}${exploreSuffix(explore)}`;
     case "card":
       return `/explore/card/${enc(route.cardId)}${exploreSuffix(explore)}`;
+    case "matchupLegend":
+      return `/explore/matchups/${enc(route.legendId)}${exploreSuffix(explore)}`;
     case "event":
       return `/explore/event/${enc(route.slug)}${exploreSuffix(explore)}`;
     case "archetype":
@@ -273,6 +288,8 @@ export function routeKey(route: Route): string {
       return `champion:${route.championId}`;
     case "card":
       return `card:${route.cardId}`;
+    case "matchupLegend":
+      return `matchupLegend:${route.legendId}`;
     case "event":
       return `event:${route.slug}`;
     case "archetype":
