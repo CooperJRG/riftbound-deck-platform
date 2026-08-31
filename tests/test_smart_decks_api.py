@@ -328,7 +328,7 @@ def test_a_proposal_carries_both_scores(meta_client):
     proposal = session["proposal"]
     score = proposal["deckScore"]
     assert score is not None
-    assert set(score) >= {"meta", "champion", "coverage", "scored", "summary"}
+    assert set(score) >= {"meta", "legend", "coverage", "scored", "summary", "disclaimer"}
     assert score["summary"]
 
 

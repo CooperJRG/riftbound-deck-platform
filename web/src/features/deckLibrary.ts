@@ -5,6 +5,7 @@ import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 import { openDeckExport } from "./deckExport";
 import { shareButton } from "./share";
+import { deckStrength } from "./deckStrength";
 
 export function renderDeckActions(root: HTMLElement): void {
   const { deck, dirty } = store.state;
@@ -58,6 +59,7 @@ export function renderDeckLibrary(root: HTMLElement): void {
               h("p", { class: "eyebrow" }, deck.format),
               h("h2", { class: "library-name" }, deck.name),
               h("p", { class: "library-card-meta" }, `${deck.mainTotal} main-deck cards`, deck.updatedAt ? ` · Updated ${new Date(deck.updatedAt).toLocaleDateString()}` : ""),
+              deckStrength(deck.score, { compact: true }),
               h(
                 "button",
                 {

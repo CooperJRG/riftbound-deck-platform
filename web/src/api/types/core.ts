@@ -151,12 +151,32 @@ export interface CardSuggestion {
   reason: string;
 }
 
+export interface FieldMatch {
+  available: boolean;
+  archetypeId: string;
+  name: string;
+  sampleDecks: number;
+  tournamentDecks: number;
+  similarity: number;
+  threshold: number;
+  chosenCards: number;
+  matchedCards: number;
+  copyChanges: number;
+  referenceDeckId: string;
+  referenceDeckName: string;
+  summary: string;
+}
+
 export interface BuildSuggestions {
   champions: ChampionOption[];
   main: CardSuggestion[];
   battlefields: CardSuggestion[];
   sideboard: CardSuggestion[];
   runes: Record<string, number>;
+  runeReason: string;
+  fieldMatch: FieldMatch;
+  /** Recomputed from the current deck on every debounced builder refresh. */
+  deckScore: import("./smart-decks").DeckScore;
 }
 
 export interface Validation {
@@ -179,6 +199,7 @@ export interface DeckSummary {
   mainTotal: number;
   createdAt: string;
   updatedAt: string;
+  score: import("./smart-decks").DeckScore | null;
 }
 
 export interface DeckView {

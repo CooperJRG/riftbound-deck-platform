@@ -6,6 +6,7 @@ from typing import Any
 
 from .base import ApiModel, StrictRequest
 from .meta import MetaDeckView
+from .scoring import DeckScoreView
 
 # -- smart decks --------------------------------------------------------------
 
@@ -64,28 +65,6 @@ class RepairDeckCardView(ApiModel):
     #: find anywhere on the page reads as the wizard talking about a deck it will not
     #: show them.
     added: bool
-
-
-class DeckScoreView(ApiModel):
-    """How strong a deck is, on the two scales a player can act on.
-
-    Both measure the same thing -- how much of what the field plays this list contains --
-    and differ only in what they are measured against. `meta` compares it to the
-    strongest deck in the format; `champion` compares it to the strongest published list
-    for its champion, which is 100 by construction.
-
-    `-1` on either means there was nothing to measure against, and must be rendered as
-    "not scored" rather than as a zero: a champion nobody has published is not a champion
-    that scores badly.
-    """
-    meta: float
-    champion: float
-    #: Share of the closest published list for this champion that this deck contains.
-    #: Why a repair scored lower, without the client re-deriving it.
-    coverage: float
-    scored: bool
-    #: One line, phrased server-side so two clients cannot describe it differently.
-    summary: str
 
 
 class RepairView(ApiModel):

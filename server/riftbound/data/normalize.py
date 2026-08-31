@@ -23,6 +23,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
+from html import unescape
 
 from ..domain.cards import Card, Printing, coerce_domains
 from ..domain.ids import card_id_for, clean_text, oracle_name, print_id_for
@@ -117,6 +118,12 @@ def clean_rules_text(value: object) -> str:
     text = _LINE_BREAK.sub("\n", text)
     text = _LIST_ITEM.sub("• ", text)
     text = _HTML_TAG.sub("", text)
+    # Entities decoded only after real tags are stripped, not before: a card whose
+    # text happened to read "&lt;3&gt;" would decode to the literal characters "<3>",
+    # and if that ran ahead of the tag strip it would then look like a tag and vanish.
+    # 79 cards in the live archive carry `&gt;` or `&quot;` -- upstream escaping its own
+    # HTML source without a browser ever unescaping it on the way out.
+    text = unescape(text)
     # Collapse the blank lines that stripping <ul></ul> leaves behind.
     lines = [line.strip() for line in text.split("\n")]
     return "\n".join(line for line in lines if line)

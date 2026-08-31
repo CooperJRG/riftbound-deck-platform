@@ -12,6 +12,7 @@ from typing import Any
 from pydantic import Field
 
 from .base import ApiModel, StrictRequest
+from .scoring import DeckScoreView
 
 # -- formats ------------------------------------------------------------------
 
@@ -93,6 +94,7 @@ class DeckSummaryView(ApiModel):
     main_total: int
     created_at: str
     updated_at: str
+    score: DeckScoreView | None = None
 
 
 class DeckView(ApiModel):
@@ -127,6 +129,24 @@ class SuggestionView(ApiModel):
     reason: str
 
 
+class FieldMatchView(ApiModel):
+    """Nearest published card family, without pretending it is matchup data."""
+
+    available: bool
+    archetype_id: str
+    name: str
+    sample_decks: int
+    tournament_decks: int
+    similarity: float
+    threshold: float
+    chosen_cards: int
+    matched_cards: int
+    copy_changes: int
+    reference_deck_id: str
+    reference_deck_name: str
+    summary: str
+
+
 class BuildSuggestionsView(ApiModel):
     """Everything the builder can offer for the deck as it currently stands.
 
@@ -143,3 +163,7 @@ class BuildSuggestionsView(ApiModel):
     sideboard: list[SuggestionView]
     #: Card id to copies. Always offered, whatever else is missing.
     runes: dict[str, int]
+    rune_reason: str
+    field_match: FieldMatchView
+    #: Recomputed from the current payload on every suggestion refresh.
+    deck_score: DeckScoreView

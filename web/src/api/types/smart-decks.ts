@@ -52,20 +52,20 @@ export interface RepairDeckCard {
  *
  * Both measure the same thing — how much of what the field plays this list contains —
  * and differ only in what they are measured against. `meta` compares it to the strongest
- * deck in the format; `champion` compares it to the strongest published list for its
- * champion, which is 100 by construction.
+ * deck in the format; `legend` compares it to the strongest published list for its
+ * legend, which is 100 by construction.
  *
  * `scored` is false when that champion has no published lists at all. Render that as
- * "not scored", never as a zero: a champion nobody has published is not a champion that
- * scores badly, and `meta`/`champion` carry -1 in that case.
+ * "not scored", never as a zero: a legend without published references is unknown.
  */
 export interface DeckScore {
   meta: number;
-  champion: number;
-  /** Share of the closest published list for this champion that this deck contains. */
+  legend: number;
+  /** Share of the closest published list for this legend that this deck contains. */
   coverage: number;
   scored: boolean;
   summary: string;
+  disclaimer: string;
 }
 
 export interface Repair {

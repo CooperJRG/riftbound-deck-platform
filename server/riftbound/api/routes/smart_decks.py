@@ -46,7 +46,14 @@ from ..schemas import (
     SmartSessionView,
     StartSessionRequest,
 )
-from ..views import deck_card_rows, deck_dict, meta_deck_view, repair_view, requirement_row
+from ..views import (
+    deck_card_rows,
+    deck_dict,
+    deck_score_view,
+    meta_deck_view,
+    repair_view,
+    requirement_row,
+)
 
 router = APIRouter(prefix="/api/smart-decks", tags=["smart-decks"])
 
@@ -145,13 +152,7 @@ def _checklist_ceiling(card_id: str, catalog) -> int:
 def _score_view(score) -> DeckScoreView | None:
     if score is None:
         return None
-    return DeckScoreView(
-        meta=round(score.meta, 1),
-        champion=round(score.champion, 1),
-        coverage=round(score.coverage, 3),
-        scored=score.scored,
-        summary=score.describe(),
-    )
+    return deck_score_view(score)
 
 
 def _floor_view(

@@ -151,6 +151,31 @@ def _room_for(deck: Deck, card: Card, rules: BoundRules) -> int:
     return max(0, limit - held)
 
 
+def _already_held(deck: Deck, card_id: str) -> bool:
+    """Whether the player has already made this card choice in either card zone.
+
+    Suggestions introduce choices; they are not copy-count steppers. Once a player has
+    taken one or two copies, tuning that stack belongs to the deck controls.
+    """
+    return deck.main.get(card_id, 0) > 0 or deck.sideboard.get(card_id, 0) > 0
+
+
+def _zone_space(deck: Deck, rules: BoundRules, zone: str) -> int:
+    """Slots still available in a size-limited card zone.
+
+    A recommendation is an action, not merely a card name. Its proposed quantity must
+    leave the deck legal after that action: a 39-card main deck may only be offered one
+    copy, however many copies the field normally plays.
+    """
+    if zone == "main":
+        limit = rules.int_constraint("main_deck_size_exact", 0)
+        return max(0, limit - deck.main_total) if limit else 99
+    if zone == "sideboard":
+        limit = rules.int_constraint("sideboard_max", 0)
+        return max(0, limit - deck.sideboard_total) if limit else 99
+    return 99
+
+
 def main_deck_suggestions(
     deck: Deck,
     profile: LegendProfile,
@@ -171,13 +196,16 @@ def main_deck_suggestions(
     legend = catalog.get(deck.legend_id)
     if legend is None:
         return []
+    zone_space = _zone_space(deck, rules, "main")
+    if zone_space <= 0:
+        return []
     context = list(deck.main)
     present = set(context)
     settled = sum(deck.main.values()) >= SUPPORT_AFTER
 
     scored: list[tuple[float, Card, str]] = []
     for card in legal_main_pool(legend, catalog=catalog, rules=rules):
-        if _room_for(deck, card, rules) <= 0:
+        if _already_held(deck, card.card_id) or _room_for(deck, card, rules) <= 0:
             continue
         affinity = profile.affinity(card.card_id, context) if context else 0.0
         play_rate = profile.play_rate.get(card.card_id, 0.0)
@@ -202,6 +230,7 @@ def main_deck_suggestions(
             name=card.name,
             image_url=card.image_url,
             copies=min(
+                zone_space,
                 _room_for(deck, card, rules),
                 max(1, int(profile.copies.get(card.card_id, 1))),
             ),
@@ -288,6 +317,9 @@ def sideboard_suggestions(
     legend = catalog.get(deck.legend_id)
     if legend is None:
         return []
+    zone_space = _zone_space(deck, rules, "sideboard")
+    if zone_space <= 0:
+        return []
 
     comparable = [
         row for row in decks
@@ -324,7 +356,11 @@ def sideboard_suggestions(
         weight = quality * (0.7 + 0.3 * similarity)
         total_weight += weight
         for card_id, copies in row.deck.sideboard.items():
-            if card_id not in legal or _room_for(deck, legal[card_id], rules) <= 0:
+            if (
+                card_id not in legal
+                or _already_held(deck, card_id)
+                or _room_for(deck, legal[card_id], rules) <= 0
+            ):
                 continue
             weighted_presence[card_id] = weighted_presence.get(card_id, 0.0) + weight
             weighted_copies[card_id] = (
@@ -347,6 +383,7 @@ def sideboard_suggestions(
             name=legal[card_id].name,
             image_url=legal[card_id].image_url,
             copies=min(
+                zone_space,
                 _room_for(deck, legal[card_id], rules),
                 max(1, round(weighted_copies[card_id] / weighted_presence[card_id])),
             ),
@@ -408,7 +445,12 @@ def rune_suggestion(deck: Deck, catalog: Catalog, rules: BoundRules) -> dict[str
     for domain in weight:
         split.setdefault(domain, 1)
     if not split:
-        split = {next(iter(best)): needed}
+        # Before there are main-deck costs to learn from, represent every legal legend
+        # domain evenly. Putting all twelve runes in the alphabetically first domain
+        # looked authoritative while being entirely arbitrary.
+        split = {domain: 1 for domain in legend.domains if domain in best}
+        if not split:
+            split = {next(iter(best)): 1}
 
     while sum(split.values()) > needed:
         pick = min(split, key=lambda d: (split[d], -weight.get(d, 0.0)))
@@ -422,3 +464,29 @@ def rune_suggestion(deck: Deck, catalog: Catalog, rules: BoundRules) -> dict[str
         split[pick] += 1
 
     return {best[domain].card_id: n for domain, n in split.items() if n > 0}
+
+
+def rune_suggestion_reason(
+    deck: Deck,
+    suggestion: dict[str, int],
+    catalog: Catalog,
+) -> str:
+    """Explain the rune recommendation using only facts visible in this deck."""
+    if not suggestion:
+        return "Choose a legend to see a rune plan."
+    parts = []
+    for card_id, copies in suggestion.items():
+        card = catalog.get(card_id)
+        parts.append(f"{copies} {card.name if card else card_id}")
+    plan = ", ".join(parts)
+    if not deck.main:
+        return (
+            f"A temporary even split across the legend's domains: {plan}. "
+            "Add main-deck cards, then refresh it from their power requirements."
+        )
+    floors = power_floor(deck.main, catalog)
+    demands = ", ".join(
+        f"{domain} {power}" for domain, power in sorted(floors.items()) if power > 0
+    )
+    floor_text = f" It preserves peak power requirements ({demands})." if demands else ""
+    return f"Suggested from this deck's domain demand: {plan}.{floor_text}"

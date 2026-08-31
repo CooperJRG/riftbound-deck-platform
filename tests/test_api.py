@@ -137,6 +137,8 @@ def test_deck_crud_roundtrip(client):
     listed = client.get("/api/decks").json()
     assert [d["deckId"] for d in listed] == [deck_id]
     assert listed[0]["mainTotal"] == 40
+    assert listed[0]["score"]["scored"] is False
+    assert "not a prediction" in listed[0]["score"]["disclaimer"]
 
     fetched = client.get(f"/api/decks/{deck_id}").json()
     assert fetched["deck"]["legendId"] == "vi-piltover-enforcer"
@@ -924,6 +926,40 @@ def test_suggestions_are_empty_without_a_legend(meta_client):
     assert body["main"] == []
     assert body["sideboard"] == []
     assert body["runes"] == {}
+    assert body["deckScore"]["scored"] is False
+
+
+def test_builder_strength_updates_with_the_deck_contents(meta_client):
+    """The score is computed from the posted deck, not baked into the page or legend."""
+    sparse = meta_client.post(
+        "/api/decks/suggestions",
+        json=_blank_deck(
+            legendId="vi-piltover-enforcer", championId="vi-destructive",
+            main={"vi-destructive": 3},
+        ),
+    ).json()["deckScore"]
+    complete = meta_client.post(
+        "/api/decks/suggestions", json=deck_payload()
+    ).json()["deckScore"]
+
+    assert set(complete) == {
+        "meta", "legend", "coverage", "scored", "summary", "disclaimer"
+    }
+    assert complete["meta"] > sparse["meta"]
+    assert complete["legend"] > sparse["legend"]
+    assert complete["coverage"] > sparse["coverage"]
+    assert complete["meta"] <= 100
+    assert complete["legend"] <= 100
+
+
+def test_saved_decks_carry_the_same_strength_scales(meta_client):
+    deck_id = meta_client.post("/api/decks", json=deck_payload()).json()["deckId"]
+    listed = meta_client.get("/api/decks").json()
+    saved = next(deck for deck in listed if deck["deckId"] == deck_id)
+
+    assert saved["score"]["scored"] is True
+    assert saved["score"]["meta"] == pytest.approx(100.0)
+    assert saved["score"]["legend"] == pytest.approx(100.0)
 
 
 def test_a_legend_brings_its_champions_with_scores(meta_client):
@@ -960,6 +996,16 @@ def test_every_suggestion_says_why_it_is_on_the_list(meta_client):
     for row in body["main"] + body["battlefields"]:
         assert row["reason"].strip(), row["name"]
         assert row["copies"] >= 1
+
+
+def test_suggestions_include_a_ranked_reserve_for_dismissals(meta_client):
+    """The UI shows five, but needs successors ready when a player rejects one."""
+    body = meta_client.post(
+        "/api/decks/suggestions",
+        json=_blank_deck(legendId="vi-piltover-enforcer"),
+    ).json()
+
+    assert len(body["main"]) > 5
 
 
 def test_suggestions_are_never_cards_the_deck_may_not_contain(meta_client):

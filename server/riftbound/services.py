@@ -211,11 +211,11 @@ class Services:
 
     @cached_property
     def deck_scoreboard(self):
-        """Baselines for the two wizard scores, over the whole current-era field.
+        """Baselines for the two deck-strength scores, over the current-era field.
 
-        Format-wide on purpose. Built per legend, the best deck of a single-champion
-        legend would be both the best deck for its champion and the best deck known, so
-        both scores would read 100 and the second would say nothing.
+        The meta denominator is format-wide; the second denominator contains every
+        published list for the legend, regardless of chosen champion. That keeps a
+        rarely played champion from creating an artificially easy 100.
         """
         from .domain.eras import eras_for_format
         from .domain.meta_scoring import score_all, totals

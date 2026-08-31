@@ -9,6 +9,7 @@
 import type { DeckScore, Repair } from "../../api/types";
 import { acceptSmartDeck } from "../../state/actions";
 import { h } from "../../ui/dom";
+import { deckStrength } from "../deckStrength";
 import { plural } from "./rows";
 
 /**
@@ -80,39 +81,12 @@ function finishedDeck(repair: Repair): HTMLElement {
 /**
  * The two scores, side by side.
  *
- * The champion score leads because it is the one a player in the middle of a build is
- * asking about -- how close is this to the best version of the deck I am building -- and
- * it is the one the wizard used to choose this deck over the alternative. The format
- * score sits beside it because the two disagree in a way worth seeing: a good build of a
- * fringe champion reads 79 and 32, and only one of those numbers answers "should I take
- * this to an event".
+ * Meta is intentionally first, followed by the within-legend comparison. The pair
+ * separates "how strong is this in the field?" from "how strong is this way of building
+ * my chosen legend?".
  */
 export function scorePanel(score: DeckScore | null): HTMLElement | null {
-  if (!score) return null;
-  if (!score.scored) {
-    return h(
-      "div",
-      { class: "deck-scores is-unscored", title: score.summary },
-      h("span", { class: "deck-score" }, h("b", {}, "—"), h("i", {}, "for this champion")),
-      h("span", { class: "deck-score" }, h("b", {}, String(Math.round(score.meta))), h("i", {}, "in the format")),
-    );
-  }
-  return h(
-    "div",
-    { class: "deck-scores", title: score.summary },
-    h(
-      "span",
-      { class: "deck-score is-primary" },
-      h("b", {}, String(Math.round(score.champion))),
-      h("i", {}, "for this champion"),
-    ),
-    h(
-      "span",
-      { class: "deck-score" },
-      h("b", {}, String(Math.round(score.meta))),
-      h("i", {}, "in the format"),
-    ),
-  );
+  return deckStrength(score, { compact: true });
 }
 
 export function repairPanel(repair: Repair, label: string, note: string, busy: boolean): HTMLElement {

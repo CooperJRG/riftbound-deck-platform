@@ -23,7 +23,7 @@ import { setView } from "./actions/app";
 import { resolveDeckCards } from "./actions/cards";
 import { loadDeck } from "./actions/library";
 import { openArchetype, loadMeta } from "./actions/meta";
-import { revalidate } from "./actions/deck";
+import { refreshSuggestions, revalidate } from "./actions/deck";
 import { store } from "./store";
 import { deckToQuery, type ExploreQuery, type Location, type Route } from "../ui/router";
 
@@ -96,7 +96,7 @@ async function benchDeck(
     benchSource: source ? { deckId: source, signature: deckToQuery(deck).toString() } : null,
   });
   await resolveDeckCards(deck);
-  await revalidate();
+  await Promise.all([revalidate(), refreshSuggestions()]);
 }
 
 /**

@@ -7,18 +7,22 @@ four cards" -- two different problems that v2 conflated.
 
 from __future__ import annotations
 
+from dataclasses import asdict
+
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import PlainTextResponse
 
 from ...config import ConfigError
 from ...domain.availability import deck_coverage
 from ...domain.deck import Deck
+from ...domain.deck_analysis import nearest_field_match
 from ...domain.export import export_deck, export_filename
 from ...domain.suggest import (
     battlefield_suggestions,
     champion_options,
     main_deck_suggestions,
     rune_suggestion,
+    rune_suggestion_reason,
     sideboard_suggestions,
 )
 from ...domain.validator import validate
@@ -33,9 +37,13 @@ from ..schemas import (
     SuggestionView,
     ValidationView,
 )
-from ..views import deck_dict, validation_view
+from ..views import deck_dict, deck_score_view, validation_view
 
 router = APIRouter(prefix="/api/decks", tags=["decks"])
+
+# Five cards remain the readable on-screen choice. The rest form a ranked reserve so
+# rejecting one can promote its successor immediately instead of leaving a hole.
+SUGGESTION_RESERVE = 20
 
 
 def _to_deck(payload: DeckPayload) -> Deck:
@@ -104,14 +112,18 @@ def list_decks(
     services: Services = Depends(get_services),
     identity: Identity = Depends(current_identity),
 ) -> list[DeckSummaryView]:
-    return [
-        DeckSummaryView(
-            deck_id=s.deck_id, name=s.name, format=s.format, legend_id=s.legend_id,
-            champion_id=s.champion_id, main_total=s.main_total,
-            created_at=s.created_at, updated_at=s.updated_at,
-        )
-        for s in services.decks.list(user_id=identity.user_id)
-    ]
+    rows: list[DeckSummaryView] = []
+    for summary in services.decks.list(user_id=identity.user_id):
+        deck = services.decks.get(summary.deck_id, user_id=identity.user_id)
+        score = services.deck_scoreboard.score(deck) if deck is not None else None
+        rows.append(DeckSummaryView(
+            deck_id=summary.deck_id, name=summary.name, format=summary.format,
+            legend_id=summary.legend_id, champion_id=summary.champion_id,
+            main_total=summary.main_total, created_at=summary.created_at,
+            updated_at=summary.updated_at,
+            score=deck_score_view(score) if score is not None else None,
+        ))
+    return rows
 
 
 @router.post("", response_model=DeckView, status_code=201)
@@ -195,6 +207,14 @@ def build_suggestions(
     deck = _to_deck(payload)
     rules = services.rules_for(payload.format or "constructed")
     catalog = services.catalog
+    runes = rune_suggestion(deck, catalog, rules)
+    field_match = nearest_field_match(
+        deck,
+        services.meta.decks if services.meta is not None else (),
+        catalog,
+        services.deck_scores,
+        rules=rules,
+    )
 
     champions: list[ChampionOptionView] = []
     main: list[SuggestionView] = []
@@ -225,14 +245,18 @@ def build_suggestions(
                 card_id=s.card_id, name=s.name, image_url=s.image_url,
                 copies=s.copies, reason=s.reason,
             )
-            for s in main_deck_suggestions(deck, profile, catalog, rules)
+            for s in main_deck_suggestions(
+                deck, profile, catalog, rules, limit=SUGGESTION_RESERVE
+            )
         ]
         battlefields = [
             SuggestionView(
                 card_id=s.card_id, name=s.name, image_url=s.image_url,
                 copies=s.copies, reason=s.reason,
             )
-            for s in battlefield_suggestions(deck, profile, catalog, rules)
+            for s in battlefield_suggestions(
+                deck, profile, catalog, rules, limit=SUGGESTION_RESERVE
+            )
         ]
 
     if deck.legend_id and services.meta is not None:
@@ -242,7 +266,12 @@ def build_suggestions(
                 copies=s.copies, reason=s.reason,
             )
             for s in sideboard_suggestions(
-                deck, services.meta.decks, services.deck_scores, catalog, rules
+                deck,
+                services.meta.decks,
+                services.deck_scores,
+                catalog,
+                rules,
+                limit=SUGGESTION_RESERVE,
             )
         ]
 
@@ -251,5 +280,8 @@ def build_suggestions(
         main=main,
         battlefields=battlefields,
         sideboard=sideboard,
-        runes=rune_suggestion(deck, catalog, rules),
+        runes=runes,
+        rune_reason=rune_suggestion_reason(deck, runes, catalog),
+        field_match=asdict(field_match),
+        deck_score=deck_score_view(services.deck_scoreboard.score(deck)),
     )

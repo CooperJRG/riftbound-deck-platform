@@ -24,7 +24,10 @@ from ..schemas import BundleView, FormatView, SourceHealthView
 #: 2: repair.cards on the wizard.
 #: 3: card trends, the archive span, and the server-resolved `range`.
 #: 4: card power for readable previews and the plain-text deck export route.
-API_CONTRACT = 5
+#: 5: the RiftDesk identity and playmat builder.
+#: 6: field comparison and explained rune/readiness signals in deck suggestions.
+#: 7: live meta- and legend-relative deck strength on suggestions and saved decks.
+API_CONTRACT = 7
 
 router = APIRouter(prefix="/api", tags=["system"])
 

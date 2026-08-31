@@ -18,7 +18,7 @@ import {
   toggleOwnedRule,
 } from "../../state/actions";
 import { store } from "../../state/store";
-import { fragment, h } from "../../ui/dom";
+import { h, replace } from "../../ui/dom";
 
 const NUDGE_DISMISSED = "riftdesk.collection-nudge-dismissed";
 const LEGACY_NUDGE_DISMISSED = "atlas.collection-nudge-dismissed";
@@ -354,48 +354,133 @@ function freshnessLine(): HTMLElement | null {
   );
 }
 
+/**
+ * The picker is a persistent, mutated-in-place layout, not a tree rebuilt every render.
+ *
+ * It used to be the latter -- `legendPicker()` returned a brand-new `<section>`, with a
+ * brand-new `<input>` inside it, on every store update. `setSmartLegendQuery` fires on
+ * every keystroke, which is a store update, which rebuilt the section, which discarded
+ * the input the player was still typing into. `h()`'s children are attached with
+ * `appendChild`, and appending an element that is already connected to the document
+ * detaches it from its current parent first -- so for one instant the field the player
+ * was focused in did not exist in the document at all, which blurs it exactly as
+ * deleting and recreating it would. One keystroke, one rebuild, one lost focus.
+ *
+ * The search input, the grid, the hint line and the sort control are the parts state
+ * changes on every keystroke or filter -- so they are built once, cached below, and
+ * only their *contents* are replaced on each call. Nothing that contains the input is
+ * ever detached and reattached once it exists.
+ */
+interface PopulatedPicker {
+  root: HTMLElement;
+  search: HTMLInputElement;
+  sort: HTMLElement;
+  hint: HTMLElement;
+  grid: HTMLElement;
+}
+
+interface PickerLayout {
+  root: HTMLElement;
+  freshness: HTMLElement;
+  resume: HTMLElement;
+  nudge: HTMLElement;
+  body: HTMLElement;
+  /** Which of loading / empty / populated the body slot currently holds. Rewriting
+   * `body`'s contents is only safe when this actually changes -- doing it every render
+   * would disconnect-and-reconnect the populated branch (and its input) exactly as
+   * often as rebuilding the whole section did. */
+  bodyMode: "loading" | "empty" | "populated" | null;
+  populated: PopulatedPicker | null;
+}
+
+let layout: PickerLayout | null = null;
+
+function ensureLayout(): PickerLayout {
+  if (layout === null) {
+    const freshness = h("div", { class: "freshness-slot" });
+    const resume = h("div", { class: "resume-slot" });
+    const nudge = h("div", { class: "nudge-slot" });
+    const body = h("div", { class: "picker-body-slot" });
+    const root = h(
+      "section",
+      { class: "smart-picker" },
+      h("p", { class: "eyebrow" }, "RiftDesk · deck finder"),
+      h("h2", {}, "Start with a legend."),
+      h(
+        "p",
+        { class: "smart-lede" },
+        "Choose a legend and RiftDesk will line up one complete candidate list with every card kept in context. " +
+          "No collection setup required.",
+      ),
+      freshness,
+      // Before the picker: finishing something already started beats starting again.
+      resume,
+      nudge,
+      body,
+    );
+    layout = { root, freshness, resume, nudge, body, bodyMode: null, populated: null };
+  }
+  return layout;
+}
+
+function ensurePopulated(): PopulatedPicker {
+  const search = h("input", {
+    class: "smart-search",
+    type: "search",
+    placeholder: "Filter legends",
+    on: {
+      input: (event) => setSmartLegendQuery((event.target as HTMLInputElement).value),
+    },
+  });
+  const sort = h("div", { class: "picker-sort-slot" });
+  const hint = h("p", { class: "picker-hint" });
+  const grid = h("div", { class: "legend-grid" });
+  const root = h("div", { class: "picker-populated" }, search, sort, hint, grid);
+  return { root, search, sort, hint, grid };
+}
+
 export function legendPicker(): HTMLElement {
   const { smartLegends, smartBusy, smartLegendQuery } = store.state;
+  const state = ensureLayout();
+
+  replace(state.freshness, freshnessLine());
+  replace(state.resume, resumeStrip());
+  replace(state.nudge, collectionNudge());
+
+  if (smartLegends.length === 0) {
+    const mode = smartBusy ? "loading" : "empty";
+    if (state.bodyMode !== mode) {
+      replace(state.body, smartBusy ? h("p", { class: "empty" }, "Loading...") : emptyPicker());
+      state.bodyMode = mode;
+    }
+    return state.root;
+  }
+
+  if (state.bodyMode !== "populated") {
+    state.populated = ensurePopulated();
+    replace(state.body, state.populated.root);
+    state.bodyMode = "populated";
+  }
+  const populated = state.populated!;
+
+  // The one field synced from state rather than left to the DOM: a query typed here
+  // has to survive this render, but a query arriving from elsewhere (a "clear search"
+  // control, a restored session) still has to reach the field the player is looking at.
+  if (document.activeElement !== populated.search) populated.search.value = smartLegendQuery;
+
   const needle = smartLegendQuery.trim().toLowerCase();
   const shown = needle
     ? smartLegends.filter((legend) => legend.name.toLowerCase().includes(needle))
     : smartLegends.slice(0, 18);
 
-  return h(
-    "section",
-    { class: "smart-picker" },
-    h("p", { class: "eyebrow" }, "RiftDesk · deck finder"),
-    h("h2", {}, "Start with a legend."),
-    h(
-      "p",
-      { class: "smart-lede" },
-      "Choose a legend and RiftDesk will line up one complete candidate list with every card kept in context. " +
-        "No collection setup required.",
-    ),
-    freshnessLine(),
-    // Before the picker: finishing something already started beats starting again.
-    resumeStrip(),
-    collectionNudge(),
-    smartLegends.length === 0
-      ? smartBusy
-        ? h("p", { class: "empty" }, "Loading...")
-        : emptyPicker()
-      : fragment(
-          h("input", {
-            class: "smart-search",
-            type: "search",
-            placeholder: "Filter legends",
-            value: smartLegendQuery,
-            on: {
-              input: (event) =>
-                setSmartLegendQuery((event.target as HTMLInputElement).value),
-            },
-          }),
-          sortControl(),
-          !needle && smartLegends.length > shown.length
-            ? h("p", { class: "picker-hint" }, `Showing the leading ${shown.length}. Search to explore all ${smartLegends.length} legends.`)
-            : null,
-          h("div", { class: "legend-grid" }, ...shown.map((l) => legendCard(l, smartBusy))),
-        ),
+  replace(populated.sort, sortControl());
+  replace(
+    populated.hint,
+    !needle && smartLegends.length > shown.length
+      ? h("span", {}, `Showing the leading ${shown.length}. Search to explore all ${smartLegends.length} legends.`)
+      : null,
   );
+  replace(populated.grid, ...shown.map((l) => legendCard(l, smartBusy)));
+
+  return state.root;
 }

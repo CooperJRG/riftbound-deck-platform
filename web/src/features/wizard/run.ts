@@ -323,7 +323,7 @@ function runView(session: SmartSession): HTMLElement {
   // This used to render both repairs with a button under each and leave the player to
   // arbitrate between two lists they had never seen played, in the middle of telling us
   // what they own. The app is the one holding the numbers, so it decides -- on the
-  // champion score, because a repair competes with other builds of the same deck rather
+  // legend score, because a repair competes with other builds of the same legend rather
   // than with the format.
   //
   // It still says which kind it picked. Choosing for someone is not the same as not
@@ -350,5 +350,11 @@ function runView(session: SmartSession): HTMLElement {
 
 export function renderSmartDecks(root: HTMLElement): void {
   const { smartSession } = store.state;
-  replace(root, smartSession ? runView(smartSession) : legendPicker());
+  const view = smartSession ? runView(smartSession) : legendPicker();
+  // legendPicker() returns the same cached element on every call once it exists, so
+  // this only actually swaps the DOM when the view genuinely changes (entering or
+  // leaving a session). Calling replace() unconditionally would remove and re-add
+  // that cached element on every render regardless -- disconnecting the search input
+  // inside it, and its focus, exactly as often as never caching it at all would.
+  if (root.firstElementChild !== view) replace(root, view);
 }

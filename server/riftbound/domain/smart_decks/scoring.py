@@ -25,9 +25,9 @@ reported a compromise as an improvement.
 
 **A thin champion cannot be cleared by accident.** The same first version divided by the
 best play-rate mass among that champion's decks, which for a champion with one published
-list was a trivially low bar — a repair hit 100 immediately. Measuring against a real
-forty-card list instead means a champion with one deck is scored against that deck, and
-only an exact copy reaches 100.
+list was a trivially low bar — a repair hit 100 immediately. The legend-relative scale
+now includes every champion paired with that legend, and coverage is measured against
+a real complete list, so an obscure pairing does not manufacture its own easy ceiling.
 
 The two scores differ only in which references they are allowed to look at.
 
@@ -36,16 +36,14 @@ is only ever compared against lists for its own legend — domain identity means
 have nothing in common with it — but the denominator is the format's best, so a fringe
 legend's best deck reads honestly low.
 
-**Champion score** ranges over the published lists for that deck's champion, and the
-denominator is the best of those, so the strongest list for a champion is 100 *by
-construction*. It answers the question a player mid-build is actually asking: how close
-is this to the best version of the deck I am building? It is the one the wizard chooses
-repairs on, because a repair competes with other builds of the same deck and never with
-the format at large.
+**Legend score** ranges over every published list for that deck's legend, and the
+denominator is the best of those, so the strongest evidenced list for a legend is 100
+*by construction*. It answers how strong this build is among all known ways to build
+that legend, without letting a thin champion create an artificially easy 100.
 
-The two disagree in the way that makes both worth showing. A good build of a fringe
-champion is 100 on its champion scale and may be 40 on the meta scale; collapsing them
-would hide whichever fact the player needed.
+The two disagree in the way that makes both worth showing. The best evidenced build of
+a fringe legend is 100 on its legend scale and may be 40 on the meta scale; collapsing
+them would hide whichever fact the player needed.
 """
 
 from __future__ import annotations
@@ -56,9 +54,8 @@ from dataclasses import dataclass, field
 from ..deck import Deck
 from ..meta import MetaDeck
 
-#: Shown when there is nothing to measure against — a champion, or a legend, with no
-#: published lists at all. Reported as "not scored" rather than as a zero: a champion
-#: nobody has published is not a champion that scores badly.
+#: Shown when there is nothing to measure against — a legend with no published lists at
+#: all. Reported as "not scored" rather than as a zero: unknown is not weak.
 UNSCORED = -1.0
 
 
@@ -76,21 +73,27 @@ class DeckScore:
     """One deck's standing, on both scales."""
     #: 0-100 against the strongest deck in the format.
     meta: float
-    #: 0-100 against the strongest published list for this champion, which is 100 by
-    #: construction.
-    champion: float
-    #: Share of the closest published list for this champion that this deck contains.
+    #: 0-100 against the strongest published list for this legend.
+    legend: float
+    #: Share of the closest published list for this legend that this deck contains.
     #: Carried so a caller can say *why* a repair scored lower without re-deriving it.
     coverage: float
 
     @property
     def scored(self) -> bool:
-        return self.champion > UNSCORED
+        return self.legend > UNSCORED
 
     def describe(self) -> str:
         if not self.scored:
-            return "Not scored — no published lists for this champion yet"
-        return f"{self.champion:.0f} of 100 for this champion · {self.meta:.0f} in the format"
+            return "Not scored — no published lists for this legend yet"
+        return f"{self.meta:.0f} of 100 in the meta · {self.legend:.0f} for this legend"
+
+    @property
+    def disclaimer(self) -> str:
+        return (
+            "Directional estimate, not a prediction: published lists and results are "
+            "incomplete, and player skill and matchups are not measured."
+        )
 
 
 def coverage_of(deck: Deck, reference: Reference) -> float:
@@ -101,7 +104,10 @@ def coverage_of(deck: Deck, reference: Reference) -> float:
     """
     if reference.copies <= 0:
         return 0.0
-    held = sum(min(deck.main.get(card_id, 0), n) for card_id, n in reference.main.items())
+    held_counts = dict(deck.main)
+    for card_id in deck.battlefields:
+        held_counts[card_id] = held_counts.get(card_id, 0) + 1
+    held = sum(min(held_counts.get(card_id, 0), n) for card_id, n in reference.main.items())
     return held / reference.copies
 
 
@@ -114,21 +120,18 @@ class Scoreboard:
     beat the list it was repaired from.
     """
     by_legend: Mapping[str, Sequence[Reference]] = field(default_factory=dict)
-    by_champion: Mapping[str, Sequence[Reference]] = field(default_factory=dict)
     best_format: float = 0.0
-    best_champion: Mapping[str, float] = field(default_factory=dict)
+    best_legend: Mapping[str, float] = field(default_factory=dict)
 
     def score(self, deck: Deck) -> DeckScore:
-        champion_refs = self.by_champion.get(deck.champion_id, ())
         legend_refs = self.by_legend.get(deck.legend_id, ())
-        champion_best = self.best_champion.get(deck.champion_id, 0.0)
+        legend_best = self.best_legend.get(deck.legend_id, 0.0)
 
-        champion_affinity, champion_coverage = _affinity(deck, champion_refs)
-        meta_affinity, _ = _affinity(deck, legend_refs)
+        affinity, coverage = _affinity(deck, legend_refs)
         return DeckScore(
-            meta=_ratio(meta_affinity, self.best_format),
-            champion=_ratio(champion_affinity, champion_best),
-            coverage=champion_coverage,
+            meta=_ratio(affinity, self.best_format),
+            legend=_ratio(affinity, legend_best),
+            coverage=coverage,
         )
 
 
@@ -161,44 +164,44 @@ def build_scoreboard(
     second opinion invented for this module.
     """
     by_legend: dict[str, list[Reference]] = {}
-    by_champion: dict[str, list[Reference]] = {}
     best_format = 0.0
-    best_champion: dict[str, float] = {}
+    best_legend: dict[str, float] = {}
 
     for deck in decks:
         if not deck.deck.main:
             continue
         score = scores.get(deck.deck_id, 0.0)
+        measured = dict(deck.deck.main)
+        for card_id in deck.deck.battlefields:
+            measured[card_id] = measured.get(card_id, 0) + 1
         reference = Reference(
             deck_id=deck.deck_id,
-            main=dict(deck.deck.main),
-            copies=sum(deck.deck.main.values()),
+            main=measured,
+            copies=sum(measured.values()),
             score=score,
         )
         by_legend.setdefault(deck.deck.legend_id, []).append(reference)
-        by_champion.setdefault(deck.deck.champion_id, []).append(reference)
         best_format = max(best_format, score)
-        champion = deck.deck.champion_id
-        if score > best_champion.get(champion, 0.0):
-            best_champion[champion] = score
+        legend = deck.deck.legend_id
+        if score > best_legend.get(legend, 0.0):
+            best_legend[legend] = score
 
     return Scoreboard(
         by_legend=by_legend,
-        by_champion=by_champion,
         best_format=best_format,
-        best_champion=best_champion,
+        best_legend=best_legend,
     )
 
 
 def better(left: DeckScore | None, right: DeckScore | None) -> bool:
     """Is ``left`` the one to hand over?
 
-    Compared on the **champion** scale, which is the whole reason that scale exists. A
-    repair competes with other ways of building the same deck, not with the format --
+    Compared on the **legend** scale, which is the whole reason that scale exists. A
+    repair competes with other ways of building the same legend, not with the format --
     measuring it against the format's best would let a swap that is clearly right for a
     fringe champion lose on a denominator neither deck can influence.
 
-    Falls back to coverage when neither has a champion baseline, so two unscored decks
+    Falls back to coverage when neither has a legend baseline, so two unscored decks
     still order deterministically rather than by argument position.
     """
     if right is None:
@@ -207,8 +210,8 @@ def better(left: DeckScore | None, right: DeckScore | None) -> bool:
         return False
     if left.scored != right.scored:
         return left.scored
-    if left.champion != right.champion:
-        return left.champion > right.champion
+    if left.legend != right.legend:
+        return left.legend > right.legend
     return left.coverage > right.coverage
 
 

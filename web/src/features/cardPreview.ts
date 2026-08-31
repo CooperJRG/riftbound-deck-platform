@@ -16,6 +16,7 @@ import { api } from "../api/client";
 import { adjustCard } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { renderCardEffect, renderPowerPips } from "./cardSymbols";
 
 /** One dialog, reused. Building a new one per card leaks a node per click. */
 let dialog: HTMLDialogElement | null = null;
@@ -46,13 +47,11 @@ function costLine(card: Card): HTMLElement | null {
     parts.push(h("span", { class: "peek-stat" }, h("b", {}, String(card.cost)), " energy"));
   }
   if (card.power !== null && card.power > 0) {
+    // Not a numeral: the printed card never shows one for power, only this many
+    // colored pips, one per point. See renderPowerPips for what that was checked
+    // against.
     parts.push(
-      h(
-        "span",
-        { class: "peek-stat" },
-        h("b", {}, String(card.power)),
-        ` ${card.domains.join("/") || ""} power`.trimEnd(),
-      ),
+      h("span", { class: "peek-stat" }, renderPowerPips(card.power, card.domains), " power"),
     );
   }
   if (card.might !== null) {
@@ -109,7 +108,7 @@ function body(cardId: string, zone: Zone | null): HTMLElement[] {
       costLine(card),
       // The one thing the mat cannot show at any size.
       card.effect
-        ? h("div", { class: "peek-text" }, ...card.effect.split("\n").map((line) => h("p", {}, line)))
+        ? h("div", { class: "peek-text" }, ...renderCardEffect(card.effect))
         : h("p", { class: "peek-text muted" }, "No rules text."),
       card.tags.length
         ? h("div", { class: "peek-tags" }, ...card.tags.map((tag) => h("span", { class: "pill" }, tag)))

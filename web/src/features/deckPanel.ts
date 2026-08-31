@@ -25,6 +25,13 @@ import {
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 import { openCardPreview } from "./cardPreview";
+import { deckAnalysisRail } from "./deckAnalysis";
+import { analyzeDeck } from "./deckAnalysisModel";
+import {
+  dismissSuggestion,
+  type DismissibleSuggestionZone,
+  visibleSuggestions,
+} from "./suggestionPreferences";
 
 /**
  * The playmat is the default overview; the forty-card wall is an intentional detail
@@ -35,9 +42,15 @@ let renderedRoot: HTMLElement | null = null;
 let deckExpanded = false;
 let mainSuggestionsVisible = true;
 let sideboardSuggestionsVisible = true;
+const VISIBLE_SUGGESTIONS = 5;
 
 function repaintDeck(): void {
   if (renderedRoot) renderDeckPanel(renderedRoot);
+}
+
+function dismissSuggestedCard(cardId: string, zone: DismissibleSuggestionZone): void {
+  dismissSuggestion(cardId, store.state.deck.legendId, zone);
+  repaintDeck();
 }
 
 function setDeckExpanded(expanded: boolean, focus = ""): void {
@@ -198,6 +211,7 @@ function runeZone(
   total: number,
   target: number,
   canSuggest: boolean,
+  reason = "Fill the rune base from this deck's power costs",
 ): HTMLElement {
   const cards: HTMLElement[] = [];
   const ids = Object.keys(counts).sort(byCurve);
@@ -222,7 +236,7 @@ function runeZone(
         {
           class: "quiet-button rune-auto",
           type: "button",
-          title: "Fill the rune base from this deck's power costs",
+          title: reason,
           on: { click: applySuggestedRunes },
         },
         total ? "Redo runes" : "Fill runes",
@@ -305,6 +319,17 @@ function suggestedBattlefield(row: CardSuggestion): HTMLElement {
         on: { click: () => adjustCard(row.cardId, "battlefields", 1) },
       },
       "+ Add",
+    ),
+    h(
+      "button",
+      {
+        class: "battlefield-dismiss",
+        type: "button",
+        title: `Do not suggest ${row.name} again for this legend`,
+        aria: { label: `Dismiss ${row.name} battlefield suggestion` },
+        on: { click: () => dismissSuggestedCard(row.cardId, "battlefields") },
+      },
+      "×",
     ),
     h("span", { class: "battlefield-pick-name" }, row.name),
   );
@@ -444,7 +469,7 @@ function suggestionStrip(
   title: string,
   note: string,
   rows: CardSuggestion[],
-  zone: Zone,
+  zone: "main" | "sideboard",
   visible: boolean,
   onToggle: () => void,
 ): HTMLElement | null {
@@ -502,6 +527,11 @@ function suggestionStrip(
                   class: "suggest-read", type: "button",
                   on: { click: () => openCardPreview(row.cardId, zone) },
                 }, "Read"),
+                h("button", {
+                  class: "suggest-dismiss", type: "button",
+                  title: `Do not suggest ${row.name} again for this legend`,
+                  on: { click: () => dismissSuggestedCard(row.cardId, zone) },
+                }, "Dismiss"),
                 h("button", {
                   class: "suggest-add", type: "button",
                   on: { click: () => adjustCard(row.cardId, zone, row.copies) },
@@ -612,6 +642,17 @@ function starterSuggestions(rows: CardSuggestion[]): HTMLElement | null {
               on: { click: () => adjustCard(row.cardId, "main", row.copies) },
             },
             `+${row.copies}`,
+          ),
+          h(
+            "button",
+            {
+              class: "starter-suggest-dismiss",
+              type: "button",
+              title: `Do not suggest ${row.name} again for this legend`,
+              aria: { label: `Dismiss ${row.name} suggestion` },
+              on: { click: () => dismissSuggestedCard(row.cardId, "main") },
+            },
+            "×",
           ),
         ),
       ),
@@ -811,24 +852,76 @@ function coveragePanel(validation: Validation): HTMLElement | null {
 }
 
 /**
- * The deck-name input is kept across renders.
+ * The whole header row is kept across renders, not just the name input inside it.
+ *
+ * The input alone used to be cached, on the reasoning below -- but it was still being
+ * handed to a brand-new `h("div", ..., nameInput, ...)` wrapper on every render. `h()`
+ * appends its children, and appending an already-connected node removes it from its
+ * current parent first: for one instant the input is detached from the document
+ * entirely, which blurs it the same as deleting and recreating it would. Typing a
+ * second character meant refocusing the field by hand, every time. The fix is to stop
+ * building a new wrapper at all -- keep the row itself, and only touch the two things
+ * in it that actually change.
  *
  * Typing a name updates the deck, which re-renders this panel; re-creating the input
  * each time would blur it after the first character. Its value is written back only
  * when the field is not focused, so a deck loaded from the library still updates it.
  */
-let nameInput: HTMLInputElement | null = null;
+interface HeaderRow {
+  root: HTMLElement;
+  name: HTMLInputElement;
+  findCards: HTMLButtonElement;
+  badge: HTMLElement;
+}
+let headerRow: HeaderRow | null = null;
 
-function deckNameInput(name: string): HTMLInputElement {
-  if (nameInput === null) {
-    nameInput = h("input", {
+function deckHeader(name: string): HeaderRow {
+  if (headerRow === null) {
+    const nameField = h("input", {
       class: "deck-name",
       aria: { label: "Deck name" },
       on: { input: (e) => setDeckName((e.target as HTMLInputElement).value) },
     });
+    // The way back to the drawer once it is closed. It lives on the deck because
+    // that is the only thing on screen at that point. Hidden rather than only ever
+    // added when needed, for the same reason the row itself is no longer rebuilt.
+    const findCards = h(
+      "button",
+      { class: "quiet-button", type: "button", on: { click: toggleDrawer } },
+      "Find cards",
+    );
+    const badge = h("span", { class: "legal-badge" });
+    const root = h("div", { class: "deck-header" }, nameField, findCards, badge);
+    headerRow = { root, name: nameField, findCards, badge };
   }
-  if (document.activeElement !== nameInput) nameInput.value = name;
-  return nameInput;
+  if (document.activeElement !== headerRow.name) headerRow.name.value = name;
+  return headerRow;
+}
+
+/**
+ * `header.root` is mounted into `root` exactly once here, never again through
+ * `replace()`.
+ *
+ * Caching the header (above) stopped the input itself from being torn down and
+ * recreated -- but `replace(root, header.root, ...restOfThePanel)` was still called on
+ * every render, and `replace()` always does `root.replaceChildren()` before adding its
+ * arguments back. That removes every current child of `root`, including `header.root`,
+ * before re-adding the very same node a moment later: the same disconnect-then-
+ * reconnect that blurs a focused input as tearing it down would, just one level higher
+ * in the tree. `deckHeader()` alone was necessary but not sufficient; the header's
+ * *parent* has to stop being rebuilt too. Everything that legitimately changes every
+ * render -- the wall, the playmat, all of it -- goes through the returned slot instead,
+ * so `header.root`'s position in `root` is set once and never disturbed again.
+ */
+let deckMount: { root: HTMLElement; slot: HTMLElement } | null = null;
+
+function ensureDeckMount(root: HTMLElement, header: HeaderRow): HTMLElement {
+  if (deckMount === null || deckMount.root !== root) {
+    const slot = h("div", { class: "deck-body-slot" });
+    root.replaceChildren(header.root, slot);
+    deckMount = { root, slot };
+  }
+  return deckMount.slot;
 }
 
 export function renderDeckPanel(root: HTMLElement): void {
@@ -838,39 +931,54 @@ export function renderDeckPanel(root: HTMLElement): void {
     deck.legendId || deck.championId || Object.keys(deck.main).length ||
       Object.keys(deck.runes).length || deck.battlefields.length || Object.keys(deck.sideboard).length,
   );
-  const completedSteps = validation
-    ? Number(Boolean(deck.legendId)) + Number(Boolean(deck.championId)) +
-      Number(validation.mainTotal === 40) + Number(validation.runeTotal === 12) +
-      Number(validation.battlefieldCount === 3)
-    : 0;
 
-  const header = h(
-    "div",
-    { class: "deck-header" },
-    deckNameInput(deck.name),
-    // The way back to the drawer once it is closed. It lives on the deck because that
-    // is the only thing on screen at that point.
-    store.state.drawerOpen
-      ? null
-      : h(
-          "button",
-          {
-            class: "quiet-button",
-            type: "button",
-            on: { click: toggleDrawer },
-          },
-          "Find cards",
-        ),
-    validation
-      ? h("span", { class: `legal-badge${validation.legal ? " is-legal" : ""}` },
-          validation.legal ? "Ready to play" : builderReview ? "Needs attention" : `${completedSteps} / 5 ready`)
-      : null,
+  // Computed here, ahead of the early-return legend wall below, because the header's
+  // readiness badge needs the deck's real targets whether or not a legend is chosen
+  // yet -- and because analyzeDeck needs the same numbers rather than assuming the
+  // constructed format's 40/12/3, which skirmish's own rules already say are wrong.
+  const format = store.state.formats.find((row) => row.format === deck.format);
+  const constraint = (name: string, fallback: number): number => {
+    const parsed = Number(format?.constraints[name]);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+  const mainTarget = constraint("main_deck_size_exact", 40);
+  const runeTarget = constraint("rune_count_exact", 12);
+  const battlefieldTarget = constraint("battlefield_count_exact", 3);
+  const rawSideboardTarget = Number(format?.constraints.sideboard_max);
+  const sideboardTarget = Number.isFinite(rawSideboardTarget) && rawSideboardTarget > 0
+    ? rawSideboardTarget
+    : null;
+  // The API sends a ranked reserve. Keep five readable choices on screen and promote
+  // the next non-dismissed card into the window as soon as one is rejected.
+  const offeredMain = visibleSuggestions(
+    suggestions?.main ?? [], deck.legendId, "main",
+  ).slice(0, VISIBLE_SUGGESTIONS);
+  const offeredBattlefields = visibleSuggestions(
+    suggestions?.battlefields ?? [], deck.legendId, "battlefields",
   );
+  const offeredSideboard = visibleSuggestions(
+    suggestions?.sideboard ?? [], deck.legendId, "sideboard",
+  ).slice(0, VISIBLE_SUGGESTIONS);
+
+  const analysis = analyzeDeck(
+    deck, store.state.deckCards, validation, suggestions,
+    { mainTarget, runeTarget, battlefieldTarget },
+  );
+
+  const header = deckHeader(deck.name);
+  header.findCards.hidden = store.state.drawerOpen;
+  header.badge.hidden = !validation;
+  if (validation) {
+    header.badge.className = `legal-badge${validation.legal ? " is-legal" : ""}`;
+    header.badge.textContent =
+      builderReview && !validation.legal ? "Needs attention" : analysis.status;
+  }
+
+  const slot = ensureDeckMount(root, header);
 
   if (!hasStarted) {
     replace(
-      root,
-      header,
+      slot,
       // A wall of legends rather than an instruction to go and find one. The legend is
       // the first decision and the one every other decision hangs off, so it is worth
       // the whole screen -- and it is a decision made by looking, not by reading.
@@ -951,19 +1059,6 @@ export function renderDeckPanel(root: HTMLElement): void {
         h("ul", { class: "issue-list" }, ...notices.map(issueItem)))
     : null;
 
-  const format = store.state.formats.find((row) => row.format === deck.format);
-  const constraint = (name: string, fallback: number): number => {
-    const parsed = Number(format?.constraints[name]);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-  };
-  const mainTarget = constraint("main_deck_size_exact", 40);
-  const runeTarget = constraint("rune_count_exact", 12);
-  const battlefieldTarget = constraint("battlefield_count_exact", 3);
-  const rawSideboardTarget = Number(format?.constraints.sideboard_max);
-  const sideboardTarget = Number.isFinite(rawSideboardTarget) && rawSideboardTarget > 0
-    ? rawSideboardTarget
-    : null;
-
   // The page is a play surface before it is a card wall. Every zone has the same
   // spatial relationship it has during a game, and the forty-card list only unfolds
   // when the player asks to edit it in detail.
@@ -974,28 +1069,33 @@ export function renderDeckPanel(root: HTMLElement): void {
     battlefieldRow(
       deck.battlefields,
       battlefieldTarget,
-      deck.battlefields.length < battlefieldTarget ? suggestions?.battlefields ?? [] : [],
+      deck.battlefields.length < battlefieldTarget ? offeredBattlefields : [],
     ),
     identityRow(deck.legendId, deck.championId),
-    mainDeckSpot(deck.main, validation?.mainTotal ?? 0, suggestions?.main ?? []),
+    mainDeckSpot(deck.main, validation?.mainTotal ?? 0, offeredMain),
     runeZone(
       deck.runes,
       validation?.runeTotal ?? 0,
       runeTarget,
       Boolean(suggestions?.runes),
+      suggestions?.runeReason,
     ),
     sideboardSpot(
       deck.sideboard,
       validation?.sideboardTotal ?? 0,
       sideboardTarget,
-      Boolean(suggestions?.sideboard?.length),
+      Boolean(offeredSideboard.length),
     ),
   );
 
   replace(
-    root,
-    header,
-    playmat,
+    slot,
+    h(
+      "div",
+      { class: "builder-stage" },
+      playmat,
+      deckAnalysisRail(deck, store.state.deckCards, validation, suggestions),
+    ),
     chooseChampion,
     deckExpanded
       ? deckWorkbench(
@@ -1003,8 +1103,8 @@ export function renderDeckPanel(root: HTMLElement): void {
           sideboardTarget,
           deck.championId,
           {
-            main: suggestions?.main ?? [],
-            sideboard: suggestions?.sideboard ?? [],
+            main: offeredMain,
+            sideboard: offeredSideboard,
           },
         )
       : null,

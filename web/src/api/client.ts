@@ -41,7 +41,7 @@ import type {
  * Must match `API_CONTRACT` in `server/riftbound/api/routes/system.py`. Raise both
  * together whenever a response gains a field the UI reads.
  */
-export const EXPECTED_API_CONTRACT = 5;
+export const EXPECTED_API_CONTRACT = 7;
 
 export class ApiError extends Error {
   constructor(

@@ -299,7 +299,7 @@ def meta_client(client, catalog, tmp_path):
     # Drop the cached (empty) snapshot and everything derived from it, so the app picks
     # the promoted one up. Anything cached off `meta` has to be listed here or it keeps
     # answering from the snapshot that was absent when it was first asked.
-    for cached in ("meta", "deck_scores", "legend_index"):
+    for cached in ("meta", "deck_scores", "legend_index", "deck_scoreboard"):
         services.__dict__.pop(cached, None)
     return client
 
@@ -349,7 +349,7 @@ def meta_records_client(client, catalog, tmp_path):
     )
     written = write_snapshot(meta_dir, decks, tournaments, standings)
     promote_meta(meta_dir, written.manifest.snapshot_id)
-    for cached in ("meta", "deck_scores", "legend_index"):
+    for cached in ("meta", "deck_scores", "legend_index", "deck_scoreboard"):
         services.__dict__.pop(cached, None)
     return client
 
@@ -423,5 +423,4 @@ def test_a_failed_refresh_is_reported_not_raised(client, monkeypatch):
     assert body["lastRun"]["ok"] is False
     assert "upstream unreachable" in body["lastRun"]["message"]
     assert body["consecutiveFailures"] == 1
-
 

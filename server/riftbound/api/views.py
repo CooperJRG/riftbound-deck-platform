@@ -14,6 +14,7 @@ from .schemas import (
     CardView,
     CostView,
     CoverageView,
+    DeckScoreView,
     ExcludedCardView,
     ExclusionRuleView,
     IssueView,
@@ -28,6 +29,18 @@ from .schemas import (
     TournamentView,
     ValidationView,
 )
+
+
+def deck_score_view(score) -> DeckScoreView:
+    """One canonical wire representation for live, saved, and wizard decks."""
+    return DeckScoreView(
+        meta=round(score.meta, 1),
+        legend=round(score.legend, 1),
+        coverage=round(score.coverage, 3),
+        scored=score.scored,
+        summary=score.describe(),
+        disclaimer=score.disclaimer,
+    )
 
 
 def card_view(card: Card) -> CardView:

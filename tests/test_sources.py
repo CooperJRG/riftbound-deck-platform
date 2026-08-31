@@ -166,6 +166,23 @@ def test_list_markup_becomes_bullets():
     assert "<" not in out
 
 
+def test_html_entities_are_decoded():
+    """Upstream escapes its own HTML source without ever unescaping it on the way
+    out -- 79 cards in the live archive carry a literal `&gt;` or `&quot;`."""
+    assert clean_rules_text("[Action][&gt;] :rb_exhaust:: Ready it.") == "[Action][>] :rb_exhaust:: Ready it."
+    assert clean_rules_text('Say &quot;go&quot;.') == 'Say "go".'
+
+
+def test_a_decoded_entity_is_not_then_stripped_as_a_tag():
+    """Decoding has to run after tag-stripping, not before: decode `&lt;3&gt;` first
+    and it reads as the literal tag `<3>`, which the tag-strip would then delete --
+    swallowing text upstream had escaped on purpose to keep it out of exactly that
+    fate. Needs both `&lt;` and `&gt;` present: without a closing angle bracket there
+    is nothing shaped like a tag for the wrong order to catch, and the test would
+    pass either way."""
+    assert clean_rules_text("I &lt;3&gt; this card.") == "I <3> this card."
+
+
 # -- the dotgg adapter --------------------------------------------------------
 
 

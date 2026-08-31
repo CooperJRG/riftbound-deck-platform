@@ -158,8 +158,8 @@ class Proposal:
     conservative: Repair | None = None
     free: Repair | None = None
     #: Which of the two to hand over: "conservative", "free", or "" when neither was
-    #: needed. Decided on the champion score, because a repair competes with other ways
-    #: of building the same deck and not with the format at large.
+    #: needed. Decided on the legend score, because a repair competes with other ways
+    #: of building the same legend and not with the format at large.
     #:
     #: The wizard used to render both and leave the choice open. That asked the player
     #: to arbitrate between two lists they had not seen played, in the middle of telling
@@ -168,7 +168,7 @@ class Proposal:
     #: not being told which deck you are holding.
     chosen: str = ""
     #: Score of the deck on screen, and of each repair. Two scales: against the format,
-    #: and against the best published list for this champion.
+    #: and against the best published list for this legend.
     deck_score: DeckScore | None = None
     conservative_score: DeckScore | None = None
     free_score: DeckScore | None = None
@@ -195,8 +195,8 @@ class Engine:
     scores: Mapping[str, float]
     #: Format-wide baselines for the two deck scores. Supplied rather than derived from
     #: ``decks``, which holds only this legend's lists -- a legend-scoped board would
-    #: make the meta score and the champion score the same number for any legend with
-    #: one champion. Defaults to an empty board so a caller that does not score still
+    #: make the meta score and the legend score the same number. Defaults to an empty
+    #: board so a caller that does not score still
     #: works; every deck then reports "not scored" rather than a fabricated zero.
     scoreboard: Scoreboard = field(default_factory=lambda: build_scoreboard([], {}))
 

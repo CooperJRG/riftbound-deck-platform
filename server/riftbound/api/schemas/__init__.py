@@ -46,6 +46,7 @@ from .decks import (
     DeckPayload,
     DeckSummaryView,
     DeckView,
+    FieldMatchView,
     FormatView,
     IssueView,
     SuggestionView,
@@ -76,11 +77,11 @@ from .meta import (
     TrendPointView,
     TrendSeriesView,
 )
+from .scoring import DeckScoreView
 from .smart_decks import (
     AcceptRequest,
     AnswerRequest,
     BanNoticeView,
-    DeckScoreView,
     DeclinedCardView,
     DeclineRequest,
     FloorView,
@@ -133,6 +134,7 @@ __all__ = [
     "ExcludedCardView",
     "ExclusionRuleInput",
     "ExclusionRuleView",
+    "FieldMatchView",
     "FloorView",
     "ForgetResult",
     "FormatView",
