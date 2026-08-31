@@ -118,8 +118,9 @@ decks and offer them as share links; or implement real accounts (`hosted` mode) 
 migrate. Decide before the DNS change, because after it the old site is unreachable to
 the people who would notice.
 
-**Branding.** v3 calls itself *Bound Atlas*; the domain says *Riftdesk*. Nothing breaks,
-but the page title and the header will not match the address bar until you pick one.
+**Branding.** The product, page metadata, and domain all use *RiftDesk*. The old
+*Bound Atlas* browser preferences are read once as a compatibility fallback, so an
+existing visitor keeps their light/dark choice through the rebrand.
 
 ---
 

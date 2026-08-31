@@ -277,7 +277,7 @@ export function cardView(detail: CardDetail): HTMLElement {
       h(
         "div",
         { class: "dossier-copy" },
-        h("p", { class: "eyebrow" }, "Card field guide"),
+        h("p", { class: "eyebrow" }, "RiftDesk · card intelligence"),
         h("h1", {}, card.name),
         h(
           "p",

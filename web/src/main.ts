@@ -27,7 +27,7 @@ import {
 } from "./ui/router";
 import { currentTheme, toggleTheme } from "./ui/theme";
 import "./styles.css";
-import "./bound-atlas.css";
+import "./riftdesk.css";
 
 const availabilityRoot = query("#availability");
 const browserRoot = query("#browser");

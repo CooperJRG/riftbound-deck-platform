@@ -337,14 +337,14 @@ function buildControls(root: HTMLElement): Controls {
     "header",
     {
       class: "builder-heading drawer-titlebar",
-      title: "Drag this bar to move the card workshop",
+      title: "Drag this bar to move the card tray",
     },
     h("span", { class: "drawer-grip", aria: { hidden: "true" } }, "⠿"),
     h(
       "div",
       { class: "drawer-title" },
-      h("p", { class: "eyebrow" }, "Deck workshop"),
-      h("h1", {}, "Card workshop"),
+      h("p", { class: "eyebrow" }, "RiftDesk tools"),
+      h("h1", {}, "Card tray"),
     ),
     h("p", { class: "drawer-hint" }, "Drag anywhere on this bar. Search, read, then add."),
     h(
@@ -355,7 +355,7 @@ function buildControls(root: HTMLElement): Controls {
         {
           class: "quiet-button drawer-reset",
           type: "button",
-          title: "Return the workshop to the top right",
+          title: "Return the card tray to the top right",
           on: { click: () => resetWorkshopPosition(root) },
         },
         "Reset",

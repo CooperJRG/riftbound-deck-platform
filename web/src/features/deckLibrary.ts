@@ -43,7 +43,7 @@ export function renderDeckLibrary(root: HTMLElement): void {
     h(
       "header",
       { class: "page-hero library-hero" },
-      h("div", {}, h("p", { class: "eyebrow" }, "Your workshop"), h("h1", {}, "My decks"), h("p", { class: "page-lede" }, "Return to a list, make a copy your own, or start with a clean page.")),
+      h("div", {}, h("p", { class: "eyebrow" }, "Your RiftDesk"), h("h1", {}, "My decks"), h("p", { class: "page-lede" }, "Return to a list, make a copy your own, or clear the desk for something new.")),
       h("button", { class: "primary", type: "button", on: { click: () => { newDeck(); setView("build"); } } }, "New deck"),
     ),
     savedDecks.length === 0

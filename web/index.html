@@ -3,11 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f1e8" />
-    <title>Bound Atlas · Riftbound field guide</title>
+    <meta name="theme-color" content="#f2f1ed" />
+    <meta
+      name="description"
+      content="RiftDesk is a focused Riftbound deck studio for finding tournament lists, reading the live meta, and building decks card by card."
+    />
+    <link rel="icon" href="/riftdesk-mark.svg" type="image/svg+xml" />
+    <title>RiftDesk · Riftbound deck studio</title>
     <script>
       try {
-        document.documentElement.dataset.theme = localStorage.getItem("bound-atlas-theme") === "dark" ? "dark" : "light";
+        const savedTheme = localStorage.getItem("riftdesk-theme") || localStorage.getItem("bound-atlas-theme");
+        document.documentElement.dataset.theme = savedTheme === "dark" ? "dark" : "light";
+        document.querySelector('meta[name="theme-color"]').content = savedTheme === "dark" ? "#10141b" : "#f2f1ed";
       } catch (_) {
         document.documentElement.dataset.theme = "light";
       }
@@ -18,10 +25,19 @@
     <div id="notice" class="notice-bar" hidden></div>
 
     <header class="app-header">
-      <div class="brand-lockup" aria-label="Bound Atlas home">
-        <span class="brand-mark" aria-hidden="true">BA</span>
-        <span><strong>Bound Atlas</strong><small>Riftbound field guide</small></span>
-      </div>
+      <a class="brand-lockup" href="/" aria-label="RiftDesk home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" focusable="false">
+            <path class="brand-mark-back" d="M9 13.5 14.5 8h23L41 11.5v26L37.5 41h-23L11 37.5z" />
+            <path class="brand-mark-front" d="M6.5 10.5 10 7h23.5l4 4v26.5L34 41H10l-3.5-3.5z" />
+            <path class="brand-mark-rift" d="m27 5-8 13 7 1-9 12 7 1-6 11" />
+          </svg>
+        </span>
+        <span class="brand-wordmark">
+          <strong><span>Rift</span><span>Desk</span></strong>
+          <small>Riftbound deck studio</small>
+        </span>
+      </a>
       <nav id="tabs" class="tabs" aria-label="Views"></nav>
       <div class="header-actions">
         <details class="access-menu">
