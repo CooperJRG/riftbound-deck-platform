@@ -1,0 +1,83 @@
+{
+  "snapshotId": "2026-08-30T2140Z-bde05a",
+  "formatVersion": 1,
+  "createdAt": "2026-08-30T21:40:05.323431+00:00",
+  "deckCount": 19642,
+  "tournamentCount": 513,
+  "standingCount": 21158,
+  "evidenceCounts": {
+    "tournament-placed": 16543,
+    "tournament-entry": 3091,
+    "community": 8
+  },
+  "contentSha256": "bde05a9fe95e402726f66dc58a2228bd2fb24925096a7e2462ecbec8630805d0",
+  "sourceOk": true,
+  "sourceError": "",
+  "notes": [
+    "topdeck: 294 events, 7350 standings, 4436 decklists (2914 players published none)",
+    "local-deck-api: 2536 of 2536 deck summaries from http://127.0.0.1:8787",
+    "local-deck-api: 2536 decks, 120 events, 2528 placed",
+    "riftools: 148 event(s) described",
+    "riftools: 14765 deck(s) over 99 event(s); 14765 from cache, 0 unparsed"
+  ],
+  "warnings": [
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-0f341a77-712e-419c-bf83-d429a25afcb5: 1 unresolved card code(s): OGN-308*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-376f7696-97a2-4ccc-a0a7-4281108ca3f3: 1 unresolved card code(s): UNL-227*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-988f8651-d987-4a11-a263-a900e87a51a3: 1 unresolved card code(s): UNL-227*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-ba9bf036-4356-4c5f-8281-3c2779a355ed: 1 unresolved card code(s): UNL-235*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-db6342a0-36f7-4aad-a35e-9c31627baf11: 1 unresolved card code(s): UNL-227*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-dd93e499-c589-45d1-9476-7a88e708d2fb: 1 unresolved card code(s): OGN-308*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-e529bd24-26e2-4304-a5ee-6a85803c70ca: 1 unresolved card code(s): OGN-308*",
+    "skirmish-109f125b-4bc1-4fd3-9cf2-aaf7c03fab1f-deck-f61a60d2-c1aa-4ca9-a6a6-abb9c23a31e4: 1 unresolved card code(s): OGN-308*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-52ed4830-be57-42e2-8bb0-d5d29c33319d: 1 unresolved card code(s): OGN-308*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-5ccd26c1-e7f9-49e2-8264-56f3dc79ec37: 1 unresolved card code(s): OGN-308*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-6018e4af-ce22-48f8-8019-641a216a0a02: 1 unresolved card code(s): UNL-235*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-665133c2-633c-465e-9ff6-0c0b82535fff: 1 unresolved card code(s): UNL-227*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-71fc595d-0907-4f81-99c9-11524cb80643: 1 unresolved card code(s): UNL-227*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-82ab0384-54dc-4dad-9271-c7e3fa77559c: 1 unresolved card code(s): UNL-227*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-dce0834f-1aa6-4e04-9222-1cb1e9af0268: 1 unresolved card code(s): OGN-308*",
+    "skirmish-53806b04-4b0e-4a8a-abe8-9a6254459a43-deck-edef13bc-9f99-4b7e-8290-52716c21313b: 1 unresolved card code(s): UNL-227*",
+    "locator-riftbound-uvsgames-com-events-788036-deck-b383607c-4e68-43ac-a2fc-9999223a82cc: 1 unresolved card code(s): SFD-230*",
+    "locator-riftbound-uvsgames-com-events-788036-deck-c4cf8413-b8df-4f1d-892d-9cf13766d81b: 1 unresolved card code(s): SFD-230*",
+    "locator-riftbound-uvsgames-com-events-835431-deck-6ad0e683-27aa-4cdc-bb0f-68943095162e: 1 unresolved card code(s): SFD-230*",
+    "piltoverarchive-com-decks-view-6c4bdcd4-c15d-4392-9a2b-6e06f14e8c10: 1 unresolved card code(s): UNL-235*",
+    "piltoverarchive-com-decks-view-bd66d76e-aa6b-480d-bc63-72dfc50bdb0e: 1 unresolved card code(s): UNL-227*",
+    "playriftbound-com-en-us-news-organizedplay-barcelonas-top-decks-deck-152-aa-swithor: 1 unresolved card code(s): UNL-230*",
+    "playriftbound-com-en-us-news-organizedplay-barcelonas-top-decks-deck-255-jibbs: 1 unresolved card code(s): UNL-226*",
+    "playriftbound-com-en-us-news-organizedplay-barcelonas-top-decks-deck-546-cc-imboslice: 1 unresolved card code(s): UNL-229*",
+    "playriftbound-com-en-us-news-organizedplay-barcelonas-top-decks-deck-655-giammyasr: 1 unresolved card code(s): UNL-237*",
+    "playriftbound-com-en-us-news-organizedplay-barcelonas-top-decks-deck-78-sam: 1 unresolved card code(s): UNL-235*",
+    "riftdecks-com-riftbound-metagame-deck-bo-bi-124253: 1 unresolved card code(s): UNL-237*",
+    "riftdecks-com-riftbound-metagame-deck-da-nu-zhu-124928: 1 unresolved card code(s): OGN-309*",
+    "riftdecks-com-riftbound-metagame-deck-darius-hand-of-noxus-171428: 1 unresolved card code(s): OGN-302*",
+    "riftdecks-com-riftbound-metagame-deck-darius-hand-of-noxus-200805: 1 unresolved card code(s): OGN-302*",
+    "riftdecks-com-riftbound-metagame-deck-jhin-virtuoso-205597: 1 unresolved card code(s): UNL-226*",
+    "riftdecks-com-riftbound-metagame-deck-leblanc-deceiver-200546: 1 unresolved card code(s): UNL-235*",
+    "riftdecks-com-riftbound-metagame-deck-leblanc-deceiver-200632: 1 unresolved card code(s): UNL-235*",
+    "riftdecks-com-riftbound-metagame-deck-lillia-bashful-bloom-171125: 1 unresolved card code(s): UNL-230*",
+    "riftdecks-com-riftbound-metagame-deck-miss-fortune-bounty-hunter-147943: 1 unresolved card code(s): OGN-309*",
+    "riftdecks-com-riftbound-metagame-deck-nu-nu-de-qiang-124745: 1 unresolved card code(s): OGN-309*",
+    "riftdecks-com-riftbound-metagame-deck-poppy-keeper-of-the-hammer-153794: 1 unresolved card code(s): UNL-237*",
+    "riftdecks-com-riftbound-metagame-deck-poppy-keeper-of-the-hammer-170974: 1 unresolved card code(s): UNL-237*",
+    "riftdecks-com-riftbound-metagame-deck-rengar-pridestalker-200576: 1 unresolved card code(s): UNL-227*",
+    "riftdecks-com-riftbound-metagame-deck-rengar-pridestalker-200922: 1 unresolved card code(s): UNL-227*"
+  ],
+  "attribution": [
+    {
+      "source": "TopDeck.gg",
+      "url": "https://topdeck.gg",
+      "text": "Tournament data from TopDeck.gg"
+    },
+    {
+      "source": "RiftDecks",
+      "url": "https://riftdecks.com",
+      "text": "Community decks via RiftDecks"
+    },
+    {
+      "source": "Riftools",
+      "url": "https://www.riftools.app",
+      "text": "Tournament decklists via Riftools"
+    }
+  ],
+  "promoted": true
+}

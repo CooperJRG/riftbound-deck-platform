@@ -67,14 +67,28 @@ to the seed committed at `data/seed/cards-export.json` if upstream is unreachabl
 stale card list beats a site that will not start. The fallback carries 769 cards against
 the 948 upstream currently has, so let it reach the network if it can.
 
-The meta snapshot is deliberately *not* required. Explore and Smart Decks report that
-there is no data yet; the builder, the card browser and every share link work regardless.
-With `RB_META_REFRESH=true` the first harvest fills it in.
+The meta snapshot is not required either, and no longer needs a live harvest to appear.
+A real snapshot — currently 19,642 decks across 513 tournaments — is committed at
+`data/meta-seed/` and copied into `data/meta/` by `Services.warm()` the moment the app
+starts, whenever the volume has nothing promoted yet. Explore, Smart Decks and the field
+guide all render from it on the very first request; nothing waits on a harvest.
 
-A cold riftools harvest is one request per decklist — around 14,700 of them, roughly 25
-minutes — and it caches to `var/`, which is **not** on the volume. It will therefore
-re-fetch after each deploy. If that becomes a problem, either mount a second volume at
-`/app/var` or seed `data/meta` once and let incremental refreshes carry it forward.
+This exists because the harvest is not cheap: a cold Riftools pull is one request per
+decklist, around 14,700 of them, roughly 25 minutes, and it caches to `var/`, which is
+**not** on the volume — so without a seed, every deploy would restart that 25-minute
+cold start from zero. Storage for the snapshot itself is cheap (36 MB, baked into the
+image), so committing it is the fix rather than mounting a second volume for the cache.
+
+Once `RB_META_REFRESH=true` runs its first live harvest, that harvest's result is
+promoted over the seed in the ordinary way — the seed is a starting point, not a
+ceiling, and `seed_meta_if_missing` never overwrites a snapshot that is already
+promoted. **Refresh the seed occasionally**, or it drifts further from the live archive
+with every day that passes:
+
+```bash
+cp data/meta/$(cat data/meta/current.txt)/{manifest,meta}.json data/meta-seed/
+git add data/meta-seed && git commit -m "Refresh the committed meta seed"
+```
 
 ---
 

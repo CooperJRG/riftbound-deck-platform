@@ -40,6 +40,11 @@ var/
 data/meta/*
 !data/meta/.gitkeep
 
+# data/meta-seed/ is deliberately NOT ignored — one committed meta snapshot (manifest +
+# decks), promoted into data/meta/ at start-up when nothing has been harvested yet. See
+# Services.warm() / seed_meta_if_missing(). Refresh it occasionally with:
+#   cp data/meta/$(cat data/meta/current.txt)/{manifest,meta}.json data/meta-seed/
+
 # Browser-automation scratch from UI verification runs. Screenshots and traces are
 # evidence for one session, not source.
 output/

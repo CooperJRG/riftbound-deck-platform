@@ -16,11 +16,14 @@ var/
 logs/
 output/
 
-# Card and meta data are volume state, not image content. `data/rules` and `data/seed`
-# are copied explicitly in the Dockerfile because they are small and needed to boot.
+# Card and meta data are volume state, not image content. `data/rules`, `data/seed` and
+# `data/meta-seed` are copied explicitly in the Dockerfile: the first two are small and
+# needed to boot, and `data/meta-seed` is the committed meta snapshot that lets a fresh
+# deploy render Explore immediately instead of waiting on a ~25-minute cold harvest.
 data/
 !data/rules/
 !data/seed/
+!data/meta-seed/
 
 web/node_modules
 web/dist

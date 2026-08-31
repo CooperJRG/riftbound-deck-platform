@@ -25,19 +25,28 @@ else
   fi
 fi
 
-# The meta snapshot is deliberately not required. The builder, the card browser and the
-# deck library all work without one; Explore and Smart Decks simply say there is no data
-# yet, and the scheduler fills it in if RB_META_REFRESH is on.
+# The meta snapshot is deliberately not required to start. Below this the app builds
+# its own: `Services.warm()` promotes the snapshot committed at data/meta-seed the
+# moment uvicorn comes up, so a volume with no meta on it renders Explore and Smart
+# Decks from a real ~20k-deck archive on the very first request rather than an empty
+# screen -- no live harvest needed until one is wanted. This check only reports what
+# the volume already has; it does no seeding itself.
 if [ -f "${DATA_DIR}/meta/current.txt" ] || [ -d "${DATA_DIR}/meta/current" ]; then
   echo "[boot] meta snapshot present"
 else
-  echo "[boot] no meta snapshot — Explore will be empty until a harvest runs"
+  echo "[boot] no meta snapshot on the volume yet — will be seeded from the committed archive at startup"
 fi
+
+# Trust the platform's proxy headers, so request logs and the cookie's `secure` flag see
+# the real scheme rather than the http hop inside the network. Read from the environment
+# rather than passed as a CLI flag: uvicorn falls back to this variable when
+# --forwarded-allow-ips is omitted, and it sidesteps any question of how a `*` glob
+# survives quoting across whatever actually execs this script.
+export FORWARDED_ALLOW_IPS="${FORWARDED_ALLOW_IPS:-*}"
 
 # `exec` so uvicorn is PID 1 and receives the platform's SIGTERM directly; without it
 # the shell holds PID 1 and every deploy ends in a kill after the grace period.
 exec uvicorn riftbound.main:app \
   --host "${RB_HOST:-0.0.0.0}" \
   --port "${PORT:-8020}" \
-  --proxy-headers \
-  --forwarded-allow-ips '*'
+  --proxy-headers

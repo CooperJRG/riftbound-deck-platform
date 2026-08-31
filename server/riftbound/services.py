@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from .config import Config, ConfigError, load_config
 from .data.bundle import Bundle, load_current
-from .data.meta_snapshot import MetaSnapshot, load_current_meta
+from .data.meta_snapshot import MetaSnapshot, load_current_meta, seed_meta_if_missing
 from .domain.cards import Catalog
 from .domain.legend_index import LegendIndex
 from .domain.meta import reattribute_champions
@@ -257,6 +257,12 @@ class Services:
         _ = self.bundle
         _ = self.bound_formats
         _ = self.db
+        # Fills a cold database from the snapshot committed at data/meta-seed, so
+        # Explore and Smart Decks have real content on the very first request rather
+        # than an empty screen until the first live harvest lands. A no-op once
+        # anything real has been promoted, so this only ever does something once.
+        self.config.meta_dir.mkdir(parents=True, exist_ok=True)
+        seed_meta_if_missing(self.config.meta_dir, self.config.root / "data" / "meta-seed")
 
 
 _services: Services | None = None

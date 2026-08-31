@@ -44,6 +44,12 @@ RUN pip install --no-cache-dir -e .
 # Rules profiles and the offline card seed are small, versioned, and needed to boot.
 COPY data/rules/ ./data/rules/
 COPY data/seed/ ./data/seed/
+# The committed meta snapshot -- a real, recent harvest (~20k decks) baked into the
+# image so a fresh deploy renders Explore and Smart Decks immediately instead of
+# waiting on a cold Riftools harvest, which is one request per decklist (~14,700 of
+# them, ~25 minutes). `Services.warm()` promotes this into data/meta on first boot,
+# only when nothing has been promoted yet; a later live harvest supersedes it normally.
+COPY data/meta-seed/ ./data/meta-seed/
 
 COPY --from=web /web/dist ./web/dist
 COPY docker-entrypoint.sh ./

@@ -11,6 +11,7 @@ the payload and the validation rules differ.
 from __future__ import annotations
 
 import json
+import shutil
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -313,6 +314,37 @@ def load_current_meta(meta_dir: Path) -> MetaSnapshot | None:
 def promote_meta(meta_dir: Path, snapshot_id: str) -> Path:
     target = promote(meta_dir, snapshot_id)
     return target
+
+
+def seed_meta_if_missing(meta_dir: Path, seed_dir: Path) -> Path | None:
+    """Promote a snapshot committed to the repo, when nothing has been harvested yet.
+
+    A cold database has no meta -- Explore and Smart Decks render empty until a live
+    harvest lands, and a full Riftools harvest is one request per decklist, roughly
+    14,700 of them. Rather than make every fresh deploy (or every fresh clone) wait on
+    that, a snapshot lives at ``seed_dir`` (``manifest.json`` + ``meta.json``, the same
+    two files any snapshot directory holds) and is copied in here, once, before
+    anything asks for :attr:`Services.meta`. A later live harvest promotes over it in
+    the ordinary way, the same as it would over any other snapshot -- this only fills
+    the gap before the first one lands.
+
+    Never overwrites a snapshot that is already promoted, so this only ever matters
+    once per database. Failure is silent: a missing or unreadable seed leaves meta
+    absent, which is a state the rest of the app already has to handle.
+    """
+    if resolve_current(meta_dir) is not None:
+        return None
+    try:
+        snapshot = read_snapshot(seed_dir)
+    except (FileNotFoundError, ValueError):
+        return None
+
+    target = meta_dir / snapshot.manifest.snapshot_id
+    if not (target / "manifest.json").is_file():
+        target.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(seed_dir / "manifest.json", target / "manifest.json")
+        shutil.copy2(seed_dir / "meta.json", target / "meta.json")
+    return promote(meta_dir, snapshot.manifest.snapshot_id)
 
 
 def list_snapshots(meta_dir: Path) -> list[MetaManifest]:
