@@ -25,6 +25,7 @@ import { loadDeck } from "./actions/library";
 import { openArchetype, loadMeta } from "./actions/meta";
 import { runDeckSearch } from "./actions/search";
 import { refreshSuggestions, revalidate } from "./actions/deck";
+import { closeSmartSession, resumeSmartSession } from "./actions/wizard";
 import { store } from "./store";
 import { deckToQuery, type ExploreQuery, type Location, type Route } from "../ui/router";
 
@@ -38,6 +39,10 @@ import { deckToQuery, type ExploreQuery, type Location, type Route } from "../ui
 export function routeForState(): Route {
   const state = store.state;
   switch (state.view) {
+    case "find":
+      return state.smartSession
+        ? { name: "smartSession", sessionId: state.smartSession.sessionId }
+        : { name: "find" };
     case "explore":
       // Innermost first: a card can be open while a legend is loaded behind it.
       if (state.cardDetail) return { name: "card", cardId: state.cardDetail.trend.cardId };
@@ -122,7 +127,15 @@ export async function applyLocation(location: Location): Promise<void> {
 
   switch (route.name) {
     case "find":
+      closeSmartSession();
       setView("find");
+      return;
+
+    case "smartSession":
+      setView("find");
+      if (store.state.smartSession?.sessionId !== route.sessionId) {
+        await resumeSmartSession(route.sessionId);
+      }
       return;
 
     case "explore":

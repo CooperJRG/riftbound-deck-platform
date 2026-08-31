@@ -147,10 +147,15 @@ export function setSmartLegendQuery(query: string): void {
 }
 
 export async function startSmartSession(legendId: string): Promise<void> {
-  store.set({ smartBusy: true, smartFinished: false });
+  store.set({ smartBusy: true, smartFinished: false, smartShowing: "rounds" });
   try {
     const session = await api.startSmartSession(legendId);
-    store.set({ smartSession: session, smartAnswers: seedAnswers(session), smartBusy: false });
+    store.set({
+      smartSession: session,
+      smartAnswers: seedAnswers(session),
+      smartBusy: false,
+      smartShowing: session.proposal?.floor ? "ready" : "rounds",
+    });
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -165,16 +170,21 @@ export function setSmartAnswer(cardId: string, count: number): void {
 }
 
 /**
- * Stop looking and take the deck already secured.
+ * Move between the single ready-deck decision and the optional refinement round.
  *
- * The reason line offers this from the moment a floor exists -- "stop here and keep what
- * you have" -- and there was no control that did it, so the only way to stop was to
- * answer another screen. An invitation the page cannot honour is worse than no
- * invitation.
+ * Finding a complete deck is the normal end of the flow. Continuing is still useful,
+ * but it must be a deliberate detour rather than a second deck, score and save button
+ * competing with the result somebody just earned.
  */
-export function keepCurrentDeck(): void {
+export function showSmartReadyDeck(): void {
   if (!store.state.smartSession?.proposal?.floor) return;
-  store.set({ smartShowing: "finish" });
+  store.set({ smartShowing: "ready" });
+  scrollToTop();
+}
+
+export function refineSmartDeck(): void {
+  if (!store.state.smartSession?.proposal?.floor) return;
+  store.set({ smartShowing: "rounds" });
   scrollToTop();
 }
 
@@ -186,7 +196,6 @@ export async function submitSmartRound(): Promise<void> {
   const have: Record<string, number> = {};
   for (const [cardId, count] of smartAnswers) have[cardId] = count;
 
-  const wasChecklist = Boolean(proposal.question);
   store.set({ smartBusy: true });
   try {
     const next = await api.answerSmartSession(
@@ -197,7 +206,12 @@ export async function submitSmartRound(): Promise<void> {
           { have, asked: proposal.question.cards.map((row) => row.cardId) }
         : { deckId: proposal.deck?.deckId ?? "", have },
     );
-    store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
+    store.set({
+      smartSession: next,
+      smartAnswers: seedAnswers(next),
+      smartBusy: false,
+      smartShowing: next.proposal?.floor ? "ready" : "rounds",
+    });
 
     // Back to the top, whatever comes next. "I have the rest" sits at the bottom of
     // a long list, and the answer to it -- a different deck, a shorter question, a
@@ -205,20 +219,6 @@ export async function submitSmartRound(): Promise<void> {
     // were, the screen looks like the button did nothing.
     scrollToTop();
 
-    // The replacement round is the last question there is, so the next thing the player
-    // sees is the deck itself -- shown, with what changed and why, and one more pass to
-    // rule out anything they would rather not play.
-    //
-    // It used to jump straight to the builder here. That is a card-search workspace with
-    // a deck panel down one side: a place to work on a deck, not a place to be shown
-    // one, and arriving there after answering questions made it hard to tell what the
-    // app had decided.
-    //
-    // Only after a checklist: a deck round is a review the player is still working
-    // through, and jumping them out of it would take away the choice to keep looking.
-    if (wasChecklist && (next.proposal?.chosen || next.proposal?.floor)) {
-      store.set({ smartShowing: "finish" });
-    }
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -230,7 +230,12 @@ export async function resumeSmartSession(sessionId: string): Promise<void> {
   store.set({ smartBusy: true, smartFinished: false, smartShowing: "rounds" });
   try {
     const session = await api.getSmartSession(sessionId);
-    store.set({ smartSession: session, smartAnswers: seedAnswers(session), smartBusy: false });
+    store.set({
+      smartSession: session,
+      smartAnswers: seedAnswers(session),
+      smartBusy: false,
+      smartShowing: session.proposal?.floor ? "ready" : "rounds",
+    });
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -285,13 +290,7 @@ export async function acceptSmartDeck(which: "floor" | "conservative" | "free"):
   store.set({ smartBusy: true });
   try {
     const finished = await api.acceptSmartDeck(smartSession.sessionId, which);
-    store.set({
-      smartSession: finished,
-      smartFinished: true,
-      smartBusy: false,
-      savedDecks: await api.listDecks(),
-      notice: "Saved to your decks.",
-    });
+    const savedDecks = await api.listDecks();
     await loadDeck(finished.savedDeckId);
     // Open it. The deck was already loaded into the builder's state here, but the view
     // stayed on the wizard, so the player was left looking at a summary of a deck the
@@ -301,7 +300,16 @@ export async function acceptSmartDeck(which: "floor" | "conservative" | "free"):
     // for "build" that function only scrolls and sets the view, so the cycle would buy
     // nothing.
     scrollToTop();
-    store.set({ view: "build" });
+    store.set({
+      smartSession: null,
+      smartAnswers: new Map(),
+      smartFinished: false,
+      smartShowing: "rounds",
+      smartBusy: false,
+      savedDecks,
+      notice: "Saved to your decks.",
+      view: "build",
+    });
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -336,10 +344,15 @@ export async function saveSmartCollection(): Promise<void> {
 }
 
 export function closeSmartSession(): void {
+  const current = store.state.smartSession;
+  const resumable = current && !current.savedDeckId
+    ? [current, ...store.state.smartResumable.filter((row) => row.sessionId !== current.sessionId)]
+    : store.state.smartResumable;
   store.set({
     smartSession: null,
     smartAnswers: new Map(),
     smartFinished: false,
     smartShowing: "rounds",
+    smartResumable: resumable,
   });
 }

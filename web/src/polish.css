@@ -447,6 +447,98 @@ select {
   box-shadow: 0 12px 34px color-mix(in srgb, var(--atlas-ink) 5%, transparent);
 }
 
+/* Smart Decks: a successful search resolves to one decision, not three decks. */
+.smart-ready {
+  width: min(680px, 100%);
+  margin: clamp(1.5rem, 7vh, 4.5rem) auto;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+  border: 1px solid color-mix(in srgb, var(--atlas-positive) 38%, var(--atlas-border));
+  border-radius: var(--atlas-radius-lg);
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      color-mix(in srgb, var(--atlas-positive) 12%, transparent),
+      transparent 42%
+    ),
+    var(--atlas-surface);
+  box-shadow: 0 20px 55px color-mix(in srgb, var(--atlas-ink) 8%, transparent);
+}
+
+.smart-ready h2 {
+  max-width: 20ch;
+  margin: 0.2rem 0 0.65rem;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1;
+}
+
+.smart-ready-lede {
+  max-width: 54ch;
+  color: var(--atlas-muted-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.smart-ready-score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin: 1rem 0 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 999px;
+  color: var(--atlas-muted);
+  background: var(--atlas-raised);
+}
+
+.smart-ready-score strong {
+  color: var(--atlas-ink);
+  font-family: var(--atlas-serif);
+  font-size: 1.35rem;
+}
+
+.smart-ready-score span {
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.smart-ready-summary {
+  margin: 0.8rem 0 1.35rem;
+  color: var(--atlas-muted);
+  font-size: 0.82rem;
+}
+
+.smart-ready-save {
+  min-width: min(100%, 260px);
+  min-height: 48px;
+}
+
+.smart-ready-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.smart-refining {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin: 1rem 0;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  color: var(--atlas-muted);
+  background: var(--atlas-raised);
+  font-size: 0.8rem;
+}
+
+.smart-refining strong {
+  color: var(--atlas-ink);
+}
+
+.smart-refining span {
+  flex: 1;
+}
+
 @media (max-width: 900px) {
   .app-header {
     min-height: 0;
@@ -494,6 +586,21 @@ select {
 
   .app-header {
     padding: 0.45rem 0.6rem 0.35rem;
+  }
+
+  .smart-ready {
+    margin: 1rem auto;
+    padding: 1.25rem;
+  }
+
+  .smart-ready-save {
+    width: 100%;
+  }
+
+  .smart-ready-secondary,
+  .smart-refining {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .brand-lockup {

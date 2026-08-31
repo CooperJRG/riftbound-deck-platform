@@ -11,55 +11,88 @@ import type { BanNotice, DeckCost, Proposal, SmartSession } from "../../api/type
 import {
   acceptSmartDeck,
   closeSmartSession,
+  refineSmartDeck,
   saveSmartCollection,
   setView,
-  keepCurrentDeck,
+  showSmartReadyDeck,
   submitSmartRound,
 } from "../../state/actions";
 import { store } from "../../state/store";
 import { h, replace } from "../../ui/dom";
 import { legendPicker } from "./picker";
-import { finishView } from "./finish";
 import { repairPanel, scorePanel } from "./repairs";
 import { requirementList } from "./rows";
 
 /**
- * "Best deck you can build right now", or an honest statement that there is not one yet.
+ * The one successful outcome Smart Decks promises.
  *
- * Always rendered. A player who has answered two rounds and wants to stop should be
- * able to see, without hunting, whether stopping leaves them with a deck.
+ * A floor is already a complete deck. Showing the candidate still being investigated,
+ * a repaired version and this floor at once makes one answer look like three competing
+ * decks. Stop here instead: one deck, one strength, one save action. Looking for a
+ * stronger option remains available, but only after somebody asks for it.
  */
-function floorBanner(proposal: Proposal, knownCards: number, busy: boolean): HTMLElement {
-  if (!proposal.floor) {
-    // Before anything has been answered, the shortfall is the whole deck -- which is
-    // true and useless. "Short by 1 legend, 1 champion, 40 main" reads as "you own
-    // nothing" when what it means is "we have not asked yet".
-    const detail = knownCards
-      ? proposal.feasibility
-      : "Mark any shortages in the complete list and we will tell you what you can build.";
-    return h(
-      "div",
-      { class: "floor floor-none" },
-      h("strong", {}, knownCards ? "No complete deck yet." : "Nothing to go on yet."),
-      h("span", { class: "floor-detail" }, detail),
-    );
-  }
+function readyDeck(session: SmartSession, proposal: Proposal, busy: boolean): HTMLElement {
+  const floor = proposal.floor!;
+  const strength = floor.score?.scored ? Math.round(floor.score.meta) : null;
+
   return h(
-    "div",
-    { class: "floor floor-ready" },
-    h("strong", {}, "Best deck you can build right now"),
-    scorePanel(proposal.floor.score),
-    h("span", { class: "floor-detail" }, proposal.floor.summary),
+    "section",
+    { class: "smart-ready" },
+    h("p", { class: "eyebrow" }, "Deck ready"),
+    h("h2", {}, session.legendName),
+    h(
+      "p",
+      { class: "smart-ready-lede" },
+      "You can build this deck with the cards you have confirmed.",
+    ),
+    strength === null
+      ? null
+      : h(
+          "p",
+          { class: "smart-ready-score" },
+          h("strong", {}, `${strength}/100`),
+          h("span", {}, "estimated strength"),
+        ),
+    h("p", { class: "smart-ready-summary" }, floor.summary),
     h(
       "button",
       {
-        class: "primary",
+        class: "primary smart-ready-save",
         type: "button",
         disabled: busy,
         on: { click: () => void acceptSmartDeck("floor") },
       },
-      "Save this deck",
+      busy ? "Saving…" : "Save & open this deck",
     ),
+    h(
+      "div",
+      { class: "smart-ready-secondary" },
+      proposal.phase !== "done"
+        ? h(
+            "button",
+            { class: "step", type: "button", disabled: busy, on: { click: refineSmartDeck } },
+            "Keep checking for a stronger option",
+          )
+        : null,
+      h(
+        "button",
+        { class: "step", type: "button", disabled: busy, on: { click: closeSmartSession } },
+        "Try another legend",
+      ),
+    ),
+  );
+}
+
+/** Honest progress before there is a deck to save. */
+function noDeckYet(proposal: Proposal, knownCards: number): HTMLElement {
+  const detail = knownCards
+    ? proposal.feasibility
+    : "Mark any shortages in the complete list and we will tell you what you can build.";
+  return h(
+    "div",
+    { class: "floor floor-none" },
+    h("strong", {}, knownCards ? "No complete deck yet." : "Nothing to go on yet."),
+    h("span", { class: "floor-detail" }, detail),
   );
 }
 
@@ -193,19 +226,29 @@ function runView(session: SmartSession): HTMLElement {
   const { smartAnswers, smartBusy, smartFinished } = store.state;
 
   if (smartFinished || session.savedDeckId) return finishedPanel();
-  // The deck it built, once the questions are done. Falls through to the rounds if the
-  // proposal has nothing to hand over yet, so this can never strand the player on an
-  // empty screen.
-  if (store.state.smartShowing === "finish") {
-    const finish = finishView(session);
-    if (finish) return finish;
-  }
   if (!proposal) return h("p", { class: "empty" }, "Loading...");
+  if (proposal.floor && store.state.smartShowing === "ready") {
+    return readyDeck(session, proposal, smartBusy);
+  }
 
-  const parts: HTMLElement[] = [
-    roundHeader(session, proposal),
-    floorBanner(proposal, session.knownCards, smartBusy),
-  ];
+  const parts: HTMLElement[] = [roundHeader(session, proposal)];
+  if (proposal.floor) {
+    parts.push(
+      h(
+        "aside",
+        { class: "smart-refining" },
+        h("strong", {}, "A complete deck is already ready."),
+        h("span", {}, "These questions are optional and only look for a stronger alternative."),
+        h(
+          "button",
+          { class: "step", type: "button", on: { click: showSmartReadyDeck } },
+          "Back to ready deck",
+        ),
+      ),
+    );
+  } else {
+    parts.push(noDeckYet(proposal, session.knownCards));
+  }
 
   if (proposal.phase === "done") {
     parts.push(
@@ -263,7 +306,7 @@ function runView(session: SmartSession): HTMLElement {
       "section",
       { class: "smart-round-body" },
       h("h3", {}, heading),
-      scorePanel(proposal.deckScore),
+      proposal.floor ? null : scorePanel(proposal.deckScore),
       costLine(proposal.deck?.coverage.cost ?? null),
       proposal.deck
         ? h(
@@ -309,9 +352,9 @@ function runView(session: SmartSession): HTMLElement {
                 class: "quiet-button",
                 type: "button",
                 disabled: smartBusy,
-                on: { click: keepCurrentDeck },
+                on: { click: showSmartReadyDeck },
               },
-              "Keep the deck I have",
+              "Back to ready deck",
             )
           : null,
       ),
@@ -330,7 +373,7 @@ function runView(session: SmartSession): HTMLElement {
   // telling them what they are holding, and the two are genuinely different products:
   // one is the tournament deck adapted, the other a legal deck in the same colours.
   const chosen = proposal.chosen === "free" ? proposal.free : proposal.conservative;
-  if (chosen && (chosen.drift > 0 || proposal.chosen === "free")) {
+  if (!proposal.floor && chosen && (chosen.drift > 0 || proposal.chosen === "free")) {
     parts.push(
       repairPanel(
         chosen,

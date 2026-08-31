@@ -32,6 +32,7 @@ function roundTrip(route: Route, explore: ExploreQuery = {}): Route {
 
 const ROUTES: Route[] = [
   { name: "find" },
+  { name: "smartSession", sessionId: "session-abc123" },
   { name: "explore", mode: "legends" },
   { name: "explore", mode: "cards" },
   { name: "legend", legendId: "irelia-blade-dancer" },
@@ -91,6 +92,7 @@ test("every explore drill-down still belongs to the Explore tab", () => {
   assert.equal(viewFor({ name: "savedDeck", deckId: "x" }), "build");
   assert.equal(viewFor({ name: "metaDeck", deckId: "x" }), "build");
   assert.equal(viewFor({ name: "decks" }), "decks");
+  assert.equal(viewFor({ name: "smartSession", sessionId: "x" }), "find");
 });
 
 // -- a deck in a link ----------------------------------------------------------
@@ -182,6 +184,17 @@ test("opening a different legend is a new place", () => {
   assert.notEqual(
     routeKey({ name: "legend", legendId: "a" }),
     routeKey({ name: "legend", legendId: "b" }),
+  );
+});
+
+test("a Smart Deck session is a place the back button can leave", () => {
+  assert.notEqual(
+    routeKey({ name: "find" }),
+    routeKey({ name: "smartSession", sessionId: "session-1" }),
+  );
+  assert.notEqual(
+    routeKey({ name: "smartSession", sessionId: "session-1" }),
+    routeKey({ name: "smartSession", sessionId: "session-2" }),
   );
 });
 

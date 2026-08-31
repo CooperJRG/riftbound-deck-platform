@@ -120,10 +120,11 @@ export interface AppState {
   smartBusy: boolean;
   smartFinished: boolean;
   /**
-   * Which wizard screen to show. "rounds" is the question flow; "finish" is the deck it
-   * produced, with what changed and a last pass to rule cards out.
+   * Which wizard screen to show. A buildable deck stops on the compact "ready" screen;
+   * "rounds" is only the question flow before that, or an explicit request to keep
+   * looking for a stronger option.
    */
-  smartShowing: "rounds" | "finish";
+  smartShowing: "rounds" | "ready";
   /**
    * Unfinished sessions, so one survives a closed tab. The answers are the expensive
    * part — three rounds pin down roughly 75 cards — and until this was surfaced they

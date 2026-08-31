@@ -26,6 +26,7 @@ import type { DeckSearchSort, ExploreMode, ViewName } from "../state/store";
 
 export type Route =
   | { name: "find" }
+  | { name: "smartSession"; sessionId: string }
   | { name: "explore"; mode: ExploreMode }
   | { name: "legend"; legendId: string }
   | { name: "champion"; championId: string }
@@ -67,6 +68,7 @@ const HOME: Route = { name: "find" };
 export function viewFor(route: Route): ViewName {
   switch (route.name) {
     case "find":
+    case "smartSession":
       return "find";
     case "explore":
     case "legend":
@@ -192,7 +194,11 @@ export function parseLocation(pathname: string, search: string): Location {
   }
 
   if (head === "build") return { route: { name: "build" }, explore };
-  if (head === "find") return { route: HOME, explore };
+  if (head === "find") {
+    return second
+      ? { route: { name: "smartSession", sessionId: second }, explore }
+      : { route: HOME, explore };
+  }
 
   // An address we do not recognise is the front page, not an error screen. A link that
   // has rotted should still land somewhere useful.
@@ -217,6 +223,8 @@ export function pathFor(route: Route, explore: ExploreQuery = {}): string {
   switch (route.name) {
     case "find":
       return "/";
+    case "smartSession":
+      return `/find/${enc(route.sessionId)}`;
     case "explore":
       return (route.mode === "cards" ? "/explore/cards" : "/explore") + exploreSuffix(explore);
     case "legend":
@@ -269,6 +277,8 @@ export function routeKey(route: Route): string {
       return `event:${route.slug}`;
     case "archetype":
       return `archetype:${route.archetypeId}`;
+    case "smartSession":
+      return `smartSession:${route.sessionId}`;
     case "explore":
       return `explore:${route.mode}`;
     case "savedDeck":
