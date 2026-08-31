@@ -974,6 +974,59 @@ export function renderDeckPanel(root: HTMLElement): void {
   const slot = ensureDeckMount(root, header);
 
   if (!hasStarted) {
+    const legends = store.state.smartLegends;
+    const legendStatus = h("span", { class: "legend-filter-status", aria: { live: "polite" } });
+    const showAll = h("button", { class: "quiet-button legend-show-all", type: "button" }, "Show all legends");
+    const cards = legends.map((legend, index) =>
+      h(
+        "button",
+        {
+          class: "legend-pick",
+          type: "button",
+          title: `Build with ${legend.name}`,
+          data: { legendName: legend.name.toLowerCase(), leading: String(index < 18) },
+          on: { click: () => setLegend(legend.legendId) },
+        },
+        legend.imageUrl
+          ? h("img", { src: legend.imageUrl, alt: legend.name, loading: "lazy" })
+          : h("span", { class: "mat-card-blank" }, legend.name),
+        h("span", { class: "legend-pick-name" }, legend.name),
+        h("span", { class: "legend-pick-meta" }, legend.domains.join(" / ")),
+      ),
+    );
+    let expanded = false;
+    const applyLegendFilter = (value = "") => {
+      const needle = value.trim().toLowerCase();
+      let visible = 0;
+      for (const card of cards) {
+        const matches = !needle || card.dataset.legendName?.includes(needle);
+        const inLeadingSet = card.dataset.leading === "true";
+        card.hidden = !matches || (!needle && !expanded && !inLeadingSet);
+        if (!card.hidden) visible += 1;
+      }
+      legendStatus.textContent = needle
+        ? `${visible} matching legend${visible === 1 ? "" : "s"}`
+        : expanded
+          ? `All ${legends.length} legends`
+          : `Showing 18 of ${legends.length}`;
+      showAll.hidden = Boolean(needle) || legends.length <= 18;
+      showAll.textContent = expanded ? "Show fewer" : "Show all legends";
+    };
+    const legendSearch = h("input", {
+      class: "legend-filter",
+      type: "search",
+      placeholder: "Search legends",
+      aria: { label: "Search legends" },
+      on: {
+        input: (event) => applyLegendFilter((event.target as HTMLInputElement).value),
+      },
+    });
+    showAll.addEventListener("click", () => {
+      expanded = !expanded;
+      applyLegendFilter(legendSearch.value);
+    });
+    applyLegendFilter();
+
     replace(
       slot,
       // A wall of legends rather than an instruction to go and find one. The legend is
@@ -989,30 +1042,12 @@ export function renderDeckPanel(root: HTMLElement): void {
           "It decides which domains the deck may play, which champions it may nominate, "
             + "and what the card drawer will offer you.",
         ),
-        store.state.smartLegends.length
+        legends.length
           ? h(
               "div",
-              { class: "legend-wall" },
-              ...store.state.smartLegends.map((legend) =>
-                h(
-                  "button",
-                  {
-                    class: "legend-pick",
-                    type: "button",
-                    title: `Build with ${legend.name}`,
-                    on: { click: () => setLegend(legend.legendId) },
-                  },
-                  legend.imageUrl
-                    ? h("img", { src: legend.imageUrl, alt: legend.name, loading: "lazy" })
-                    : h("span", { class: "mat-card-blank" }, legend.name),
-                  h("span", { class: "legend-pick-name" }, legend.name),
-                  h(
-                    "span",
-                    { class: "legend-pick-meta" },
-                    legend.domains.join(" / "),
-                  ),
-                ),
-              ),
+              { class: "legend-browser" },
+              h("div", { class: "legend-filter-row" }, legendSearch, legendStatus, showAll),
+              h("div", { class: "legend-wall" }, ...cards),
             )
           : h("p", { class: "muted small" }, "Loading legends..."),
       ),

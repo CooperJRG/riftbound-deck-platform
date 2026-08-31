@@ -21,6 +21,7 @@ interface Attributes {
   disabled?: boolean;
   checked?: boolean;
   selected?: boolean;
+  open?: boolean;
   href?: string;
   /** Link target — used for third-party sources, always with rel="noopener". */
   target?: "_blank" | "_self";

@@ -157,6 +157,7 @@ export async function loadCardTrends(): Promise<void> {
 }
 
 export async function openCard(cardId: string): Promise<void> {
+  scrollToTop();
   store.set({
     exploreLoading: true, exploreError: "",
     legendMeta: null, championMeta: null, tournamentDetail: null,
@@ -176,6 +177,7 @@ export function setExploreCardType(cardType: string): Promise<void> {
 }
 
 export function closeCard(): void {
+  scrollToTop();
   store.set({ cardDetail: null });
 }
 

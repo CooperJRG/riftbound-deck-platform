@@ -8,6 +8,24 @@
       name="description"
       content="RiftDesk is a focused Riftbound deck studio for finding tournament lists, reading the live meta, and building decks card by card."
     />
+    <meta property="og:title" content="RiftDesk · Riftbound deck studio" />
+    <meta
+      property="og:description"
+      content="Find proven Riftbound lists, read the live tournament meta, and build decks card by card."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://riftdesk.com/" />
+    <meta property="og:image" content="https://riftdesk.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="RiftDesk · Riftbound deck studio" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RiftDesk · Riftbound deck studio" />
+    <meta
+      name="twitter:description"
+      content="Find proven Riftbound lists, read the live tournament meta, and build decks card by card."
+    />
+    <meta name="twitter:image" content="https://riftdesk.com/og.png" />
     <link rel="icon" href="/riftdesk-mark.svg" type="image/svg+xml" />
     <!-- Card art is served from here; every browse/build view loads dozens of images
          from it, so paying the DNS+TLS handshake now beats paying it on first scroll. -->
@@ -25,6 +43,7 @@
     </script>
   </head>
   <body>
+    <a class="skip-link" href="#find">Skip to content</a>
     <div id="error" class="error-bar" hidden></div>
     <div id="notice" class="notice-bar" hidden></div>
 
@@ -52,13 +71,21 @@
       </div>
     </header>
 
+    <main id="app-loading" class="app-loading" aria-live="polite" aria-busy="true">
+      <span class="loading-mark" aria-hidden="true"></span>
+      <div>
+        <strong>Setting up your desk</strong>
+        <span>Loading current cards and tournament data…</span>
+      </div>
+    </main>
+
     <main id="find" class="panel panel-smart" aria-label="Find a deck" hidden></main>
 
     <main id="explore" class="panel panel-explore" aria-label="Explore tournament trends" hidden></main>
 
     <main id="search" class="panel panel-search" aria-label="Search decks by card" hidden></main>
 
-    <main id="build" class="app-body">
+    <main id="build" class="app-body" hidden>
       <div class="panel panel-deck">
         <div id="deck" class="deck"></div>
         <div id="deck-actions" class="library"></div>

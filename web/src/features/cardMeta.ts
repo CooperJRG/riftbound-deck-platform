@@ -20,6 +20,8 @@ import { store } from "../state/store";
 import { h } from "../ui/dom";
 
 const CARD_TYPES = ["", "Unit", "Spell", "Gear", "Rune", "Battlefield"] as const;
+const CARD_WALL_PAGE = 30;
+let cardWallExpanded = false;
 
 function pct(value: number, digits = 0): string {
   // Something that happens should never render as "0%". A rare split is still a real
@@ -93,7 +95,12 @@ function typeFilter(): HTMLElement {
           class: `chip-toggle${current === type ? " is-active" : ""}`,
           type: "button",
           aria: { pressed: String(current === type) },
-          on: { click: () => void setExploreCardType(type) },
+          on: {
+            click: () => {
+              cardWallExpanded = false;
+              void setExploreCardType(type);
+            },
+          },
         },
         type || "All cards",
       ),
@@ -104,8 +111,36 @@ function typeFilter(): HTMLElement {
 export function cardWall(): HTMLElement {
   const { cardTrends, exploreLoading } = store.state;
   if (!cardTrends) {
-    return h("p", { class: "empty" }, exploreLoading ? "Reading the field…" : "No card data yet.");
+    if (!exploreLoading) return h("p", { class: "empty" }, "No card data yet.");
+    return h(
+      "section",
+      { class: "card-wall card-wall-loading", aria: { busy: "true", live: "polite" } },
+      h(
+        "header",
+        { class: "page-hero" },
+        h("p", { class: "eyebrow" }, "Cards in the field"),
+        h("h1", {}, "Reading the field"),
+        h("p", { class: "page-lede" }, "Counting adoption across complete tournament lists…"),
+      ),
+      h(
+        "div",
+        { class: "meta-card-grid", aria: { hidden: "true" } },
+        ...Array.from({ length: 6 }, (_, index) =>
+          h(
+            "div",
+            { class: "meta-card-skeleton", style: `--skeleton-delay:${index * 70}ms` },
+            h("span", { class: "skeleton-art" }),
+            h("span", { class: "skeleton-line" }),
+            h("span", { class: "skeleton-line is-short" }),
+          ),
+        ),
+      ),
+    );
   }
+  const visibleCards = cardWallExpanded
+    ? cardTrends.series
+    : cardTrends.series.slice(0, CARD_WALL_PAGE);
+  const remaining = cardTrends.series.length - visibleCards.length;
   return h(
     "section",
     { class: "card-wall" },
@@ -129,7 +164,23 @@ export function cardWall(): HTMLElement {
       ),
     ),
     typeFilter(),
-    h("div", { class: "meta-card-grid" }, ...cardTrends.series.map(cardTile)),
+    h("div", { class: "meta-card-grid" }, ...visibleCards.map(cardTile)),
+    remaining > 0
+      ? h(
+          "button",
+          {
+            class: "show-more",
+            type: "button",
+            on: {
+              click: () => {
+                cardWallExpanded = true;
+                store.set({});
+              },
+            },
+          },
+          `Show ${remaining} more cards`,
+        )
+      : null,
   );
 }
 

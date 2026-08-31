@@ -29,6 +29,7 @@ import {
 import { currentTheme, toggleTheme } from "./ui/theme";
 import "./styles.css";
 import "./riftdesk.css";
+import "./polish.css";
 
 const availabilityRoot = query("#availability");
 const browserRoot = query("#browser");
@@ -41,8 +42,11 @@ const exploreRoot = query("#explore");
 const findRoot = query("#find");
 const searchRoot = query("#search");
 const buildRoot = query("#build");
+const loadingRoot = query("#app-loading");
 const tabsRoot = query("#tabs");
 const themeRoot = query<HTMLButtonElement>("#theme-toggle");
+const accessMenu = query<HTMLDetailsElement>(".access-menu");
+const skipRoot = query<HTMLAnchorElement>(".skip-link");
 
 function renderError(message: string, staleServer: string): void {
   // The stale-server warning outranks whatever error it caused, and cannot be
@@ -99,8 +103,20 @@ renderThemeButton();
  * one render later.
  */
 function go(name: "find" | "explore" | "search" | "build" | "decks"): void {
+  accessMenu.open = false;
   setView(name);
 }
+
+document.addEventListener("pointerdown", (event) => {
+  if (accessMenu.open && !accessMenu.contains(event.target as Node)) accessMenu.open = false;
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && accessMenu.open) {
+    accessMenu.open = false;
+    accessMenu.querySelector<HTMLElement>("summary")?.focus();
+  }
+});
 
 function renderTabs(current: string): void {
   const tab = (name: "find" | "explore" | "search" | "build" | "decks", label: string) =>
@@ -163,7 +179,11 @@ store.subscribe((state) => {
   renderNotice(state.notice);
   if (!state.ready) return;
 
+  loadingRoot.hidden = true;
+  loadingRoot.setAttribute("aria-busy", "false");
+
   renderTabs(state.view);
+  skipRoot.href = `#${state.view}`;
   buildRoot.hidden = state.view !== "build";
   exploreRoot.hidden = state.view !== "explore";
   findRoot.hidden = state.view !== "find";

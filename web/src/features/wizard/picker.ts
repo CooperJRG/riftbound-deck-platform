@@ -119,24 +119,32 @@ export function collectionNudge(): HTMLElement | null {
     );
 
   return h(
-    "section",
+    "details",
     { class: "collection-nudge" },
-    h("h3", {}, "Short of a few cards?"),
     h(
-      "p",
+      "summary",
       {},
-      "Say roughly what you have and the questions get shorter — we stop asking about " +
-        "cards you have already accounted for. You can change it whenever you like.",
+      h("strong", {}, "Using part of a collection?"),
+      h("span", {}, "Optional · shorten the card questions"),
     ),
-    h("div", { class: "quick-rules" }, rule("Common"), rule("Uncommon"), rule("Rare")),
     h(
-      "button",
-      {
-        class: "quiet-button",
-        type: "button",
-        on: { click: dismissNudge },
-      },
-      "I have most cards — don't ask again",
+      "div",
+      { class: "collection-nudge-body" },
+      h(
+        "p",
+        {},
+        "Tell us roughly what you own and RiftDesk will skip cards you have already covered.",
+      ),
+      h("div", { class: "quick-rules" }, rule("Common"), rule("Uncommon"), rule("Rare")),
+      h(
+        "button",
+        {
+          class: "quiet-button",
+          type: "button",
+          on: { click: dismissNudge },
+        },
+        "I use the full card pool",
+      ),
     ),
   );
 }

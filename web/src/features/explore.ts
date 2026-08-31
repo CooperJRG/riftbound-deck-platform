@@ -438,9 +438,9 @@ function tierRow(tier: Tier, rows: RankedLegend[]): HTMLElement | null {
   if (!rows.length) return null;
   const copy = TIER_COPY[tier];
   return h(
-    "section",
-    { class: `tier-row tier-${tier.toLowerCase()}` },
-    h("header", { class: "tier-label" }, h("strong", {}, copy.title), h("span", {}, copy.note), h("small", {}, `${rows.length} legend${rows.length === 1 ? "" : "s"}`)),
+    "details",
+    { class: `tier-row tier-${tier.toLowerCase()}`, open: tier === "S" || tier === "A" || tier === "B" },
+    h("summary", { class: "tier-label" }, h("strong", {}, copy.title), h("span", {}, copy.note), h("small", {}, `${rows.length} legend${rows.length === 1 ? "" : "s"}`)),
     h("div", { class: "tier-cards" }, ...rows.map(legendTile)),
   );
 }
