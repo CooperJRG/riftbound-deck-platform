@@ -444,7 +444,11 @@ function tierRow(tier: Tier, rows: RankedLegend[]): HTMLElement | null {
   const copy = TIER_COPY[tier];
   return h(
     "details",
-    { class: `tier-row tier-${tier.toLowerCase()}`, open: tier === "S" || tier === "A" || tier === "B" },
+    // Every tier open. Collapsing the lower ones hid exactly the legends somebody
+    // scrolling a tier list is looking for -- the ones they have not already heard of --
+    // behind a click that gave no hint of what it contained. Still `<details>`, so a
+    // reader can fold a tier away; the default is simply the whole wall.
+    { class: `tier-row tier-${tier.toLowerCase()}`, open: true },
     h("summary", { class: "tier-label" }, h("strong", {}, copy.title), h("span", {}, copy.note), h("small", {}, `${rows.length} legend${rows.length === 1 ? "" : "s"}`)),
     h("div", { class: "tier-cards" }, ...rows.map(legendTile)),
   );
