@@ -40,6 +40,11 @@ var/
 data/meta/*
 !data/meta/.gitkeep
 
+# The legend matchup table. A cache of an upstream aggregate, refetched on boot and on
+# a six-hour clock, so there is nothing here worth committing and no seed to keep: an
+# empty store simply means the first refresh has not landed yet.
+data/matchups/
+
 # data/meta-seed/ is deliberately NOT ignored — one committed meta snapshot (manifest +
 # decks), promoted into data/meta/ at start-up when nothing has been harvested yet. See
 # Services.warm() / seed_meta_if_missing(). Refresh it occasionally with:

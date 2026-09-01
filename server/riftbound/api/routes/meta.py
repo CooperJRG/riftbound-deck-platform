@@ -14,6 +14,7 @@ to someone else's tier list.
 
 from __future__ import annotations
 
+import asyncio
 from collections import Counter
 from datetime import timedelta
 
@@ -658,7 +659,15 @@ async def refresh_now(
         )
     # The snapshot on disk has changed; drop everything derived from the old one.
     reset_services()
-    return _refresh_status(request, get_services())
+    refreshed = get_services()
+
+    # The matchup table too, and forced. It lives in its own store on its own staleness
+    # clock (see `data/matchup_store.py`), and that store takes precedence over the copy
+    # the pipeline writes into the snapshot -- so without this, pressing "Refresh now"
+    # would rebuild the deck archive and leave the matchups visibly unchanged, which is
+    # the one thing a button called "refresh now" must not do.
+    await asyncio.to_thread(refreshed.refresh_matchups, force=True)
+    return _refresh_status(request, refreshed)
 
 
 # -- cards --------------------------------------------------------------------

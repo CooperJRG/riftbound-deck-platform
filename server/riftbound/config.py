@@ -74,6 +74,9 @@ class Config:
     data_dir: Path
     bundles_dir: Path
     meta_dir: Path
+    #: The legend matchup table. Its own directory because it has its own lifecycle:
+    #: one static file refreshed on its own cadence, not part of the deck archive.
+    matchups_dir: Path
     rules_dir: Path
     db_path: Path
     web_dist: Path
@@ -93,6 +96,12 @@ class Config:
     meta_refresh_delay: float
     #: Wall-clock seconds a scheduled harvest may take before it stops with what it has.
     meta_refresh_budget: float
+
+    #: Keep the matchup table fresh. Separate from `meta_refresh` on purpose -- see
+    #: `data/matchup_store.py` for why the two have different lifecycles.
+    matchup_refresh: bool = True
+    #: Hours before the stored table is considered stale and refetched.
+    matchup_refresh_hours: float = 6.0
 
     #: Signs the per-browser identity cookie in public mode. Empty in every other mode.
     secret_key: str = ""
@@ -197,6 +206,7 @@ def load_config() -> Config:
         # Meta snapshots are optional: the builder works with none promoted, so a
         # source outage degrades the meta view and nothing else.
         meta_dir=data_dir / "meta",
+        matchups_dir=data_dir / "matchups",
         rules_dir=data_dir / "rules",
         db_path=_under_root(Path(_env_str("RB_DB_PATH") or data_dir / "riftbound.db"), name="RB_DB_PATH"),
         web_dist=ROOT / "web" / "dist",
@@ -213,6 +223,13 @@ def load_config() -> Config:
         # Hosted mode leaves it off, because there the harvest belongs to whatever
         # deploys the service, not to every process that happens to be running.
         meta_refresh=_env_bool("RB_META_REFRESH", default=(mode == "local")),
+        # On everywhere by default, unlike the deck harvest above. The reason that
+        # one is off in hosted mode is crawl cost -- one request per decklist,
+        # ~14,700 of them -- and none of it applies here: this is a single request
+        # for a single static file. Leaving it coupled to the deck harvest is what
+        # left the live site with no matchup data at all.
+        matchup_refresh=_env_bool("RB_MATCHUP_REFRESH", default=True),
+        matchup_refresh_hours=_env_float("RB_MATCHUP_REFRESH_HOURS", default=6.0),
         meta_refresh_hours=_env_float("RB_META_REFRESH_HOURS", default=3.0),
         meta_refresh_delay=_env_float("RB_META_REFRESH_DELAY", default=90.0),
         meta_refresh_budget=_env_float("RB_META_REFRESH_BUDGET", default=240.0),

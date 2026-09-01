@@ -7,10 +7,11 @@ booting happily and rendering empty screens.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -50,9 +51,23 @@ async def lifespan(app: FastAPI):
     scheduler = MetaScheduler(services.config)
     app.state.meta_scheduler = scheduler
     scheduler.start()
+
+    # The matchup table, separately and unconditionally. One request, so it runs on
+    # every boot rather than waiting for the deck harvest -- which hosted mode disables
+    # by design, and which is why the live site had no matchup data despite shipping
+    # the feature. Off the event loop because the fetch is blocking, and never awaited
+    # here: a slow or unreachable source must not hold up start-up.
+    matchup_task = asyncio.create_task(
+        asyncio.to_thread(services.refresh_matchups), name="riftbound-matchup-refresh"
+    )
+    app.state.matchup_task = matchup_task
+
     try:
         yield
     finally:
+        matchup_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await matchup_task
         await scheduler.stop()
 
 

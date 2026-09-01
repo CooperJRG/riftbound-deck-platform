@@ -45,16 +45,24 @@ LOCAL_USER_ID = "local"
 
 
 def _riftools_attribution(snapshot) -> dict[str, str]:
-    """The credit owed for the matchup table, read off the snapshot that carries it.
+    """The credit owed for the matchup table.
 
-    Taken from the manifest rather than imported from the source module: the credit
-    belongs to the data, and a snapshot promoted months ago should keep crediting
-    whoever it actually came from even if the ingest code moves on.
+    Read off the promoted snapshot's manifest when it carries one: the credit belongs to
+    the data, and a snapshot promoted months ago should keep crediting whoever it
+    actually came from even if the ingest code moves on.
+
+    Falls back to the source module's own credit, because the table no longer has to
+    come from a snapshot at all -- it may have been fetched straight into the matchup
+    store, and a credit that quietly disappeared when the data took the newer path would
+    be the one failure mode attribution cannot have.
     """
-    for entry in snapshot.manifest.attribution:
-        if str(entry.get("source", "")).lower() == "riftools":
-            return dict(entry)
-    return {}
+    if snapshot is not None:
+        for entry in snapshot.manifest.attribution:
+            if str(entry.get("source", "")).lower() == "riftools":
+                return dict(entry)
+    from .data.sources.riftools import ATTRIBUTION
+
+    return dict(ATTRIBUTION)
 
 
 @dataclass
@@ -149,22 +157,38 @@ class Services:
         renders "no matchup data yet" from an empty table, so there is one shape to
         handle rather than two.
         """
+        from .data.matchup_store import load_matchups
         from .domain.matchups import MatchupBasis, MatchupTable, build_matchups
 
-        snapshot = self.meta
-        if snapshot is None or not snapshot.matchups:
-            return MatchupTable(
-                basis=MatchupBasis(
-                    source_label="", attribution={}, set_window="", published_at="",
-                    events=0, matrix_matches=0, eligible_matches=0,
-                    legends_measured=0, legends_shown=0,
-                    cells_measured=0, cells_shown=0,
-                )
+        empty = MatchupTable(
+            basis=MatchupBasis(
+                source_label="", attribution={}, set_window="", published_at="",
+                events=0, matrix_matches=0, eligible_matches=0,
+                legends_measured=0, legends_shown=0,
+                cells_measured=0, cells_shown=0,
             )
-        meta = snapshot.matchup_meta or {}
+        )
+
+        # The store first, the snapshot second. The store is refreshed on its own cheap
+        # cadence; the snapshot copy only moves when the whole deck pipeline runs, which
+        # in hosted mode is never. Reading the snapshot first would pin the table to the
+        # slower of the two -- which is exactly the bug this ordering fixes.
+        snapshot = self.meta
+        stored = load_matchups(self.config.matchups_dir)
+        if stored is not None:
+            cells = stored.get("cells") or []
+            legend_rows = stored.get("legends") or []
+            meta = stored.get("meta") or {}
+        elif snapshot is not None and snapshot.matchups:
+            cells = list(snapshot.matchups)
+            legend_rows = list(snapshot.matchup_legends)
+            meta = snapshot.matchup_meta or {}
+        else:
+            return empty
+
         table, notes = build_matchups(
-            cells=snapshot.matchups,
-            legends=snapshot.matchup_legends,
+            cells=cells,
+            legends=legend_rows,
             catalog=self.catalog,
             source_label=str(meta.get("sourceLabel") or ""),
             attribution=_riftools_attribution(snapshot),
@@ -182,6 +206,79 @@ class Services:
             table.basis.cells_shown,
         )
         return table
+
+    def refresh_matchups(self, *, force: bool = False) -> bool:
+        """Fetch the matchup table into its own store, if it is stale.
+
+        One request, so this is cheap enough to run on every boot -- which is the point.
+        It is deliberately **not** tied to ``meta_refresh``: that flag governs a crawl
+        of one request per decklist and is off in hosted mode by design, and leaving the
+        matchup table behind it meant the live site never had one at all.
+
+        Returns whether the store was written. Every failure is swallowed and logged:
+        the table is an enhancement, and a source outage must degrade it rather than
+        taking down a boot or a request.
+        """
+        from .data.matchup_store import age_hours, write_matchups
+        from .data.sources.riftools_winrates import RiftoolsWinratesSource
+        from .domain.matchups import symmetry_errors
+
+        if not self.config.matchup_refresh and not force:
+            return False
+        age = age_hours(self.config.matchups_dir)
+        if not force and 0 <= age < self.config.matchup_refresh_hours:
+            logger.debug("matchup table is %.1fh old; not refetching", age)
+            return False
+
+        try:
+            fetched = RiftoolsWinratesSource().fetch()
+        except Exception as exc:  # the source already swallows; belt and braces
+            logger.warning("matchup refresh failed: %s", exc)
+            return False
+        if not fetched.ok or not fetched.cells:
+            logger.warning(
+                "matchup refresh failed: %s", fetched.error or "no cells returned"
+            )
+            return False
+
+        problems = symmetry_errors(fetched.cells)
+        if problems:
+            # Refused for the same reason the pipeline refuses it: a matrix that does
+            # not mirror no longer means what this code believes it means.
+            logger.warning(
+                "matchup table refused, %d asymmetric cell(s): %s",
+                len(problems), problems[0],
+            )
+            return False
+
+        try:
+            write_matchups(
+                self.config.matchups_dir,
+                cells=fetched.cells,
+                legends=fetched.legends,
+                meta={
+                    "sourceLabel": fetched.source_label,
+                    "setWindow": fetched.set_window,
+                    "publishedAt": fetched.published_at,
+                    "events": fetched.event_count,
+                    "matrixMatches": fetched.matrix_matches,
+                    "eligibleMatches": fetched.eligible_matches,
+                },
+            )
+        except OSError as exc:
+            logger.warning("could not write the matchup store: %s", exc)
+            return False
+
+        # The derived table is cached on this container; drop it so the next read picks
+        # up what was just written rather than serving the old one until a restart.
+        self.__dict__.pop("matchups", None)
+        self.__dict__.pop("field_outlooks", None)
+        logger.info(
+            "matchup table refreshed: %d cells, %d legends, %d matches over %d events",
+            len(fetched.cells), len(fetched.legends),
+            fetched.matrix_matches, fetched.event_count,
+        )
+        return True
 
     @cached_property
     def field_outlooks(self) -> dict:
