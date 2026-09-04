@@ -134,6 +134,9 @@ def card_to_dict(card: Card) -> dict[str, Any]:
         "cardId": card.card_id,
         "name": card.name,
         "cardType": card.card_type,
+        # Only written when it says something the primary does not, so a bundle of
+        # single-type cards is byte-identical to one built before this existed.
+        **({"cardTypes": list(card.card_types)} if len(card.card_types) > 1 else {}),
         "superType": card.super_type,
         "domains": list(card.domains),
         "domainsOk": card.domains_ok,
@@ -183,6 +186,7 @@ def card_from_dict(raw: dict[str, Any]) -> Card:
         card_id=card_id,
         name=str(raw.get("name") or ""),
         card_type=str(raw.get("cardType") or ""),
+        card_types=tuple(str(t) for t in (raw.get("cardTypes") or []) if str(t).strip()),
         super_type=str(raw.get("superType") or ""),
         domains=tuple(raw.get("domains") or ()),
         domains_ok=bool(raw.get("domainsOk")),

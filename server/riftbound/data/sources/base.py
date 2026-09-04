@@ -33,7 +33,10 @@ class RawCard:
     rarity: str = ""
     promo: bool = False
     image_url: str = ""
-    card_type: str = ""
+    # Upstream changed this from a string to a list, and a couple of cards are two
+    # types at once. Both shapes are accepted and flattened in `normalize`, the same
+    # way `color` is -- adapters stay dumb about it.
+    card_type: str | Sequence[str] = ""
     super_type: str = ""
     # A list of domain names from modern sources; older exports pack it as "FuryChaos".
     color: str | Sequence[str] = ""

@@ -21,6 +21,36 @@ _DOMAIN_LOOKUP = {d.lower(): d for d in BASE_DOMAINS}
 RARITY_ORDER: tuple[str, ...] = ("Common", "Uncommon", "Rare", "Epic", "Showcase")
 
 
+def coerce_card_types(value: object) -> tuple[str, ...]:
+    """Card types from whatever shape a source supplies.
+
+    Upstream changed ``type`` from a string ("Unit") to a list (``["Unit"]``), and a
+    handful of cards are genuinely two types at once (``["Unit", "Gear"]``). Both
+    shapes land here so no adapter has to know, exactly as :func:`coerce_domains`
+    handles the same drift in ``color``.
+
+    This is not cosmetic. Before it existed the list was stringified, so every card
+    reported its type as ``"['Unit']"`` -- which matches no rule, no zone and no
+    filter in the app. Runes stopped being runes, no deck was legal, and Smart Decks
+    reported that nothing in the legal pool could fill a champion slot.
+
+    >>> coerce_card_types("Unit")
+    ('Unit',)
+    >>> coerce_card_types(["Unit", "Gear"])
+    ('Unit', 'Gear')
+    >>> coerce_card_types(None)
+    ()
+    """
+    if value is None:
+        return ()
+    if isinstance(value, (list, tuple, set)):
+        # Order is preserved rather than sorted: the first entry is the card's primary
+        # type, which is what decides its zone.
+        return tuple(t for t in (str(v).strip() for v in value) if t)
+    text = str(value).strip()
+    return (text,) if text else ()
+
+
 def coerce_domains(color: object) -> tuple[tuple[str, ...], bool]:
     """Domains from whatever shape a source supplies.
 
@@ -106,7 +136,9 @@ class Card:
     """A gameplay card. Fields are merged across all of its printings."""
     card_id: str
     name: str
-    card_type: str        # Unit | Spell | Gear | Battlefield | Legend | Rune | Token
+    #: The card's *primary* type -- what decides its zone. Unit | Spell | Gear |
+    #: Battlefield | Legend | Rune | Token.
+    card_type: str
     super_type: str       # Champion | Signature | Basic | Token | ""
     domains: tuple[str, ...]
     domains_ok: bool
@@ -132,7 +164,29 @@ class Card:
     #: legality. Kept so the pipeline can report when the two have drifted apart,
     #: because ban lists go stale exactly the way set lists do.
     banned_upstream: bool = False
+    #: Every type the card has, primary first. Almost always one; two cards in the
+    #: current pool are ``('Unit', 'Gear')``. `card_type` stays the primary so that
+    #: zone assignment -- which has exactly one right answer -- is unchanged, while
+    #: rules that ask "is this a Gear" can consult the whole set.
+    #:
+    #: Defaulted to empty and read through :meth:`is_type`, so a bundle built before
+    #: this existed keeps working off `card_type` alone.
+    card_types: tuple[str, ...] = ()
     printings: tuple[Printing, ...] = field(default_factory=tuple)
+
+    @property
+    def all_types(self) -> tuple[str, ...]:
+        """Every type this card has. Falls back to the primary for older bundles."""
+        return self.card_types or ((self.card_type,) if self.card_type else ())
+
+    def is_type(self, name: str) -> bool:
+        """Whether the card is of a type, counting secondary ones.
+
+        Use this wherever a *rule* asks about a type -- legality, filtering. Zone
+        assignment keeps comparing `card_type`, because a card goes in exactly one
+        zone and the primary type is what decides which.
+        """
+        return any(t == name for t in self.all_types)
 
     @property
     def default_printing(self) -> Printing | None:

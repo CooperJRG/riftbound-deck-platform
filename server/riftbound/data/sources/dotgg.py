@@ -116,7 +116,10 @@ class DotGGSource(CardSource):
             rarity=str(row.get("rarity") or "").strip(),
             promo=str(row.get("promo") or "0").strip() not in {"", "0", "false", "False"},
             image_url=str(row.get("image") or "").strip(),
-            card_type=str(row.get("type") or "").strip(),
+            # Passed through, not stringified: upstream now sends a list here, and
+            # `str(["Unit"])` produced the literal "['Unit']" -- a type that matches
+            # no rule, no zone and no filter anywhere in the app.
+            card_type=row.get("type") or "",
             super_type=str(row.get("supertype") or "").strip(),
             # Already a list here; older exports pack it as "FuryChaos".
             color=row.get("color") or "",

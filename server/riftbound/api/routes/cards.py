@@ -51,7 +51,9 @@ def list_cards(
 
     rows = []
     for card in services.catalog:
-        if card_type and card.card_type != card_type:
+        # Any of the card's types, so a ('Unit', 'Gear') card appears under both
+        # filters rather than only its primary.
+        if card_type and not card.is_type(card_type):
             continue
         if domain and domain not in card.domains:
             continue
@@ -94,7 +96,7 @@ def card_facets(response: Response, services: Services = Depends(get_services)) 
     response.headers["Cache-Control"] = "public, max-age=300"
     catalog = services.catalog
     return {
-        "cardTypes": sorted({c.card_type for c in catalog if c.card_type}),
+        "cardTypes": sorted({t for c in catalog for t in c.all_types}),
         "superTypes": sorted({c.super_type for c in catalog if c.super_type}),
         "domains": sorted({d for c in catalog for d in c.domains}),
         "setCodes": sorted({s for c in catalog for s in c.set_codes}),

@@ -25,7 +25,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from html import unescape
 
-from ..domain.cards import Card, Printing, coerce_domains
+from ..domain.cards import Card, Printing, coerce_card_types, coerce_domains
 from ..domain.ids import card_id_for, clean_text, oracle_name, print_id_for
 from .sources.base import RawCard
 
@@ -301,7 +301,17 @@ def normalize(
                     tags.append(clean)
         tags = list(unpack_tags(tags, tag_vocabulary))
 
-        card_type = str(_first(_coerce_str(r.card_type) or None for r in rows) or "")
+        # Flattened here rather than in the adapters, because upstream serves this field
+        # as a string on some exports and a list on others -- the same drift `color` has.
+        # A card is two types at once only twice in the current pool, but the primary is
+        # what decides its zone, so order is preserved.
+        card_types: tuple[str, ...] = ()
+        for r in rows:
+            found = coerce_card_types(r.card_type)
+            if found:
+                card_types = found
+                break
+        card_type = card_types[0] if card_types else ""
         if not card_type:
             log.append(f"{cid}: no printing declares a card type")
 
@@ -310,6 +320,7 @@ def normalize(
                 card_id=cid,
                 name=oracle_name(rows[0].title),
                 card_type=card_type,
+                card_types=card_types,
                 super_type=str(_first(_coerce_str(r.super_type) or None for r in rows) or ""),
                 domains=domains,
                 domains_ok=domains_ok,

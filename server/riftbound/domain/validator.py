@@ -371,7 +371,9 @@ def _check_zone(
         card = _lookup(catalog, card_id, collector=collector, field_name=zone)
         if card is None:
             continue
-        if allowed_types and card.card_type not in allowed_types:
+        # Membership across every type the card has, not just the primary: a
+        # ('Unit', 'Gear') card is legal wherever either type is allowed.
+        if allowed_types and not any(t in allowed_types for t in card.all_types):
             collector.add(
                 f"{zone.upper()}_CARD_TYPE", zone,
                 f"'{card.name}' is a {card.card_type or 'card with no type'} and cannot go in "

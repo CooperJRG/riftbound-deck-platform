@@ -266,3 +266,61 @@ def test_a_malformed_source_file_fails_without_raising(tmp_path):
     result = JsonExportSource(path).fetch()
     assert result.ok is False
     assert "must contain a JSON array" in result.error
+
+
+# -- upstream card-type drift --------------------------------------------------
+#
+# Regression: upstream changed `type` from a string to a list, the adapter stringified
+# it, and every card reported its type as "['Unit']" -- a value that matches no rule, no
+# zone and no filter. Runes stopped being runes, no deck was legal, and Smart Decks told
+# every player that nothing in the legal pool could fill a champion slot.
+
+
+def test_a_list_card_type_is_flattened_not_stringified():
+    from riftbound.data.sources.dotgg import DotGGSource
+
+    raw = DotGGSource._to_raw({"id": "OGN-001", "name": "X", "type": ["Unit"]})
+    assert raw is not None
+    cards = normalize([raw])
+    assert cards[0].card_type == "Unit", "the list was stringified into \"['Unit']\""
+    assert cards[0].card_types == ("Unit",)
+
+
+def test_a_string_card_type_still_works():
+    """Older exports send a bare string; both shapes have to land in the same place."""
+    from riftbound.data.sources.dotgg import DotGGSource
+
+    raw = DotGGSource._to_raw({"id": "OGN-002", "name": "Y", "type": "Spell"})
+    cards = normalize([raw])
+    assert cards[0].card_type == "Spell"
+    assert cards[0].card_types == ("Spell",)
+
+
+def test_a_dual_type_card_keeps_both_types_with_the_primary_first():
+    from riftbound.data.sources.dotgg import DotGGSource
+
+    raw = DotGGSource._to_raw({"id": "OGN-003", "name": "Z", "type": ["Unit", "Gear"]})
+    card = normalize([raw])[0]
+    assert card.card_type == "Unit", "the primary type decides the zone"
+    assert card.card_types == ("Unit", "Gear")
+    assert card.is_type("Unit") and card.is_type("Gear")
+    assert not card.is_type("Spell")
+
+
+def test_a_missing_card_type_is_reported_not_invented():
+    from riftbound.data.sources.dotgg import DotGGSource
+
+    raw = DotGGSource._to_raw({"id": "OGN-004", "name": "W", "type": None})
+    warnings: list[str] = []
+    card = normalize([raw], warnings=warnings)[0]
+    assert card.card_type == ""
+    assert any("card type" in w for w in warnings)
+
+
+def test_is_type_falls_back_to_the_primary_for_older_bundles():
+    """A bundle built before `card_types` existed has only the primary; it must work."""
+    from conftest import make_card
+
+    card = make_card("legacy", card_type="Rune")
+    assert card.card_types == ()
+    assert card.is_type("Rune") and card.all_types == ("Rune",)

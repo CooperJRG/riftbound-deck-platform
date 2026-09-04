@@ -105,7 +105,7 @@ def legal_main_pool(legend: Card, *, catalog: Catalog, rules: BoundRules) -> lis
     return [
         card
         for card in catalog
-        if card.card_type in allowed
+        if any(t in allowed for t in card.all_types)
         and not rules.is_banned(card.card_id)
         and card.in_domains(domains)
     ]
