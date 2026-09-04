@@ -1134,6 +1134,90 @@ button.primary:hover:not(:disabled), .primary:hover:not(:disabled) { background:
 .event-champion-grid button { display: flex; min-height: 66px; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; }
 .event-champion-grid span { color: var(--atlas-muted); font-size: 0.7rem; }
 
+/* Opening hand simulator ---------------------------------------------------- */
+
+.opening-slot { margin-top: 1.25rem; }
+.sim-panel {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius-lg);
+  background: var(--atlas-surface);
+}
+.sim-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.9rem 0 1.1rem; }
+.sim-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 78px;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--atlas-border);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-canvas);
+  line-height: 1.2;
+}
+.sim-chip b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.sim-chip i { color: var(--atlas-muted); font-size: 0.64rem; font-style: normal; }
+
+.sim-empty { display: flex; flex-direction: column; gap: 0.7rem; align-items: flex-start; }
+.sim-board { display: flex; flex-direction: column; gap: 0.75rem; }
+.sim-hand { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.sim-card { width: 108px; }
+.sim-card-art {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  aspect-ratio: 63 / 88;
+  background: var(--atlas-raised);
+}
+.sim-card-art img { display: block; width: 100%; }
+.sim-card.is-marked .sim-card-art { border-color: var(--atlas-copper); opacity: 0.55; }
+/* The mark has to survive being read at a glance across a row of four, so it is a
+   label rather than only a border tint. */
+.sim-card-flag {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--atlas-copper);
+  color: var(--atlas-surface);
+  font-size: 0.58rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sim-card figcaption {
+  overflow: hidden;
+  margin-top: 0.3rem;
+  color: var(--atlas-muted);
+  font-size: 0.66rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sim-status { margin: 0; }
+.sim-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.sim-odds { overflow-x: auto; margin-top: 1.2rem; }
+.odds-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+.odds-table th, .odds-table td {
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid var(--atlas-border);
+  text-align: right;
+}
+.odds-table thead th { color: var(--atlas-muted); font-size: 0.68rem; font-weight: 650; }
+.odds-table th[scope="row"] { font-weight: 500; text-align: left; }
+.odds-table td { font-variant-numeric: tabular-nums; }
+
+.sim-caveat { max-width: 70ch; margin-top: 1rem; }
+
+@media (max-width: 640px) {
+  .sim-card { width: 84px; }
+}
+
 /* Board-for plan ------------------------------------------------------------ */
 
 .board-plan { margin-bottom: 1rem; }

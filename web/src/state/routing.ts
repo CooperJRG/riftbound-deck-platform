@@ -26,7 +26,7 @@ import { resolveDeckCards } from "./actions/cards";
 import { loadDeck } from "./actions/library";
 import { openArchetype, loadMeta } from "./actions/meta";
 import { runDeckSearch } from "./actions/search";
-import { refreshSuggestions, revalidate } from "./actions/deck";
+import { refreshOpening, refreshSuggestions, revalidate } from "./actions/deck";
 import { closeSmartSession, resumeSmartSession } from "./actions/wizard";
 import { store } from "./store";
 import { deckToQuery, type ExploreQuery, type Location, type Route } from "../ui/router";
@@ -109,7 +109,7 @@ async function benchDeck(
     benchSource: source ? { deckId: source, signature: deckToQuery(deck).toString() } : null,
   });
   await resolveDeckCards(deck);
-  await Promise.all([revalidate(), refreshSuggestions()]);
+  await Promise.all([revalidate(), refreshSuggestions(), refreshOpening()]);
 }
 
 /**

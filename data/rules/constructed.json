@@ -29,6 +29,10 @@
     "main_deck_size_exact": 40,
     "rune_count_exact": 12,
     "battlefield_count_exact": 3,
+    "opening_hand_size": 4,
+    "mulligan_max": 2,
+    "mulligan_destination": "bottom",
+    "draw_per_turn": 1,
     "battlefield_unique_required": true,
     "main_copy_limit": 3,
     "combined_main_sideboard_copy_limit": 3,
@@ -143,7 +147,10 @@
     ],
     "banned_list": [
       "TR Banned List"
-    ]
+    ],
+    "opening_hand_size": [],
+    "mulligan": [],
+    "draw_per_turn": []
   },
   "advisories": {
     "sideboard_max": {
@@ -183,6 +190,16 @@
         "evidence": "Derived from the archive, not from an announcement: across 4,218 published lists the last deck containing any of these cards is dated 2026-03-28 and the first list without them is dated 2026-03-29, with zero exceptions on either side. Replace 'source' with the official announcement URL when one is to hand and correct the date if it disagrees.",
         "source": ""
       }
+    ]
+  },
+  "opening": {
+    "description": "How a game starts, for the opening-hand odds and the draw simulator. Deck construction is the rest of this file's business; these are the only gameplay values it records, and only because a simulator that guessed at them would produce confident, wrong numbers.",
+    "evidence": "Corroborated across published rules guides in September 2026: a 4-card opening hand from the main deck; an optional one-time mulligan of up to 2 cards placed face down on the bottom of the deck, drawing the same number back; one card drawn per turn in the Draw step. Not read off the Core Rules document this profile cites, which is referenced but not committed to this repository -- so `source` stays empty and the UI says the values are derived rather than cited.",
+    "source": "",
+    "sources_consulted": [
+      "https://riftbound.zone/en/guide/riftbound-mulligan/",
+      "https://runesandrift.com/riftbound-turn-order/",
+      "https://playriftbound.com/en-us/news/rules-and-releases/gameplay-guide-core-rules/"
     ]
   }
 }

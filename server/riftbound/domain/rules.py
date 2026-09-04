@@ -43,6 +43,12 @@ class FormatRules:
     #: Read by :mod:`domain.eras`; nothing about *legality* depends on it, because an
     #: era only decides which decks a meta statistic is computed over.
     eras: Mapping[str, Any] = field(default_factory=dict)
+    #: Gameplay values the opening-hand simulator runs on, plus how they were
+    #: established. Carried like `eras`: nothing about legality depends on it, and a
+    #: profile that omits it simply gets no simulator. The provenance travels with
+    #: the values because these were corroborated from published guides rather than
+    #: read off the rulebook this profile cites.
+    opening: Mapping[str, Any] = field(default_factory=dict)
     source_path: Path | None = None
 
     # -- typed constraint access ------------------------------------------------
@@ -130,6 +136,7 @@ def load_format_rules(path: Path) -> FormatRules:
         rule_refs=dict(raw.get("rule_refs") or {}),
         advisories=dict(raw.get("advisories") or {}),
         eras=dict(raw.get("eras") or {}),
+        opening=dict(raw.get("opening") or {}),
         source_path=Path(path),
     )
 

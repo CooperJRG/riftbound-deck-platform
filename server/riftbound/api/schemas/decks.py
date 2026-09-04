@@ -237,3 +237,58 @@ class BuildSuggestionsView(ApiModel):
     #: What to prepare for after game one, from the matchup table. Legend-level: it
     #: depends on the legend chosen, not on the forty cards under it.
     sideboard_plan: SideboardPlanView | None = None
+
+
+class OpeningRulesView(ApiModel):
+    """The gameplay values the simulator runs on, and how they were established.
+
+    `cited` is the field to branch on. It is currently false everywhere: these were
+    corroborated from published rules guides, not read off the Core Rules document the
+    format profile references, and that file is not committed to this repository. The
+    UI says so rather than letting derived values pass as cited -- the same treatment
+    the derived ban-era boundary gets.
+    """
+    hand_size: int
+    mulligan_max: int
+    #: "bottom" or "shuffle". Only "bottom" is modelled, because it is what the profile
+    #: records; anything else is reported rather than silently treated as equivalent.
+    mulligan_destination: str
+    draw_per_turn: int
+    cited: bool
+    evidence: str
+
+
+class CardOddsView(ApiModel):
+    card_id: str
+    name: str
+    image_url: str
+    copies: int
+    cost: int | None
+    #: P(at least one copy) in the opening hand, before any mulligan.
+    opening: float
+    by_turn_three: float
+    #: P(holding one after a full mulligan that never bottoms a copy of this card.
+    #: Assumes a strategy, which is why it is a separate number from `opening`.
+    after_mulligan: float
+    summary: str
+
+
+class OpeningOddsView(ApiModel):
+    """Exact opening-hand probabilities for the deck as it stands.
+
+    Hypergeometric, not simulated: the closed form is exact, and a Monte Carlo estimate
+    would make the page disagree with itself between reloads.
+
+    `available` is false when the deck is empty or the format records no hand size --
+    skirmish deliberately records none, because nothing available says whether its
+    opening hand matches constructed's.
+    """
+    available: bool
+    rules: OpeningRulesView
+    #: The population every probability is over: the main deck. Runes and battlefields
+    #: are separate zones and are never drawn.
+    deck_size: int
+    champion: CardOddsView | None
+    #: `(cost, P(at least one card costing <= cost in the opening hand))`.
+    playable_by_cost: list[list[float]] = Field(default_factory=list)
+    cards: list[CardOddsView] = Field(default_factory=list)

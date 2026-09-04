@@ -24,6 +24,7 @@ function commit(deck: DeckPayload): void {
   store.set({ deck, dirty: true });
   revalidateDebounced();
   refreshSuggestionsDebounced();
+  refreshOpeningDebounced();
 }
 
 /**
@@ -49,6 +50,29 @@ export async function refreshSuggestions(): Promise<void> {
 }
 
 const refreshSuggestionsDebounced = debounce(() => void refreshSuggestions(), 200);
+
+/**
+ * Opening-hand odds for the deck as it stands.
+ *
+ * Debounced alongside validation for the same reason: the odds are a function of the
+ * deck, and a table computed against a list the player has already changed is worse
+ * than none, because they will read it.
+ */
+export async function refreshOpening(): Promise<void> {
+  const deck = store.state.deck;
+  if (!deck.legendId && Object.keys(deck.main).length === 0) {
+    store.set({ opening: null });
+    return;
+  }
+  try {
+    store.set({ opening: await api.openingOdds(deck) });
+  } catch {
+    // Odds that cannot be fetched are not worth interrupting a build for.
+    store.set({ opening: null });
+  }
+}
+
+const refreshOpeningDebounced = debounce(() => void refreshOpening(), 250);
 
 export function adjustCard(cardId: string, zone: Zone, delta: number): void {
   const deck = store.state.deck;

@@ -357,3 +357,54 @@ export interface ForgetResult {
   sessions: number;
   availability: AvailabilityProfile;
 }
+
+/**
+ * The gameplay values the opening-hand simulator runs on.
+ *
+ * `cited` is the field to branch on, and it is currently false: these were corroborated
+ * from published rules guides, not read off the Core Rules document the format profile
+ * references. Render the caveat — the same treatment the derived ban-era boundary gets.
+ */
+export interface OpeningRules {
+  handSize: number;
+  mulliganMax: number;
+  /** "bottom" or "shuffle". Only "bottom" is modelled. */
+  mulliganDestination: string;
+  drawPerTurn: number;
+  cited: boolean;
+  evidence: string;
+}
+
+export interface CardOdds {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  copies: number;
+  cost: number | null;
+  /** P(at least one copy) in the opening hand, before any mulligan. */
+  opening: number;
+  byTurnThree: number;
+  /**
+   * P(holding one after a mulligan that never bottoms a copy of this card. Assumes a
+   * strategy, which is why it is separate from `opening` rather than replacing it.
+   */
+  afterMulligan: number;
+  summary: string;
+}
+
+/**
+ * Exact opening-hand odds. Hypergeometric, computed server-side — do not re-derive
+ * them here, and do not estimate them by dealing hands: the closed form is exact and a
+ * simulated figure would disagree with itself between reloads.
+ */
+export interface OpeningOdds {
+  available: boolean;
+  rules: OpeningRules;
+  /** The population every probability is over: the main deck. Runes and battlefields
+   *  are separate zones and are never drawn. */
+  deckSize: number;
+  champion: CardOdds | null;
+  /** `[cost, P(at least one card costing <= cost in the opening hand)]`. */
+  playableByCost: number[][];
+  cards: CardOdds[];
+}

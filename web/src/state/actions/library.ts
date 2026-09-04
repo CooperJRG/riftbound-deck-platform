@@ -4,7 +4,7 @@ import { api } from "../../api/client";
 import { emptyDeck, store } from "../store";
 import { reportError } from "./shared";
 import { resolveDeckCards } from "./cards";
-import { revalidate, refreshSuggestions } from "./deck";
+import { refreshOpening, revalidate, refreshSuggestions } from "./deck";
 
 export async function saveDeck(): Promise<void> {
   const { deck, deckId } = store.state;
@@ -37,7 +37,7 @@ export async function loadDeck(deckId: string): Promise<void> {
     await resolveDeckCards(view.deck);
     // Opening a deck is a deck change like any other; without this the shortlist stays
     // empty until the player edits something.
-    await refreshSuggestions();
+    await Promise.all([refreshSuggestions(), refreshOpening()]);
   } catch (error) {
     reportError(error);
   }

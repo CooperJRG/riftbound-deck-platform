@@ -30,6 +30,8 @@ interface Attributes {
   alt?: string;
   loading?: "lazy" | "eager";
   role?: string;
+  /** Table header association, e.g. `scope="row"`. */
+  scope?: string;
   style?: string;
   /** `data-*` attributes. */
   data?: Record<string, string>;

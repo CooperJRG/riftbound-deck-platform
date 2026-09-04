@@ -18,6 +18,7 @@ from ...domain.deck import Deck
 from ...domain.deck_analysis import nearest_field_match
 from ...domain.export import export_deck, export_filename
 from ...domain.field_plan import sideboard_plan
+from ...domain.opening import opening_odds
 from ...domain.suggest import (
     battlefield_suggestions,
     champion_options,
@@ -31,6 +32,7 @@ from ...services import Services, get_services
 from ..identity import Identity, current_identity
 from ..schemas import (
     BuildSuggestionsView,
+    OpeningOddsView,
     ChampionOptionView,
     DeckPayload,
     DeckSummaryView,
@@ -38,7 +40,13 @@ from ..schemas import (
     SuggestionView,
     ValidationView,
 )
-from ..views import deck_dict, deck_score_view, sideboard_plan_view, validation_view
+from ..views import (
+    deck_dict,
+    deck_score_view,
+    opening_odds_view,
+    sideboard_plan_view,
+    validation_view,
+)
 
 router = APIRouter(prefix="/api/decks", tags=["decks"])
 
@@ -301,4 +309,40 @@ def build_suggestions(
         field_match=asdict(field_match),
         deck_score=deck_score_view(services.deck_scoreboard.score(deck)),
         sideboard_plan=plan_view,
+    )
+
+
+@router.post("/opening", response_model=OpeningOddsView)
+def opening_hand(
+    payload: DeckPayload,
+    services: Services = Depends(get_services),
+) -> OpeningOddsView:
+    """Exact opening-hand odds for the deck as it currently stands.
+
+    Hypergeometric rather than simulated: the closed form is exact, so the page cannot
+    disagree with itself between reloads, and it costs a few dozen integer binomials.
+    The simulator in the client deals real hands on top of these numbers -- watching a
+    hand is the point of a simulator, but the percentages beside it are arithmetic.
+
+    Takes the deck in the body rather than a saved id, so odds update as a deck is
+    built. Nothing here is per-user, so it asks for no identity.
+    """
+    deck = _to_deck(payload)
+    try:
+        rules = services.rules_for(payload.format or "constructed")
+    except ConfigError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    # Provenance travels with the values: these were corroborated from published rules
+    # guides, not read off the Core Rules document the profile cites, and the UI says so
+    # rather than letting them pass as cited.
+    block = dict(getattr(rules, "opening", {}) or {})
+    return opening_odds_view(
+        opening_odds(
+            deck,
+            rules=rules,
+            catalog=services.catalog,
+            evidence=str(block.get("evidence") or ""),
+            cited=bool(block.get("source")),
+        )
     )

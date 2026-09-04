@@ -28,6 +28,7 @@ import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
 import { openCardPreview } from "./cardPreview";
 import { deckAnalysisRail } from "./deckAnalysis";
+import { renderOpeningHand } from "./openingHand";
 import { analyzeDeck } from "./deckAnalysisModel";
 import {
   dismissSuggestion,
@@ -1216,6 +1217,11 @@ export function renderDeckPanel(root: HTMLElement): void {
     ),
   );
 
+  // Its own mount rather than a rendered subtree: the simulator holds a dealt hand in
+  // module state and repaints itself, so it must not be rebuilt every time the deck
+  // panel re-renders -- that would reshuffle the board under the player mid-mulligan.
+  const openingSlot = h("div", { class: "opening-slot" });
+
   replace(
     slot,
     h(
@@ -1224,6 +1230,7 @@ export function renderDeckPanel(root: HTMLElement): void {
       playmat,
       deckAnalysisRail(deck, store.state.deckCards, validation, suggestions),
     ),
+    openingSlot,
     chooseChampion,
     deckExpanded
       ? deckWorkbench(
@@ -1246,4 +1253,8 @@ export function renderDeckPanel(root: HTMLElement): void {
     issues,
     beforeYouPlay,
   );
+
+  // After the slot is in the document, so the simulator's own repaints have a mounted
+  // node to write into.
+  renderOpeningHand(openingSlot);
 }

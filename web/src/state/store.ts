@@ -24,6 +24,7 @@ import type {
   MatchupOverview,
   MetaDeck,
   MetaStatus,
+  OpeningOdds,
   RefreshStatus,
   SmartSession,
   CardDetail,
@@ -95,6 +96,14 @@ export interface AppState {
   deckCards: Map<string, CardAvailability>;
   /** What to add next, for the deck as it stands. Null until the first fetch lands. */
   suggestions: BuildSuggestions | null;
+  /**
+   * Exact opening-hand odds for the deck on the bench.
+   *
+   * Server-computed and hypergeometric. The simulator deals real hands on top of
+   * these; it must never be used to *estimate* them, or the page would disagree
+   * with itself between reloads.
+   */
+  opening: OpeningOdds | null;
   /** Whether the card drawer is showing. Closed, the deck gets the whole width. */
   drawerOpen: boolean;
   /**
@@ -257,6 +266,7 @@ const initial: AppState = {
   builderReview: false,
   deckCards: new Map(),
   suggestions: null,
+  opening: null,
   drawerOpen: false,
   benchSource: null,
 

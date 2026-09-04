@@ -19,6 +19,7 @@ import type {
   MatchupOverview,
   MetaDeck,
   MetaStatus,
+  OpeningOdds,
   CardDetail,
   CardTrendOverview,
   LegendChoice,
@@ -165,6 +166,12 @@ export const api = {
   card: (cardId: string) =>
     request<Card>(`/api/cards/${encodeURIComponent(cardId)}`),
   facets: () => request<CardFacets>("/api/cards/facets"),
+
+  openingOdds: (deck: DeckPayload) =>
+    request<OpeningOdds>("/api/decks/opening", {
+      method: "POST",
+      body: JSON.stringify(deck),
+    }),
 
   buildSuggestions: (deck: DeckPayload) =>
     request<BuildSuggestions>("/api/decks/suggestions", {

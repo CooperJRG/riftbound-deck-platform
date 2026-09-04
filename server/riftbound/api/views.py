@@ -9,6 +9,7 @@ from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
 from ..domain.field_plan import FieldMatchup, FieldOutlook, MatchupPlan
 from ..domain.matchups import LegendRecord, Matchup, MatchupBasis
+from ..domain.opening import CardOdds, OpeningOdds, OpeningRules, mulligan_odds
 from ..domain.meta import MetaDeck, Tournament
 from ..domain.meta_scoring import ScoreBreakdown
 from ..domain.validator import ValidationResult
@@ -27,8 +28,11 @@ from .schemas import (
     IssueView,
     LegendRecordView,
     MatchupBasisView,
+    CardOddsView,
     MatchupPlanView,
     MatchupView,
+    OpeningOddsView,
+    OpeningRulesView,
     MetaDeckView,
     PrintingView,
     ProvenanceView,
@@ -512,4 +516,50 @@ def sideboard_plan_view(
             )
             for plan in plans
         ],
+    )
+
+
+# -- opening hand -------------------------------------------------------------
+
+
+def _card_odds_view(row: CardOdds, rules: OpeningRules, deck_size: int) -> CardOddsView:
+    return CardOddsView(
+        card_id=row.card_id,
+        name=row.name,
+        image_url=row.image_url,
+        copies=row.copies,
+        cost=row.cost,
+        opening=round(row.opening, 4),
+        by_turn_three=round(row.by_turn_three, 4),
+        after_mulligan=round(
+            mulligan_odds(
+                deck_size, row.copies,
+                hand_size=rules.hand_size, recycled=rules.mulligan_max,
+            ),
+            4,
+        ),
+        summary=row.describe(),
+    )
+
+
+def opening_odds_view(odds: OpeningOdds) -> OpeningOddsView:
+    rules = odds.rules
+    return OpeningOddsView(
+        available=odds.available,
+        rules=OpeningRulesView(
+            hand_size=rules.hand_size,
+            mulligan_max=rules.mulligan_max,
+            mulligan_destination=rules.mulligan_destination,
+            draw_per_turn=rules.draw_per_turn,
+            cited=rules.cited,
+            evidence=rules.evidence,
+        ),
+        deck_size=odds.deck_size,
+        champion=(
+            _card_odds_view(odds.champion, rules, odds.deck_size)
+            if odds.champion is not None
+            else None
+        ),
+        playable_by_cost=[[float(cost), round(p, 4)] for cost, p in odds.playable_by_cost],
+        cards=[_card_odds_view(row, rules, odds.deck_size) for row in odds.cards],
     )
