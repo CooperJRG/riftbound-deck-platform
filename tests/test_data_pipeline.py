@@ -324,3 +324,46 @@ def test_is_type_falls_back_to_the_primary_for_older_bundles():
     card = make_card("legacy", card_type="Rune")
     assert card.card_types == ()
     assert card.is_type("Rune") and card.all_types == ("Rune",)
+
+
+def test_a_bundle_whose_types_stopped_matching_is_reported_as_unusable():
+    """A bundle can be present, well-formed, the right size -- and still useless.
+
+    This is the state the live site was in: correct card count, correct names, no
+    errors anywhere, and not one card that any rule recognised as a Rune. The check
+    is by type *presence* rather than by looking for the stringified-list defect, so
+    it catches the next shape change too.
+    """
+    from dataclasses import replace as dc_replace
+
+    from conftest import make_card
+    from riftbound.config import load_config
+    from riftbound.domain.cards import build_catalog
+    from riftbound.services import Services
+
+    healthy = [
+        make_card("a-rune", card_type="Rune"),
+        make_card("a-field", card_type="Battlefield"),
+        make_card("a-legend", card_type="Legend"),
+        make_card("a-unit", card_type="Unit"),
+    ]
+
+    def services_with(cards):
+        services = Services(config=load_config())
+
+        class _Bundle:
+            catalog = build_catalog(cards)
+
+        services.__dict__["bundle"] = _Bundle()
+        return services
+
+    assert services_with(healthy).unusable_bundle() == ""
+
+    poisoned = [
+        dc_replace(c, card_type=f"['{c.card_type}']", card_types=()) for c in healthy
+    ]
+    problem = services_with(poisoned).unusable_bundle()
+    assert "no runes" in problem
+    # The message has to show what the types actually look like, or an operator cannot
+    # tell a shape change from an empty download.
+    assert "['Rune']" in problem

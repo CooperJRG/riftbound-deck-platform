@@ -425,12 +425,85 @@ class Services:
             scoreboard=self.deck_scoreboard,
         )
 
+    def unusable_bundle(self) -> str:
+        """Why the promoted bundle cannot support the app, or "" if it can.
+
+        The format profile names the card types a legal deck is made of. If the
+        catalogue contains none of one of them, no deck can be built, nothing validates,
+        and the deck builder is furniture -- whatever the cause.
+
+        Checked by *type presence* rather than by looking for a known defect, so this
+        catches the next shape change as well as the one that prompted it: upstream
+        turned `type` into a list, the adapter stringified it, and every card's type
+        became "['Unit']". Every rule silently stopped matching and the promoted bundle
+        looked perfectly healthy -- right card count, right names, no errors.
+        """
+        try:
+            rules = self.rules_for("constructed")
+        except ConfigError:
+            return ""  # a missing profile is a different failure, reported elsewhere
+        required = {
+            "runes": rules.str_constraint("rune_card_type", "Rune"),
+            "battlefields": rules.str_constraint("battlefield_card_type", "Battlefield"),
+            "legends": rules.str_constraint("legend_card_type", "Legend"),
+        }
+        missing = [
+            f"{label} ({wanted!r})"
+            for label, wanted in required.items()
+            if wanted and not any(card.is_type(wanted) for card in self.catalog)
+        ]
+        if not missing:
+            return ""
+        sample = ", ".join(sorted({c.card_type for c in self.catalog if c.card_type})[:6])
+        return (
+            f"the promoted bundle has no {', no '.join(missing)}. "
+            f"Card types present look like: {sample or '(none)'}"
+        )
+
+    def _rebuild_bundle(self) -> bool:
+        """Rebuild and promote the card bundle from upstream. True if it now looks usable.
+
+        Startup only, and only when the promoted bundle is already unusable -- at which
+        point the site is down regardless, so a couple of seconds and one upstream
+        request is the cheap option. The alternative is what actually happened: correct
+        code shipped, the volume kept the damaged bundle, and the entrypoint skipped the
+        rebuild because a bundle "was present".
+        """
+        from .data.pipeline import main as pipeline_main
+
+        logger.error("card bundle unusable — rebuilding from upstream")
+        try:
+            code = pipeline_main(["build", "--promote"])
+        except Exception as exc:
+            logger.error("bundle rebuild failed: %s", exc)
+            return False
+        if code != 0:
+            logger.error("bundle rebuild exited %s", code)
+            return False
+        # Drop everything derived from the bundle we just replaced.
+        for key in ("bundle", "bound_formats", "formats"):
+            self.__dict__.pop(key, None)
+        return not self.unusable_bundle()
+
     def warm(self) -> None:
         """Touch everything required so startup fails loudly, not on first request."""
         self.config.require_files()
         _ = self.bundle
         _ = self.bound_formats
         _ = self.db
+
+        # A bundle can be present, well-formed and still unusable. Self-heal once rather
+        # than serving a catalogue in which nothing is a rune.
+        problem = self.unusable_bundle()
+        if problem:
+            logger.error("%s", problem)
+            if self._rebuild_bundle():
+                logger.info("rebuilt card bundle %s", self.bundle.manifest.bundle_id)
+            else:
+                logger.error(
+                    "card bundle is still unusable after a rebuild. The app will start, "
+                    "but deck building and Smart Decks will not work until this is fixed."
+                )
         # Fills a cold database from the snapshot committed at data/meta-seed, so
         # Explore and Smart Decks have real content on the very first request rather
         # than an empty screen until the first live harvest lands. A no-op once
