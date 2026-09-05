@@ -185,7 +185,7 @@ class AvailabilityProfile:
         }
         return cls(
             mode=MODE_COLLECTION,
-            owned={k: v for k, v in clean.items() if v > 0},
+            owned=clean,
             owned_rules=tuple(rules),
             strict=strict,
             penalty=penalty,
@@ -219,7 +219,7 @@ class AvailabilityProfile:
 
         if self.mode == MODE_COLLECTION:
             owned = int(self.owned.get(card.card_id, 0))
-            if owned <= 0:
+            if card.card_id not in self.owned:
                 for rule in self.owned_rules:
                     if rule.matches(card):
                         return Availability(

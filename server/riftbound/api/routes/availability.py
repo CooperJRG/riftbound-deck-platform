@@ -8,6 +8,8 @@ Discord" -- no collection, no setup screen.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from ...domain.availability import (
@@ -63,9 +65,13 @@ def forget_collection(
     sessions = services.smart_decks.clear_all(user_id=identity.user_id)
 
     profile = _load(services, identity.user_id)
-    if profile.mode == MODE_COLLECTION:
-        profile = AvailabilityProfile.open_profile()
-        services.availability.save(profile, user_id=identity.user_id)
+    profile = replace(
+        profile,
+        mode="open" if profile.mode == MODE_COLLECTION else profile.mode,
+        owned={},
+        owned_rules=(),
+    )
+    services.availability.save(profile, user_id=identity.user_id)
 
     return ForgetResult(
         collection_rows=rows,
@@ -87,30 +93,23 @@ def set_availability(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    if mode == MODE_COLLECTION:
-        profile = AvailabilityProfile.from_collection(
-            services.collections.owned_by_card(user_id=identity.user_id),
-            rules=[OwnedRule(kind=r.kind, value=r.value) for r in owned_rules],
-            strict=update.strict,
-            penalty=update.penalty,
+    unknown = [cid for cid in update.excluded_card_ids if services.catalog.get(cid) is None]
+    if unknown:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown card id(s): {', '.join(sorted(unknown)[:5])}",
         )
-    elif mode == MODE_EXCLUSION:
-        unknown = [
-            cid for cid in update.excluded_card_ids if services.catalog.get(cid) is None
-        ]
-        if unknown:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unknown card id(s): {', '.join(sorted(unknown)[:5])}",
-            )
-        profile = AvailabilityProfile.from_exclusions(
-            card_ids=update.excluded_card_ids,
-            rules=[ExclusionRule(kind=r.kind, value=r.value) for r in rules],
-            strict=update.strict,
-            penalty=update.penalty,
-        )
-    else:
-        profile = AvailabilityProfile.open_profile()
+    # Mode chooses which settings apply. It must not erase the inactive settings
+    # the client carries across a mode switch.
+    profile = AvailabilityProfile(
+        mode=mode,
+        owned=services.collections.owned_by_card(user_id=identity.user_id, include_zero=True),
+        excluded_cards=frozenset(update.excluded_card_ids),
+        exclusion_rules=tuple(ExclusionRule(kind=r.kind, value=r.value) for r in rules),
+        owned_rules=tuple(OwnedRule(kind=r.kind, value=r.value) for r in owned_rules),
+        strict=update.strict,
+        penalty=update.penalty,
+    )
 
     services.availability.save(profile, user_id=identity.user_id)
     return availability_view(profile, services.catalog)
@@ -128,9 +127,10 @@ def exclude_card(
         raise HTTPException(status_code=404, detail=f"No card {card_id!r}.")
 
     current = _load(services, identity.user_id)
-    profile = AvailabilityProfile.from_exclusions(
-        card_ids=set(current.excluded_cards) | {card.card_id},
-        rules=current.exclusion_rules,
+    profile = replace(
+        current,
+        mode=MODE_EXCLUSION,
+        excluded_cards=current.excluded_cards | {card.card_id},
         strict=current.strict if current.mode == MODE_EXCLUSION else False,
         penalty=current.penalty,
     )
@@ -145,9 +145,10 @@ def unexclude_card(
     identity: Identity = Depends(current_identity),
 ) -> AvailabilityView:
     current = _load(services, identity.user_id)
-    profile = AvailabilityProfile.from_exclusions(
-        card_ids=set(current.excluded_cards) - {card_id.strip().lower()},
-        rules=current.exclusion_rules,
+    profile = replace(
+        current,
+        mode=MODE_EXCLUSION,
+        excluded_cards=current.excluded_cards - {card_id.strip().lower()},
         strict=current.strict,
         penalty=current.penalty,
     )

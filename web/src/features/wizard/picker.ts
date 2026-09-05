@@ -19,6 +19,8 @@ import {
 } from "../../state/actions";
 import { store } from "../../state/store";
 import { h, replace } from "../../ui/dom";
+import { openAvailabilityMenu } from "../../ui/availabilityMenu";
+import { collectionSummary } from "../collectionSummary";
 
 const NUDGE_DISMISSED = "riftdesk.collection-nudge-dismissed";
 const LEGACY_NUDGE_DISMISSED = "atlas.collection-nudge-dismissed";
@@ -122,7 +124,7 @@ export function collectionNudge(): HTMLElement | null {
         type: "button",
         on: { click: () => void toggleOwnedRule("rarity", value) },
       },
-      `I have most ${value}s`,
+      `Count all ${value}s as available`,
     );
 
   return h(
@@ -140,7 +142,7 @@ export function collectionNudge(): HTMLElement | null {
       h(
         "p",
         {},
-        "Tell us roughly what you own and RiftDesk will skip cards you have already covered.",
+        "Have full playsets of a rarity? Use a shortcut below. It assumes every matching card is available, including future sets. For a partial collection, check quantities in the finder instead.",
       ),
       h("div", { class: "quick-rules" }, rule("Common"), rule("Uncommon"), rule("Rare")),
       h(
@@ -150,7 +152,7 @@ export function collectionNudge(): HTMLElement | null {
           type: "button",
           on: { click: dismissNudge },
         },
-        "I use the full card pool",
+        "Skip shortcuts",
       ),
     ),
   );
@@ -262,8 +264,9 @@ function legendCard(legend: LegendChoice, busy: boolean): HTMLElement {
       // Advisory only. The wizard exists to find out what someone can build, so a low
       // number must never hide a legend -- that would rebuild the barrier we removed.
       legend.familiarity > 0
-        ? h("span", { class: "legend-known" }, `You own ${known}% of its staples`)
+        ? h("span", { class: "legend-known" }, `${known}% of staples covered by your settings`)
         : null,
+      h("span", { class: "legend-start" }, "Check my cards →"),
     ),
   );
 }
@@ -408,6 +411,7 @@ interface PopulatedPicker {
   sort: HTMLElement;
   hint: HTMLElement;
   grid: HTMLElement;
+  more: HTMLButtonElement;
 }
 
 interface PickerLayout {
@@ -415,6 +419,7 @@ interface PickerLayout {
   freshness: HTMLElement;
   resume: HTMLElement;
   nudge: HTMLElement;
+  collection: HTMLElement;
   body: HTMLElement;
   /** Which of loading / empty / populated the body slot currently holds. Rewriting
    * `body`'s contents is only safe when this actually changes -- doing it every render
@@ -425,31 +430,37 @@ interface PickerLayout {
 }
 
 let layout: PickerLayout | null = null;
+let showAll = false;
 
 function ensureLayout(): PickerLayout {
   if (layout === null) {
     const freshness = h("div", { class: "freshness-slot" });
     const resume = h("div", { class: "resume-slot" });
     const nudge = h("div", { class: "nudge-slot" });
+    const collection = h("div", { class: "finder-collection" });
     const body = h("div", { class: "picker-body-slot" });
     const root = h(
       "section",
       { class: "smart-picker" },
       h("p", { class: "eyebrow" }, "RiftDesk · deck finder"),
-      h("h2", {}, "Start with a legend."),
+      h("h1", {}, "A good deck. With your cards."),
       h(
         "p",
         { class: "smart-lede" },
-        "Choose a legend and RiftDesk will line up one complete candidate list with every card kept in context. " +
-          "No collection setup required.",
+        "Start from a proven list, tell us what you have, and find replacements for the gaps. No need to catalogue your whole collection.",
       ),
+      h("ol", { class: "finder-steps", aria: { label: "How the deck finder works" } },
+        h("li", {}, h("span", {}, "01"), "Choose a legend"),
+        h("li", {}, h("span", {}, "02"), "Check your cards"),
+        h("li", {}, h("span", {}, "03"), "Make it yours")),
       freshness,
       // Before the picker: finishing something already started beats starting again.
       resume,
+      collection,
       nudge,
       body,
     );
-    layout = { root, freshness, resume, nudge, body, bodyMode: null, populated: null };
+    layout = { root, freshness, resume, nudge, collection, body, bodyMode: null, populated: null };
   }
   return layout;
 }
@@ -458,16 +469,19 @@ function ensurePopulated(): PopulatedPicker {
   const search = h("input", {
     class: "smart-search",
     type: "search",
-    placeholder: "Filter legends",
+    placeholder: "Search legends, e.g. Jinx or Yasuo",
+    aria: { label: "Search legends" },
     on: {
       input: (event) => setSmartLegendQuery((event.target as HTMLInputElement).value),
     },
   });
   const sort = h("div", { class: "picker-sort-slot" });
-  const hint = h("p", { class: "picker-hint" });
+  const hint = h("p", { class: "picker-hint", role: "status", aria: { live: "polite" } });
   const grid = h("div", { class: "legend-grid" });
-  const root = h("div", { class: "picker-populated" }, search, sort, hint, grid);
-  return { root, search, sort, hint, grid };
+  const more = h("button", { class: "quiet-button picker-more", type: "button", on: { click: () => { showAll = !showAll; store.set({}); } } });
+  const root = h("div", { class: "picker-populated" },
+    h("div", { class: "finder-toolbar" }, search, sort), hint, grid, more);
+  return { root, search, sort, hint, grid, more };
 }
 
 export function legendPicker(): HTMLElement {
@@ -477,10 +491,14 @@ export function legendPicker(): HTMLElement {
   replace(state.freshness, freshnessLine());
   replace(state.resume, resumeStrip());
   replace(state.nudge, collectionNudge());
+  const collection = collectionSummary(store.state.availability);
+  replace(state.collection,
+    h("div", {}, h("span", { class: "eyebrow" }, "Building with"), h("strong", {}, collection.label), h("p", {}, collection.detail)),
+    h("button", { class: "quiet-button", type: "button", on: { click: openAvailabilityMenu } }, "Edit your cards"));
 
   if (smartLegends.length === 0) {
     const mode = smartBusy ? "loading" : "empty";
-    if (state.bodyMode !== mode) {
+    if (state.bodyMode !== mode || mode === "empty") {
       replace(state.body, smartBusy ? h("p", { class: "empty" }, "Loading...") : emptyPicker());
       state.bodyMode = mode;
     }
@@ -502,16 +520,23 @@ export function legendPicker(): HTMLElement {
   const needle = smartLegendQuery.trim().toLowerCase();
   const shown = needle
     ? smartLegends.filter((legend) => legend.name.toLowerCase().includes(needle))
-    : smartLegends.slice(0, 18);
+    : showAll ? smartLegends : smartLegends.slice(0, 18);
 
   replace(populated.sort, sortControl());
   replace(
     populated.hint,
     !needle && smartLegends.length > shown.length
-      ? h("span", {}, `Showing the leading ${shown.length}. Search to explore all ${smartLegends.length} legends.`)
-      : null,
+      ? h("span", {}, `${shown.length} of ${smartLegends.length} legends · ${store.state.smartLegendSort === "buildable" ? "Closest to your cards first" : store.state.smartLegendSort === "field" ? "Best into the field first" : "Strongest tournament evidence first"}`)
+      : h("span", {}, `${shown.length} legend${shown.length === 1 ? "" : "s"}${needle ? " matching your search" : " available"}`),
   );
-  replace(populated.grid, ...shown.map((l) => legendCard(l, smartBusy)));
+  replace(populated.grid, ...(shown.length ? shown.map((l) => legendCard(l, smartBusy)) : [
+    h("div", { class: "finder-empty" }, h("h3", {}, "No legends match that search"),
+      h("p", {}, "Try a champion name or return to the full list."),
+      h("button", { class: "quiet-button", type: "button", on: { click: () => { setSmartLegendQuery(""); populated.search.value = ""; populated.search.focus(); } } }, "Clear search")),
+  ]));
+  populated.more.hidden = Boolean(needle) || smartLegends.length <= 18;
+  populated.more.textContent = showAll ? "Show leading legends" : `Show all ${smartLegends.length} legends`;
+  populated.more.setAttribute("aria-expanded", String(showAll));
 
   return state.root;
 }

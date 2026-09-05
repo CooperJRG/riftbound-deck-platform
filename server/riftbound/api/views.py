@@ -9,14 +9,15 @@ from ..domain.cards import Card, Catalog
 from ..domain.deck import Deck
 from ..domain.field_plan import FieldMatchup, FieldOutlook, MatchupPlan
 from ..domain.matchups import LegendRecord, Matchup, MatchupBasis
-from ..domain.opening import CardOdds, OpeningOdds, OpeningRules, mulligan_odds
 from ..domain.meta import MetaDeck, Tournament
 from ..domain.meta_scoring import ScoreBreakdown
+from ..domain.opening import CardOdds, OpeningOdds, OpeningRules, mulligan_odds
 from ..domain.validator import ValidationResult
 from .schemas import (
     AttributionView,
     AvailabilityView,
     CardAvailabilityView,
+    CardOddsView,
     CardView,
     CostView,
     CoverageView,
@@ -28,12 +29,11 @@ from .schemas import (
     IssueView,
     LegendRecordView,
     MatchupBasisView,
-    CardOddsView,
     MatchupPlanView,
     MatchupView,
+    MetaDeckView,
     OpeningOddsView,
     OpeningRulesView,
-    MetaDeckView,
     PrintingView,
     ProvenanceView,
     RepairDeckCardView,
@@ -201,7 +201,7 @@ def availability_view(
             ExclusionRuleView(kind=r.kind, value=r.value, description=r.describe())
             for r in profile.owned_rules
         ],
-        owned_card_count=len(profile.owned),
+        owned_card_count=sum(1 for count in profile.owned.values() if count > 0),
     )
 
 

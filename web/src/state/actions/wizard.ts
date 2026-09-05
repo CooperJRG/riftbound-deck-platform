@@ -12,6 +12,7 @@ import { store } from "../store";
 import { reportError } from "./shared";
 import { loadDeck } from "./library";
 import { loadMeta } from "./meta";
+import { setAvailabilityMode } from "./availability";
 
 /**
  * The answers for the round on screen.
@@ -152,7 +153,7 @@ export async function startSmartSession(legendId: string): Promise<void> {
     const session = await api.startSmartSession(legendId);
     store.set({
       smartSession: session,
-      smartAnswers: seedAnswers(session),
+      smartAnswers: seedAnswers(session), smartTouched: new Set(),
       smartBusy: false,
       smartShowing: session.proposal?.floor ? "ready" : "rounds",
     });
@@ -164,9 +165,15 @@ export async function startSmartSession(legendId: string): Promise<void> {
 
 /** Record one card's count for the round on screen. Nothing is sent until submit. */
 export function setSmartAnswer(cardId: string, count: number): void {
+  if (store.state.smartBusy || !Number.isFinite(count)) return;
+  const proposal = store.state.smartSession?.proposal;
+  const row = (proposal?.question?.cards ?? proposal?.requirements ?? []).find((item) => item.cardId === cardId);
+  if (!row) return;
   const answers = new Map(store.state.smartAnswers);
-  answers.set(cardId, Math.max(0, count));
-  store.set({ smartAnswers: answers });
+  answers.set(cardId, Math.min(row.needed, Math.max(0, Math.floor(count))));
+  const touched = new Set(store.state.smartTouched);
+  touched.add(cardId);
+  store.set({ smartAnswers: answers, smartTouched: touched });
 }
 
 /**
@@ -189,6 +196,7 @@ export function refineSmartDeck(): void {
 }
 
 export async function submitSmartRound(): Promise<void> {
+  if (store.state.smartBusy) return;
   const { smartSession, smartAnswers } = store.state;
   const proposal = smartSession?.proposal;
   if (!smartSession || !proposal) return;
@@ -208,7 +216,7 @@ export async function submitSmartRound(): Promise<void> {
     );
     store.set({
       smartSession: next,
-      smartAnswers: seedAnswers(next),
+      smartAnswers: seedAnswers(next), smartTouched: new Set(),
       smartBusy: false,
       smartShowing: next.proposal?.floor ? "ready" : "rounds",
     });
@@ -232,7 +240,7 @@ export async function resumeSmartSession(sessionId: string): Promise<void> {
     const session = await api.getSmartSession(sessionId);
     store.set({
       smartSession: session,
-      smartAnswers: seedAnswers(session),
+      smartAnswers: seedAnswers(session), smartTouched: new Set(),
       smartBusy: false,
       smartShowing: session.proposal?.floor ? "ready" : "rounds",
     });
@@ -275,7 +283,7 @@ export async function declineSmartCards(cardIds: string[]): Promise<void> {
   store.set({ smartBusy: true });
   try {
     const next = await api.declineSmartCards(smartSession.sessionId, cardIds);
-    store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartBusy: false });
+    store.set({ smartSession: next, smartAnswers: seedAnswers(next), smartTouched: new Set(), smartBusy: false });
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -302,7 +310,7 @@ export async function acceptSmartDeck(which: "floor" | "conservative" | "free"):
     scrollToTop();
     store.set({
       smartSession: null,
-      smartAnswers: new Map(),
+      smartAnswers: new Map(), smartTouched: new Set(),
       smartFinished: false,
       smartShowing: "rounds",
       smartBusy: false,
@@ -337,6 +345,7 @@ export async function saveSmartCollection(): Promise<void> {
       availability: await api.availability(),
       notice: `Saved ${result.copiesWritten} copies of ${result.cardsWritten} cards to your collection.${skipped}`,
     });
+    await setAvailabilityMode("collection");
   } catch (error) {
     reportError(error);
     store.set({ smartBusy: false });
@@ -350,7 +359,7 @@ export function closeSmartSession(): void {
     : store.state.smartResumable;
   store.set({
     smartSession: null,
-    smartAnswers: new Map(),
+    smartAnswers: new Map(), smartTouched: new Set(),
     smartFinished: false,
     smartShowing: "rounds",
     smartResumable: resumable,

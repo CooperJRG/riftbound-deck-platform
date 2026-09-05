@@ -642,14 +642,14 @@ def save_collection(
             print_id=printing.print_id,
             card_id=card_id,
             qty=int(qty),
+            record_zero=True,
         )
         if int(qty) > 0:
             written += 1
             copies += int(qty)
         else:
-            # A zero is a real answer, so it is written -- but writing it removes the
-            # row, so counting it as a card "written" would report a number the
-            # collection cannot show back.
+            # Keep an explicit zero, so a broad ownership shortcut cannot restore it
+            # next session. It is still not an owned card in the collection count.
             cleared += 1
 
     return SaveCollectionResult(

@@ -129,6 +129,7 @@ export interface AppState {
   smartLegends: LegendChoice[];
   smartSession: SmartSession | null;
   smartAnswers: Map<string, number>;
+  smartTouched: Set<string>;
   smartBusy: boolean;
   smartFinished: boolean;
   /**
@@ -280,6 +281,7 @@ const initial: AppState = {
   smartLegends: [],
   smartSession: null,
   smartAnswers: new Map(),
+  smartTouched: new Set(),
   smartBusy: false,
   smartFinished: false,
   smartShowing: "rounds",

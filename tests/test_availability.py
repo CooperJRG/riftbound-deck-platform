@@ -118,6 +118,17 @@ def test_zero_quantities_are_treated_as_not_owned(catalog):
     assert profile.resolve(catalog.get("brazen-buccaneer")).owned_copies == 0
 
 
+def test_explicit_zero_beats_a_bulk_rule_and_seeds_future_sessions(catalog):
+    from riftbound.domain.availability import OwnedRule
+    from riftbound.domain.smart_decks import declared_knowledge
+
+    profile = AvailabilityProfile.from_collection(
+        {"brazen-buccaneer": 0}, rules=[OwnedRule(kind="rarity", value="Common")],
+    )
+    assert profile.resolve(catalog.get("brazen-buccaneer")).weight < 1
+    assert declared_knowledge(profile, catalog).exact["brazen-buccaneer"] == 0
+
+
 # -- profile validation -------------------------------------------------------
 
 

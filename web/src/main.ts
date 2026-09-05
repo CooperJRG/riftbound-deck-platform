@@ -8,6 +8,7 @@ import {
 } from "./state/actions";
 import { store } from "./state/store";
 import { renderAvailability } from "./features/availability";
+import { collectionSummary } from "./features/collectionSummary";
 import { renderCardBrowser } from "./features/cardBrowser";
 import { refreshCardPreview } from "./features/cardPreview";
 import { renderDeckActions, renderDeckLibrary } from "./features/deckLibrary";
@@ -66,7 +67,7 @@ function renderError(message: string, staleServer: string): void {
   replace(
     errorRoot,
     h("span", {}, message),
-    h("button", { class: "step", type: "button", on: { click: dismissError } }, "×"),
+    h("button", { class: "step", type: "button", aria: { label: "Dismiss error" }, on: { click: dismissError } }, "×"),
   );
 }
 
@@ -79,7 +80,7 @@ function renderNotice(message: string): void {
   replace(
     noticeRoot,
     h("span", {}, message),
-    h("button", { class: "step", type: "button", on: { click: dismissNotice } }, "×"),
+    h("button", { class: "step", type: "button", aria: { label: "Dismiss notification" }, on: { click: dismissNotice } }, "×"),
   );
 }
 
@@ -133,7 +134,7 @@ function renderTabs(current: string): void {
   replace(
     tabsRoot,
     tab("find", "Find a deck"),
-    tab("explore", "Explore"),
+    tab("explore", "Explore meta"),
     tab("search", "Search"),
     tab("build", "Build"),
     tab("decks", "My decks"),
@@ -192,6 +193,9 @@ store.subscribe((state) => {
 
   // The availability control drives both views, so it always renders.
   renderAvailability(availabilityRoot);
+  const collection = collectionSummary(state.availability);
+  query("#collection-status").textContent = collection.label;
+  accessMenu.querySelector("summary")?.setAttribute("title", collection.detail);
   if (state.view === "build") {
     // The drawer is hidden rather than unmounted, so its search box keeps its text and
     // its scroll position across a close and reopen.

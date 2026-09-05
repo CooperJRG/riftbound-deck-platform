@@ -22,6 +22,7 @@ import { h, replace } from "../../ui/dom";
 import { legendPicker } from "./picker";
 import { repairPanel, scorePanel } from "./repairs";
 import { requirementList } from "./rows";
+import { ownershipProgress } from "./ownership";
 
 /**
  * The one successful outcome Smart Decks promises.
@@ -43,7 +44,7 @@ function readyDeck(session: SmartSession, proposal: Proposal, busy: boolean): HT
     h(
       "p",
       { class: "smart-ready-lede" },
-      "You can build this deck with the cards you have confirmed.",
+      "A complete list based on your answers and collection shortcuts. Check the cards below before you play.",
     ),
     strength === null
       ? null
@@ -54,6 +55,19 @@ function readyDeck(session: SmartSession, proposal: Proposal, busy: boolean): HT
           h("span", {}, "estimated strength"),
         ),
     h("p", { class: "smart-ready-summary" }, floor.summary),
+    h("div", { class: "ready-card-list" },
+      ...["legend", "main", "runes", "battlefields", "sideboard"].map((zone) => {
+        const cards = floor.cards.filter((card) => card.zone === zone);
+        if (!cards.length) return null;
+        const label = { legend: "Legend", main: "Main deck · includes your chosen champion", runes: "Runes", battlefields: "Battlefields", sideboard: "Sideboard" }[zone] ?? zone;
+        return h("details", { class: "ready-zone", open: zone === "main" },
+          h("summary", {}, label, h("span", {}, `${cards.reduce((sum, card) => sum + card.copies, 0)} copies`)),
+          h("ul", {}, ...cards.map((card) => h("li", {},
+            card.imageUrl ? h("img", { src: card.imageUrl, alt: "", loading: "lazy" }) : null,
+            h("strong", {}, `${card.copies}×`), h("span", {}, card.name)))));
+      })),
+    banPanel(proposal.banNotices),
+    sideboardNotice(),
     h(
       "button",
       {
@@ -80,6 +94,9 @@ function readyDeck(session: SmartSession, proposal: Proposal, busy: boolean): HT
         "Try another legend",
       ),
     ),
+    h("div", { class: "ready-collection-save" },
+      h("button", { class: "quiet-button", type: "button", disabled: busy, on: { click: () => void saveSmartCollection() } }, "Save counts & use my collection"),
+      h("p", { class: "smart-optin" }, "Save the exact counts you supplied for next time. Assumed playsets are not recorded as exact counts.")),
   );
 }
 
@@ -216,8 +233,8 @@ function sideboardNotice(): HTMLElement {
   return h(
     "p",
     { class: "smart-optin" },
-    "Sideboards here allow 10 cards because that is what current tournament lists play. " +
-      "Official rules may still cap it at 8 - trim before you play.",
+    "Constructed: 40 main-deck cards including your chosen champion, 12 runes, 3 different battlefields, and up to 10 sideboard cards. ",
+    h("a", { href: "https://playriftbound.com/en-us/rules-hub/", target: "_blank", rel: "noopener noreferrer" }, "Official rules"),
   );
 }
 
@@ -290,6 +307,7 @@ function runView(session: SmartSession): HTMLElement {
   };
 
   const rows = proposal.question ? proposal.question.cards : proposal.requirements;
+  const progress = ownershipProgress(rows, smartAnswers, store.state.smartTouched);
   // The two rounds ask opposite questions, so they say opposite things. A deck is a
   // real list to mark exceptions against; a checklist is a pool to tick from.
   const heading = proposal.question
@@ -299,7 +317,7 @@ function runView(session: SmartSession): HTMLElement {
       // nothing about what they are looking at. The champion does, and the provenance
       // line below already credits the list.
       `${proposal.deck?.championName || "This deck"} — mark anything you are short of`;
-  const submitLabel = proposal.question ? "That is what I own" : "I have the rest";
+  const submitLabel = proposal.question ? "Use these quantities" : "Confirm cards & find my deck";
 
   parts.push(
     h(
@@ -326,11 +344,20 @@ function runView(session: SmartSession): HTMLElement {
               : null,
           )
         : null,
-      h("p", { class: "decision-instruction" }, "This is the whole list. Every card starts at the requested count—change only the cards you are short of, with the surrounding package still visible."),
+      h("p", { class: "decision-instruction" }, proposal.question
+        ? "These are possible replacements. Set how many copies you have. A card left at zero will be recorded as none when you continue."
+        : "Check this complete list. Unconfirmed cards start at the requested quantity; reduce any you are missing. Continuing confirms the quantities shown."),
       requirementList(rows, smartAnswers),
       h(
         "div",
-        { class: "smart-actions" },
+        { class: "smart-actions ownership-actions" },
+        h("div", { class: "ownership-progress", role: "status", aria: { live: "polite", atomic: "true" } },
+          h("strong", {}, `${progress.confirmed} of ${progress.total} card quantities confirmed`),
+          h("span", {}, [
+            progress.missingCopies ? `${progress.missingCopies} missing copies to work around` : "",
+            progress.assumed ? `${progress.assumed} still assumed available` : "",
+            progress.unanswered ? `${progress.unanswered} left at zero` : "",
+          ].filter(Boolean).join(" · ") || "All shown quantities checked")),
         h(
           "button",
           {
@@ -392,6 +419,7 @@ function runView(session: SmartSession): HTMLElement {
 }
 
 export function renderSmartDecks(root: HTMLElement): void {
+  const activeKey = (document.activeElement as HTMLElement | null)?.dataset.answerKey;
   const { smartSession } = store.state;
   const view = smartSession ? runView(smartSession) : legendPicker();
   // legendPicker() returns the same cached element on every call once it exists, so
@@ -400,4 +428,12 @@ export function renderSmartDecks(root: HTMLElement): void {
   // that cached element on every render regardless -- disconnecting the search input
   // inside it, and its focus, exactly as often as never caching it at all would.
   if (root.firstElementChild !== view) replace(root, view);
+  if (activeKey) {
+    const buttons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-answer-key]"));
+    const previous = buttons.find((button) => button.dataset.answerKey === activeKey);
+    const next = previous?.disabled
+      ? previous.closest(".req-counter")?.querySelector<HTMLButtonElement>("button:not(:disabled)")
+      : previous;
+    next?.focus({ preventScroll: true });
+  }
 }

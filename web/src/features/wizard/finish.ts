@@ -205,7 +205,7 @@ export function finishView(session: SmartSession): HTMLElement | null {
       "header",
       { class: "finish-head" },
       h("p", { class: "eyebrow" }, "Your deck"),
-      h("h2", {}, `${session.legendName} — ready to play`),
+      h("h2", {}, `${session.legendName} — your adapted list`),
       scorePanel(result.score),
       h(
         "p",
@@ -213,8 +213,8 @@ export function finishView(session: SmartSession): HTMLElement | null {
         result.kind === "floor"
           ? "Built from the cards you told us you have."
           : result.kind === "free"
-            ? "Built from what you own. Further from the published list, and the stronger of the two for your collection."
-            : "The published list with your gaps filled from cards the field plays alongside it, so it still plays like the deck that won.",
+            ? "Built from the quantities you supplied. This version changes more of the published list and has the higher estimated score."
+            : "The published list adapted around your missing cards, using replacements seen in related decks. Review the changes before you play.",
       ),
     ),
     declinedStrip(session, busy),

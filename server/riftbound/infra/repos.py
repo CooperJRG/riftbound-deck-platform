@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from ..domain.availability import (
-    MODE_COLLECTION,
-    MODE_EXCLUSION,
     AvailabilityProfile,
     ExclusionRule,
     OwnedRule,
@@ -154,20 +152,22 @@ class CollectionRepository:
     def __init__(self, db: Database):
         self._db = db
 
-    def owned_by_card(self, *, user_id: str) -> dict[str, int]:
+    def owned_by_card(self, *, user_id: str, include_zero: bool = False) -> dict[str, int]:
         with self._db.reading() as conn:
             rows = conn.execute(
                 """
                 SELECT card_id, SUM(qty) AS total FROM collection_items
-                WHERE user_id = ? GROUP BY card_id HAVING total > 0
+                WHERE user_id = ? GROUP BY card_id HAVING total > 0 OR ?
                 """,
-                (user_id,),
+                (user_id, include_zero),
             ).fetchall()
         return {row["card_id"]: int(row["total"]) for row in rows}
 
-    def set_quantity(self, *, user_id: str, print_id: str, card_id: str, qty: int) -> None:
+    def set_quantity(
+        self, *, user_id: str, print_id: str, card_id: str, qty: int, record_zero: bool = False,
+    ) -> None:
         with self._db.transaction() as conn:
-            if qty <= 0:
+            if qty < 0 or (qty == 0 and not record_zero):
                 conn.execute(
                     "DELETE FROM collection_items WHERE user_id = ? AND print_id = ?",
                     (user_id, print_id),
@@ -230,31 +230,26 @@ class AvailabilityRepository:
             ).fetchall()
 
         if head is None:
-            return AvailabilityProfile.open_profile()
+            return AvailabilityProfile(
+                mode="open", owned=self._collections.owned_by_card(user_id=user_id, include_zero=True),
+            )
 
         mode = head["mode"]
         strict = bool(head["strict"])
         penalty = float(head["penalty"])
 
-        if mode == MODE_COLLECTION:
-            return AvailabilityProfile.from_collection(
-                self._collections.owned_by_card(user_id=user_id),
-                rules=[OwnedRule(kind=r["kind"], value=r["value"]) for r in owned_rules],
-                strict=strict,
-                penalty=penalty,
-            )
-        if mode == MODE_EXCLUSION:
-            return AvailabilityProfile.from_exclusions(
-                card_ids=[r["value"] for r in exclusions if r["kind"] == "card"],
-                rules=[
-                    ExclusionRule(kind=r["kind"], value=r["value"])
-                    for r in exclusions
-                    if r["kind"] != "card"
-                ],
-                strict=strict,
-                penalty=penalty,
-            )
-        return AvailabilityProfile.open_profile()
+        return AvailabilityProfile(
+            mode=mode,
+            owned=self._collections.owned_by_card(user_id=user_id, include_zero=True),
+            owned_rules=tuple(OwnedRule(kind=r["kind"], value=r["value"]) for r in owned_rules),
+            excluded_cards=frozenset(r["value"] for r in exclusions if r["kind"] == "card"),
+            exclusion_rules=tuple(
+                ExclusionRule(kind=r["kind"], value=r["value"])
+                for r in exclusions if r["kind"] != "card"
+            ),
+            strict=strict,
+            penalty=penalty,
+        )
 
     def save(self, profile: AvailabilityProfile, *, user_id: str) -> None:
         with self._db.transaction() as conn:
@@ -271,7 +266,7 @@ class AvailabilityRepository:
             )
             conn.execute("DELETE FROM availability_exclusions WHERE user_id = ?", (user_id,))
             conn.execute("DELETE FROM availability_owned_rules WHERE user_id = ?", (user_id,))
-            if profile.mode == MODE_COLLECTION and profile.owned_rules:
+            if profile.owned_rules:
                 conn.executemany(
                     """
                     INSERT INTO availability_owned_rules (user_id, kind, value, created_at)
@@ -283,7 +278,7 @@ class AvailabilityRepository:
                         for r in profile.owned_rules
                     ],
                 )
-            if profile.mode == MODE_EXCLUSION:
+            if profile.excluded_cards or profile.exclusion_rules:
                 rows = [(user_id, "card", cid) for cid in sorted(profile.excluded_cards)]
                 rows += [(user_id, r.kind, r.value) for r in profile.exclusion_rules]
                 conn.executemany(

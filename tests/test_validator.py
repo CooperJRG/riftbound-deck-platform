@@ -232,17 +232,29 @@ def test_a_profile_without_advisories_emits_none(legal_deck, bound_rules, catalo
     assert validate(deck, rules=bound_rules, catalog=catalog).notices == ()
 
 
-def test_the_shipped_profile_allows_ten_and_advises_eight(catalog):
-    """What the field plays, with the caution the rulebook may still want."""
+def test_the_shipped_profile_matches_july_2026_sideboard_rules(catalog):
+    """TR 601.1.c.1 now explicitly permits ten; do not recommend trimming to eight."""
     from pathlib import Path
 
     from riftbound.domain.rules import load_format_rules
 
     profile = load_format_rules(Path("data/rules/constructed.json"))
     assert profile.int_constraint("sideboard_max") == 10
-    advisory = profile.advisory("sideboard_max")
-    assert advisory is not None
-    assert advisory["recommended_max"] == 8
+    assert profile.advisory("sideboard_max") is None
+
+
+def test_july_bans_have_the_official_effective_date():
+    from pathlib import Path
+
+    from riftbound.domain.eras import eras_for_format
+    from riftbound.domain.rules import load_format_rules
+
+    profile = load_format_rules(Path("data/rules/constructed.json"))
+    assert {"Stealthy Pursuer", "The Arena's Greatest", "Aspirant's Climb"} <= set(profile.list_constraint("banned_cards"))
+    eras = eras_for_format(profile)
+    assert eras.for_date("2026-07-23").era_id == "2026-03-bans"
+    assert eras.for_date("2026-07-24").era_id == "2026-07-bans"
+    assert eras.current.source.endswith("july-ban-list-updates/")
 
 
 def test_a_card_whose_text_lifts_the_copy_limit_may_be_played_in_bulk(catalog, bound_rules):

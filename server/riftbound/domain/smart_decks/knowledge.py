@@ -263,6 +263,6 @@ def declared_knowledge(
             # module already means by "I have all of them", and it leaves room for the
             # player to hold more than a playset without being written down as short.
             at_least[card.card_id] = resolved.owned_copies
-        elif resolved.reason == "not-owned" and profile.strict:
+        elif resolved.reason == "not-owned" and (profile.strict or card.card_id in profile.owned):
             exact[card.card_id] = 0
     return Knowledge(exact=exact, at_least=at_least, assumed=frozenset(exact))

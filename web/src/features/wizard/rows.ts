@@ -8,7 +8,10 @@
 
 import type { RequirementRow } from "../../api/types";
 import { setSmartAnswer } from "../../state/actions";
+import { store } from "../../state/store";
 import { h } from "../../ui/dom";
+import { rowState, type RowState } from "./ownership";
+export { rowState } from "./ownership";
 
 /** "1 card", not "1 cards". Small, and the wizard is asking for effort while it speaks. */
 export function plural(count: number, one: string, many = ""): string {
@@ -42,7 +45,8 @@ function counter(row: RequirementRow, value: number): HTMLElement {
         {
           class: "step",
           type: "button",
-          disabled: value <= 0,
+          disabled: store.state.smartBusy || value <= 0,
+          data: { answerKey: `${row.cardId}:minus` },
           aria: { label: `One fewer ${row.name}` },
           on: { click: () => choose(value - 1) },
         },
@@ -54,7 +58,8 @@ function counter(row: RequirementRow, value: number): HTMLElement {
         {
           class: "step",
           type: "button",
-          disabled: value >= row.needed,
+          disabled: store.state.smartBusy || value >= row.needed,
+          data: { answerKey: `${row.cardId}:plus` },
           aria: { label: `One more ${row.name}` },
           on: { click: () => choose(value + 1) },
         },
@@ -71,6 +76,8 @@ function counter(row: RequirementRow, value: number): HTMLElement {
         {
           class: `req-pip${n === value ? " is-selected" : ""}`,
           type: "button",
+          disabled: store.state.smartBusy,
+          data: { answerKey: `${row.cardId}:${n}` },
           aria: {
             label: `${n} of ${row.name}`,
             pressed: String(n === value),
@@ -81,10 +88,10 @@ function counter(row: RequirementRow, value: number): HTMLElement {
       ),
     );
   }
-  return h("div", { class: "req-counter" }, ...options);
+  return h("div", { class: "req-counter", role: "group", aria: { label: `Copies of ${row.name} you have` } }, ...options);
 }
 
-export /**
+/**
  * The state a row is in, which is not the same question as "is the number below the
  * requirement".
  *
@@ -98,17 +105,6 @@ export /**
  * is confirmation. Only one of the three is the player's problem, and none of them is
  * an error.
  */
-type RowState = "awaiting" | "gap" | "ready";
-
-export function rowState(row: RequirementRow, value: number): RowState {
-  // "Answered" includes this round, not just previous ones. `row.have` is the value the
-  // server seeded the control with, so any other value is the player having moved it --
-  // and a card they have just set to zero must not keep asking "how many do you have?".
-  const answered = row.known || value !== row.have;
-  if (!answered && value < row.needed) return "awaiting";
-  return value < row.needed ? "gap" : "ready";
-}
-
 function rowNote(row: RequirementRow, state: RowState, value: number): string {
   if (state === "awaiting") return "How many do you have?";
   if (state === "gap") {
@@ -118,15 +114,16 @@ function rowNote(row: RequirementRow, state: RowState, value: number): string {
       ? "You do not have this — we will build around it"
       : `You have ${value} of ${row.needed} — we will build around the rest`;
   }
-  return row.known ? "You have these" : "Assuming you have these";
+  return row.known || store.state.smartTouched.has(row.cardId) || value !== row.have
+    ? "You have these" : "Assuming you have these";
 }
 
 export function requirementRow(row: RequirementRow, value: number): HTMLElement {
-  const state = rowState(row, value);
+  const state = rowState(row, value, store.state.smartTouched.has(row.cardId));
   // A card they have actually claimed is settled, and should look it. Still adjustable
   // -- people miscount, and people buy singles -- but it must not read as another
   // question, which is what an undifferentiated row does when there are twenty of them.
-  const claimed = state === "ready" && (row.known || value !== row.have);
+  const claimed = state === "ready" && (row.known || store.state.smartTouched.has(row.cardId) || value !== row.have);
   return h(
     "li",
     { class: `decision-card is-${state}${claimed ? " is-claimed" : ""}` },
@@ -175,24 +172,25 @@ function requirementList(rows: RequirementRow[], answers: Map<string, number>): 
       if (!members.length) return null;
 
       const ordered = [...members].sort(
-        (a, b) => rank[rowState(a, valueOf(a))] - rank[rowState(b, valueOf(b))],
+        // Keep the order stable while counting. A changed answer must not move the card under the pointer.
+        (a, b) => rank[rowState(a, a.have)] - rank[rowState(b, b.have)],
       );
       const asking = members.filter(
-        (row) => rowState(row, valueOf(row)) === "awaiting",
+        (row) => rowState(row, valueOf(row), store.state.smartTouched.has(row.cardId)) === "awaiting",
       ).length;
-      const gaps = members.filter((row) => rowState(row, valueOf(row)) === "gap").length;
+      const gaps = members.filter((row) => rowState(row, valueOf(row), store.state.smartTouched.has(row.cardId)) === "gap").length;
       const copies = members.reduce((sum, row) => sum + row.needed, 0);
 
       // Say what this section wants from the player, rather than only how big it is.
       // "All set" would overstate an untouched deck round: nothing has been confirmed,
       // we are assuming, and the player needs to know they are being asked for
       // exceptions rather than congratulated.
-      const anyKnown = members.some((row) => row.known);
+      const allKnown = members.every((row) => row.known || store.state.smartTouched.has(row.cardId) || valueOf(row) !== row.have);
       const summary = asking
         ? `${asking} to answer`
         : gaps
           ? `${gaps} we will build around`
-          : anyKnown
+          : allKnown
             ? "All set"
             : "Mark anything you lack";
 

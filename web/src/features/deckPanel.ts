@@ -26,6 +26,8 @@ import {
 } from "../state/actions";
 import { store } from "../state/store";
 import { h, replace } from "../ui/dom";
+import { collectionSummary } from "./collectionSummary";
+import { openAvailabilityMenu } from "../ui/availabilityMenu";
 import { openCardPreview } from "./cardPreview";
 import { deckAnalysisRail } from "./deckAnalysis";
 import { renderOpeningHand } from "./openingHand";
@@ -927,14 +929,16 @@ function issueItem(issue: Issue): HTMLElement {
 function coveragePanel(validation: Validation): HTMLElement | null {
   const { coverage } = validation;
   if (coverage.complete) {
-    return h("p", { class: "coverage is-ok" }, "You can field every card in this deck.");
+    return h("p", { class: "coverage is-ok" }, store.state.availability?.mode === "collection"
+      ? "Every copy is covered by your collection settings."
+      : "No missing cards under your current settings. Check quantities before you play.");
   }
   const short = coverage.missing.reduce((sum, m) => sum + m.copies, 0);
   return h(
     "div",
     { class: "coverage is-short" },
     h("p", { class: "coverage-head" },
-      `${short} card${short === 1 ? "" : "s"} you may not have:`),
+      `${short} missing ${short === 1 ? "copy" : "copies"} across ${coverage.missing.length} card${coverage.missing.length === 1 ? "" : "s"}:`),
     h("ul", { class: "coverage-list" },
       ...coverage.missing.map((m) =>
         h("li", {},
@@ -1246,10 +1250,16 @@ export function renderDeckPanel(root: HTMLElement): void {
     h(
       "section",
       { class: "review-callout" },
-      h("div", {}, h("strong", {}, builderReview ? "Reviewing your list" : "Ready for a rules check?"), h("span", {}, builderReview ? "Fix the items below, then review again." : "Build freely; detailed rules stay out of the way until you ask.")),
+      h("div", {}, h("strong", {}, builderReview ? (problems.length ? "Your list needs attention" : "Rules check complete") : "Ready for a rules check?"), h("span", {}, builderReview ? (problems.length ? "Review the items below before you play." : "No rules issues found. Check your card quantities and any notes below.") : "Check deck legality and your missing copies.")),
       h("button", { type: "button", class: builderReview ? "quiet-button" : "primary", on: { click: () => setBuilderReview(!builderReview) } }, builderReview ? "Hide review" : "Review deck"),
     ),
-    validation && validation.coverage.totalCopies > 0 && builderReview ? coveragePanel(validation) : null,
+    validation && validation.coverage.totalCopies > 0
+      ? h("section", { class: "collection-coverage" },
+          h("h3", {}, "Your cards for this deck"),
+          h("p", {}, collectionSummary(store.state.availability).detail),
+          coveragePanel(validation),
+          h("button", { class: "quiet-button", type: "button", on: { click: openAvailabilityMenu } }, "Edit collection settings"))
+      : null,
     issues,
     beforeYouPlay,
   );

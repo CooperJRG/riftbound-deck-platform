@@ -19,6 +19,20 @@
         "403",
         "601.1"
       ]
+    },
+    {
+      "url": "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/503da65669ced10598d62925a6f6bc15111af726.pdf",
+      "sections": [
+        "402.1",
+        "601.1"
+      ],
+      "last_updated": "2026-07-16",
+      "verified_on": "2026-09-04"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/july-ban-list-updates/",
+      "effective": "2026-07-24",
+      "verified_on": "2026-09-04"
     }
   ],
   "constraints": {
@@ -58,7 +72,10 @@
       "Scrapheap",
       "Obelisk of Power",
       "Reaver's Row",
-      "The Dreaming Tree"
+      "The Dreaming Tree",
+      "Stealthy Pursuer",
+      "The Arena's Greatest",
+      "Aspirant's Climb"
     ]
   },
   "rule_refs": {
@@ -152,15 +169,7 @@
     "mulligan": [],
     "draw_per_turn": []
   },
-  "advisories": {
-    "sideboard_max": {
-      "recommended_max": 8,
-      "message": "Sideboards of 10 are allowed here because that is what current tournament lists play. Official rules may still cap it at 8 — check your event and trim before you play.",
-      "rule_refs": [
-        "TR 601.1.c.1"
-      ]
-    }
-  },
+  "advisories": {},
   "eras": {
     "description": "Windows in which the banned list did not change. A win rate or a play rate averaged across a ban is a number about a format that no longer exists, so every meta statistic declares which era it describes.",
     "periods": [
@@ -177,7 +186,7 @@
         "id": "2026-03-bans",
         "name": "March 2026 bans",
         "from": "2026-03-29",
-        "to": "",
+        "to": "2026-07-23",
         "bans_introduced": [
           "Called Shot",
           "Draven - Vanquisher",
@@ -189,6 +198,19 @@
         ],
         "evidence": "Derived from the archive, not from an announcement: across 4,218 published lists the last deck containing any of these cards is dated 2026-03-28 and the first list without them is dated 2026-03-29, with zero exceptions on either side. Replace 'source' with the official announcement URL when one is to hand and correct the date if it disagrees.",
         "source": ""
+      },
+      {
+        "id": "2026-07-bans",
+        "name": "July 2026 bans",
+        "from": "2026-07-24",
+        "to": "",
+        "bans_introduced": [
+          "Stealthy Pursuer",
+          "The Arena's Greatest",
+          "Aspirant's Climb"
+        ],
+        "evidence": "Official July ban announcement, effective July 24, 2026.",
+        "source": "https://playriftbound.com/en-us/news/announcements/july-ban-list-updates/"
       }
     ]
   },

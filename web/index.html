@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#f2f1ed" />
     <meta
       name="description"
-      content="RiftDesk is a focused Riftbound deck studio for finding tournament lists, reading the live meta, and building decks card by card."
+      content="Find proven Riftbound decks, track the cards you have, and build around the ones you are missing."
     />
     <meta property="og:title" content="RiftDesk · Riftbound deck studio" />
     <meta
@@ -44,8 +44,8 @@
   </head>
   <body>
     <a class="skip-link" href="#find">Skip to content</a>
-    <div id="error" class="error-bar" hidden></div>
-    <div id="notice" class="notice-bar" hidden></div>
+    <div id="error" class="error-bar" role="alert" hidden></div>
+    <div id="notice" class="notice-bar" role="status" aria-live="polite" hidden></div>
 
     <header class="app-header">
       <a class="brand-lockup" href="/" aria-label="RiftDesk home">
@@ -64,7 +64,7 @@
       <nav id="tabs" class="tabs" aria-label="Views"></nav>
       <div class="header-actions">
         <details class="access-menu">
-          <summary>Card access</summary>
+          <summary>Your cards <span id="collection-status" class="collection-status"></span></summary>
           <div id="availability" class="availability"></div>
         </details>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode"></button>
