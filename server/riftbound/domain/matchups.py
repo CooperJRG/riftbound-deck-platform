@@ -74,15 +74,19 @@ MIN_MATCHES = 30
 #: Distinct events a cell needs. A matchup that happened at one tournament describes
 #: that tournament, however many matches it holds.
 #:
-#: The same value ``performance.py`` uses, and on this data it is very nearly redundant
-#: with :data:`MIN_MATCHES` -- worth recording so nobody mistakes it for load-bearing.
-#: Of the 416 cells clearing the match floor, the *fewest* events any of them was seen at
-#: is 6 and the median is 14, so this withholds 14 cells rather than the hundreds it
-#: would if pairings were as concentrated as they intuitively seem.
+#: The same value ``performance.py`` uses.
 #:
-#: It stays because near-redundant is not redundant, and because the property it defends
-#: is one of the table's window rather than its size: a set window with fewer, larger
-#: events would pull those numbers down without changing a single match count.
+#: **Currently inert, and that is a fact about the source rather than a decision.** The
+#: old snapshot store shipped per-tournament payloads beside the aggregate, so a cell's
+#: event count could be counted; measured then, it withheld 14 of 416 cells -- the
+#: fewest events any qualifying cell was seen at was 6, the median 14. The ``release-v3``
+#: store publishes no per-event breakdown, so cells now arrive with ``events == 0``,
+#: which :func:`_rate` reads as *unknown* and declines to gate on.
+#:
+#: Unknown must not mean zero here. Gating on a missing optional field would withhold
+#: the entire table; ignoring the field when it is present would drop a real guard. So
+#: the check stays, dormant, and starts working again the day the source publishes the
+#: breakdown -- rather than being deleted and having to be rediscovered.
 MIN_EVENTS = 8
 
 #: Reasons a rate is withheld, in the order they are checked. Reported, never silent.

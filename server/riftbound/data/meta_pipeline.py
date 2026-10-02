@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 from collections.abc import Sequence
 from dataclasses import dataclass
 from dataclasses import field as dataclasses_field
 
-from ..config import ROOT, ConfigError, load_config, load_dotenv
+from ..config import ConfigError, load_config, load_dotenv
 from ..domain.meta import build_archetypes
 from ..domain.meta_scoring import score_all, totals
 from .bundle import load_current
@@ -48,7 +49,22 @@ from ..domain.matchups import symmetry_errors
 from .sources.topdeck import ATTRIBUTION as TOPDECK_ATTRIBUTION
 from .sources.topdeck import TopDeckSource
 
-INGEST_CACHE = ROOT / "var" / "ingest"
+#: Where raw source responses are cached between harvests.
+#:
+#: Under the data directory, which is the *mounted volume* in a hosted deploy -- not
+#: under ``var/``, which lives in the image and is therefore empty again after every
+#: deploy. That distinction decides whether a refresh is affordable: Riftools publishes
+#: one object per decklist and there are 25,336 of them, so a cold harvest is a 25,000
+#: request crawl. Cached on the volume it is a handful of requests for whatever is new;
+#: cached in the image it was that crawl, from scratch, every single deploy.
+#:
+#: Read through `load_config()` rather than off `ROOT` so a deployment that points
+#: `RB_DATA_DIR` somewhere else takes the cache with it.
+#: Resolved lazily, not at import: this module is imported by the scheduler and by
+#: the API, and reading configuration as a side effect of an import is the habit
+#: this package's docstring exists to forbid.
+def ingest_cache() -> Path:
+    return load_config().data_dir / "ingest"
 
 
 def _format_constraint(cfg, name: str, default: int) -> int:
@@ -90,8 +106,8 @@ def cmd_build(args: argparse.Namespace) -> int:
         print(message, flush=True)
 
     if args.replay:
-        sources = [MetaReplaySource(INGEST_CACHE)]
-        print(f"Replaying the cached harvest from {INGEST_CACHE} (no network)...")
+        sources = [MetaReplaySource(ingest_cache())]
+        print(f"Replaying the cached harvest from {ingest_cache()} (no network)...")
     else:
         sources = _build_sources(args, progress)
         print(f"Harvesting from {len(sources)} source(s)...")
@@ -239,23 +255,23 @@ def _build_sources(args: argparse.Namespace, progress):
     sources: list = []
     if "topdeck" in wanted:
         sources.append(TopDeckSource(
-            days=args.days, min_players=args.min_players, cache_dir=INGEST_CACHE,
+            days=args.days, min_players=args.min_players, cache_dir=ingest_cache(),
         ))
     if "riftdecks" in wanted:
         sources.append(LocalDeckApiSource(
             min_quality=args.min_quality, since=args.since or "",
-            limit=args.local_limit, cache_dir=INGEST_CACHE,
+            limit=args.local_limit, cache_dir=ingest_cache(),
         ))
     if "riftools" in wanted:
         sources.append(RiftoolsSource(
             max_decks=args.riftools_limit, since=args.since or "",
-            cache_dir=INGEST_CACHE,
+            cache_dir=ingest_cache(),
         ))
     if "dotgg" in wanted:
         sources.append(DotGGMetaSource(
             max_tournaments=args.tournaments, max_decks=args.decks,
             since=args.since or "", budget_seconds=args.budget,
-            progress=progress, cache_dir=INGEST_CACHE,
+            progress=progress, cache_dir=ingest_cache(),
         ))
     return sources
 

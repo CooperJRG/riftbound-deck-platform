@@ -38,16 +38,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .http import HttpClient, HttpError
-from .riftools import ATTRIBUTION, DEFAULT_BASE_URL, MANIFEST_PATH
+from .riftools import ATTRIBUTION
+from .riftools_release import DEFAULT_BASE_URL, ReleaseReader
 
-#: Snapshot families that carry a matchup table. Matched rather than listed, so a new
-#: set window needs no code change.
-_WINRATE_FAMILY = re.compile(r"^winrates(-set\d+)?$")
-
-#: Pull a comparable integer out of ``{"set": "set4"}`` so "newest" has a meaning.
-#: A family whose set cannot be read sorts last rather than being dropped -- it is still
-#: a real table, it just cannot win the comparison.
-_SET_NUMBER = re.compile(r"(\d+)")
+#: The artifact inside a set's ``core`` manifest that holds the matchup table.
+WINRATES_ARTIFACT = "{set}__winrates"
 
 
 def _int(value: object, default: int = 0) -> int:
@@ -111,15 +106,10 @@ class RiftoolsWinratesSource:
         result = MatchupFetchResult(name=self.name)
         started = time.perf_counter()
         try:
-            manifest = self._http.get_json(f"{self._base}{MANIFEST_PATH}")
-            entry = self._newest_family(manifest)
-            if entry is None:
-                raise HttpError("manifest carries no win-rate snapshot family")
-            url = entry.get("url")
-            if not url:
-                raise HttpError("win-rate snapshot family carries no url")
-            payload = self._http.get_json(f"{self._base}{url}")
-            self._shape(payload, entry, result)
+            reader = ReleaseReader(base_url=self._base, client=self._http)
+            release = reader.current()
+            set_name, payload = self._newest_table(reader, release)
+            self._shape(payload, set_name, release, result)
         except Exception as exc:  # sources never raise
             result.ok = False
             result.error = f"{type(exc).__name__}: {exc}"
@@ -128,36 +118,46 @@ class RiftoolsWinratesSource:
 
     # -- internals -------------------------------------------------------------
 
-    def _newest_family(self, manifest: Any) -> dict[str, Any] | None:
-        """The matchup table for the newest set window the manifest offers."""
-        snapshots = (manifest or {}).get("snapshots") or {}
-        best: tuple[int, dict[str, Any]] | None = None
-        for key, entry in snapshots.items():
-            if not isinstance(entry, dict) or not _WINRATE_FAMILY.match(str(key)):
+    def _newest_table(self, reader: ReleaseReader, release) -> tuple[str, Any]:
+        """The matchup table for the newest set that publishes one.
+
+        Newest first and the first hit wins, so a set 5 release is picked up with no
+        code change. Falling through to an older set matters: a release cut on the day a
+        set opens has the family but no matches in it yet, and an empty current table is
+        a worse answer than last set's real one.
+        """
+        tried: list[str] = []
+        for set_name in release.ordered_sets():
+            path = release.manifest_path(set_name, "core")
+            if not path:
                 continue
-            query = entry.get("query") or {}
-            # A top-table-only table answers a different question about a different
-            # population. Taking it as "the" matchup table would silently narrow the
-            # field to the players who made day two.
-            if query.get("top_players_only"):
+            try:
+                artifacts = reader.manifest(path)
+                payload = reader.artifact(
+                    artifacts, WINRATES_ARTIFACT.format(set=set_name)
+                )
+            except HttpError as exc:
+                tried.append(f"{set_name}: {exc}")
                 continue
-            if not entry.get("available", True):
-                continue
-            found = _SET_NUMBER.search(str(query.get("set") or ""))
-            rank = int(found.group(1)) if found else -1
-            if best is None or rank > best[0]:
-                best = (rank, entry)
-        return best[1] if best else None
+            if isinstance(payload, dict) and payload.get("cells"):
+                return set_name, payload
+            tried.append(f"{set_name}: no cells")
+        raise HttpError(
+            "no set in this release publishes a matchup table"
+            + (f" ({'; '.join(tried)})" if tried else "")
+        )
 
     def _shape(
-        self, payload: Any, entry: dict[str, Any], result: MatchupFetchResult
+        self, payload: Any, set_name: str, release, result: MatchupFetchResult
     ) -> None:
         if not isinstance(payload, dict) or not payload.get("available", True):
             raise HttpError("win-rate snapshot is not available")
 
         summary = payload.get("summary") or {}
-        result.set_window = str((entry.get("query") or {}).get("set") or "")
-        result.published_at = str(entry.get("published_at") or "")
+        result.set_window = set_name
+        # The release's own build time. The old store stamped each family; this one
+        # stamps the release, which is the same fact about the same data.
+        result.published_at = str(release.generated_at or "")
         result.source_label = str(payload.get("source") or "")
         result.eligible_matches = _int(summary.get("eligible_matches"))
         result.matrix_matches = _int(summary.get("matrix_matches"))

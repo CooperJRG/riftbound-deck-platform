@@ -238,7 +238,18 @@ def deck_from_payload(
     code map where zones must be recovered from each card's type (dotgg).
     """
     if payload.get("_named_zones"):
-        payload = {**payload, "_zones": _resolve_named_zones(payload, catalog=catalog)}
+        # Merged into any coded zones rather than replacing them. A source may know the
+        # collector code for the cards and only the display name for the legend and the
+        # chosen champion, which is exactly what Riftools' release store gives us --
+        # replacing would silently drop all forty cards and keep the two names.
+        merged: dict[str, dict[str, int]] = {
+            zone: dict(entries) for zone, entries in (payload.get("_zones") or {}).items()
+        }
+        for zone, entries in _resolve_named_zones(payload, catalog=catalog).items():
+            bucket = merged.setdefault(zone, {})
+            for code, qty in entries.items():
+                bucket[code] = bucket.get(code, 0) + int(qty)
+        payload = {**payload, "_zones": merged}
     if payload.get("_zones"):
         return _deck_from_zones(payload, catalog=catalog, main_deck_size=main_deck_size)
 

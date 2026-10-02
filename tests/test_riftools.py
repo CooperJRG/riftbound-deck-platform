@@ -1,9 +1,13 @@
-"""The riftools snapshot source.
+"""The Riftools release-store source.
 
-Nothing here touches the network. A fake client serves the snapshot shapes the live
-service publishes, so the tests pin the *contract* -- which files are read, how a deck
-becomes a payload, what happens when one is half-published -- rather than whatever the
-archive happens to hold today.
+Nothing here touches the network. A fake client serves the shapes the live store
+publishes, so the tests pin the *contract* -- which objects are read, how a deck becomes
+a payload, what happens when one is half-published -- rather than whatever the archive
+happens to hold today.
+
+Rewritten when Riftools retired ``/public-snapshots`` with a 410 and replaced it with a
+content-addressed release store. The old tests passed against a store that no longer
+exists, which is the failure mode worth naming: a green suite and a dead source.
 """
 
 from __future__ import annotations
@@ -18,12 +22,13 @@ from riftbound.data.sources.http import HttpError
 from riftbound.data.sources.riftools import (
     RiftoolsSource,
     event_slug,
+    parse_placement,
     strip_code,
 )
 
 BASE = "https://riftools.test"
-DECK_URL = "wechat://riftbound-china/cardGroup/249742"
-EVENT_URL = "wechat://riftbound-china/activityShop/178961"
+CURRENT = "/release-v3/current.json"
+EVENT_URL = "operator://riftools/piltoverarchive/spring-open-2026-07-25"
 
 
 class FakeClient:
@@ -38,298 +43,319 @@ class FakeClient:
         path = url[len(BASE):]
         if path not in self.routes:
             raise HttpError(f"404 {path}")
-        return self.routes[path]
+        value = self.routes[path]
+        if isinstance(value, Exception):
+            raise value
+        return value
 
 
-def card_row(name: str, code: str, card_type: str, count: int) -> dict[str, object]:
+def obj(name: str) -> str:
+    return f"objects/cd/{name}.json"
+
+
+def card(name: str, code: str, count: int = 1) -> dict[str, object]:
     return {
-        "card_key": name.lower(),
         "card_name": name,
-        "card_type": card_type,
+        "card_type": "Unit",
         "count": count,
-        "public_code": code,
+        "image_public_code": code,
+        "image_url": "",
     }
 
 
-def snapshot(
+def deck_object(
     *,
+    deck_id: str = "347564",
     parse_status: str = "parsed",
-    cards: list[dict[str, object]] | None = None,
-    rank: int = 1,
+    placement: object = "Top 8",
+    main: list | None = None,
+    legend: str = "Irelia, Blade Dancer",
+    champion: str = "Irelia, Fervent",
 ) -> dict[str, object]:
     return {
+        "id": deck_id,
+        "legend": legend,
+        "champion": champion,
+        "main_deck": main if main is not None else [card("Gust", "OGN-042/298", 3)],
+        "runes": [{"card_name": "Calm Rune", "card_type": "Runes",
+                   "count": 6, "image_public_code": "VEN-R02"}],
+        "battlefields": [{"card_name": "Minefield", "card_type": "Battlefield",
+                          "count": 1, "image_public_code": "UNL-208/242"}],
+        "sideboard": [],
         "deck": {
-            "deck_name": "Irelia, Blade Dancer",
-            "deck_url": DECK_URL,
-            "event_date": "2026-08-29",
             "parse_status": parse_status,
-            "placement": str(rank),
-            "player_name": "adtoll",
-            "rank": rank,
-            "record": None,
-            "region": "China",
-            "tournament_name": "S4 Wuhan Regional Open 2026-08-29",
+            "deck_name": "Irelia Fervent",
+            "deck_url": f"{EVENT_URL}/deck/player-{deck_id}",
+            "player_name": "A Player",
+            "event_date": "2026-07-25",
+            "placement": placement,
+            "rank": None,
+            "player_count": 32,
+            "region": "Online",
+            "tournament_name": "Spring Open",
             "tournament_url": EVENT_URL,
         },
-        "cards": cards
-        if cards is not None
-        else [
-            card_row("Irelia - Blade Dancer", "SFD-195", "Legend", 1),
-            card_row("Irelia - Fervent", "SFD-057/221", "Champion", 1),
-            card_row("Scuttle Crab", "UNL-053/219", "Unit", 3),
-            card_row("Calm Rune", "OGN-042/298", "Runes", 12),
-            card_row("Targon's Peak", "OGN-289/298", "Battlefield", 3),
-            card_row("Abandon", "UNL-131/219", "Sideboard", 2),
-        ],
     }
 
 
-def routes(**overrides: object) -> dict[str, object]:
-    base: dict[str, object] = {
-        "/public-snapshots/manifest.current.json": {
-            "deck_details": {"count": 1, "index_url": "/public-snapshots/deck-details/index.json"},
-            "snapshots": {
-                "tournaments-set4": {
-                    "chunked": {
-                        "chunks": [{"url": "/public-snapshots/t/0001.json"}],
-                    }
-                }
+def routes_for(decks: dict[str, object], *, sets=("set4",), omit_index=False):
+    """A whole fake release: pointer, core + details manifests, and deck objects."""
+    out: dict[str, object] = {
+        CURRENT: {
+            "release_id": "r1",
+            "generated_at": "2026-10-02T14:51:08Z",
+            "sets": list(sets),
+            "default_set": sets[-1],
+            "client_manifests": {
+                **{f"{s}__core": {"path": obj(f"{s}_core")} for s in sets},
+                **{f"{s}__details": {"path": obj(f"{s}_details")} for s in sets},
             },
-        },
-        "/public-snapshots/deck-details/index.json": {
-            "details": {DECK_URL: "/public-snapshots/deck-details/abc.json"}
-        },
-        "/public-snapshots/t/0001.json": {
-            "tournaments": {
-                "items": [
-                    {
-                        "tournament_url": EVENT_URL,
-                        "name": "S4 Wuhan Regional Open 2026-08-29",
-                        "event_date": "2026-08-29",
-                        "players": 1280,
-                        "region": "China",
-                    }
-                ]
-            }
-        },
-        "/public-snapshots/deck-details/abc.json": snapshot(),
+        }
     }
-    base.update(overrides)
-    return base
+    for s in sets:
+        out[f"/release-v3/{obj(f'{s}_core')}"] = {
+            "artifacts": {f"{s}__decks": {"object_path": obj(f"{s}_decks")}}
+        }
+        out[f"/release-v3/{obj(f'{s}_decks')}"] = (
+            {} if omit_index else {"deck_detail_ids": list(decks)}
+        )
+        out[f"/release-v3/{obj(f'{s}_details')}"] = {
+            "artifacts": {
+                f"{s}__deck_detail__{i}": {"object_path": obj(f"deck_{i}")}
+                for i in decks
+            }
+        }
+    for i, payload in decks.items():
+        out[f"/release-v3/{obj(f'deck_{i}')}"] = payload
+    return out
 
 
-def harvest(**overrides: object) -> tuple[RiftoolsSource, object]:
-    client = FakeClient(routes(**overrides))
-    source = RiftoolsSource(base_url=BASE, client=client)  # type: ignore[arg-type]
-    return source, source.fetch()
+def harvest(routes, **kw):
+    client = FakeClient(routes)
+    return RiftoolsSource(base_url=BASE, client=client, **kw).fetch(), client
 
 
-# -- the shape it produces ----------------------------------------------------
+# -- shaping -------------------------------------------------------------------
 
 
-def test_a_snapshot_becomes_a_deck_payload():
-    _, result = harvest()
+def test_a_deck_object_becomes_a_deck_payload():
+    result, _ = harvest(routes_for({"1": deck_object(deck_id="1")}))
     assert result.ok, result.error
     assert len(result.decks) == 1
-    zones = result.decks[0]["_zones"]
-    # Suffixes stripped, and the champion in a zone of its own so the normaliser can
-    # take the source's word rather than inferring the nomination.
-    assert zones["legend"] == {"SFD-195": 1}
-    assert zones["champion"] == {"SFD-057": 1}
-    assert zones["main"] == {"UNL-053": 3}
-    assert zones["runes"] == {"OGN-042": 12}
-    assert zones["battlefields"] == {"OGN-289": 3}
-    assert zones["sideboard"] == {"UNL-131": 2}
+    payload = result.decks[0]
+    assert payload["_source"] == "riftools"
+    # Cards by collector code, legend and champion by name -- the store gives the
+    # identity as display names only.
+    assert payload["_zones"]["main"] == {"OGN-042": 3}
+    assert payload["_zones"]["runes"] == {"VEN-R02": 6}
+    assert payload["_zones"]["battlefields"] == {"UNL-208": 1}
+    assert payload["_named_zones"]["legend"] == {"Irelia, Blade Dancer": 1}
+    assert payload["_named_zones"]["champion"] == {"Irelia, Fervent": 1}
 
 
 def test_it_normalises_into_a_deck():
-    """The payload has to survive the normaliser the other sources go through."""
+    """The coded zones and the named identity must survive together.
+
+    They are merged rather than one replacing the other -- the bug that would otherwise
+    keep the two names and silently drop all forty cards.
+    """
+    catalog_cards = [
+        make_card("gust", "Gust", number="042", set_code="OGN"),
+        make_card("calm-rune", "Calm Rune", card_type="Rune", number="R02", set_code="VEN"),
+        make_card("minefield", "Minefield", card_type="Battlefield",
+                  number="208", set_code="UNL"),
+        make_card("irelia-blade-dancer", "Irelia - Blade Dancer", card_type="Legend"),
+        make_card("irelia-fervent", "Irelia - Fervent", super_type="Champion"),
+    ]
     from riftbound.domain.cards import build_catalog
 
-    legend = make_card(
-        "vi-piltover-enforcer", "Vi - Piltover Enforcer",
-        card_type="Legend", champion_tags=("Vi",), number="0101",
-    )
-    champion = make_card(
-        "vi-relentless", "Vi - Relentless",
-        super_type="Champion", champion_tags=("Vi",), number="0102",
-    )
-    filler = make_card("filler-one", "Filler One", number="0103")
-    catalog = build_catalog([legend, champion, filler])
+    catalog = build_catalog(catalog_cards)
+    result, _ = harvest(routes_for({"1": deck_object(deck_id="1")}))
+    deck, unresolved = deck_from_payload(result.decks[0], catalog=catalog)
 
-    def code(card_id: str) -> str:
-        return catalog.get(card_id).printings[0].code
+    assert not unresolved
+    assert deck.legend_id == "irelia-blade-dancer"
+    assert deck.champion_id == "irelia-fervent"
+    assert deck.main.get("gust") == 3
+    assert deck.runes.get("calm-rune") == 6
+    assert "minefield" in deck.battlefields
+    # The nominated champion is one of the main deck's cards, folded in by the
+    # normaliser exactly as for every other source.
+    assert deck.champion_id in deck.main
 
-    cards = [
-        card_row("Vi - Piltover Enforcer", code("vi-piltover-enforcer"), "Legend", 1),
-        card_row("Vi - Relentless", code("vi-relentless"), "Champion", 1),
-        card_row("Filler One", code("filler-one"), "Unit", 3),
-    ]
-    _, result = harvest(
-        **{"/public-snapshots/deck-details/abc.json": snapshot(cards=cards)}
-    )
-    deck, unresolved = deck_from_payload(
-        result.decks[0], catalog=catalog, main_deck_size=40
-    )
-    assert unresolved == ()
-    assert deck.legend_id == "vi-piltover-enforcer"
-    # The source states the nomination; the normaliser takes its word rather than
-    # inferring one from champion tags.
-    assert deck.champion_id == "vi-relentless"
-    # The champion's copy folds into the main deck, as it does for every source.
-    assert deck.main_total == 4
+
+# -- placements ----------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [("1st", 1), ("2nd", 2), ("Top 4", 4), ("Top 32", 32), (3, 3), ("", 0),
+     (None, 0), ("Winner", 0)],
+)
+def test_parse_placement(raw, expected):
+    assert parse_placement(raw) == expected
 
 
 def test_standing_carries_the_placement():
-    _, result = harvest()
+    result, _ = harvest(routes_for({"1": deck_object(deck_id="1", placement="Top 8")}))
     assert len(result.standings) == 1
-    standing = result.standings[0]
-    assert standing["place"] == 1
-    assert standing["player_name"] == "adtoll"
-    assert standing["deck_slug"] == result.decks[0]["_slug"]
+    assert result.standings[0]["place"] == 8
+
+
+def test_an_unreadable_placement_publishes_no_standing():
+    """Zero means unknown, and a standing claiming an unplaced finish is worse than none."""
+    result, _ = harvest(routes_for({"1": deck_object(deck_id="1", placement="DQ")}))
+    assert result.decks and result.standings == []
 
 
 def test_event_row_gets_its_field_size():
-    _, result = harvest()
+    result, _ = harvest(routes_for({"1": deck_object(deck_id="1")}))
     assert len(result.tournaments) == 1
     event = result.tournaments[0]
-    assert event["players"] == 1280
+    assert event["players"] == 32
+    assert event["name"] == "Spring Open"
+    assert event["date"] == "2026-07-25"
     assert event["decks_published"] == 1
-    assert event["name"] == "S4 Wuhan Regional Open 2026-08-29"
-    assert event["slug"] == result.standings[0]["tournament_slug"]
 
 
-# -- what it refuses ----------------------------------------------------------
+# -- partial data ---------------------------------------------------------------
 
 
 def test_unparsed_decks_are_counted_not_emitted():
-    """A half-published list is a gap upstream, not a deck with missing cards."""
-    _, result = harvest(
-        **{"/public-snapshots/deck-details/abc.json": snapshot(parse_status="queued")}
-    )
-    assert result.decks == []
+    routes = routes_for({"1": deck_object(deck_id="1", parse_status="pending")})
+    result, _ = harvest(routes)
+    assert result.ok and result.decks == []
     assert result.unparsed == 1
-    assert result.ok
 
 
 def test_a_deck_with_no_cards_is_skipped():
-    _, result = harvest(**{"/public-snapshots/deck-details/abc.json": snapshot(cards=[])})
+    empty = deck_object(deck_id="1", main=[])
+    empty["runes"] = []
+    empty["battlefields"] = []
+    routes = routes_for({"1": empty})
+    result, _ = harvest(routes)
+    # A legend and a champion name alone are not a decklist. The emptiness check runs
+    # before the identity is attached, precisely so a deck whose cards failed to publish
+    # is dropped rather than emitted as a two-card list.
     assert result.decks == []
     assert result.unparsed == 1
 
 
 def test_a_failed_deck_fetch_does_not_fail_the_harvest():
-    """One missing file costs one deck, not the run."""
-    bad = routes()
-    del bad["/public-snapshots/deck-details/abc.json"]
-    client = FakeClient(bad)
-    result = RiftoolsSource(base_url=BASE, client=client).fetch()  # type: ignore[arg-type]
+    routes = routes_for({"1": deck_object(deck_id="1"), "2": deck_object(deck_id="2")})
+    del routes[f"/release-v3/{obj('deck_2')}"]
+    result, _ = harvest(routes)
     assert result.ok
+    assert len(result.decks) == 1
+
+
+def test_a_missing_release_pointer_fails_the_source_without_raising():
+    result, _ = harvest({})
+    assert not result.ok and result.error
     assert result.decks == []
 
 
-def test_a_missing_manifest_fails_the_source_without_raising():
-    client = FakeClient({})
-    result = RiftoolsSource(base_url=BASE, client=client).fetch()  # type: ignore[arg-type]
-    assert not result.ok
-    assert "404" in result.error
-
-
-def test_a_manifest_without_a_deck_index_is_an_error():
-    client = FakeClient(routes(**{"/public-snapshots/manifest.current.json": {"snapshots": {}}}))
-    result = RiftoolsSource(base_url=BASE, client=client).fetch()  # type: ignore[arg-type]
-    assert not result.ok
-    assert "index_url" in result.error
-
-
-# -- the cap and the cache ----------------------------------------------------
+def test_a_release_without_a_deck_index_is_an_error():
+    result, _ = harvest(routes_for({"1": deck_object()}, omit_index=True))
+    assert not result.ok and "deck index" in result.error
 
 
 def test_max_decks_caps_the_harvest():
-    index = {f"deck://{n}": f"/public-snapshots/deck-details/{n}.json" for n in range(5)}
-    extra: dict[str, object] = {
-        "/public-snapshots/deck-details/index.json": {"details": index}
-    }
-    for n in range(5):
-        extra[f"/public-snapshots/deck-details/{n}.json"] = snapshot()
-    client = FakeClient(routes(**extra))
-    result = RiftoolsSource(base_url=BASE, max_decks=2, client=client).fetch()  # type: ignore[arg-type]
-    assert result.requested == 5
+    decks = {str(i): deck_object(deck_id=str(i)) for i in range(5)}
+    result, client = harvest(routes_for(decks), max_decks=2)
+    assert result.ok
     assert len(result.decks) == 2
-    assert any("capped at 2 of 5" in note for note in result.notes)
+    assert result.requested == 5
+    fetched = [c for c in client.calls if "deck_" in c]
+    assert len(fetched) == 2, "capped harvests must not fetch what they discard"
 
 
-def test_a_cached_deck_is_not_refetched(tmp_path):
-    """A parsed snapshot describes a finished event, so the cache is authoritative."""
-    client = FakeClient(routes())
-    source = RiftoolsSource(base_url=BASE, cache_dir=tmp_path, client=client)  # type: ignore[arg-type]
-    first = source.fetch()
+# -- every set, not just the newest ---------------------------------------------
+
+
+def test_every_set_in_the_release_is_indexed():
+    """An archive that dropped set 3 the day set 4 opened would lose two thirds of itself."""
+    decks = {"1": deck_object(deck_id="1")}
+    result, _ = harvest(routes_for(decks, sets=("set3", "set4")))
+    assert result.ok
+    assert any("set3" in n for n in result.notes)
+    assert any("set4" in n for n in result.notes)
+
+
+# -- caching --------------------------------------------------------------------
+
+
+def test_a_deck_is_served_from_cache_on_the_second_run(tmp_path):
+    routes = routes_for({"1": deck_object(deck_id="1")})
+    first, client_a = harvest(routes, cache_dir=tmp_path)
     assert first.from_cache == 0
-    assert len(first.decks) == 1
 
-    again = FakeClient(routes())
-    warm = RiftoolsSource(base_url=BASE, cache_dir=tmp_path, client=again)  # type: ignore[arg-type]
-    second = warm.fetch()
+    second, client_b = harvest(routes, cache_dir=tmp_path)
     assert second.from_cache == 1
-    assert len(second.decks) == 1
-    assert not any("deck-details/abc.json" in call for call in again.calls)
+    assert not [c for c in client_b.calls if "deck_" in c], "a cache hit still fetched"
+    assert second.decks and second.decks[0]["_zones"] == first.decks[0]["_zones"]
+
+
+def test_the_cache_is_keyed_on_the_object_hash_so_it_cannot_go_stale(tmp_path):
+    """A changed deck is a different object, so it is refetched rather than served stale."""
+    routes = routes_for({"1": deck_object(deck_id="1")})
+    harvest(routes, cache_dir=tmp_path)
+
+    # Re-publish the deck under a new object name, as a content-addressed store does.
+    changed = deck_object(deck_id="1", main=[card("Gust", "OGN-042/298", 1)])
+    routes[f"/release-v3/{obj('set4_details')}"] = {
+        "artifacts": {"set4__deck_detail__1": {"object_path": obj("deck_1_v2")}}
+    }
+    routes[f"/release-v3/{obj('deck_1_v2')}"] = changed
+
+    result, _ = harvest(routes, cache_dir=tmp_path)
+    assert result.from_cache == 0
+    assert result.decks[0]["_zones"]["main"] == {"OGN-042": 1}
 
 
 def test_a_corrupt_cache_entry_is_refetched(tmp_path):
-    client = FakeClient(routes())
-    source = RiftoolsSource(base_url=BASE, cache_dir=tmp_path, client=client)  # type: ignore[arg-type]
-    source.fetch()
-    for path in (tmp_path / "riftools" / "decks").glob("*.json"):
-        path.write_text("{not json", encoding="utf-8")
-    again = FakeClient(routes())
-    result = RiftoolsSource(base_url=BASE, cache_dir=tmp_path, client=again).fetch()  # type: ignore[arg-type]
-    assert len(result.decks) == 1
-    assert result.from_cache == 0
+    routes = routes_for({"1": deck_object(deck_id="1")})
+    harvest(routes, cache_dir=tmp_path)
+    for path in (tmp_path / "riftools" / "objects").glob("*.json"):
+        path.write_text("{ not json", encoding="utf-8")
+    result, _ = harvest(routes, cache_dir=tmp_path)
+    assert result.ok and len(result.decks) == 1
 
 
-# -- the small pieces ---------------------------------------------------------
+def test_the_manifests_are_read_once_not_per_deck():
+    decks = {str(i): deck_object(deck_id=str(i)) for i in range(6)}
+    _, client = harvest(routes_for(decks))
+    details = [c for c in client.calls if "set4_details" in c]
+    assert len(details) == 1, f"details manifest fetched {len(details)} times"
+
+
+# -- helpers ---------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
-    ("raw", "expected"),
-    [
-        ("OGN-042/298", "OGN-042"),
-        ("SFD-057/221", "SFD-057"),
-        ("UNL-145a/219", "UNL-145a"),
-        ("SFD-195", "SFD-195"),
-        ("", ""),
-        (None, ""),
-    ],
+    "raw,expected",
+    [("OGN-042/298", "OGN-042"), ("OGN-042", "OGN-042"), ("", ""), (None, "")],
 )
 def test_strip_code(raw, expected):
     assert strip_code(raw) == expected
 
 
 def test_two_events_sharing_a_name_do_not_share_a_slug():
-    """"S4 Guangzhou City Challenge" happens more than once."""
-    a = event_slug("wechat://riftbound-china/activityShop/1", "S4 Guangzhou City Challenge")
-    b = event_slug("wechat://riftbound-china/activityShop/2", "S4 Guangzhou City Challenge")
+    a = event_slug("operator://riftools/x/spring-open-2026-07-25", "Spring Open")
+    b = event_slug("operator://riftools/x/spring-open-2026-08-01", "Spring Open")
     assert a != b
 
 
 def test_an_all_chinese_event_name_still_gets_a_slug():
-    """Slugifying the name alone would leave nothing at all."""
-    slug = event_slug("wechat://riftbound-china/activityShop/178961", "武汉大区赛")
-    assert slug
-    assert "178961" in slug
+    slug = event_slug("wechat://riftbound-china/activityShop/178961", "武汉公开赛")
+    assert slug and slug.strip("-")
 
 
 def test_cards_without_a_code_fall_back_to_their_name():
-    cards = [card_row("Scuttle Crab", "", "Unit", 3)]
-    _, result = harvest(
-        **{"/public-snapshots/deck-details/abc.json": snapshot(cards=cards)}
+    nameless = deck_object(
+        deck_id="1",
+        main=[{"card_name": "Mystery Card", "card_type": "Unit", "count": 2,
+               "image_public_code": ""}],
     )
-    assert result.decks[0]["_named_zones"] == {"main": {"Scuttle Crab": 3}}
-
-
-def test_the_index_is_read_once_not_per_deck():
-    source, result = harvest()
-    client = source._http  # type: ignore[attr-defined]
-    index_calls = [c for c in client.calls if c.endswith("deck-details/index.json")]
-    assert len(index_calls) == 1
-    assert json.dumps(result.decks[0])  # payload stays JSON-serialisable for the cache
+    result, _ = harvest(routes_for({"1": nameless}))
+    assert result.decks[0]["_named_zones"]["main"] == {"Mystery Card": 2}
